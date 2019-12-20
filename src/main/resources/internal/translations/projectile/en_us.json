@@ -1,0 +1,3562 @@
+[
+  {
+    "i": 0,
+    "k": "monk_staff_t3_alt_shot",
+    "n": "Sky Dragon\u0027s Fury"
+  },
+  {
+    "i": 1,
+    "k": "wooden_arrow_friendly",
+    "n": "Wooden Arrow"
+  },
+  {
+    "i": 2,
+    "k": "fire_arrow",
+    "n": "Fire Arrow"
+  },
+  {
+    "i": 3,
+    "k": "shuriken",
+    "n": "Shuriken"
+  },
+  {
+    "i": 4,
+    "k": "unholy_arrow",
+    "n": "Unholy Arrow"
+  },
+  {
+    "i": 5,
+    "k": "jesters_arrow",
+    "n": "Jester\u0027s Arrow"
+  },
+  {
+    "i": 6,
+    "k": "enchanted_boomerang",
+    "n": "Enchanted Boomerang"
+  },
+  {
+    "i": 7,
+    "k": "vilethorn_base",
+    "n": "Vilethorn"
+  },
+  {
+    "i": 8,
+    "k": "vilethorn_tip",
+    "n": "Vilethorn"
+  },
+  {
+    "i": 9,
+    "k": "starfury",
+    "n": "Starfury"
+  },
+  {
+    "i": 10,
+    "k": "purification_powder",
+    "n": "Purification Powder"
+  },
+  {
+    "i": 11,
+    "k": "vile_powder",
+    "n": "Vile Powder"
+  },
+  {
+    "i": 12,
+    "k": "falling_star",
+    "n": "Falling Star"
+  },
+  {
+    "i": 13,
+    "k": "hook",
+    "n": "Hook"
+  },
+  {
+    "i": 14,
+    "k": "bullet",
+    "n": "Bullet"
+  },
+  {
+    "i": 15,
+    "k": "ballof_fire",
+    "n": "Ball of Fire"
+  },
+  {
+    "i": 16,
+    "k": "magic_missile",
+    "n": "Magic Missile"
+  },
+  {
+    "i": 17,
+    "k": "dirt_ball",
+    "n": "Dirt Ball"
+  },
+  {
+    "i": 18,
+    "k": "shadow_orb",
+    "n": "Shadow Orb"
+  },
+  {
+    "i": 19,
+    "k": "flamarang",
+    "n": "Flamarang"
+  },
+  {
+    "i": 20,
+    "k": "green_laser",
+    "n": "Green Laser"
+  },
+  {
+    "i": 21,
+    "k": "bone",
+    "n": "Bone"
+  },
+  {
+    "i": 22,
+    "k": "water_stream",
+    "n": "Water Stream"
+  },
+  {
+    "i": 23,
+    "k": "harpoon",
+    "n": "Harpoon"
+  },
+  {
+    "i": 24,
+    "k": "spiky_ball",
+    "n": "Spiky Ball"
+  },
+  {
+    "i": 25,
+    "k": "ball_o_hurt",
+    "n": "Ball \u0027O Hurt"
+  },
+  {
+    "i": 26,
+    "k": "blue_moon",
+    "n": "Blue Moon"
+  },
+  {
+    "i": 27,
+    "k": "water_bolt",
+    "n": "Water Bolt"
+  },
+  {
+    "i": 28,
+    "k": "bomb",
+    "n": "Bomb"
+  },
+  {
+    "i": 29,
+    "k": "dynamite",
+    "n": "Dynamite"
+  },
+  {
+    "i": 30,
+    "k": "grenade",
+    "n": "Grenade"
+  },
+  {
+    "i": 31,
+    "k": "sand_ball_falling",
+    "n": "Sand Ball"
+  },
+  {
+    "i": 32,
+    "k": "ivy_whip",
+    "n": "Ivy Whip"
+  },
+  {
+    "i": 33,
+    "k": "thorn_chakram",
+    "n": "Thorn Chakram"
+  },
+  {
+    "i": 34,
+    "k": "flamelash",
+    "n": "Flamelash"
+  },
+  {
+    "i": 35,
+    "k": "sunfury",
+    "n": "Sunfury"
+  },
+  {
+    "i": 36,
+    "k": "meteor_shot",
+    "n": "Meteor Shot"
+  },
+  {
+    "i": 37,
+    "k": "sticky_bomb",
+    "n": "Sticky Bomb"
+  },
+  {
+    "i": 38,
+    "k": "harpy_feather",
+    "n": "Harpy Feather"
+  },
+  {
+    "i": 39,
+    "k": "mud_ball",
+    "n": "Mud Ball"
+  },
+  {
+    "i": 40,
+    "k": "ash_ball_falling",
+    "n": "Ash Ball"
+  },
+  {
+    "i": 41,
+    "k": "hellfire_arrow",
+    "n": "Hellfire Arrow"
+  },
+  {
+    "i": 42,
+    "k": "sand_ball_gun",
+    "n": "Sand Ball"
+  },
+  {
+    "i": 43,
+    "k": "tombstone",
+    "n": "Tombstone"
+  },
+  {
+    "i": 44,
+    "k": "demon_sickle",
+    "n": "Demon Sickle"
+  },
+  {
+    "i": 45,
+    "k": "demon_scythe",
+    "n": "Demon Scythe"
+  },
+  {
+    "i": 46,
+    "k": "dark_lance",
+    "n": "Dark Lance"
+  },
+  {
+    "i": 47,
+    "k": "trident",
+    "n": "Trident"
+  },
+  {
+    "i": 48,
+    "k": "throwing_knife",
+    "n": "Throwing Knife"
+  },
+  {
+    "i": 49,
+    "k": "spear",
+    "n": "Spear"
+  },
+  {
+    "i": 50,
+    "k": "glowstick",
+    "n": "Glowstick"
+  },
+  {
+    "i": 51,
+    "k": "seed",
+    "n": "Seed"
+  },
+  {
+    "i": 52,
+    "k": "wooden_boomerang",
+    "n": "Wooden Boomerang"
+  },
+  {
+    "i": 53,
+    "k": "sticky_glowstick",
+    "n": "Sticky Glowstick"
+  },
+  {
+    "i": 54,
+    "k": "poisoned_knife",
+    "n": "Poisoned Knife"
+  },
+  {
+    "i": 55,
+    "k": "stinger",
+    "n": "Stinger"
+  },
+  {
+    "i": 56,
+    "k": "ebonsand_ball_falling",
+    "n": "Ebonsand Ball"
+  },
+  {
+    "i": 57,
+    "k": "cobalt_chainsaw",
+    "n": "Cobalt Chainsaw"
+  },
+  {
+    "i": 58,
+    "k": "mythril_chainsaw",
+    "n": "Mythril Chainsaw"
+  },
+  {
+    "i": 59,
+    "k": "cobalt_drill",
+    "n": "Cobalt Drill"
+  },
+  {
+    "i": 60,
+    "k": "mythril_drill",
+    "n": "Mythril Drill"
+  },
+  {
+    "i": 61,
+    "k": "adamantite_chainsaw",
+    "n": "Adamantite Chainsaw"
+  },
+  {
+    "i": 62,
+    "k": "adamantite_drill",
+    "n": "Adamantite Drill"
+  },
+  {
+    "i": 63,
+    "k": "the_daoof_pow",
+    "n": "The Dao of Pow"
+  },
+  {
+    "i": 64,
+    "k": "mythril_halberd",
+    "n": "Mythril Halberd"
+  },
+  {
+    "i": 65,
+    "k": "ebonsand_ball_gun",
+    "n": "Ebonsand Ball"
+  },
+  {
+    "i": 66,
+    "k": "adamantite_glaive",
+    "n": "Adamantite Glaive"
+  },
+  {
+    "i": 67,
+    "k": "pearl_sand_ball_falling",
+    "n": "Pearl Sand Ball"
+  },
+  {
+    "i": 68,
+    "k": "pearl_sand_ball_gun",
+    "n": "Pearl Sand Ball"
+  },
+  {
+    "i": 69,
+    "k": "holy_water",
+    "n": "Holy Water"
+  },
+  {
+    "i": 70,
+    "k": "unholy_water",
+    "n": "Unholy Water"
+  },
+  {
+    "i": 71,
+    "k": "silt_ball",
+    "n": "Silt Ball"
+  },
+  {
+    "i": 72,
+    "k": "blue_fairy",
+    "n": "Blue Fairy"
+  },
+  {
+    "i": 73,
+    "k": "dual_hook_blue",
+    "n": "Hook"
+  },
+  {
+    "i": 74,
+    "k": "dual_hook_red",
+    "n": "Hook"
+  },
+  {
+    "i": 75,
+    "k": "happy_bomb",
+    "n": "Happy Bomb"
+  },
+  {
+    "i": 76,
+    "k": "quarter_note",
+    "n": "Note"
+  },
+  {
+    "i": 77,
+    "k": "eighth_note",
+    "n": "Note"
+  },
+  {
+    "i": 78,
+    "k": "tied_eighth_note",
+    "n": "Note"
+  },
+  {
+    "i": 79,
+    "k": "rainbow_rod_bullet",
+    "n": "Rainbow"
+  },
+  {
+    "i": 80,
+    "k": "ice_block",
+    "n": "Ice Block"
+  },
+  {
+    "i": 81,
+    "k": "wooden_arrow_hostile",
+    "n": "Wooden Arrow"
+  },
+  {
+    "i": 82,
+    "k": "flaming_arrow",
+    "n": "Flaming Arrow"
+  },
+  {
+    "i": 83,
+    "k": "eye_laser",
+    "n": "Eye Laser"
+  },
+  {
+    "i": 84,
+    "k": "pink_laser",
+    "n": "Pink Laser"
+  },
+  {
+    "i": 85,
+    "k": "flames",
+    "n": "Flames"
+  },
+  {
+    "i": 86,
+    "k": "pink_fairy",
+    "n": "Pink Fairy"
+  },
+  {
+    "i": 87,
+    "k": "green_fairy",
+    "n": "Pink Fairy"
+  },
+  {
+    "i": 88,
+    "k": "purple_laser",
+    "n": "Purple Laser"
+  },
+  {
+    "i": 89,
+    "k": "crystal_bullet",
+    "n": "Crystal Bullet"
+  },
+  {
+    "i": 90,
+    "k": "crystal_shard",
+    "n": "Crystal Shard"
+  },
+  {
+    "i": 91,
+    "k": "holy_arrow",
+    "n": "Holy Arrow"
+  },
+  {
+    "i": 92,
+    "k": "hallow_star",
+    "n": "Hallow Star"
+  },
+  {
+    "i": 93,
+    "k": "magic_dagger",
+    "n": "Magic Dagger"
+  },
+  {
+    "i": 94,
+    "k": "crystal_storm",
+    "n": "Crystal Storm"
+  },
+  {
+    "i": 95,
+    "k": "cursed_flame_friendly",
+    "n": "Cursed Flame"
+  },
+  {
+    "i": 96,
+    "k": "cursed_flame_hostile",
+    "n": "Cursed Flame"
+  },
+  {
+    "i": 97,
+    "k": "cobalt_naginata",
+    "n": "Cobalt Naginata"
+  },
+  {
+    "i": 98,
+    "k": "poison_dart",
+    "n": "Poison Dart"
+  },
+  {
+    "i": 99,
+    "k": "boulder",
+    "n": "Boulder"
+  },
+  {
+    "i": 100,
+    "k": "death_laser",
+    "n": "Death Laser"
+  },
+  {
+    "i": 101,
+    "k": "eye_fire",
+    "n": "Eye Fire"
+  },
+  {
+    "i": 102,
+    "k": "bomb_skeletron_prime",
+    "n": "Bomb"
+  },
+  {
+    "i": 103,
+    "k": "cursed_arrow",
+    "n": "Cursed Arrow"
+  },
+  {
+    "i": 104,
+    "k": "cursed_bullet",
+    "n": "Cursed Bullet"
+  },
+  {
+    "i": 105,
+    "k": "gungnir",
+    "n": "Gungnir"
+  },
+  {
+    "i": 106,
+    "k": "light_disc",
+    "n": "Light Disc"
+  },
+  {
+    "i": 107,
+    "k": "hamdrax",
+    "n": "Hamdrax"
+  },
+  {
+    "i": 108,
+    "k": "explosives",
+    "n": "Explosives"
+  },
+  {
+    "i": 109,
+    "k": "snow_ball_hostile",
+    "n": "Snow Ball"
+  },
+  {
+    "i": 110,
+    "k": "bullet_snowman",
+    "n": "Bullet"
+  },
+  {
+    "i": 111,
+    "k": "bunny",
+    "n": "Bunny"
+  },
+  {
+    "i": 112,
+    "k": "penguin",
+    "n": "Penguin"
+  },
+  {
+    "i": 113,
+    "k": "ice_boomerang",
+    "n": "Ice Boomerang"
+  },
+  {
+    "i": 114,
+    "k": "unholy_trident_friendly",
+    "n": "Unholy Trident"
+  },
+  {
+    "i": 115,
+    "k": "unholy_trident_hostile",
+    "n": "Unholy Trident"
+  },
+  {
+    "i": 116,
+    "k": "sword_beam",
+    "n": "Sword Beam"
+  },
+  {
+    "i": 117,
+    "k": "bone_arrow",
+    "n": "Bone Arrow"
+  },
+  {
+    "i": 118,
+    "k": "ice_bolt",
+    "n": "Ice Bolt"
+  },
+  {
+    "i": 119,
+    "k": "frost_bolt_sword",
+    "n": "Frost Bolt"
+  },
+  {
+    "i": 120,
+    "k": "frost_arrow",
+    "n": "Frost Arrow"
+  },
+  {
+    "i": 121,
+    "k": "amethyst_bolt",
+    "n": "Amethyst Bolt"
+  },
+  {
+    "i": 122,
+    "k": "topaz_bolt",
+    "n": "Topaz Bolt"
+  },
+  {
+    "i": 123,
+    "k": "sapphire_bolt",
+    "n": "Sapphire Bolt"
+  },
+  {
+    "i": 124,
+    "k": "emerald_bolt",
+    "n": "Emerald Bolt"
+  },
+  {
+    "i": 125,
+    "k": "ruby_bolt",
+    "n": "Ruby Bolt"
+  },
+  {
+    "i": 126,
+    "k": "diamond_bolt",
+    "n": "Diamond Bolt"
+  },
+  {
+    "i": 127,
+    "k": "turtle",
+    "n": "Turtle"
+  },
+  {
+    "i": 128,
+    "k": "frost_blast_hostile",
+    "n": "Frost Blast"
+  },
+  {
+    "i": 129,
+    "k": "rune_blast",
+    "n": "Rune Blast"
+  },
+  {
+    "i": 130,
+    "k": "mushroom_spear",
+    "n": "Mushroom Spear"
+  },
+  {
+    "i": 131,
+    "k": "mushroom",
+    "n": "Mushroom"
+  },
+  {
+    "i": 132,
+    "k": "terra_beam",
+    "n": "Terra Beam"
+  },
+  {
+    "i": 133,
+    "k": "grenade_i",
+    "n": "Grenade"
+  },
+  {
+    "i": 134,
+    "k": "rocket_i",
+    "n": "Rocket"
+  },
+  {
+    "i": 135,
+    "k": "proximity_mine_i",
+    "n": "Proximity Mine"
+  },
+  {
+    "i": 136,
+    "k": "grenade_i_i",
+    "n": "Grenade"
+  },
+  {
+    "i": 137,
+    "k": "rocket_i_i",
+    "n": "Rocket"
+  },
+  {
+    "i": 138,
+    "k": "proximity_mine_i_i",
+    "n": "Proximity Mine"
+  },
+  {
+    "i": 139,
+    "k": "grenade_i_i_i",
+    "n": "Grenade"
+  },
+  {
+    "i": 140,
+    "k": "rocket_i_i_i",
+    "n": "Rocket"
+  },
+  {
+    "i": 141,
+    "k": "proximity_mine_i_i_i",
+    "n": "Proximity Mine"
+  },
+  {
+    "i": 142,
+    "k": "grenade_i_v",
+    "n": "Grenade"
+  },
+  {
+    "i": 143,
+    "k": "rocket_i_v",
+    "n": "Rocket"
+  },
+  {
+    "i": 144,
+    "k": "proximity_mine_i_v",
+    "n": "Proximity Mine"
+  },
+  {
+    "i": 145,
+    "k": "pure_spray",
+    "n": "Pure Spray"
+  },
+  {
+    "i": 146,
+    "k": "hallow_spray",
+    "n": "Hallow Spray"
+  },
+  {
+    "i": 147,
+    "k": "corrupt_spray",
+    "n": "Corrupt Spray"
+  },
+  {
+    "i": 148,
+    "k": "mushroom_spray",
+    "n": "Mushroom Spray"
+  },
+  {
+    "i": 149,
+    "k": "crimson_spray",
+    "n": "Crimson Spray"
+  },
+  {
+    "i": 150,
+    "k": "nettle_burst_right",
+    "n": "Nettle Burst"
+  },
+  {
+    "i": 151,
+    "k": "nettle_burst_left",
+    "n": "Nettle Burst"
+  },
+  {
+    "i": 152,
+    "k": "nettle_burst_end",
+    "n": "Nettle Burst"
+  },
+  {
+    "i": 153,
+    "k": "the_rotted_fork",
+    "n": "The Rotted Fork"
+  },
+  {
+    "i": 154,
+    "k": "the_meatball",
+    "n": "The Meatball"
+  },
+  {
+    "i": 155,
+    "k": "beach_ball",
+    "n": "Beach Ball"
+  },
+  {
+    "i": 156,
+    "k": "light_beam",
+    "n": "Light Beam"
+  },
+  {
+    "i": 157,
+    "k": "night_beam",
+    "n": "Night Beam"
+  },
+  {
+    "i": 158,
+    "k": "copper_coin",
+    "n": "Copper Coin"
+  },
+  {
+    "i": 159,
+    "k": "silver_coin",
+    "n": "Silver Coin"
+  },
+  {
+    "i": 160,
+    "k": "gold_coin",
+    "n": "Gold Coin"
+  },
+  {
+    "i": 161,
+    "k": "platinum_coin",
+    "n": "Platinum Coin"
+  },
+  {
+    "i": 162,
+    "k": "cannonball_friendly",
+    "n": "Cannonball"
+  },
+  {
+    "i": 163,
+    "k": "flare",
+    "n": "Flare"
+  },
+  {
+    "i": 164,
+    "k": "landmine",
+    "n": "Landmine"
+  },
+  {
+    "i": 165,
+    "k": "web",
+    "n": "Web"
+  },
+  {
+    "i": 166,
+    "k": "snow_ball_friendly",
+    "n": "Snow Ball"
+  },
+  {
+    "i": 167,
+    "k": "rocket_firework_red",
+    "n": "Rocket"
+  },
+  {
+    "i": 168,
+    "k": "rocket_firework_green",
+    "n": "Rocket"
+  },
+  {
+    "i": 169,
+    "k": "rocket_firework_blue",
+    "n": "Rocket"
+  },
+  {
+    "i": 170,
+    "k": "rocket_firework_yellow",
+    "n": "Rocket"
+  },
+  {
+    "i": 171,
+    "k": "rope_coil",
+    "n": "Rope Coil"
+  },
+  {
+    "i": 172,
+    "k": "frostburn_arrow",
+    "n": "Frostburn Arrow"
+  },
+  {
+    "i": 173,
+    "k": "enchanted_beam",
+    "n": "Enchanted Beam"
+  },
+  {
+    "i": 174,
+    "k": "ice_spike",
+    "n": "Ice Spike"
+  },
+  {
+    "i": 175,
+    "k": "baby_eater",
+    "n": "Baby Eater"
+  },
+  {
+    "i": 176,
+    "k": "jungle_spike",
+    "n": "Jungle Spike"
+  },
+  {
+    "i": 177,
+    "k": "icewater_spit",
+    "n": "Icewater Spit"
+  },
+  {
+    "i": 178,
+    "k": "confetti_gun",
+    "n": "Confetti"
+  },
+  {
+    "i": 179,
+    "k": "slush_ball",
+    "n": "Slush Ball"
+  },
+  {
+    "i": 180,
+    "k": "bullet_deadeye",
+    "n": "Bullet"
+  },
+  {
+    "i": 181,
+    "k": "bee",
+    "n": "Bee"
+  },
+  {
+    "i": 182,
+    "k": "possessed_hatchet",
+    "n": "Possessed Hatchet"
+  },
+  {
+    "i": 183,
+    "k": "beenade",
+    "n": "Beenade"
+  },
+  {
+    "i": 184,
+    "k": "poison_dart_trap",
+    "n": "Poison Dart"
+  },
+  {
+    "i": 185,
+    "k": "spiky_ball_trap",
+    "n": "Spiky Ball"
+  },
+  {
+    "i": 186,
+    "k": "spear_trap",
+    "n": "Spear"
+  },
+  {
+    "i": 187,
+    "k": "flamethrower_trap",
+    "n": "Flamethrower"
+  },
+  {
+    "i": 188,
+    "k": "flames_trap",
+    "n": "Flames"
+  },
+  {
+    "i": 189,
+    "k": "wasp",
+    "n": "Wasp"
+  },
+  {
+    "i": 190,
+    "k": "mechanical_piranha",
+    "n": "Mechanical Piranha"
+  },
+  {
+    "i": 191,
+    "k": "pygmy",
+    "n": "Pygmy"
+  },
+  {
+    "i": 192,
+    "k": "pygmy2",
+    "n": "Pygmy"
+  },
+  {
+    "i": 193,
+    "k": "pygmy3",
+    "n": "Pygmy"
+  },
+  {
+    "i": 194,
+    "k": "pygmy4",
+    "n": "Pygmy"
+  },
+  {
+    "i": 195,
+    "k": "pygmy_spear",
+    "n": "Pygmy"
+  },
+  {
+    "i": 196,
+    "k": "smoke_bomb",
+    "n": "Smoke Bomb"
+  },
+  {
+    "i": 197,
+    "k": "baby_skeletron_head",
+    "n": "Baby Skeletron Head"
+  },
+  {
+    "i": 198,
+    "k": "baby_hornet",
+    "n": "Baby Hornet"
+  },
+  {
+    "i": 199,
+    "k": "tiki_spirit",
+    "n": "Tiki Spirit"
+  },
+  {
+    "i": 200,
+    "k": "pet_lizard",
+    "n": "Pet Lizard"
+  },
+  {
+    "i": 201,
+    "k": "grave_marker",
+    "n": "Tombstone"
+  },
+  {
+    "i": 202,
+    "k": "cross_grave_marker",
+    "n": "Tombstone"
+  },
+  {
+    "i": 203,
+    "k": "headstone",
+    "n": "Tombstone"
+  },
+  {
+    "i": 204,
+    "k": "gravestone",
+    "n": "Tombstone"
+  },
+  {
+    "i": 205,
+    "k": "obelisk",
+    "n": "Tombstone"
+  },
+  {
+    "i": 206,
+    "k": "leaf",
+    "n": "Leaf"
+  },
+  {
+    "i": 207,
+    "k": "chlorophyte_bullet",
+    "n": "Bullet"
+  },
+  {
+    "i": 208,
+    "k": "parrot",
+    "n": "Parrot"
+  },
+  {
+    "i": 209,
+    "k": "truffle",
+    "n": "Truffle"
+  },
+  {
+    "i": 210,
+    "k": "sapling",
+    "n": "Sapling"
+  },
+  {
+    "i": 211,
+    "k": "wisp",
+    "n": "Wisp"
+  },
+  {
+    "i": 212,
+    "k": "palladium_pike",
+    "n": "Palladium Pike"
+  },
+  {
+    "i": 213,
+    "k": "palladium_drill",
+    "n": "Palladium Drill"
+  },
+  {
+    "i": 214,
+    "k": "palladium_chainsaw",
+    "n": "Palladium Chainsaw"
+  },
+  {
+    "i": 215,
+    "k": "orichalcum_halberd",
+    "n": "Orichalcum Halberd"
+  },
+  {
+    "i": 216,
+    "k": "orichalcum_drill",
+    "n": "Orichalcum Drill"
+  },
+  {
+    "i": 217,
+    "k": "orichalcum_chainsaw",
+    "n": "Orichalcum Chainsaw"
+  },
+  {
+    "i": 218,
+    "k": "titanium_trident",
+    "n": "Titanium Trident"
+  },
+  {
+    "i": 219,
+    "k": "titanium_drill",
+    "n": "Titanium Drill"
+  },
+  {
+    "i": 220,
+    "k": "titanium_chainsaw",
+    "n": "Titanium Chainsaw"
+  },
+  {
+    "i": 221,
+    "k": "flower_petal",
+    "n": "Flower Petal"
+  },
+  {
+    "i": 222,
+    "k": "chlorophyte_partisan",
+    "n": "Chlorophyte Partisan"
+  },
+  {
+    "i": 223,
+    "k": "chlorophyte_drill",
+    "n": "Chlorophyte Drill"
+  },
+  {
+    "i": 224,
+    "k": "chlorophyte_chainsaw",
+    "n": "Chlorophyte Chainsaw"
+  },
+  {
+    "i": 225,
+    "k": "chlorophyte_arrow",
+    "n": "Chlorophyte Arrow"
+  },
+  {
+    "i": 226,
+    "k": "crystal_leaf",
+    "n": "Crystal Leaf"
+  },
+  {
+    "i": 227,
+    "k": "crystal_leaf_shot",
+    "n": "Crystal Leaf"
+  },
+  {
+    "i": 228,
+    "k": "spore_cloud",
+    "n": "Spore Cloud"
+  },
+  {
+    "i": 229,
+    "k": "chlorophyte_orb",
+    "n": "Chlorophyte Orb"
+  },
+  {
+    "i": 230,
+    "k": "gem_hook_amethyst",
+    "n": "Gem Hook"
+  },
+  {
+    "i": 231,
+    "k": "gem_hook_topaz",
+    "n": "Gem Hook"
+  },
+  {
+    "i": 232,
+    "k": "gem_hook_sapphire",
+    "n": "Gem Hook"
+  },
+  {
+    "i": 233,
+    "k": "gem_hook_emerald",
+    "n": "Gem Hook"
+  },
+  {
+    "i": 234,
+    "k": "gem_hook_ruby",
+    "n": "Gem Hook"
+  },
+  {
+    "i": 235,
+    "k": "gem_hook_diamond",
+    "n": "Gem Hook"
+  },
+  {
+    "i": 236,
+    "k": "baby_dino",
+    "n": "Baby Dino"
+  },
+  {
+    "i": 237,
+    "k": "rain_cloud_moving",
+    "n": "Rain Cloud"
+  },
+  {
+    "i": 238,
+    "k": "rain_cloud_raining",
+    "n": "Rain Cloud"
+  },
+  {
+    "i": 239,
+    "k": "rain_friendly",
+    "n": "Rain"
+  },
+  {
+    "i": 240,
+    "k": "cannonball_hostile",
+    "n": "Cannonball"
+  },
+  {
+    "i": 241,
+    "k": "crimsand_ball_falling",
+    "n": "Crimsand Ball"
+  },
+  {
+    "i": 242,
+    "k": "bullet_high_velocity",
+    "n": "Bullet"
+  },
+  {
+    "i": 243,
+    "k": "blood_cloud_moving",
+    "n": "Blood Cloud"
+  },
+  {
+    "i": 244,
+    "k": "blood_cloud_raining",
+    "n": "Blood Cloud"
+  },
+  {
+    "i": 245,
+    "k": "blood_rain",
+    "n": "Blood Rain"
+  },
+  {
+    "i": 246,
+    "k": "stynger",
+    "n": "Stynger"
+  },
+  {
+    "i": 247,
+    "k": "flower_pow",
+    "n": "Flower Pow"
+  },
+  {
+    "i": 248,
+    "k": "flower_pow_petal",
+    "n": "Flower Pow"
+  },
+  {
+    "i": 249,
+    "k": "stynger_shrapnel",
+    "n": "Stynger"
+  },
+  {
+    "i": 250,
+    "k": "rainbow_front",
+    "n": "Rainbow"
+  },
+  {
+    "i": 251,
+    "k": "rainbow_back",
+    "n": "Rainbow"
+  },
+  {
+    "i": 252,
+    "k": "chlorophyte_jackhammer",
+    "n": "Chlorophyte Jackhammer"
+  },
+  {
+    "i": 253,
+    "k": "ballof_frost",
+    "n": "Ball of Frost"
+  },
+  {
+    "i": 254,
+    "k": "magnet_sphere_ball",
+    "n": "Magnet Sphere"
+  },
+  {
+    "i": 255,
+    "k": "magnet_sphere_bolt",
+    "n": "Magnet Sphere"
+  },
+  {
+    "i": 256,
+    "k": "skeletron_hand",
+    "n": "Skeletron Hand"
+  },
+  {
+    "i": 257,
+    "k": "frost_beam",
+    "n": "Frost Beam"
+  },
+  {
+    "i": 258,
+    "k": "fireball",
+    "n": "Fireball"
+  },
+  {
+    "i": 259,
+    "k": "eye_beam",
+    "n": "Eye Beam"
+  },
+  {
+    "i": 260,
+    "k": "heat_ray",
+    "n": "Heat Ray"
+  },
+  {
+    "i": 261,
+    "k": "boulder_staff_of_earth",
+    "n": "Boulder"
+  },
+  {
+    "i": 262,
+    "k": "golem_fist",
+    "n": "Golem Fist"
+  },
+  {
+    "i": 263,
+    "k": "ice_sickle",
+    "n": "Ice Sickle"
+  },
+  {
+    "i": 264,
+    "k": "rain_nimbus",
+    "n": "Rain"
+  },
+  {
+    "i": 265,
+    "k": "poison_fang",
+    "n": "Poison Fang"
+  },
+  {
+    "i": 266,
+    "k": "baby_slime",
+    "n": "Baby Slime"
+  },
+  {
+    "i": 267,
+    "k": "poison_dart_blowgun",
+    "n": "Poison Dart"
+  },
+  {
+    "i": 268,
+    "k": "eye_spring",
+    "n": "Eye Spring"
+  },
+  {
+    "i": 269,
+    "k": "baby_snowman",
+    "n": "Baby Snowman"
+  },
+  {
+    "i": 270,
+    "k": "skull",
+    "n": "Skull"
+  },
+  {
+    "i": 271,
+    "k": "boxing_glove",
+    "n": "Boxing Glove"
+  },
+  {
+    "i": 272,
+    "k": "bananarang",
+    "n": "Bananarang"
+  },
+  {
+    "i": 273,
+    "k": "chain_knife",
+    "n": "Chain Knife"
+  },
+  {
+    "i": 274,
+    "k": "death_sickle",
+    "n": "Death Sickle"
+  },
+  {
+    "i": 275,
+    "k": "seed_plantera",
+    "n": "Seed"
+  },
+  {
+    "i": 276,
+    "k": "poison_seed_plantera",
+    "n": "Poison Seed"
+  },
+  {
+    "i": 277,
+    "k": "thorn_ball",
+    "n": "Thorn Ball"
+  },
+  {
+    "i": 278,
+    "k": "ichor_arrow",
+    "n": "Ichor Arrow"
+  },
+  {
+    "i": 279,
+    "k": "ichor_bullet",
+    "n": "Ichor Bullet"
+  },
+  {
+    "i": 280,
+    "k": "golden_shower_friendly",
+    "n": "Golden Shower"
+  },
+  {
+    "i": 281,
+    "k": "explosive_bunny",
+    "n": "Explosive Bunny"
+  },
+  {
+    "i": 282,
+    "k": "venom_arrow",
+    "n": "Venom Arrow"
+  },
+  {
+    "i": 283,
+    "k": "venom_bullet",
+    "n": "Venom Bullet"
+  },
+  {
+    "i": 284,
+    "k": "party_bullet",
+    "n": "Party Bullet"
+  },
+  {
+    "i": 285,
+    "k": "nano_bullet",
+    "n": "Nano Bullet"
+  },
+  {
+    "i": 286,
+    "k": "explosive_bullet",
+    "n": "Explosive Bullet"
+  },
+  {
+    "i": 287,
+    "k": "golden_bullet",
+    "n": "Golden Bullet"
+  },
+  {
+    "i": 288,
+    "k": "golden_shower_hostile",
+    "n": "Golden Shower"
+  },
+  {
+    "i": 289,
+    "k": "confetti_melee",
+    "n": "Confetti"
+  },
+  {
+    "i": 290,
+    "k": "shadow_beam_hostile",
+    "n": "Shadow Beam"
+  },
+  {
+    "i": 291,
+    "k": "inferno_hostile_bolt",
+    "n": "Inferno"
+  },
+  {
+    "i": 292,
+    "k": "inferno_hostile_blast",
+    "n": "Inferno"
+  },
+  {
+    "i": 293,
+    "k": "lost_soul_hostile",
+    "n": "Lost Soul"
+  },
+  {
+    "i": 294,
+    "k": "shadow_beam_friendly",
+    "n": "Shadow Beam"
+  },
+  {
+    "i": 295,
+    "k": "inferno_friendly_bolt",
+    "n": "Inferno"
+  },
+  {
+    "i": 296,
+    "k": "inferno_friendly_blast",
+    "n": "Inferno"
+  },
+  {
+    "i": 297,
+    "k": "lost_soul_friendly",
+    "n": "Lost Soul"
+  },
+  {
+    "i": 298,
+    "k": "spirit_heal",
+    "n": "Spirit Heal"
+  },
+  {
+    "i": 299,
+    "k": "shadowflames",
+    "n": "Shadowflames"
+  },
+  {
+    "i": 300,
+    "k": "paladins_hammer_hostile",
+    "n": "Paladin\u0027s Hammer"
+  },
+  {
+    "i": 301,
+    "k": "paladins_hammer_friendly",
+    "n": "Paladin\u0027s Hammer"
+  },
+  {
+    "i": 302,
+    "k": "sniper_bullet",
+    "n": "Sniper Bullet"
+  },
+  {
+    "i": 303,
+    "k": "rocket_skeleton",
+    "n": "Rocket"
+  },
+  {
+    "i": 304,
+    "k": "vampire_knife",
+    "n": "Vampire Knife"
+  },
+  {
+    "i": 305,
+    "k": "vampire_heal",
+    "n": "Vampire Heal"
+  },
+  {
+    "i": 306,
+    "k": "eaters_bite",
+    "n": "Eater\u0027s Bite"
+  },
+  {
+    "i": 307,
+    "k": "tiny_eater",
+    "n": "Tiny Eater"
+  },
+  {
+    "i": 308,
+    "k": "frost_hydra",
+    "n": "Frost Hydra"
+  },
+  {
+    "i": 309,
+    "k": "frost_blast_friendly",
+    "n": "Frost Blast"
+  },
+  {
+    "i": 310,
+    "k": "blue_flare",
+    "n": "Blue Flare"
+  },
+  {
+    "i": 311,
+    "k": "candy_corn",
+    "n": "Candy Corn"
+  },
+  {
+    "i": 312,
+    "k": "jack_o_lantern",
+    "n": "Jack \u0027O Lantern"
+  },
+  {
+    "i": 313,
+    "k": "spider",
+    "n": "Spider"
+  },
+  {
+    "i": 314,
+    "k": "squashling",
+    "n": "Squashling"
+  },
+  {
+    "i": 315,
+    "k": "bat_hook",
+    "n": "Bat Hook"
+  },
+  {
+    "i": 316,
+    "k": "bat",
+    "n": "Bat"
+  },
+  {
+    "i": 317,
+    "k": "raven",
+    "n": "Raven"
+  },
+  {
+    "i": 318,
+    "k": "rotten_egg",
+    "n": "Rotten Egg"
+  },
+  {
+    "i": 319,
+    "k": "black_cat",
+    "n": "Black Cat"
+  },
+  {
+    "i": 320,
+    "k": "bloody_machete",
+    "n": "Bloody Machete"
+  },
+  {
+    "i": 321,
+    "k": "flaming_jack",
+    "n": "Flaming Jack"
+  },
+  {
+    "i": 322,
+    "k": "wood_hook",
+    "n": "Wood Hook"
+  },
+  {
+    "i": 323,
+    "k": "stake",
+    "n": "Stake"
+  },
+  {
+    "i": 324,
+    "k": "cursed_sapling",
+    "n": "Cursed Sapling"
+  },
+  {
+    "i": 325,
+    "k": "flaming_wood",
+    "n": "Flaming Wood"
+  },
+  {
+    "i": 326,
+    "k": "greek_fire1",
+    "n": "Greek Fire"
+  },
+  {
+    "i": 327,
+    "k": "greek_fire2",
+    "n": "Greek Fire"
+  },
+  {
+    "i": 328,
+    "k": "greek_fire3",
+    "n": "Greek Fire"
+  },
+  {
+    "i": 329,
+    "k": "flaming_scythe",
+    "n": "Flaming Scythe"
+  },
+  {
+    "i": 330,
+    "k": "star_anise",
+    "n": "Star Anise"
+  },
+  {
+    "i": 331,
+    "k": "candy_cane_hook",
+    "n": "Candy Cane Hook"
+  },
+  {
+    "i": 332,
+    "k": "christmas_hook",
+    "n": "Christmas Hook"
+  },
+  {
+    "i": 333,
+    "k": "fruitcake_chakram",
+    "n": "Fruitcake Chakram"
+  },
+  {
+    "i": 334,
+    "k": "puppy",
+    "n": "Puppy"
+  },
+  {
+    "i": 335,
+    "k": "ornament_friendly",
+    "n": "Ornament"
+  },
+  {
+    "i": 336,
+    "k": "pine_needle_friendly",
+    "n": "Pine Needle"
+  },
+  {
+    "i": 337,
+    "k": "blizzard",
+    "n": "Blizzard"
+  },
+  {
+    "i": 338,
+    "k": "rocket_snowman_i",
+    "n": "Rocket"
+  },
+  {
+    "i": 339,
+    "k": "rocket_snowman_i_i",
+    "n": "Rocket"
+  },
+  {
+    "i": 340,
+    "k": "rocket_snowman_i_i_i",
+    "n": "Rocket"
+  },
+  {
+    "i": 341,
+    "k": "rocket_snowman_i_v",
+    "n": "Rocket"
+  },
+  {
+    "i": 342,
+    "k": "north_pole_weapon",
+    "n": "North Pole"
+  },
+  {
+    "i": 343,
+    "k": "north_pole_spear",
+    "n": "North Pole"
+  },
+  {
+    "i": 344,
+    "k": "north_pole_snowflake",
+    "n": "North Pole"
+  },
+  {
+    "i": 345,
+    "k": "pine_needle_hostile",
+    "n": "Pine Needle"
+  },
+  {
+    "i": 346,
+    "k": "ornament_hostile",
+    "n": "Ornament"
+  },
+  {
+    "i": 347,
+    "k": "ornament_hostile_shrapnel",
+    "n": "Ornament"
+  },
+  {
+    "i": 348,
+    "k": "frost_wave",
+    "n": "Frost Wave"
+  },
+  {
+    "i": 349,
+    "k": "frost_shard",
+    "n": "Frost Shard"
+  },
+  {
+    "i": 350,
+    "k": "missile",
+    "n": "Missile"
+  },
+  {
+    "i": 351,
+    "k": "present",
+    "n": "Present"
+  },
+  {
+    "i": 352,
+    "k": "spike",
+    "n": "Spike"
+  },
+  {
+    "i": 353,
+    "k": "baby_grinch",
+    "n": "Baby Grinch"
+  },
+  {
+    "i": 354,
+    "k": "crimsand_ball_gun",
+    "n": "Crimsand Ball"
+  },
+  {
+    "i": 355,
+    "k": "venom_fang",
+    "n": "Venom Fang"
+  },
+  {
+    "i": 356,
+    "k": "spectre_wrath",
+    "n": "Spectre Wrath"
+  },
+  {
+    "i": 357,
+    "k": "pulse_bolt",
+    "n": "Pulse Bolt"
+  },
+  {
+    "i": 358,
+    "k": "water_gun",
+    "n": "Water Gun"
+  },
+  {
+    "i": 359,
+    "k": "frost_bolt_staff",
+    "n": "Frost Bolt"
+  },
+  {
+    "i": 360,
+    "k": "bobber_wooden",
+    "n": "Bobber"
+  },
+  {
+    "i": 361,
+    "k": "bobber_reinforced",
+    "n": "Bobber"
+  },
+  {
+    "i": 362,
+    "k": "bobber_fiberglass",
+    "n": "Bobber"
+  },
+  {
+    "i": 363,
+    "k": "bobber_fisher_of_souls",
+    "n": "Bobber"
+  },
+  {
+    "i": 364,
+    "k": "bobber_golden",
+    "n": "Bobber"
+  },
+  {
+    "i": 365,
+    "k": "bobber_mechanics",
+    "n": "Bobber"
+  },
+  {
+    "i": 366,
+    "k": "bobbersitting_duck",
+    "n": "Bobber"
+  },
+  {
+    "i": 367,
+    "k": "obsidian_swordfish",
+    "n": "Obsidian Swordfish"
+  },
+  {
+    "i": 368,
+    "k": "swordfish",
+    "n": "Swordfish"
+  },
+  {
+    "i": 369,
+    "k": "sawtooth_shark",
+    "n": "Sawtooth Shark"
+  },
+  {
+    "i": 370,
+    "k": "love_potion",
+    "n": "Love Potion"
+  },
+  {
+    "i": 371,
+    "k": "foul_potion",
+    "n": "Foul Potion"
+  },
+  {
+    "i": 372,
+    "k": "fish_hook",
+    "n": "Fish Hook"
+  },
+  {
+    "i": 373,
+    "k": "hornet",
+    "n": "Hornet"
+  },
+  {
+    "i": 374,
+    "k": "hornet_stinger",
+    "n": "Hornet Stinger"
+  },
+  {
+    "i": 375,
+    "k": "flying_imp",
+    "n": "Flying Imp"
+  },
+  {
+    "i": 376,
+    "k": "imp_fireball",
+    "n": "Imp Fireball"
+  },
+  {
+    "i": 377,
+    "k": "spider_hiver",
+    "n": "Spider Turret"
+  },
+  {
+    "i": 378,
+    "k": "spider_egg",
+    "n": "Spider Egg"
+  },
+  {
+    "i": 379,
+    "k": "baby_spider",
+    "n": "Baby Spider"
+  },
+  {
+    "i": 380,
+    "k": "zephyr_fish",
+    "n": "Zephyr Fish"
+  },
+  {
+    "i": 381,
+    "k": "bobber_fleshcatcher",
+    "n": "Bobber"
+  },
+  {
+    "i": 382,
+    "k": "bobber_hotline",
+    "n": "Bobber"
+  },
+  {
+    "i": 383,
+    "k": "anchor",
+    "n": "Anchor"
+  },
+  {
+    "i": 384,
+    "k": "sharknado",
+    "n": "Sharknado"
+  },
+  {
+    "i": 385,
+    "k": "sharknado_bolt",
+    "n": "Sharknado Bolt"
+  },
+  {
+    "i": 386,
+    "k": "cthulunado",
+    "n": "Cthulunado"
+  },
+  {
+    "i": 387,
+    "k": "retanimini",
+    "n": "Retanimini"
+  },
+  {
+    "i": 388,
+    "k": "spazmamini",
+    "n": "Spazmamini"
+  },
+  {
+    "i": 389,
+    "k": "mini_retina_laser",
+    "n": "Mini Retina Laser"
+  },
+  {
+    "i": 390,
+    "k": "venom_spider",
+    "n": "Venom Spider"
+  },
+  {
+    "i": 391,
+    "k": "jumper_spider",
+    "n": "Jumper Spider"
+  },
+  {
+    "i": 392,
+    "k": "dangerous_spider",
+    "n": "Dangerous Spider"
+  },
+  {
+    "i": 393,
+    "k": "one_eyed_pirate",
+    "n": "One Eyed Pirate"
+  },
+  {
+    "i": 394,
+    "k": "soulscourge_pirate",
+    "n": "Soulscourge Pirate"
+  },
+  {
+    "i": 395,
+    "k": "pirate_captain",
+    "n": "Pirate Captain"
+  },
+  {
+    "i": 396,
+    "k": "slime_hook",
+    "n": "Slime Hook"
+  },
+  {
+    "i": 397,
+    "k": "sticky_grenade",
+    "n": "Sticky Grenade"
+  },
+  {
+    "i": 398,
+    "k": "mini_minotaur",
+    "n": "Mini Minotaur"
+  },
+  {
+    "i": 399,
+    "k": "molotov_cocktail",
+    "n": "Molotov Cocktail"
+  },
+  {
+    "i": 400,
+    "k": "molotov_fire",
+    "n": "Molotov Fire"
+  },
+  {
+    "i": 401,
+    "k": "molotov_fire2",
+    "n": "Molotov Fire"
+  },
+  {
+    "i": 402,
+    "k": "molotov_fire3",
+    "n": "Molotov Fire"
+  },
+  {
+    "i": 403,
+    "k": "track_hook",
+    "n": "Track Hook"
+  },
+  {
+    "i": 404,
+    "k": "flairon",
+    "n": "Flairon"
+  },
+  {
+    "i": 405,
+    "k": "flairon_bubble",
+    "n": "Flairon Bubble"
+  },
+  {
+    "i": 406,
+    "k": "slime_gun",
+    "n": "Slime Gun"
+  },
+  {
+    "i": 407,
+    "k": "tempest",
+    "n": "Tempest"
+  },
+  {
+    "i": 408,
+    "k": "mini_sharkron",
+    "n": "Mini Sharkron"
+  },
+  {
+    "i": 409,
+    "k": "typhoon",
+    "n": "Typhoon"
+  },
+  {
+    "i": 410,
+    "k": "bubble",
+    "n": "Bubble"
+  },
+  {
+    "i": 411,
+    "k": "copper_coins_falling",
+    "n": "Copper Coins"
+  },
+  {
+    "i": 412,
+    "k": "silver_coins_falling",
+    "n": "Silver Coins"
+  },
+  {
+    "i": 413,
+    "k": "gold_coins_falling",
+    "n": "Gold Coins"
+  },
+  {
+    "i": 414,
+    "k": "platinum_coins_falling",
+    "n": "Platinum Coins"
+  },
+  {
+    "i": 415,
+    "k": "rocket_fireworks_box_red",
+    "n": "Rocket"
+  },
+  {
+    "i": 416,
+    "k": "rocket_fireworks_box_green",
+    "n": "Rocket"
+  },
+  {
+    "i": 417,
+    "k": "rocket_fireworks_box_blue",
+    "n": "Rocket"
+  },
+  {
+    "i": 418,
+    "k": "rocket_fireworks_box_yellow",
+    "n": "Rocket"
+  },
+  {
+    "i": 419,
+    "k": "firework_fountain_yellow",
+    "n": "Firework Fountain"
+  },
+  {
+    "i": 420,
+    "k": "firework_fountain_red",
+    "n": "Firework Fountain"
+  },
+  {
+    "i": 421,
+    "k": "firework_fountain_blue",
+    "n": "Firework Fountain"
+  },
+  {
+    "i": 422,
+    "k": "firework_fountain_rainbow",
+    "n": "Firework Fountain"
+  },
+  {
+    "i": 423,
+    "k": "u_f_o_minion",
+    "n": "UFO"
+  },
+  {
+    "i": 424,
+    "k": "meteor1",
+    "n": "Meteor"
+  },
+  {
+    "i": 425,
+    "k": "meteor2",
+    "n": "Meteor"
+  },
+  {
+    "i": 426,
+    "k": "meteor3",
+    "n": "Meteor"
+  },
+  {
+    "i": 427,
+    "k": "vortex_chainsaw",
+    "n": "Vortex Chainsaw"
+  },
+  {
+    "i": 428,
+    "k": "vortex_drill",
+    "n": "Vortex Drill"
+  },
+  {
+    "i": 429,
+    "k": "nebula_chainsaw",
+    "n": "Nebula Chainsaw"
+  },
+  {
+    "i": 430,
+    "k": "nebula_drill",
+    "n": "Nebula Drill"
+  },
+  {
+    "i": 431,
+    "k": "solar_flare_chainsaw",
+    "n": "Solar Flare Chainsaw"
+  },
+  {
+    "i": 432,
+    "k": "solar_flare_drill",
+    "n": "Solar Flare Drill"
+  },
+  {
+    "i": 433,
+    "k": "u_f_o_laser",
+    "n": "UFO Ray"
+  },
+  {
+    "i": 434,
+    "k": "scutlix_laser_friendly",
+    "n": "Scutlix Laser"
+  },
+  {
+    "i": 435,
+    "k": "martian_turret_bolt",
+    "n": "Electric Bolt"
+  },
+  {
+    "i": 436,
+    "k": "brain_scrambler_bolt",
+    "n": "Brain Scrambling Bolt"
+  },
+  {
+    "i": 437,
+    "k": "giga_zapper_spear",
+    "n": "Gigazapper Spearhead"
+  },
+  {
+    "i": 438,
+    "k": "ray_gunner_laser",
+    "n": "Laser Ray"
+  },
+  {
+    "i": 439,
+    "k": "laser_machinegun",
+    "n": "Laser Machinegun"
+  },
+  {
+    "i": 440,
+    "k": "laser_machinegun_laser",
+    "n": "Laser"
+  },
+  {
+    "i": 441,
+    "k": "scutlix_laser_crosshair",
+    "n": "Scutlix Crosshair"
+  },
+  {
+    "i": 442,
+    "k": "electrosphere_missile",
+    "n": "Electrosphere Missile"
+  },
+  {
+    "i": 443,
+    "k": "electrosphere",
+    "n": "Electrosphere"
+  },
+  {
+    "i": 444,
+    "k": "xenopopper",
+    "n": "Xenopopper"
+  },
+  {
+    "i": 445,
+    "k": "laser_drill",
+    "n": "Laser Drill"
+  },
+  {
+    "i": 446,
+    "k": "anti_gravity_hook",
+    "n": "Anti-Gravity Hook"
+  },
+  {
+    "i": 447,
+    "k": "saucer_deathray",
+    "n": "Martian Deathray"
+  },
+  {
+    "i": 448,
+    "k": "saucer_missile",
+    "n": "Martian Rocket"
+  },
+  {
+    "i": 449,
+    "k": "saucer_laser",
+    "n": "Saucer Laser"
+  },
+  {
+    "i": 450,
+    "k": "saucer_scrap",
+    "n": "Saucer Scrap"
+  },
+  {
+    "i": 451,
+    "k": "influx_waver",
+    "n": "Influx Waver"
+  },
+  {
+    "i": 452,
+    "k": "phantasmal_eye",
+    "n": "Phantasmal Eye"
+  },
+  {
+    "i": 453,
+    "k": "drill_mount_crosshair",
+    "n": "Drill Crosshair"
+  },
+  {
+    "i": 454,
+    "k": "phantasmal_sphere",
+    "n": "Phantasmal Sphere"
+  },
+  {
+    "i": 455,
+    "k": "phantasmal_deathray",
+    "n": "Phantasmal Deathray"
+  },
+  {
+    "i": 456,
+    "k": "moon_leech",
+    "n": "Moon Leech"
+  },
+  {
+    "i": 457,
+    "k": "phasic_warp_ejector",
+    "n": ""
+  },
+  {
+    "i": 458,
+    "k": "phasic_warp_disc",
+    "n": ""
+  },
+  {
+    "i": 459,
+    "k": "charged_blaster_orb",
+    "n": "Charged Blaster Orb"
+  },
+  {
+    "i": 460,
+    "k": "charged_blaster_cannon",
+    "n": "Charged Blaster Cannon"
+  },
+  {
+    "i": 461,
+    "k": "charged_blaster_laser",
+    "n": "Charged Blaster Laser"
+  },
+  {
+    "i": 462,
+    "k": "phantasmal_bolt",
+    "n": "Phantasmal Bolt"
+  },
+  {
+    "i": 463,
+    "k": "vicious_powder",
+    "n": "Vicious Powder"
+  },
+  {
+    "i": 464,
+    "k": "cultist_boss_ice_mist",
+    "n": "Ice Mist"
+  },
+  {
+    "i": 465,
+    "k": "cultist_boss_lightning_orb",
+    "n": "Lightning Orb"
+  },
+  {
+    "i": 466,
+    "k": "cultist_boss_lightning_orb_arc",
+    "n": "Lightning Orb Arc"
+  },
+  {
+    "i": 467,
+    "k": "cultist_boss_fire_ball",
+    "n": "Fireball"
+  },
+  {
+    "i": 468,
+    "k": "cultist_boss_fire_ball_clone",
+    "n": "Shadow Fireball"
+  },
+  {
+    "i": 469,
+    "k": "bee_arrow",
+    "n": "Bee Arrow"
+  },
+  {
+    "i": 470,
+    "k": "sticky_dynamite",
+    "n": "Sticky Dynamite"
+  },
+  {
+    "i": 471,
+    "k": "skeleton_bone",
+    "n": "Bone"
+  },
+  {
+    "i": 472,
+    "k": "web_spit",
+    "n": "Web spit"
+  },
+  {
+    "i": 473,
+    "k": "spelunker_glowstick",
+    "n": "Spelunker Glowstick"
+  },
+  {
+    "i": 474,
+    "k": "bone_arrow_from_merchant",
+    "n": "Bone Arrow"
+  },
+  {
+    "i": 475,
+    "k": "vine_rope_coil",
+    "n": "Vine Rope Coil"
+  },
+  {
+    "i": 476,
+    "k": "soul_drain",
+    "n": "Soul Drain"
+  },
+  {
+    "i": 477,
+    "k": "crystal_dart",
+    "n": "Crystal Dart"
+  },
+  {
+    "i": 478,
+    "k": "cursed_dart",
+    "n": "Cursed Dart"
+  },
+  {
+    "i": 479,
+    "k": "ichor_dart",
+    "n": "Ichor Dart"
+  },
+  {
+    "i": 480,
+    "k": "cursed_dart_flame",
+    "n": "Cursed Flame"
+  },
+  {
+    "i": 481,
+    "k": "chain_guillotine",
+    "n": "Chain Guillotine"
+  },
+  {
+    "i": 482,
+    "k": "clinger_staff",
+    "n": "Cursed Flames"
+  },
+  {
+    "i": 483,
+    "k": "seedler_nut",
+    "n": "Seedler"
+  },
+  {
+    "i": 484,
+    "k": "seedler_thorn",
+    "n": "Seedler"
+  },
+  {
+    "i": 485,
+    "k": "hellwing",
+    "n": "Hellwing"
+  },
+  {
+    "i": 486,
+    "k": "tendon_hook",
+    "n": "Hook"
+  },
+  {
+    "i": 487,
+    "k": "thorn_hook",
+    "n": "Hook"
+  },
+  {
+    "i": 488,
+    "k": "illuminant_hook",
+    "n": "Hook"
+  },
+  {
+    "i": 489,
+    "k": "worm_hook",
+    "n": "Hook"
+  },
+  {
+    "i": 490,
+    "k": "cultist_ritual",
+    "n": "Lightning Ritual"
+  },
+  {
+    "i": 491,
+    "k": "flying_knife",
+    "n": "Flying Knife"
+  },
+  {
+    "i": 492,
+    "k": "magic_lantern",
+    "n": "Magic Lantern"
+  },
+  {
+    "i": 493,
+    "k": "crystal_vile_shard_head",
+    "n": "Crystal Vile Shard"
+  },
+  {
+    "i": 494,
+    "k": "crystal_vile_shard_shaft",
+    "n": "Crystal Vile Shard"
+  },
+  {
+    "i": 495,
+    "k": "shadow_flame_arrow",
+    "n": "Shadowflame Arrow"
+  },
+  {
+    "i": 496,
+    "k": "shadow_flame",
+    "n": "Shadowflame"
+  },
+  {
+    "i": 497,
+    "k": "shadow_flame_knife",
+    "n": "Shadowflame Knife"
+  },
+  {
+    "i": 498,
+    "k": "nail",
+    "n": "Nail"
+  },
+  {
+    "i": 499,
+    "k": "baby_face_monster",
+    "n": "Baby Face Monster"
+  },
+  {
+    "i": 500,
+    "k": "crimson_heart",
+    "n": "Crimson Heart"
+  },
+  {
+    "i": 501,
+    "k": "dr_man_fly_flask",
+    "n": "Flask"
+  },
+  {
+    "i": 502,
+    "k": "meowmere",
+    "n": "Meowmere"
+  },
+  {
+    "i": 503,
+    "k": "star_wrath",
+    "n": "Star Wrath"
+  },
+  {
+    "i": 504,
+    "k": "spark",
+    "n": "Spark"
+  },
+  {
+    "i": 505,
+    "k": "silk_rope_coil",
+    "n": "Rope Coil"
+  },
+  {
+    "i": 506,
+    "k": "web_rope_coil",
+    "n": "Rope Coil"
+  },
+  {
+    "i": 507,
+    "k": "javelin_friendly",
+    "n": "Javelin"
+  },
+  {
+    "i": 508,
+    "k": "javelin_hostile",
+    "n": "Javelin"
+  },
+  {
+    "i": 509,
+    "k": "butchers_chainsaw",
+    "n": "Butcher\u0027s Chainsaw"
+  },
+  {
+    "i": 510,
+    "k": "toxic_flask",
+    "n": "Toxic Flask"
+  },
+  {
+    "i": 511,
+    "k": "toxic_cloud",
+    "n": "Toxic Cloud"
+  },
+  {
+    "i": 512,
+    "k": "toxic_cloud2",
+    "n": "Toxic Cloud"
+  },
+  {
+    "i": 513,
+    "k": "toxic_cloud3",
+    "n": "Toxic Cloud"
+  },
+  {
+    "i": 514,
+    "k": "nail_friendly",
+    "n": "Nail"
+  },
+  {
+    "i": 515,
+    "k": "bouncy_glowstick",
+    "n": "Bouncy Glowstick"
+  },
+  {
+    "i": 516,
+    "k": "bouncy_bomb",
+    "n": "Bouncy Bomb"
+  },
+  {
+    "i": 517,
+    "k": "bouncy_grenade",
+    "n": "Bouncy Grenade"
+  },
+  {
+    "i": 518,
+    "k": "coin_portal",
+    "n": "Coin Portal"
+  },
+  {
+    "i": 519,
+    "k": "bomb_fish",
+    "n": "Bomb Fish"
+  },
+  {
+    "i": 520,
+    "k": "frost_daggerfish",
+    "n": "Frost Daggerfish"
+  },
+  {
+    "i": 521,
+    "k": "crystal_pulse",
+    "n": "Crystal Charge"
+  },
+  {
+    "i": 522,
+    "k": "crystal_pulse2",
+    "n": "Crystal Charge"
+  },
+  {
+    "i": 523,
+    "k": "toxic_bubble",
+    "n": "Toxic Bubble"
+  },
+  {
+    "i": 524,
+    "k": "ichor_splash",
+    "n": "Ichor Splash"
+  },
+  {
+    "i": 525,
+    "k": "flying_piggy_bank",
+    "n": "Flying Piggy Bank"
+  },
+  {
+    "i": 526,
+    "k": "cultist_boss_particle",
+    "n": "Energy"
+  },
+  {
+    "i": 527,
+    "k": "rich_gravestone1",
+    "n": "Tombstone"
+  },
+  {
+    "i": 528,
+    "k": "rich_gravestone2",
+    "n": "Tombstone"
+  },
+  {
+    "i": 529,
+    "k": "rich_gravestone3",
+    "n": "Tombstone"
+  },
+  {
+    "i": 530,
+    "k": "rich_gravestone4",
+    "n": "Tombstone"
+  },
+  {
+    "i": 531,
+    "k": "rich_gravestone5",
+    "n": "Tombstone"
+  },
+  {
+    "i": 532,
+    "k": "bone_glove_proj",
+    "n": "XBone"
+  },
+  {
+    "i": 533,
+    "k": "deadly_sphere",
+    "n": "Deadly Sphere"
+  },
+  {
+    "i": 534,
+    "k": "code1",
+    "n": "Yoyo"
+  },
+  {
+    "i": 535,
+    "k": "medusa_head",
+    "n": "Medusa Ray"
+  },
+  {
+    "i": 536,
+    "k": "medusa_head_ray",
+    "n": "Medusa Ray"
+  },
+  {
+    "i": 537,
+    "k": "stardust_soldier_laser",
+    "n": "Stardust Laser"
+  },
+  {
+    "i": 538,
+    "k": "twinkle",
+    "n": "Twinkle"
+  },
+  {
+    "i": 539,
+    "k": "stardust_jellyfish_small",
+    "n": "Flow Invader"
+  },
+  {
+    "i": 540,
+    "k": "stardust_tower_mark",
+    "n": "Starmark"
+  },
+  {
+    "i": 541,
+    "k": "wood_yoyo",
+    "n": "Yoyo"
+  },
+  {
+    "i": 542,
+    "k": "corrupt_yoyo",
+    "n": "Yoyo"
+  },
+  {
+    "i": 543,
+    "k": "crimson_yoyo",
+    "n": "Yoyo"
+  },
+  {
+    "i": 544,
+    "k": "jungle_yoyo",
+    "n": "Yoyo"
+  },
+  {
+    "i": 545,
+    "k": "cascade",
+    "n": "Yoyo"
+  },
+  {
+    "i": 546,
+    "k": "chik",
+    "n": "Yoyo"
+  },
+  {
+    "i": 547,
+    "k": "code2",
+    "n": "Yoyo"
+  },
+  {
+    "i": 548,
+    "k": "rally",
+    "n": "Yoyo"
+  },
+  {
+    "i": 549,
+    "k": "yelets",
+    "n": "Yoyo"
+  },
+  {
+    "i": 550,
+    "k": "reds_yoyo",
+    "n": "Yoyo"
+  },
+  {
+    "i": 551,
+    "k": "valkyrie_yoyo",
+    "n": "Yoyo"
+  },
+  {
+    "i": 552,
+    "k": "amarok",
+    "n": "Yoyo"
+  },
+  {
+    "i": 553,
+    "k": "hel_fire",
+    "n": "Yoyo"
+  },
+  {
+    "i": 554,
+    "k": "kraken",
+    "n": "Yoyo"
+  },
+  {
+    "i": 555,
+    "k": "the_eye_of_cthulhu",
+    "n": "Yoyo"
+  },
+  {
+    "i": 556,
+    "k": "black_counterweight",
+    "n": "Counterweight"
+  },
+  {
+    "i": 557,
+    "k": "blue_counterweight",
+    "n": "Counterweight"
+  },
+  {
+    "i": 558,
+    "k": "green_counterweight",
+    "n": "Counterweight"
+  },
+  {
+    "i": 559,
+    "k": "purple_counterweight",
+    "n": "Counterweight"
+  },
+  {
+    "i": 560,
+    "k": "red_counterweight",
+    "n": "Counterweight"
+  },
+  {
+    "i": 561,
+    "k": "yellow_counterweight",
+    "n": "Counterweight"
+  },
+  {
+    "i": 562,
+    "k": "format_c",
+    "n": "Yoyo"
+  },
+  {
+    "i": 563,
+    "k": "gradient",
+    "n": "Yoyo"
+  },
+  {
+    "i": 564,
+    "k": "valor",
+    "n": "Yoyo"
+  },
+  {
+    "i": 565,
+    "k": "brain_of_confusion",
+    "n": "Brain of Confusion"
+  },
+  {
+    "i": 566,
+    "k": "giant_bee",
+    "n": "Bee"
+  },
+  {
+    "i": 567,
+    "k": "spore_trap",
+    "n": "Spore"
+  },
+  {
+    "i": 568,
+    "k": "spore_trap2",
+    "n": "Spore"
+  },
+  {
+    "i": 569,
+    "k": "spore_gas",
+    "n": "Spore"
+  },
+  {
+    "i": 570,
+    "k": "spore_gas2",
+    "n": "Spore"
+  },
+  {
+    "i": 571,
+    "k": "spore_gas3",
+    "n": "Spore"
+  },
+  {
+    "i": 572,
+    "k": "salamander_spit",
+    "n": "Poison Spit"
+  },
+  {
+    "i": 573,
+    "k": "nebula_bolt",
+    "n": "Nebula Piercer"
+  },
+  {
+    "i": 574,
+    "k": "nebula_eye",
+    "n": "Nebula Eye"
+  },
+  {
+    "i": 575,
+    "k": "nebula_sphere",
+    "n": "Nebula Sphere"
+  },
+  {
+    "i": 576,
+    "k": "nebula_laser",
+    "n": "Nebula Laser"
+  },
+  {
+    "i": 577,
+    "k": "vortex_laser",
+    "n": "Vortex Laser"
+  },
+  {
+    "i": 578,
+    "k": "vortex_vortex_lightning",
+    "n": "Vortex"
+  },
+  {
+    "i": 579,
+    "k": "vortex_vortex_portal",
+    "n": "Vortex"
+  },
+  {
+    "i": 580,
+    "k": "vortex_lightning",
+    "n": "Vortex Lightning"
+  },
+  {
+    "i": 581,
+    "k": "vortex_acid",
+    "n": "Alien Goop"
+  },
+  {
+    "i": 582,
+    "k": "mechanic_wrench",
+    "n": "Mechanic\u0027s Wrench"
+  },
+  {
+    "i": 583,
+    "k": "nurse_syringe_hurt",
+    "n": "Syringe"
+  },
+  {
+    "i": 584,
+    "k": "nurse_syringe_heal",
+    "n": "Syringe"
+  },
+  {
+    "i": 585,
+    "k": "clothiers_curse",
+    "n": "Skull"
+  },
+  {
+    "i": 586,
+    "k": "dryads_ward_circle",
+    "n": "Dryad\u0027s ward"
+  },
+  {
+    "i": 587,
+    "k": "painter_paintball",
+    "n": "Paintball"
+  },
+  {
+    "i": 588,
+    "k": "party_girl_grenade",
+    "n": "Confetti Grenade"
+  },
+  {
+    "i": 589,
+    "k": "santa_bombs",
+    "n": "Christmas Ornament"
+  },
+  {
+    "i": 590,
+    "k": "truffle_spore",
+    "n": "Truffle Spore"
+  },
+  {
+    "i": 591,
+    "k": "minecart_mech_laser",
+    "n": "Minecart Laser"
+  },
+  {
+    "i": 592,
+    "k": "martian_walker_laser",
+    "n": "Laser Ray"
+  },
+  {
+    "i": 593,
+    "k": "ancient_doom_projectile",
+    "n": "Prophecy\u0027s End"
+  },
+  {
+    "i": 594,
+    "k": "blowup_smoke",
+    "n": "Blowup Smoke"
+  },
+  {
+    "i": 595,
+    "k": "arkhalis",
+    "n": "Arkhalis"
+  },
+  {
+    "i": 596,
+    "k": "desert_djinn_curse",
+    "n": "Desert Spirit\u0027s Curse"
+  },
+  {
+    "i": 597,
+    "k": "amber_bolt",
+    "n": "Amber Bolt"
+  },
+  {
+    "i": 598,
+    "k": "bone_javelin",
+    "n": "Bone Javelin"
+  },
+  {
+    "i": 599,
+    "k": "bone_dagger",
+    "n": "Bone Dagger"
+  },
+  {
+    "i": 600,
+    "k": "portal_gun",
+    "n": "Portal Gun"
+  },
+  {
+    "i": 601,
+    "k": "portal_gun_bolt",
+    "n": "Portal Bolt"
+  },
+  {
+    "i": 602,
+    "k": "portal_gun_gate",
+    "n": "Portal Gate"
+  },
+  {
+    "i": 603,
+    "k": "terrarian",
+    "n": "Terrarian"
+  },
+  {
+    "i": 604,
+    "k": "terrarian_beam",
+    "n": "Terrarian"
+  },
+  {
+    "i": 605,
+    "k": "spiked_slime_spike",
+    "n": "Slime Spike"
+  },
+  {
+    "i": 606,
+    "k": "scutlix_laser",
+    "n": "Laser"
+  },
+  {
+    "i": 607,
+    "k": "solar_flare_ray",
+    "n": "Solar Flare"
+  },
+  {
+    "i": 608,
+    "k": "solar_counter",
+    "n": "Solar Radiance"
+  },
+  {
+    "i": 609,
+    "k": "stardust_drill",
+    "n": "Stardust Drill"
+  },
+  {
+    "i": 610,
+    "k": "stardust_chainsaw",
+    "n": "Stardust Chainsaw"
+  },
+  {
+    "i": 611,
+    "k": "solar_whip_sword",
+    "n": "Solar Eruption"
+  },
+  {
+    "i": 612,
+    "k": "solar_whip_sword_explosion",
+    "n": "Solar Eruption"
+  },
+  {
+    "i": 613,
+    "k": "stardust_cell_minion",
+    "n": "Stardust Cell"
+  },
+  {
+    "i": 614,
+    "k": "stardust_cell_minion_shot",
+    "n": "Stardust Cell"
+  },
+  {
+    "i": 615,
+    "k": "vortex_beater",
+    "n": "Vortex Beater"
+  },
+  {
+    "i": 616,
+    "k": "vortex_beater_rocket",
+    "n": "Vortex Rocket"
+  },
+  {
+    "i": 617,
+    "k": "nebula_arcanum",
+    "n": "Nebula Arcanum"
+  },
+  {
+    "i": 618,
+    "k": "nebula_arcanum_subshot",
+    "n": "Nebula Arcanum"
+  },
+  {
+    "i": 619,
+    "k": "nebula_arcanum_explosion_shot",
+    "n": "Nebula Arcanum"
+  },
+  {
+    "i": 620,
+    "k": "nebula_arcanum_explosion_shot_shard",
+    "n": "Nebula Arcanum"
+  },
+  {
+    "i": 621,
+    "k": "blood_water",
+    "n": "Blood Water"
+  },
+  {
+    "i": 622,
+    "k": "blowup_smoke_moonlord",
+    "n": "Blowup Smoke"
+  },
+  {
+    "i": 623,
+    "k": "stardust_guardian",
+    "n": "Stardust Guardian"
+  },
+  {
+    "i": 624,
+    "k": "stardust_guardian_explosion",
+    "n": "Starburst"
+  },
+  {
+    "i": 625,
+    "k": "stardust_dragon1",
+    "n": "Stardust Dragon"
+  },
+  {
+    "i": 626,
+    "k": "stardust_dragon2",
+    "n": "Stardust Dragon"
+  },
+  {
+    "i": 627,
+    "k": "stardust_dragon3",
+    "n": "Stardust Dragon"
+  },
+  {
+    "i": 628,
+    "k": "stardust_dragon4",
+    "n": "Stardust Dragon"
+  },
+  {
+    "i": 629,
+    "k": "tower_damage_bolt",
+    "n": "Released Energy"
+  },
+  {
+    "i": 630,
+    "k": "phantasm",
+    "n": "Phantasm"
+  },
+  {
+    "i": 631,
+    "k": "phantasm_arrow",
+    "n": "Phantasm"
+  },
+  {
+    "i": 632,
+    "k": "last_prism_laser",
+    "n": "Last Prism"
+  },
+  {
+    "i": 633,
+    "k": "last_prism",
+    "n": "Last Prism"
+  },
+  {
+    "i": 634,
+    "k": "nebula_blaze1",
+    "n": "Nebula Blaze"
+  },
+  {
+    "i": 635,
+    "k": "nebula_blaze2",
+    "n": "Nebula Blaze Ex"
+  },
+  {
+    "i": 636,
+    "k": "daybreak",
+    "n": "Daybreak"
+  },
+  {
+    "i": 637,
+    "k": "bouncy_dynamite",
+    "n": "Bouncy Dynamite"
+  },
+  {
+    "i": 638,
+    "k": "moonlord_bullet",
+    "n": "Luminite Bullet"
+  },
+  {
+    "i": 639,
+    "k": "moonlord_arrow",
+    "n": "Luminite Arrow"
+  },
+  {
+    "i": 640,
+    "k": "moonlord_arrow_trail",
+    "n": "Luminite Arrow"
+  },
+  {
+    "i": 641,
+    "k": "moonlord_turret",
+    "n": "Lunar Portal"
+  },
+  {
+    "i": 642,
+    "k": "moonlord_turret_laser",
+    "n": "Lunar Portal Laser"
+  },
+  {
+    "i": 643,
+    "k": "rainbow_crystal",
+    "n": "Rainbow Crystal"
+  },
+  {
+    "i": 644,
+    "k": "rainbow_crystal_explosion",
+    "n": "Rainbow Explosion"
+  },
+  {
+    "i": 645,
+    "k": "lunar_flare",
+    "n": "Lunar Flare"
+  },
+  {
+    "i": 646,
+    "k": "lunar_hook_solar",
+    "n": "Lunar Hook"
+  },
+  {
+    "i": 647,
+    "k": "lunar_hook_vortex",
+    "n": "Lunar Hook"
+  },
+  {
+    "i": 648,
+    "k": "lunar_hook_nebula",
+    "n": "Lunar Hook"
+  },
+  {
+    "i": 649,
+    "k": "lunar_hook_stardust",
+    "n": "Lunar Hook"
+  },
+  {
+    "i": 650,
+    "k": "suspicious_tentacle",
+    "n": "Suspicious Looking Tentacle"
+  },
+  {
+    "i": 651,
+    "k": "wire_kite",
+    "n": "Wire Kite"
+  },
+  {
+    "i": 652,
+    "k": "static_hook",
+    "n": "Static Hook"
+  },
+  {
+    "i": 653,
+    "k": "companion_cube",
+    "n": "Companion Cube"
+  },
+  {
+    "i": 654,
+    "k": "geyser_trap",
+    "n": "Geyser"
+  },
+  {
+    "i": 655,
+    "k": "bee_hive",
+    "n": "Bee Hive"
+  },
+  {
+    "i": 656,
+    "k": "sandnado_friendly",
+    "n": "Ancient Storm"
+  },
+  {
+    "i": 657,
+    "k": "sandnado_hostile",
+    "n": "Ancient Storm"
+  },
+  {
+    "i": 658,
+    "k": "sandnado_hostile_mark",
+    "n": "Ancient Storm"
+  },
+  {
+    "i": 659,
+    "k": "spirit_flame",
+    "n": "Spirit Flame"
+  },
+  {
+    "i": 660,
+    "k": "sky_fracture",
+    "n": "Sky Fracture"
+  },
+  {
+    "i": 661,
+    "k": "black_bolt",
+    "n": "Onyx Blaster"
+  },
+  {
+    "i": 662,
+    "k": "d_d2_javelin_hostile",
+    "n": "Javelin"
+  },
+  {
+    "i": 663,
+    "k": "d_d2_flame_burst_tower_t1",
+    "n": "Flameburst Tower"
+  },
+  {
+    "i": 664,
+    "k": "d_d2_flame_burst_tower_t1_shot",
+    "n": "Flameburst Tower"
+  },
+  {
+    "i": 665,
+    "k": "d_d2_flame_burst_tower_t2",
+    "n": "Flameburst Tower"
+  },
+  {
+    "i": 666,
+    "k": "d_d2_flame_burst_tower_t2_shot",
+    "n": "Flameburst Tower"
+  },
+  {
+    "i": 667,
+    "k": "d_d2_flame_burst_tower_t3",
+    "n": "Flameburst Tower"
+  },
+  {
+    "i": 668,
+    "k": "d_d2_flame_burst_tower_t3_shot",
+    "n": "Flameburst Tower"
+  },
+  {
+    "i": 669,
+    "k": "ale",
+    "n": "Ale"
+  },
+  {
+    "i": 670,
+    "k": "d_d2_ogre_stomp",
+    "n": "Ogre\u0027s Stomp"
+  },
+  {
+    "i": 671,
+    "k": "d_d2_drakin_shot",
+    "n": "Drakin"
+  },
+  {
+    "i": 672,
+    "k": "d_d2_elder_wins",
+    "n": "Grim End"
+  },
+  {
+    "i": 673,
+    "k": "d_d2_dark_mage_raise",
+    "n": "Dark Sigil"
+  },
+  {
+    "i": 674,
+    "k": "d_d2_dark_mage_heal",
+    "n": "Dark Sigil"
+  },
+  {
+    "i": 675,
+    "k": "d_d2_dark_mage_bolt",
+    "n": "Dark Energy"
+  },
+  {
+    "i": 676,
+    "k": "d_d2_ogre_spit",
+    "n": "Ogre Spit"
+  },
+  {
+    "i": 677,
+    "k": "d_d2_ballistra_tower_t1",
+    "n": "Ballista"
+  },
+  {
+    "i": 678,
+    "k": "d_d2_ballistra_tower_t2",
+    "n": "Ballista"
+  },
+  {
+    "i": 679,
+    "k": "d_d2_ballistra_tower_t3",
+    "n": "Ballista"
+  },
+  {
+    "i": 680,
+    "k": "d_d2_ballistra_proj",
+    "n": "Ballista"
+  },
+  {
+    "i": 681,
+    "k": "d_d2_goblin_bomb",
+    "n": "Goblin Bomb"
+  },
+  {
+    "i": 682,
+    "k": "d_d2_lightning_bug_zap",
+    "n": "Withering Bolt"
+  },
+  {
+    "i": 683,
+    "k": "d_d2_ogre_smash",
+    "n": "Ogre\u0027s Stomp"
+  },
+  {
+    "i": 684,
+    "k": "d_d2_squire_sonic_boom",
+    "n": "Hearty Slash"
+  },
+  {
+    "i": 685,
+    "k": "d_d2_javelin_hostile_t3",
+    "n": "Javelin"
+  },
+  {
+    "i": 686,
+    "k": "d_d2_betsy_fireball",
+    "n": "Betsy\u0027s Fireball"
+  },
+  {
+    "i": 687,
+    "k": "d_d2_betsy_flame_breath",
+    "n": "Betsy\u0027s Breath"
+  },
+  {
+    "i": 688,
+    "k": "d_d2_lightning_aura_t1",
+    "n": "Lightning Aura"
+  },
+  {
+    "i": 689,
+    "k": "d_d2_lightning_aura_t2",
+    "n": "Lightning Aura"
+  },
+  {
+    "i": 690,
+    "k": "d_d2_lightning_aura_t3",
+    "n": "Lightning Aura"
+  },
+  {
+    "i": 691,
+    "k": "d_d2_explosive_trap_t1",
+    "n": "Explosive Trap"
+  },
+  {
+    "i": 692,
+    "k": "d_d2_explosive_trap_t2",
+    "n": "Explosive Trap"
+  },
+  {
+    "i": 693,
+    "k": "d_d2_explosive_trap_t3",
+    "n": "Explosive Trap"
+  },
+  {
+    "i": 694,
+    "k": "d_d2_explosive_trap_t1_explosion",
+    "n": "Explosive Trap"
+  },
+  {
+    "i": 695,
+    "k": "d_d2_explosive_trap_t2_explosion",
+    "n": "Explosive Trap"
+  },
+  {
+    "i": 696,
+    "k": "d_d2_explosive_trap_t3_explosion",
+    "n": "Explosive Trap"
+  },
+  {
+    "i": 697,
+    "k": "monk_staff_t1",
+    "n": "Sleepy Octopod"
+  },
+  {
+    "i": 698,
+    "k": "monk_staff_t1_explosion",
+    "n": "Pole Smash"
+  },
+  {
+    "i": 699,
+    "k": "monk_staff_t2",
+    "n": "Ghastly Glaive"
+  },
+  {
+    "i": 700,
+    "k": "monk_staff_t2_ghast",
+    "n": "Ghast"
+  },
+  {
+    "i": 701,
+    "k": "d_d2_pet_dragon",
+    "n": "Hoardagron"
+  },
+  {
+    "i": 702,
+    "k": "d_d2_pet_ghost",
+    "n": "Flickerwick"
+  },
+  {
+    "i": 703,
+    "k": "d_d2_pet_gato",
+    "n": "Propeller Gato"
+  },
+  {
+    "i": 704,
+    "k": "d_d2_apprentice_storm",
+    "n": "Whirlwind of Infinite Wisdom"
+  },
+  {
+    "i": 705,
+    "k": "d_d2_phoenix_bow",
+    "n": "Phantom Phoenix"
+  },
+  {
+    "i": 706,
+    "k": "d_d2_phoenix_bow_shot",
+    "n": "Phantom Phoenix"
+  },
+  {
+    "i": 707,
+    "k": "monk_staff_t3",
+    "n": "Sky Dragon\u0027s Fury"
+  },
+  {
+    "i": 710,
+    "k": "d_d2_betsy_arrow",
+    "n": "Aerial Bane"
+  },
+  {
+    "i": 711,
+    "k": "apprentice_staff_t3_shot",
+    "n": "Betsy\u0027s Wrath"
+  },
+  {
+    "i": 712,
+    "k": "book_staff_shot",
+    "n": "Tome of Infinite Wisdom"
+  },
+  {
+    "i": 713,
+    "k": "d_d2_win",
+    "n": "Victory!"
+  }
+]

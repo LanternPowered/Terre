@@ -1,0 +1,50 @@
+/*
+ * Terre
+ *
+ * Copyright (c) LanternPowered <https://www.lanternpowered.org>
+ * Copyright (c) contributors
+ *
+ * This work is licensed under the terms of the MIT License (MIT). For
+ * a copy, see 'LICENSE.txt' or <https://opensource.org/licenses/MIT>.
+ */
+package org.lanternpowered.terre.impl.text
+
+import org.lanternpowered.terre.impl.util.OptionalColor
+import org.lanternpowered.terre.impl.util.optionalFromNullable
+import org.lanternpowered.terre.text.GroupedText
+import org.lanternpowered.terre.text.Text
+import org.lanternpowered.terre.util.Color
+import org.lanternpowered.terre.util.ToStringHelper
+import org.lanternpowered.terre.util.collection.contentEquals
+import java.util.*
+
+internal class GroupedTextImpl(
+    override val children: List<Text>,
+    override val optionalColor: OptionalColor = OptionalColor.empty()
+) : ColorableTextImpl(), GroupedText {
+
+  override fun toPlain() = this.children.joinToString { text -> text.toPlain() }
+
+  override val isEmpty get() = this.children.isEmpty()
+
+  override fun color(color: Color?): GroupedTextImpl {
+    val optionalColor = color.optionalFromNullable()
+    return if (this.optionalColor == optionalColor) this else GroupedTextImpl(this.children, optionalColor)
+  }
+
+  override fun equals(other: Any?): Boolean {
+    if (other !is GroupedTextImpl) {
+      return false
+    }
+    return this.children contentEquals other.children && this.optionalColor == other.optionalColor
+  }
+
+  override fun hashCode(): Int {
+    return Objects.hash(this.children, this.optionalColor)
+  }
+
+  override fun toString() = ToStringHelper(GroupedText::class).omitNullValues()
+      .add("children", this.children)
+      .add("color", this.color)
+      .toString()
+}
