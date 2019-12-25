@@ -9,23 +9,21 @@
  */
 package org.lanternpowered.terre.impl.player
 
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import org.lanternpowered.terre.Player
-import org.lanternpowered.terre.impl.ProxyImpl
+import org.lanternpowered.terre.PlayerIdentifier
 import org.lanternpowered.terre.impl.network.Connection
 import org.lanternpowered.terre.impl.network.packet.ChatMessagePacket
 import org.lanternpowered.terre.impl.network.toDeferred
 import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.text.textOf
 import java.net.SocketAddress
-import java.util.UUID
 
-class PlayerImpl(
+internal class PlayerImpl(
     override val remoteAddress: SocketAddress,
     val clientConnection: Connection,
     override val name: String,
-    override val uniqueId: UUID
+    override val identifier: PlayerIdentifier
 ) : Player {
 
   @Volatile override var latency = 0

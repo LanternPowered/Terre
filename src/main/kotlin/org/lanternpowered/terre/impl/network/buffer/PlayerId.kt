@@ -12,7 +12,7 @@ package org.lanternpowered.terre.impl.network.buffer
 /**
  * Represents the id of a player.
  */
-inline class PlayerId(inline val value: Int) {
+internal inline class PlayerId(inline val value: Int) {
 
   companion object {
 

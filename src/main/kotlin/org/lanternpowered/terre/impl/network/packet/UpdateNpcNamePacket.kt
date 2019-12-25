@@ -18,17 +18,17 @@ import org.lanternpowered.terre.impl.network.buffer.writeString
 import org.lanternpowered.terre.impl.network.packetDecoderOf
 import org.lanternpowered.terre.impl.network.packetEncoderOf
 
-data class UpdateNpcNamePacket(
+internal data class UpdateNpcNamePacket(
     val npcId: NpcId,
     val name: String
 ) : Packet
 
-val UpdateNpcNameEncoder = packetEncoderOf<UpdateNpcNamePacket> { buf, packet ->
+internal val UpdateNpcNameEncoder = packetEncoderOf<UpdateNpcNamePacket> { buf, packet ->
   buf.writeNpcId(packet.npcId)
   buf.writeString(packet.name)
 }
 
-val UpdateNpcNameDecoder = packetDecoderOf { buf ->
+internal val UpdateNpcNameDecoder = packetDecoderOf { buf ->
   val npcId = buf.readNpcId()
   val name = buf.readString()
   UpdateNpcNamePacket(npcId, name)

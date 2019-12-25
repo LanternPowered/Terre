@@ -13,12 +13,12 @@ import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.readString
 import org.lanternpowered.terre.impl.network.packetDecoderOf
 
-data class PlayerCommandPacket(
+internal data class PlayerCommandPacket(
     val commandId: String,
     val arguments: String
 ) : Packet
 
-val PlayerCommandDecoder = packetDecoderOf { buf ->
+internal val PlayerCommandDecoder = packetDecoderOf { buf ->
   val commandId = buf.readString()
   val arguments = buf.readString()
   PlayerCommandPacket(commandId, arguments)

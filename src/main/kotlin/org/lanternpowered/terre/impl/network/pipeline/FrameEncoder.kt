@@ -13,7 +13,7 @@ import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import io.netty.handler.codec.MessageToMessageEncoder
 
-class FrameEncoder : MessageToMessageEncoder<ByteBuf>() {
+internal class FrameEncoder : MessageToMessageEncoder<ByteBuf>() {
 
   override fun encode(ctx: ChannelHandlerContext, input: ByteBuf, output: MutableList<Any>) {
     // Allocate buffer just for the packet length

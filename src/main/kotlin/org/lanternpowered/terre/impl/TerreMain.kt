@@ -9,7 +9,7 @@
  */
 package org.lanternpowered.terre.impl
 
-fun main(args: Array<String>) {
+internal fun main(args: Array<String>) {
   val server = ProxyImpl
   server.init()
 }

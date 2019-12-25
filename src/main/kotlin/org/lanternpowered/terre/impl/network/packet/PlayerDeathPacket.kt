@@ -19,7 +19,7 @@ import org.lanternpowered.terre.impl.network.packetEncoderOf
 /**
  * A packet when a player dies.
  */
-data class PlayerDeathPacket(
+internal data class PlayerDeathPacket(
     val playerId: PlayerId,
     val damage: Int,
     val hitDirection: Int,
@@ -27,7 +27,7 @@ data class PlayerDeathPacket(
     val reason: PlayerDamageReason
 ) : Packet
 
-val PlayerDeathEncoder = packetEncoderOf<PlayerDeathPacket> { buf, packet ->
+internal val PlayerDeathEncoder = packetEncoderOf<PlayerDeathPacket> { buf, packet ->
   buf.writePlayerId(packet.playerId)
   buf.writeDamageReason(packet.reason)
   buf.writeShortLE(packet.damage)
@@ -35,7 +35,7 @@ val PlayerDeathEncoder = packetEncoderOf<PlayerDeathPacket> { buf, packet ->
   buf.writeBoolean(packet.pvp)
 }
 
-val PlayerDeathDecoder = packetDecoderOf { buf ->
+internal val PlayerDeathDecoder = packetDecoderOf { buf ->
   val playerId = buf.readPlayerId()
   val reason = buf.readDamageReason()
   val damage = buf.readUnsignedShortLE()

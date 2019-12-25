@@ -15,7 +15,7 @@ import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.util.collection.immutableListBuilderOf
 import org.lanternpowered.terre.util.collection.immutableListOf
 
-abstract class TextImpl : Text {
+internal abstract class TextImpl : Text {
 
   internal open val optionalColor: OptionalColor
     get() = OptionalColor.empty()

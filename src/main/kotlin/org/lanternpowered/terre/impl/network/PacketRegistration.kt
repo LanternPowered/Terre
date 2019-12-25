@@ -9,7 +9,7 @@
  */
 package org.lanternpowered.terre.impl.network
 
-interface PacketRegistration<P : Packet> {
+internal interface PacketRegistration<P : Packet> {
 
   /**
    * The type of the packet.

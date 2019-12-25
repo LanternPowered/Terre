@@ -20,7 +20,7 @@ import java.util.regex.Matcher
 
 @ConverterKeys("loc")
 @Plugin(name = "LocationPatternConverter", category = PatternConverter.CATEGORY)
-class LocationPatternConverter private constructor(private val format: String) :
+internal class LocationPatternConverter private constructor(private val format: String) :
     LogEventPatternConverter("Location", "location") {
 
   // Packages that will be ignored

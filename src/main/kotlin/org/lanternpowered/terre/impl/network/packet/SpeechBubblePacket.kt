@@ -14,7 +14,7 @@ import org.lanternpowered.terre.impl.network.buffer.NpcId
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.buffer.ProjectileId
 
-sealed class SpeechBubblePacket : Packet {
+internal sealed class SpeechBubblePacket : Packet {
 
   abstract val id: Int
 
@@ -44,7 +44,7 @@ sealed class SpeechBubblePacket : Packet {
   }
 }
 
-val SpeechBubbleEncoder = packetEncoderOf<SpeechBubblePacket> { buf, packet ->
+internal val SpeechBubbleEncoder = packetEncoderOf<SpeechBubblePacket> { buf, packet ->
   buf.writeIntLE(packet.id)
   if (packet is SpeechBubblePacket.Remove) {
     buf.writeByte(255)

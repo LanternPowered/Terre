@@ -9,12 +9,7 @@
  */
 package org.lanternpowered.terre.impl.util
 
-import io.netty.channel.ChannelFuture
-import io.netty.channel.ChannelPromise
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Deferred
 import org.lanternpowered.terre.util.collection.toImmutableList
-import java.util.concurrent.ExecutorService
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 import kotlin.math.max

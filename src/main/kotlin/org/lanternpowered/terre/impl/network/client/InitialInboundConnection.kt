@@ -13,7 +13,7 @@ import org.lanternpowered.terre.InboundConnection
 import org.lanternpowered.terre.util.ToStringHelper
 import java.net.SocketAddress
 
-class InitialInboundConnection(
+internal class InitialInboundConnection(
     override val remoteAddress: SocketAddress
 ) : InboundConnection {
 

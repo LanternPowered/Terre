@@ -12,6 +12,6 @@ package org.lanternpowered.terre.impl.network.packet
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.packetEncoderOf
 
-object CompleteConnectionPacket : Packet
+internal object CompleteConnectionPacket : Packet
 
-val CompleteConnectionEncoder = packetEncoderOf<CompleteConnectionPacket> { _, _ -> }
+internal val CompleteConnectionEncoder = packetEncoderOf<CompleteConnectionPacket> { _, _ -> }

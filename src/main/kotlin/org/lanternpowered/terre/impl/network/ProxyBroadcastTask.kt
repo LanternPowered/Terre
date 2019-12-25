@@ -23,7 +23,7 @@ import kotlin.math.min
 /**
  * Broadcasts the server to the LAN network.
  */
-class ProxyBroadcastTask(private val proxy: Proxy) {
+internal class ProxyBroadcastTask(private val proxy: Proxy) {
 
   private lateinit var socket: DatagramSocket
 

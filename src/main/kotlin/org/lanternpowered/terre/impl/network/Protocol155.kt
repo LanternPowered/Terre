@@ -12,7 +12,7 @@ package org.lanternpowered.terre.impl.network
 import org.lanternpowered.terre.impl.network.packet.*
 import org.lanternpowered.terre.impl.network.packet.v155.*
 
-object Protocol155 : Protocol(155) {
+internal object Protocol155 : Protocol(155) {
   init {
     bind(0x01, ConnectionRequestEncoder, ConnectionRequestDecoder)
     bind(0x02, Disconnect155Encoder)

@@ -12,7 +12,7 @@ package org.lanternpowered.terre.impl.network
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import java.util.Comparator
 
-object ProtocolRegistry {
+internal object ProtocolRegistry {
 
   private val byId = Int2ObjectOpenHashMap<Protocol>()
 

@@ -12,7 +12,7 @@ package org.lanternpowered.terre.impl.network
 /**
  * Represents a registered packet codec.
  */
-interface PacketEncoderRegistration<P : Packet> : PacketRegistration<P> {
+internal interface PacketEncoderRegistration<P : Packet> : PacketRegistration<P> {
 
   /**
    * The encoder.

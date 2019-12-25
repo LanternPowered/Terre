@@ -14,6 +14,6 @@ import org.lanternpowered.terre.impl.network.buffer.writePlainText
 import org.lanternpowered.terre.impl.network.packetEncoderOf
 import org.lanternpowered.terre.text.Text
 
-data class DisconnectPacket(val reason: Text) : Packet
+internal data class DisconnectPacket(val reason: Text) : Packet
 
-val DisconnectEncoder = packetEncoderOf<DisconnectPacket> { buf, packet -> buf.writePlainText(packet.reason) }
+internal val DisconnectEncoder = packetEncoderOf<DisconnectPacket> { buf, packet -> buf.writePlainText(packet.reason) }

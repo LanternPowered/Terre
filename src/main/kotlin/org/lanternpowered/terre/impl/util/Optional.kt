@@ -14,7 +14,7 @@ package org.lanternpowered.terre.impl.util
 /**
  * Represents an optional object. The actual value can be `null`.
  */
-interface Optional<T> {
+internal interface Optional<T> {
 
   /**
    * Whether the value is present.
@@ -84,20 +84,20 @@ interface Optional<T> {
  * Gets the value, if present, returns otherwise
  * the value provided by the function.
  */
-inline fun <T> Optional<T>.or(fn: () -> T): T
+internal inline fun <T> Optional<T>.or(fn: () -> T): T
     = if (this.isPresent) this.value else fn()
 
 /**
  * Wraps the value into an optional.
  */
-inline fun <T> T.optional(): Optional<T>
+internal inline fun <T> T.optional(): Optional<T>
     = Optional.of(this)
 
 /**
  * Wraps the nullable value into an optional.
  */
 @JvmName("optionalOfNullable")
-inline fun <T : Any> T?.optionalFromNullable(): Optional<T>
+internal inline fun <T : Any> T?.optionalFromNullable(): Optional<T>
     = Optional.ofNullable(this)
 
 /**

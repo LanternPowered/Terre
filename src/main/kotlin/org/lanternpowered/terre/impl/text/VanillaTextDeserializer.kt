@@ -24,7 +24,7 @@ import java.util.*
 /**
  * Converts the tagged vanilla text to an actual object.
  */
-fun TextImpl.fromTaggedVanillaText(): Text {
+internal fun TextImpl.fromTaggedVanillaText(): Text {
   return when (this) {
     is GroupedTextImpl -> {
       val builder = TextBuilder()

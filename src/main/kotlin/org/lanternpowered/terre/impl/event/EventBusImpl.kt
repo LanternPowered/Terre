@@ -9,15 +9,13 @@
  */
 package org.lanternpowered.terre.impl.event
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder
 import kotlinx.coroutines.Deferred
 import org.lanternpowered.terre.event.Event
 import org.lanternpowered.terre.event.EventBus
 import org.lanternpowered.terre.plugin.PluginContainer
-import java.util.concurrent.Executors
 import kotlin.reflect.KClass
 
-object EventBusImpl : EventBus() {
+internal object EventBusImpl : EventBus() {
 
   override fun <T : Event> register(
       pluginContainer: PluginContainer, eventType: KClass<T>, order: Int, listener: suspend (event: T) -> Unit) {

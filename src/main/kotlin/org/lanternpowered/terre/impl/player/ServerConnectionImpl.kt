@@ -15,7 +15,7 @@ import org.lanternpowered.terre.ServerConnection
 import org.lanternpowered.terre.impl.network.Connection
 import java.util.concurrent.CompletableFuture
 
-class ServerConnectionImpl(
+internal class ServerConnectionImpl(
     override val server: Server,
     override val player: Player
 ) : ServerConnection {

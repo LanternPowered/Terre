@@ -30,7 +30,7 @@ import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.text.textOf
 import java.io.IOException
 
-class Connection(
+internal class Connection(
     private val networkManager: NetworkManager,
     private val channel: Channel
 ) : ChannelInboundHandlerAdapter() {

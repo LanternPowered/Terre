@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer
 import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.text.textOf
 
-class TextDeserializer : StdDeserializer<Text>(Text::class.java) {
+internal class TextDeserializer : StdDeserializer<Text>(Text::class.java) {
 
   override fun deserialize(parser: JsonParser, context: DeserializationContext): Text {
     val node = parser.codec.readTree<JsonNode>(parser)
@@ -30,7 +30,7 @@ class TextDeserializer : StdDeserializer<Text>(Text::class.java) {
   }
 }
 
-class TextSerializer : StdSerializer<Text>(Text::class.java) {
+internal class TextSerializer : StdSerializer<Text>(Text::class.java) {
 
   override fun serialize(value: Text, gen: JsonGenerator, provider: SerializerProvider) {
     gen.writeStartObject()

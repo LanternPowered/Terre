@@ -18,19 +18,19 @@ import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.util.Color
 import org.lanternpowered.terre.util.Colors
 
-data class ChatMessagePacket(
+internal data class ChatMessagePacket(
     val text: Text,
     val maxWidth: Int = -1
 ) : Packet
 
-val ChatMessageEncoder = packetEncoderOf<ChatMessagePacket> { buf, packet ->
+internal val ChatMessageEncoder = packetEncoderOf<ChatMessagePacket> { buf, packet ->
   val (text, color) = ChatMessageHelper.splitTextAndColor(packet.text)
   buf.writeColor(color)
   buf.writeTaggedText(text)
   buf.writeShortLE(packet.maxWidth)
 }
 
-object ChatMessageHelper {
+internal object ChatMessageHelper {
 
   fun splitTextAndColor(text: Text, defaultColor: Color = Colors.White): Pair<Text, Color> {
     var color = defaultColor

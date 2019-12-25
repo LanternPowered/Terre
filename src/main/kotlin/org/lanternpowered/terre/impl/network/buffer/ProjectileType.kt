@@ -12,4 +12,4 @@ package org.lanternpowered.terre.impl.network.buffer
 /**
  * Represents the id of a projectile.
  */
-inline class ProjectileType(inline val value: Int)
+internal inline class ProjectileType(inline val value: Int)

@@ -39,7 +39,7 @@ internal data class UpdateNpcPacket(
     val releaseOwner: PlayerId?
 ) : Packet
 
-data class NpcAI(
+internal data class NpcAI(
     val ai1: Float,
     val ai2: Float,
     val ai3: Float,

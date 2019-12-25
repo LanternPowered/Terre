@@ -15,15 +15,15 @@ import org.lanternpowered.terre.impl.network.buffer.writeString
 import org.lanternpowered.terre.impl.network.packetDecoderOf
 import org.lanternpowered.terre.impl.network.packetEncoderOf
 
-data class ConnectionRequestPacket(val version: Int) : Packet
+internal data class ConnectionRequestPacket(val version: Int) : Packet
 
 private const val versionPrefix = "Terraria"
 
-val ConnectionRequestDecoder = packetDecoderOf { buf ->
+internal val ConnectionRequestDecoder = packetDecoderOf { buf ->
   val name = buf.readString()
   ConnectionRequestPacket(name.substring(versionPrefix.length).toInt())
 }
 
-val ConnectionRequestEncoder = packetEncoderOf<ConnectionRequestPacket> { buf, packet ->
+internal val ConnectionRequestEncoder = packetEncoderOf<ConnectionRequestPacket> { buf, packet ->
   buf.writeString(versionPrefix + packet.version)
 }

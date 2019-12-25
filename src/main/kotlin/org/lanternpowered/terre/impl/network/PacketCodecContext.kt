@@ -11,7 +11,7 @@ package org.lanternpowered.terre.impl.network
 
 import io.netty.buffer.ByteBufAllocator
 
-interface PacketCodecContext : NetworkContext {
+internal interface PacketCodecContext : NetworkContext {
 
   /**
    * The byte buf allocator.

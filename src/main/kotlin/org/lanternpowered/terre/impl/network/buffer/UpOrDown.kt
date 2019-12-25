@@ -15,7 +15,7 @@ package org.lanternpowered.terre.impl.network.buffer
  * @property isUp Whether it's up
  * @property isDown Whether it's down
  */
-inline class UpOrDown(val isUp: Boolean) {
+internal inline class UpOrDown(val isUp: Boolean) {
 
   val isDown: Boolean
     get() = !this.isUp

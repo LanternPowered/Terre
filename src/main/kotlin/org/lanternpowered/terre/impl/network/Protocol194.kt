@@ -13,7 +13,7 @@ import org.lanternpowered.terre.impl.network.packet.*
 import org.lanternpowered.terre.impl.network.packet.v155.PlayerDeath155Decoder
 import org.lanternpowered.terre.impl.network.packet.v155.PlayerDeath155Encoder
 
-object Protocol194 : Protocol(194) {
+internal object Protocol194 : Protocol(194) {
   init {
     bind(0x01, ConnectionRequestEncoder, ConnectionRequestDecoder)
     bind(0x02, DisconnectEncoder)

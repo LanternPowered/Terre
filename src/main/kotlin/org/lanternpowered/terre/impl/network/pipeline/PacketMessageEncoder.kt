@@ -18,7 +18,7 @@ import io.netty.util.ReferenceCountUtil
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.PacketCodecContext
 
-class PacketMessageEncoder(private val context: PacketCodecContext) : MessageToByteEncoder<Packet>() {
+internal class PacketMessageEncoder(private val context: PacketCodecContext) : MessageToByteEncoder<Packet>() {
 
   override fun encode(ctx: ChannelHandlerContext, input: Packet, output: ByteBuf) {
     val registration = this.context.protocol.getEncoder(input.javaClass)

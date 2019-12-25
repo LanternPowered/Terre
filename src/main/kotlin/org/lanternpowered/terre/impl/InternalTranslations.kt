@@ -18,7 +18,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import java.io.InputStreamReader
 
-object InternalTranslations {
+internal object InternalTranslations {
 
   private val gson = Gson()
 

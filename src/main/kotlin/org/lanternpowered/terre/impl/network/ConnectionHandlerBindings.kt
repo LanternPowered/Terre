@@ -36,7 +36,7 @@ import org.lanternpowered.terre.impl.network.packet.WorldInfoPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
 import kotlin.reflect.KClass
 
-object ConnectionHandlerBindings {
+internal object ConnectionHandlerBindings {
 
   private val handlersByPacketType = mutableMapOf<Class<*>, ConnectionHandler.(Packet) -> Unit>()
 

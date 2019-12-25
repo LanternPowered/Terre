@@ -16,7 +16,7 @@ import io.netty.handler.codec.DecoderException
 import io.netty.handler.codec.MessageToMessageDecoder
 import org.lanternpowered.terre.impl.network.PacketCodecContext
 
-class PacketMessageDecoder(private val context: PacketCodecContext) : MessageToMessageDecoder<ByteBuf>() {
+internal class PacketMessageDecoder(private val context: PacketCodecContext) : MessageToMessageDecoder<ByteBuf>() {
 
   override fun decode(ctx: ChannelHandlerContext, input: ByteBuf, output: MutableList<Any>) {
     val index = input.readerIndex()

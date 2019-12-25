@@ -15,7 +15,7 @@ import org.lanternpowered.terre.text.Glyph
 import org.lanternpowered.terre.util.Namespace
 import org.lanternpowered.terre.util.NamespacedId
 
-data class GlyphImpl(
+internal data class GlyphImpl(
     override val id: NamespacedId,
     override val name: String,
     override val internalId: Int

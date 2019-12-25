@@ -9,4 +9,4 @@
  */
 package org.lanternpowered.terre.impl.network.buffer
 
-inline class NpcType(val value: Int)
+internal inline class NpcType(val value: Int)

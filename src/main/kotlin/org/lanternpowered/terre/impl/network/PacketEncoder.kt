@@ -13,7 +13,7 @@ package org.lanternpowered.terre.impl.network
 
 import io.netty.buffer.ByteBuf
 
-inline fun <P : Packet> packetEncoderOf(vararg `used named parameters`: Void, initialCapacity: Int,
+internal inline fun <P : Packet> packetEncoderOf(vararg `used named parameters`: Void, initialCapacity: Int,
     crossinline fn: PacketCodecContext.(buf: ByteBuf, packet: P) -> Unit
 ): PacketEncoder<P> {
   return object : PacketEncoder<P> {
@@ -25,7 +25,7 @@ inline fun <P : Packet> packetEncoderOf(vararg `used named parameters`: Void, in
   }
 }
 
-inline fun <P : Packet> packetEncoderOf(
+internal inline fun <P : Packet> packetEncoderOf(
     crossinline fn: PacketCodecContext.(buf: ByteBuf, packet: P) -> Unit
 ): PacketEncoder<P> {
   return object : PacketEncoder<P> {
@@ -37,7 +37,7 @@ inline fun <P : Packet> packetEncoderOf(
   }
 }
 
-inline fun <P : Packet> packetEncoderOf(
+internal inline fun <P : Packet> packetEncoderOf(
     crossinline fn: PacketCodecContext.(packet: P) -> ByteBuf
 ): PacketEncoder<P> {
   return object : PacketEncoder<P> {
@@ -45,7 +45,7 @@ inline fun <P : Packet> packetEncoderOf(
   }
 }
 
-interface PacketEncoder<P : Packet> {
+internal interface PacketEncoder<P : Packet> {
 
   /**
    * Encodes the packet into a [ByteBuf].

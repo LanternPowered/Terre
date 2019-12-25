@@ -14,12 +14,12 @@ import org.lanternpowered.terre.impl.network.buffer.writePlainText
 import org.lanternpowered.terre.impl.network.packetEncoderOf
 import org.lanternpowered.terre.text.Text
 
-data class StatusPacket(
+internal data class StatusPacket(
     val statusMax: Int,
     val statusText: Text
 ) : Packet
 
-val StatusEncoder = packetEncoderOf<StatusPacket> { buf, packet ->
+internal val StatusEncoder = packetEncoderOf<StatusPacket> { buf, packet ->
   buf.writeIntLE(packet.statusMax)
   buf.writePlainText(packet.statusText)
 }

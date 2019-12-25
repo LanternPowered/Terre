@@ -9,7 +9,7 @@
  */
 package org.lanternpowered.terre.impl.network.buffer
 
-data class Projectile(
+internal data class Projectile(
     val id: ProjectileId,
     val type: ProjectileType
 )

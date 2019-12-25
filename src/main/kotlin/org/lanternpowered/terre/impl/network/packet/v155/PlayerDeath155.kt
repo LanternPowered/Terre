@@ -26,7 +26,7 @@ internal val PlayerDeath155Encoder = packetEncoderOf<PlayerDeathPacket> { buf, p
   buf.writeBoolean(packet.pvp)
 }
 
-val PlayerDeath155Decoder = packetDecoderOf { buf ->
+internal val PlayerDeath155Decoder = packetDecoderOf { buf ->
   val playerId = buf.readPlayerId()
   val hitDirection = buf.readByte().toInt()
   val damage = buf.readUnsignedShortLE()

@@ -9,7 +9,7 @@
  */
 package org.lanternpowered.terre.impl
 
-interface InternalIdHolder {
+internal interface InternalIdHolder {
 
   val internalId: Int
 }

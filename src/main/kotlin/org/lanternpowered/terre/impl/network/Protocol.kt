@@ -17,7 +17,7 @@ import kotlin.reflect.KClass
 /**
  * The base class for all packet protocol versions.
  */
-abstract class Protocol(val version: Int) {
+internal abstract class Protocol(val version: Int) {
 
   private val decodersByOpcode = Int2ObjectOpenHashMap<PacketDecoderRegistration<*>>()
   private val encodersByPacketType = mutableMapOf<Class<*>, PacketEncoderRegistration<*>>()

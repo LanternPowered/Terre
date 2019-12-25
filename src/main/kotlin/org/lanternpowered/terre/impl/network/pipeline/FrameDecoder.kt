@@ -14,7 +14,7 @@ import io.netty.channel.ChannelHandlerContext
 import io.netty.handler.codec.ByteToMessageDecoder
 import io.netty.handler.codec.DecoderException
 
-class FrameDecoder : ByteToMessageDecoder() {
+internal class FrameDecoder : ByteToMessageDecoder() {
 
   override fun decode(ctx: ChannelHandlerContext, input: ByteBuf, output: MutableList<Any>) {
     if (!input.isReadable || input.readableBytes() < Short.SIZE_BYTES) return

@@ -32,7 +32,7 @@ import java.util.concurrent.TimeoutException
 private const val ReadTimeoutSeconds = 20
 private const val ExplicitFlushAfterFlushes = 5
 
-class NetworkManager {
+internal class NetworkManager {
 
   private lateinit var bossGroup: EventLoopGroup
   private lateinit var workerGroup: EventLoopGroup

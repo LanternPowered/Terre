@@ -96,7 +96,7 @@ internal object ProxyImpl : Proxy {
 
   private fun processCommand(command: String) {
     // TODO: Process commands
-    this.scheduler.execute {
+    this.executor.execute {
       if (command.trim().toLowerCase() == "shutdown") {
         shutdown()
       } else {
@@ -115,9 +115,9 @@ internal object ProxyImpl : Proxy {
     this.networkManager.shutdown(reason)
     this.console.stop()
 
-    this.scheduler.shutdown()
-    if (!this.scheduler.awaitTermination(10, TimeUnit.SECONDS)) {
-      this.scheduler.shutdownNow()
+    this.executor.shutdown()
+    if (!this.executor.awaitTermination(10, TimeUnit.SECONDS)) {
+      this.executor.shutdownNow()
     }
   }
 

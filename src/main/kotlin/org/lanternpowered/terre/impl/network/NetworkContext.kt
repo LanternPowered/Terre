@@ -11,7 +11,7 @@ package org.lanternpowered.terre.impl.network
 
 import io.netty.channel.Channel
 
-interface NetworkContext {
+internal interface NetworkContext {
 
   val channel: Channel
 

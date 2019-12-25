@@ -34,7 +34,7 @@ import org.lanternpowered.terre.item.itemStackOf
 /**
  * A packet when a player gets hurt.
  */
-data class PlayerHurtPacket(
+internal data class PlayerHurtPacket(
     val playerId: PlayerId,
     val damage: Int,
     val hitDirection: Int,
@@ -44,7 +44,7 @@ data class PlayerHurtPacket(
     val reason: PlayerDamageReason
 ) : Packet
 
-val PlayerHurtEncoder = packetEncoderOf<PlayerHurtPacket> { buf, packet ->
+internal val PlayerHurtEncoder = packetEncoderOf<PlayerHurtPacket> { buf, packet ->
   buf.writePlayerId(packet.playerId)
   buf.writeDamageReason(packet.reason)
   buf.writeShortLE(packet.damage)
@@ -57,7 +57,7 @@ val PlayerHurtEncoder = packetEncoderOf<PlayerHurtPacket> { buf, packet ->
   buf.writeByte(packet.cooldownCounter)
 }
 
-val PlayerHurtDecoder = packetDecoderOf { buf ->
+internal val PlayerHurtDecoder = packetDecoderOf { buf ->
   val playerId = buf.readPlayerId()
   val reason = buf.readDamageReason()
   val damage = buf.readUnsignedShortLE()
@@ -69,7 +69,7 @@ val PlayerHurtDecoder = packetDecoderOf { buf ->
   PlayerHurtPacket(playerId, damage, hitDirection, critical, pvp, cooldownCounter, reason)
 }
 
-data class PlayerDamageReason(
+internal data class PlayerDamageReason(
     val playerId: PlayerId? = null,
     val npcId: NpcId? = null,
     val projectile: Projectile? = null,

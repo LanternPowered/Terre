@@ -12,7 +12,7 @@ package org.lanternpowered.terre.impl
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
-object Terre {
+internal object Terre {
 
   /**
    * The name of the implementation.

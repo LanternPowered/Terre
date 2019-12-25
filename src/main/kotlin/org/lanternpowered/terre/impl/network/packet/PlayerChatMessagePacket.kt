@@ -17,12 +17,12 @@ import org.lanternpowered.terre.impl.network.buffer.writeTaggedText
 import org.lanternpowered.terre.impl.network.packetEncoderOf
 import org.lanternpowered.terre.text.Text
 
-data class PlayerChatMessagePacket(
+internal data class PlayerChatMessagePacket(
     val authorId: PlayerId,
     val text: Text
 ) : Packet
 
-val PlayerChatMessageEncoder = packetEncoderOf<PlayerChatMessagePacket> { buf, packet ->
+internal val PlayerChatMessageEncoder = packetEncoderOf<PlayerChatMessagePacket> { buf, packet ->
   val (text, color) = ChatMessageHelper.splitTextAndColor(packet.text)
   buf.writePlayerId(packet.authorId)
   buf.writeTaggedText(text)

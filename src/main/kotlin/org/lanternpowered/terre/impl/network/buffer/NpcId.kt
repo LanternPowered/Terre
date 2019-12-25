@@ -12,4 +12,4 @@ package org.lanternpowered.terre.impl.network.buffer
 /**
  * Represents the id of an npc.
  */
-inline class NpcId(inline val value: Int)
+internal inline class NpcId(inline val value: Int)

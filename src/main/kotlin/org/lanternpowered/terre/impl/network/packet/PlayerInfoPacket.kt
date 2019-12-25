@@ -21,7 +21,7 @@ import org.lanternpowered.terre.impl.network.packetDecoderOf
 import org.lanternpowered.terre.impl.network.packetEncoderOf
 import org.lanternpowered.terre.util.Color
 
-data class PlayerInfoPacket(
+internal data class PlayerInfoPacket(
     val playerId: PlayerId,
     val playerName: String,
     val difficulty: Int,
@@ -39,7 +39,7 @@ data class PlayerInfoPacket(
     val extraAccessory: Boolean
 ) : Packet
 
-val PlayerInfoDecoder = packetDecoderOf { buf ->
+internal val PlayerInfoDecoder = packetDecoderOf { buf ->
   val playerId = buf.readPlayerId()
   val skinVariant = buf.readByte().toInt()
   val hair = buf.readByte().toInt()
@@ -62,7 +62,7 @@ val PlayerInfoDecoder = packetDecoderOf { buf ->
       hairColor, hideVisuals, eyeColor, shirtColor, underShirtColor, pantsColor, shoeColor, extraAccessory)
 }
 
-val PlayerInfoEncoder = packetEncoderOf<PlayerInfoPacket> { buf, packet ->
+internal val PlayerInfoEncoder = packetEncoderOf<PlayerInfoPacket> { buf, packet ->
   buf.writePlayerId(packet.playerId)
   buf.writeByte(packet.skinVariant)
   buf.writeByte(packet.hair)

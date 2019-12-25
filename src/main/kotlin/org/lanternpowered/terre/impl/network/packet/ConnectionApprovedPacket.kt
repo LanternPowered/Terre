@@ -16,10 +16,10 @@ import org.lanternpowered.terre.impl.network.buffer.writePlayerId
 import org.lanternpowered.terre.impl.network.packetDecoderOf
 import org.lanternpowered.terre.impl.network.packetEncoderOf
 
-data class ConnectionApprovedPacket(val playerId: PlayerId) : Packet
+internal data class ConnectionApprovedPacket(val playerId: PlayerId) : Packet
 
-val ConnectionApprovedEncoder = packetEncoderOf<ConnectionApprovedPacket> { buf, packet ->
+internal val ConnectionApprovedEncoder = packetEncoderOf<ConnectionApprovedPacket> { buf, packet ->
   buf.writePlayerId(packet.playerId)
 }
 
-val ConnectionApprovedDecoder = packetDecoderOf { buf -> ConnectionApprovedPacket(buf.readPlayerId()) }
+internal val ConnectionApprovedDecoder = packetDecoderOf { buf -> ConnectionApprovedPacket(buf.readPlayerId()) }

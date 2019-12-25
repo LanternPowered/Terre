@@ -12,6 +12,6 @@ package org.lanternpowered.terre.impl.network.packet
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.packetEncoderOf
 
-object PasswordRequestPacket : Packet
+internal object PasswordRequestPacket : Packet
 
-val PasswordRequestEncoder = packetEncoderOf<PasswordRequestPacket> { _, _ -> }
+internal val PasswordRequestEncoder = packetEncoderOf<PasswordRequestPacket> { _, _ -> }

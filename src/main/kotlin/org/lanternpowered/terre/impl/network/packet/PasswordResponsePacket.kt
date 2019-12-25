@@ -13,6 +13,6 @@ import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.readString
 import org.lanternpowered.terre.impl.network.packetDecoderOf
 
-data class PasswordResponsePacket(val password: String) : Packet
+internal data class PasswordResponsePacket(val password: String) : Packet
 
-val PasswordResponseDecoder = packetDecoderOf { buf -> PasswordResponsePacket(buf.readString()) }
+internal val PasswordResponseDecoder = packetDecoderOf { buf -> PasswordResponsePacket(buf.readString()) }

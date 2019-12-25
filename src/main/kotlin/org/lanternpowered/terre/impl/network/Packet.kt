@@ -9,6 +9,4 @@
  */
 package org.lanternpowered.terre.impl.network
 
-interface Packet {
-
-}
+internal interface Packet

@@ -16,17 +16,17 @@ import org.lanternpowered.terre.impl.network.buffer.writePlayerId
 import org.lanternpowered.terre.impl.network.packetDecoderOf
 import org.lanternpowered.terre.impl.network.packetEncoderOf
 
-data class UpdateItemOwnerPacket(
+internal data class UpdateItemOwnerPacket(
     val itemId: Int,
     val playerId: PlayerId
 ) : Packet
 
-val UpdateItemOwnerEncoder = packetEncoderOf<UpdateItemOwnerPacket> { buf, packet ->
+internal val UpdateItemOwnerEncoder = packetEncoderOf<UpdateItemOwnerPacket> { buf, packet ->
   buf.writeShortLE(packet.itemId)
   buf.writePlayerId(packet.playerId)
 }
 
-val UpdateItemOwnerDecoder = packetDecoderOf { buf ->
+internal val UpdateItemOwnerDecoder = packetDecoderOf { buf ->
   val itemId = buf.readUnsignedShortLE()
   val playerId = buf.readPlayerId()
   if (itemId == KeepAliveItemId) {

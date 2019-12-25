@@ -13,8 +13,8 @@ import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.packetDecoderOf
 import org.lanternpowered.terre.impl.network.packetEncoderOf
 
-object WorldInfoRequestPacket : Packet
+internal object WorldInfoRequestPacket : Packet
 
-val RequestWorldInfoDecoder = packetDecoderOf { WorldInfoRequestPacket }
+internal val RequestWorldInfoDecoder = packetDecoderOf { WorldInfoRequestPacket }
 
-val RequestWorldInfoEncoder = packetEncoderOf<WorldInfoRequestPacket> { _, _ -> }
+internal val RequestWorldInfoEncoder = packetEncoderOf<WorldInfoRequestPacket> { _, _ -> }

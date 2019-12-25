@@ -19,7 +19,7 @@ import io.netty.channel.socket.ServerSocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import java.util.concurrent.ThreadFactory
 
-sealed class TransportType(
+internal sealed class TransportType(
     val serverSocketChannelSupplier: () -> ServerSocketChannel,
     val eventLoopGroupSupplier: (threads: Int, threadFactory: ThreadFactory) -> EventLoopGroup
 ) {
