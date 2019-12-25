@@ -10,33 +10,29 @@
 package org.lanternpowered.terre.impl.network.client
 
 import io.netty.buffer.ByteBuf
+import org.lanternpowered.terre.PlayerIdentifier
 import org.lanternpowered.terre.impl.ProxyImpl
 import org.lanternpowered.terre.impl.network.Connection
 import org.lanternpowered.terre.impl.network.ConnectionHandler
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.ProtocolRegistry
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
-import org.lanternpowered.terre.impl.network.packet.ClientUniqueIdPacket
-import org.lanternpowered.terre.impl.network.packet.ConnectionApprovedPacket
-import org.lanternpowered.terre.impl.network.packet.ConnectionRequestPacket
-import org.lanternpowered.terre.impl.network.packet.PasswordRequestPacket
-import org.lanternpowered.terre.impl.network.packet.PasswordResponsePacket
-import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
-import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
+import org.lanternpowered.terre.impl.network.packet.*
 import org.lanternpowered.terre.text.textOf
-import java.util.UUID
+import java.security.MessageDigest
 import kotlin.streams.toList
+
 
 /**
  * The connection handler that is used initially to establish a connection
  * between the client and the proxy server.
  */
-class ClientInitConnectionHandler(
+internal class ClientInitConnectionHandler(
     val inboundConnection: InitialInboundConnection,
     val connection: Connection
 ) : ConnectionHandler {
 
-  private var uniqueId: UUID? = null
+  private var identifier: PlayerIdentifier? = null
   private var name: String? = null
 
   override fun initialize() {
@@ -97,7 +93,10 @@ class ClientInitConnectionHandler(
   }
 
   override fun handle(packet: ClientUniqueIdPacket): Boolean {
-    this.uniqueId = packet.uniqueId
+    val digest = MessageDigest.getInstance("SHA-512")
+    digest.reset()
+    digest.update(packet.bytes)
+    this.identifier = PlayerIdentifier(digest.digest())
     return true
   }
 

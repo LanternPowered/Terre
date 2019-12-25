@@ -16,7 +16,12 @@ import org.lanternpowered.terre.text.Text
 /**
  * Represents a player.
  */
-interface Player : Identifiable, Named, MessageReceiver, InboundConnection {
+interface Player : Named, MessageReceiver, InboundConnection {
+
+  /**
+   * The identifier of this player.
+   */
+  val identifier: PlayerIdentifier
 
   /**
    * The latency of the connection to the client.
