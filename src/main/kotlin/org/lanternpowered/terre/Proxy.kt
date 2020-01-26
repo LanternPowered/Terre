@@ -25,9 +25,9 @@ interface Proxy {
   val pluginContainer: PluginContainer
 
   /**
-   * A list with all the online players.
+   * All the players that are currently connected to this proxy.
    */
-  val players: List<Player>
+  val players: PlayerCollection
 
   /**
    * The name of the server.
@@ -71,5 +71,8 @@ interface Proxy {
    */
   fun shutdown(reason: Text)
 
+  /**
+   * The singleton instance of the proxy.
+   */
   companion object : Proxy by ProxyImpl
 }

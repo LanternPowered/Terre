@@ -15,6 +15,7 @@ import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.toml
 import com.uchuhimo.konf.source.toml.toToml
 import org.lanternpowered.terre.Console
+import org.lanternpowered.terre.Player
 import org.lanternpowered.terre.Proxy
 import org.lanternpowered.terre.impl.config.ServerConfigSpec
 import org.lanternpowered.terre.impl.console.ConsoleImpl
@@ -25,18 +26,15 @@ import org.lanternpowered.terre.impl.plugin.PluginManagerImpl
 import org.lanternpowered.terre.impl.text.TextDeserializer
 import org.lanternpowered.terre.impl.text.TextSerializer
 import org.lanternpowered.terre.item.ItemRegistry
-import org.lanternpowered.terre.Player
 import org.lanternpowered.terre.plugin.PluginContainer
 import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.text.textOf
-import org.lanternpowered.terre.util.executor.asCompletableExecutorService
 import java.net.BindException
 import java.net.InetSocketAddress
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
-import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
 internal object ProxyImpl : Proxy {

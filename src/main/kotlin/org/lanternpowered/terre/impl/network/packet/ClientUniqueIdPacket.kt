@@ -11,7 +11,6 @@ package org.lanternpowered.terre.impl.network.packet
 
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.readVarInt
-import org.lanternpowered.terre.impl.network.buffer.writeString
 import org.lanternpowered.terre.impl.network.buffer.writeVarInt
 import org.lanternpowered.terre.impl.network.packetDecoderOf
 import org.lanternpowered.terre.impl.network.packetEncoderOf
@@ -21,7 +20,7 @@ internal data class ClientUniqueIdPacket(
 ) : Packet {
 
   override fun equals(other: Any?)
-      = other is ClientUniqueIdPacket && bytes.contentEquals(other.bytes)
+      = other is ClientUniqueIdPacket && this.bytes contentEquals other.bytes
 
   override fun hashCode()
       = this.bytes.contentHashCode()

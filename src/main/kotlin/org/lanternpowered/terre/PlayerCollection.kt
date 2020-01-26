@@ -9,16 +9,13 @@
  */
 package org.lanternpowered.terre
 
-import org.lanternpowered.terre.impl.ProxyImpl
-import org.lanternpowered.terre.text.MessageReceiver
-
 /**
- * Represents the console.
+ * Represents a collection of players.
  */
-interface Console : MessageReceiver {
+interface PlayerCollection : Collection<Player> {
 
   /**
-   * The singleton instance of the console.
+   * Attempts to get the player for the given [PlayerIdentifier].
    */
-  companion object : Console by ProxyImpl.console
+  operator fun get(identifier: PlayerIdentifier): Player?
 }

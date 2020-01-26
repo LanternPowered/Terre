@@ -64,7 +64,7 @@ internal class ClientInitConnectionHandler(
     if (password.isNotBlank()) {
       this.connection.send(PasswordRequestPacket)
     } else {
-      initPlayPhase()
+      approve()
     }
     return true
   }

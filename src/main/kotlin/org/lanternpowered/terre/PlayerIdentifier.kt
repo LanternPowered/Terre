@@ -23,7 +23,7 @@ class PlayerIdentifier {
   /**
    * Constructs a new [PlayerIdentifier] from the given [ByteArray].
    */
-  constructor(bytes: ByteArray) : this(bytes, Unit)
+  constructor(bytes: ByteArray) : this(bytes.clone(), Unit)
 
   /**
    * Constructs a new [PlayerIdentifier] from the given [ByteArray].

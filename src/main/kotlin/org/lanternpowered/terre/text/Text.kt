@@ -13,6 +13,9 @@ package org.lanternpowered.terre.text
 
 import org.lanternpowered.terre.impl.text.GroupedTextImpl
 import org.lanternpowered.terre.impl.text.LiteralTextImpl
+import org.lanternpowered.terre.impl.util.optional
+import org.lanternpowered.terre.impl.util.optionalFromNullable
+import org.lanternpowered.terre.util.Color
 import org.lanternpowered.terre.util.collection.immutableListBuilderOf
 import org.lanternpowered.terre.util.collection.immutableListOf
 import org.lanternpowered.terre.util.collection.toImmutableList
@@ -35,6 +38,18 @@ fun textOf(): LiteralText = Empty
  */
 fun textOf(literal: String): LiteralText
     = LiteralTextImpl(literal)
+
+/**
+ * Converts the string into a literal text.
+ */
+fun textOf(literal: String, color: Color): LiteralText
+    = LiteralTextImpl(literal, color.optional())
+
+/**
+ * Converts the string into a literal text.
+ */
+fun textOf(literal: String, color: Color?): LiteralText
+    = LiteralTextImpl(literal, color.optionalFromNullable())
 
 /**
  * Merges the array of text components

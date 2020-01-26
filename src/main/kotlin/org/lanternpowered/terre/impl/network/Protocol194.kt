@@ -10,8 +10,6 @@
 package org.lanternpowered.terre.impl.network
 
 import org.lanternpowered.terre.impl.network.packet.*
-import org.lanternpowered.terre.impl.network.packet.v155.PlayerDeath155Decoder
-import org.lanternpowered.terre.impl.network.packet.v155.PlayerDeath155Encoder
 
 internal object Protocol194 : Protocol(194) {
   init {

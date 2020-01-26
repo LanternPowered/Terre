@@ -9,8 +9,6 @@
  */
 package org.lanternpowered.terre.text
 
-import org.lanternpowered.terre.catalog.CatalogType
-import org.lanternpowered.terre.catalog.CatalogTypeRegistry
 import org.lanternpowered.terre.catalog.NumericCatalogType
 import org.lanternpowered.terre.catalog.NumericCatalogTypeRegistry
 import org.lanternpowered.terre.impl.text.GlyphRegistryImpl

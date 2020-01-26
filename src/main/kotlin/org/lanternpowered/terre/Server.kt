@@ -25,7 +25,7 @@ interface Server : MessageReceiver {
   /**
    * All the players that are currently connected to this server.
    */
-  val players: Collection<Player>
+  val players: PlayerCollection
 
   /**
    * Broadcasts the message to all the

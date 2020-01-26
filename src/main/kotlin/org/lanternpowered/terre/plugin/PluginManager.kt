@@ -26,5 +26,8 @@ interface PluginManager {
    */
   operator fun get(id: String): PluginContainer?
 
+  /**
+   * The singleton instance of the [PluginManager].
+   */
   companion object : PluginManager by ProxyImpl.pluginManager
 }

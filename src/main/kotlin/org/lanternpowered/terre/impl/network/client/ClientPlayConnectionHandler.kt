@@ -69,7 +69,7 @@ internal class ClientPlayConnectionHandler(
 
   override fun handle(packet: PlayerCommandPacket): Boolean {
     // TODO: Handle commands
-    return false
+    return false // Forward
   }
 
   override fun handleGeneric(packet: Packet) {
