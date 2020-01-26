@@ -10,7 +10,6 @@
 package org.lanternpowered.terre.impl.network.packet
 
 import io.netty.buffer.ByteBuf
-import org.lanternpowered.terre.catalog.NumericId
 import org.lanternpowered.terre.impl.network.buffer.Projectile
 import org.lanternpowered.terre.impl.network.buffer.NpcId
 import org.lanternpowered.terre.impl.network.Packet
@@ -27,6 +26,7 @@ import org.lanternpowered.terre.impl.network.buffer.writeProjectileId
 import org.lanternpowered.terre.impl.network.buffer.writeString
 import org.lanternpowered.terre.impl.network.packetDecoderOf
 import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.item.ItemModifierRegistry
 import org.lanternpowered.terre.item.ItemRegistry
 import org.lanternpowered.terre.item.ItemStack
 import org.lanternpowered.terre.item.itemStackOf
@@ -110,9 +110,9 @@ internal fun ByteBuf.readDamageReason(): PlayerDamageReason {
   val projectile = if (projectileId != null && projectileType != null)
     Projectile(projectileId, ProjectileType(projectileType)) else null
   val itemId = if ((flags and 0x20) != 0) readShortLE().toInt() else null
-  val itemVariant = if ((flags and 0x40) != 0) readByte().toInt() else null
+  val itemModifier = if ((flags and 0x40) != 0) readByte().toInt() else null
   val itemStack = if (itemId != null) itemStackOf(
-      ItemRegistry[NumericId(itemId)] ?: error("Unknown item: $itemId"), itemVariant ?: 0) else null
+      ItemRegistry.require(itemId), ItemModifierRegistry.require(itemModifier ?: 0)) else null
   val custom = if ((flags and 0x80) != 0) readString() else null
   return PlayerDamageReason(playerId, npcId, projectile, other, itemStack, custom)
 }
@@ -153,8 +153,8 @@ internal fun ByteBuf.writeDamageReason(reason: PlayerDamageReason) {
   if (projectile != null)
     writeShortLE(projectile.type.value)
   if (item != null) {
-    writeShortLE(item.item.numericId.value)
-    writeByte(item.variant)
+    writeShortLE(item.item.numericId)
+    writeByte(item.modifier.numericId)
   }
   if (custom != null)
     writeString(custom)

@@ -18,7 +18,11 @@ import kotlin.reflect.KClass
 
 inline fun <E : Any> Array<E>.toImmutableList(): ImmutableList<E> = ImmutableList.copyOf(this)
 
-inline fun <E : Any> Iterable<E>.toImmutableList(): ImmutableList<E> = ImmutableList.copyOf(this)
+fun <E : Any> Iterable<E>.toImmutableList(): ImmutableList<E>
+    = this as? ImmutableList<E> ?: ImmutableList.copyOf(this)
+
+fun <E : Any> Iterable<E>.toImmutableCollection(): ImmutableCollection<E>
+    = this as? ImmutableCollection<E> ?: ImmutableList.copyOf(this)
 
 inline fun <E : Any> immutableListOf(): ImmutableList<E> = ImmutableList.of()
 

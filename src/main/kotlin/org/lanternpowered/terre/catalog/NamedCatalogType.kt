@@ -7,9 +7,8 @@
  * This work is licensed under the terms of the MIT License (MIT). For
  * a copy, see 'LICENSE.txt' or <https://opensource.org/licenses/MIT>.
  */
-package org.lanternpowered.terre.impl
+package org.lanternpowered.terre.catalog
 
-internal interface InternalIdHolder {
+import org.lanternpowered.terre.Named
 
-  val internalId: Int
-}
+interface NamedCatalogType : Named, CatalogType

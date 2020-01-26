@@ -16,8 +16,8 @@ import org.lanternpowered.terre.text.textOf
 /**
  * Constructs a new [ItemStack].
  */
-fun itemStackOf(item: Item, variant: Int = 0, quantity: Int = 1): ItemStack {
-  return ItemStackImpl(item, variant, quantity)
+fun itemStackOf(item: Item, modifier: ItemModifier = ItemModifier.Default, quantity: Int = 1): ItemStack {
+  return ItemStackImpl(item, modifier, quantity)
 }
 
 /**
@@ -41,9 +41,9 @@ interface ItemStack {
   var quantity: Int
 
   /**
-   * The variant of the item, also known as "prefix".
+   * The modifier of the item, also known as "prefix".
    */
-  var variant: Int
+  var modifier: ItemModifier
 
   /**
    * Creates a copy of this stack.

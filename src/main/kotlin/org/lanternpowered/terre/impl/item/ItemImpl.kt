@@ -9,13 +9,11 @@
  */
 package org.lanternpowered.terre.impl.item
 
-import org.lanternpowered.terre.impl.InternalCatalogType
+import org.lanternpowered.terre.impl.buildNumericCatalogTypeRegistryOf
 import org.lanternpowered.terre.item.Item
-import org.lanternpowered.terre.util.NamespacedId
 
 internal class ItemImpl(
-    override val id: NamespacedId,
-    override val name: String,
-    override val internalId: Int
-) : Item, InternalCatalogType
+    override val numericId: Int
+) : Item
 
+internal val ItemRegistryImpl = buildNumericCatalogTypeRegistryOf<Item>(::ItemImpl)

@@ -16,6 +16,7 @@ import com.uchuhimo.konf.source.toml
 import com.uchuhimo.konf.source.toml.toToml
 import org.lanternpowered.terre.Console
 import org.lanternpowered.terre.Player
+import org.lanternpowered.terre.PlayerCollection
 import org.lanternpowered.terre.Proxy
 import org.lanternpowered.terre.impl.config.ServerConfigSpec
 import org.lanternpowered.terre.impl.console.ConsoleImpl
@@ -54,8 +55,8 @@ internal object ProxyImpl : Proxy {
   private val config: Config = loadConfig()
   private lateinit var networkManager: NetworkManager
 
-  override val players: List<Player>
-    get() = listOf() // TODO
+  override val players: PlayerCollection
+    get() = PlayerCollectionImpl(mapOf()) // TODO
 
   override var name: String
     get() = Terre.name

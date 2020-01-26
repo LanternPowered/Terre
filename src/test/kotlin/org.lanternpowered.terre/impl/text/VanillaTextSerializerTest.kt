@@ -15,7 +15,6 @@ import org.lanternpowered.terre.text.formattedTextOf
 import org.lanternpowered.terre.text.localizedTextOf
 import org.lanternpowered.terre.text.text
 import org.lanternpowered.terre.util.Colors
-import org.lanternpowered.terre.util.Namespace
 import kotlin.test.assertEquals
 
 class VanillaTextSerializerTest {
@@ -51,7 +50,7 @@ class VanillaTextSerializerTest {
   }
 
   @Test fun `test glyph text`() {
-    val text = GlyphRegistry.require(Namespace.Terre.id("button_a")).text() as TextImpl
+    val text = GlyphRegistry.require(0).text() as TextImpl
     val expected = formattedTextOf("[g:0]")
     assertEquals(expected, text.toTaggedVanillaText())
   }

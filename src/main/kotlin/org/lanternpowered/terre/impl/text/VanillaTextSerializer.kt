@@ -190,21 +190,26 @@ private class TaggedVanillaTextBuilder : AbstractVanillaTextBuilder() {
 
   override fun appendText(text: GlyphText) {
     val glyph = text.glyph as GlyphImpl
-    this.builder.append("[g:").append(glyph.internalId).append(']')
+    this.builder.append("[g:").append(glyph.numericId).append(']')
   }
 
   override fun appendText(text: ItemText) {
     val itemStack = text.itemStack as ItemStackImpl
     // TODO: Add prefix
-    this.builder.append("[i:").append(itemStack.item.numericId.value)
+    this.builder.append("[i")
+    val modifier = itemStack.modifier.numericId
+    if (modifier != 0) {
+      this.builder.append("/p").append(modifier)
+    }
     if (itemStack.quantity > 1) {
       this.builder.append("/s").append(itemStack.quantity)
     }
+    this.builder.append(':').append(itemStack.item.numericId)
     this.builder.append(']')
   }
 
   override fun appendText(text: AchievementText) {
-    this.builder.append("[a:").append(text.achievement.id.id.toUpperCase()).append(']')
+    this.builder.append("[a:").append(text.achievement.name.toUpperCase()).append(']')
   }
 }
 

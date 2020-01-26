@@ -9,8 +9,6 @@
  */
 package org.lanternpowered.terre.plugin
 
-import org.lanternpowered.terre.util.Namespace
-
 /**
  * Represents a plugin.
  */
@@ -20,11 +18,6 @@ interface PluginContainer {
    * The id of the plugin.
    */
   val id: String
-
-  /**
-   * The namespace of this plugin.
-   */
-  val namespace: Namespace
 
   /**
    * The name of the plugin.

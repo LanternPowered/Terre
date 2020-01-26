@@ -17,5 +17,5 @@ interface NumericCatalogType : CatalogType {
   /**
    * The numeric id.
    */
-  val numericId: NumericId
+  val numericId: Int
 }

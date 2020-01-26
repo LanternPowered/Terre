@@ -10,12 +10,13 @@
 package org.lanternpowered.terre.impl.item
 
 import org.lanternpowered.terre.item.Item
+import org.lanternpowered.terre.item.ItemModifier
 import org.lanternpowered.terre.item.ItemStack
 import kotlin.math.max
 
 internal class ItemStackImpl(
     override val item: Item,
-    override var variant: Int,
+    override var modifier: ItemModifier,
     quantity: Int
 ) : ItemStack {
 
@@ -31,6 +32,6 @@ internal class ItemStackImpl(
     }
 
   override fun copy(): ItemStack {
-    return ItemStackImpl(this.item, this.variant, this.quantity)
+    return ItemStackImpl(this.item, this.modifier, this.quantity)
   }
 }

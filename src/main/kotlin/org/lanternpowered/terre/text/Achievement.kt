@@ -9,14 +9,14 @@
  */
 package org.lanternpowered.terre.text
 
-import org.lanternpowered.terre.catalog.CatalogType
-import org.lanternpowered.terre.catalog.CatalogTypeRegistry
+import org.lanternpowered.terre.catalog.NamedCatalogType
+import org.lanternpowered.terre.catalog.NamedCatalogTypeRegistry
 import org.lanternpowered.terre.impl.AchievementRegistryImpl
 
-interface Achievement : CatalogType {
+interface Achievement : NamedCatalogType {
 
   fun text(): AchievementText
       = textOf(this)
 }
 
-object AchievementRegistry : CatalogTypeRegistry<Achievement> by AchievementRegistryImpl
+object AchievementRegistry : NamedCatalogTypeRegistry<Achievement> by AchievementRegistryImpl

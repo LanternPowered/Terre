@@ -9,13 +9,11 @@
  */
 package org.lanternpowered.terre.impl.text
 
-import org.lanternpowered.terre.catalog.NumericId
 import org.lanternpowered.terre.impl.util.OptionalColor
 import org.lanternpowered.terre.text.AchievementRegistry
 import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.text.textOf
 import org.lanternpowered.terre.util.Color
-import org.lanternpowered.terre.util.Namespace
 import org.lanternpowered.terre.util.collection.toImmutableList
 import org.lanternpowered.terre.impl.util.optional
 import org.lanternpowered.terre.text.GlyphRegistry
@@ -68,7 +66,7 @@ private fun fromTaggedVanillaFormat(format: String, builder: TextBuilder) {
 
     when (type) {
       "a" -> {
-        val achievement = AchievementRegistry[Namespace.Terre.id(value.toLowerCase(Locale.ROOT))]
+        val achievement = AchievementRegistry[value.toLowerCase(Locale.ROOT)]
         if (achievement == null) {
           builder.append(value)
         } else {
@@ -82,7 +80,7 @@ private fun fromTaggedVanillaFormat(format: String, builder: TextBuilder) {
       }
       "g" -> {
         val internalId = value.toIntOrNull()
-        val glyph = if (internalId != null) GlyphRegistry[NumericId(internalId)] else null
+        val glyph = if (internalId != null) GlyphRegistry[internalId] else null
         if (glyph == null) {
           builder.append(value)
         } else {

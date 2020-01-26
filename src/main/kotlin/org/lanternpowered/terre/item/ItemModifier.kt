@@ -10,5 +10,24 @@
 package org.lanternpowered.terre.item
 
 import org.lanternpowered.terre.catalog.NumericCatalogType
+import org.lanternpowered.terre.catalog.NumericCatalogTypeRegistry
+import org.lanternpowered.terre.impl.item.ItemModifierRegistryImpl
 
-interface ItemModifier : NumericCatalogType
+/**
+ * Represents a modifier of an item stack.
+ */
+interface ItemModifier : NumericCatalogType {
+
+  companion object {
+
+    /**
+     * The default item modifier.
+     */
+    val Default = ItemModifierRegistry.require(0)
+  }
+}
+
+/**
+ * A registry for all the [ItemModifier]s.
+ */
+object ItemModifierRegistry : NumericCatalogTypeRegistry<ItemModifier> by ItemModifierRegistryImpl

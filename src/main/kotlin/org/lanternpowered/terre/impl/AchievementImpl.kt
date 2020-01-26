@@ -10,14 +10,9 @@
 package org.lanternpowered.terre.impl
 
 import org.lanternpowered.terre.text.Achievement
-import org.lanternpowered.terre.catalog.catalogTypeRegistry
-import org.lanternpowered.terre.util.NamespacedId
 
 internal data class AchievementImpl(
-    override val id: NamespacedId,
     override val name: String
 ) : Achievement
 
-internal val AchievementRegistryImpl = catalogTypeRegistry<Achievement> {
-
-}
+internal val AchievementRegistryImpl = buildNamedCatalogTypeRegistryOf<Achievement>(::AchievementImpl)

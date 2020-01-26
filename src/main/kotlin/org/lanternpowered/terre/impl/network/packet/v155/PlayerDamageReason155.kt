@@ -37,7 +37,7 @@ internal fun PlayerDamageReason.toDeathMessage(context: PacketCodecContext): Str
     npc.name ?: npcNameMappings[npc.type.value]
   } else null
 
-  val itemName = if (item != null) itemNameMappings[item.item.numericId.value] else null
+  val itemName = if (item != null) itemNameMappings[item.item.numericId] else null
 
   val playerName = if (playerId != null && cache != null) {
     cache.players.names[playerId] ?: "Unknown"

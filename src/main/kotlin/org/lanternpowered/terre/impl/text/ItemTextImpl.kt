@@ -21,7 +21,7 @@ internal data class ItemTextImpl(
     get() = this.itemStack.isEmpty
 
   override fun toPlain(): String
-      = '[' + this.itemStack.item.name + ']'// TODO
+      = "[Item: Type=${this.itemStack.item.numericId} Modifier=${this.itemStack.modifier.numericId}]"
 
   override fun toString() = ToStringHelper(ItemText::class)
       .add("itemStack", this.itemStack)

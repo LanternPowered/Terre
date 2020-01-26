@@ -19,7 +19,7 @@ internal data class GlyphTextImpl(override val glyph: Glyph) : TextImpl(), Glyph
     get() = false
 
   override fun toPlain(): String
-      = '[' + this.glyph.name + ']'
+      = "[Glyph: " + this.glyph.numericId + ']'
 
   override fun toString() = ToStringHelper(GlyphText::class)
       .add("glyph", this.glyph)
