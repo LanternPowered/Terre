@@ -195,7 +195,6 @@ private class TaggedVanillaTextBuilder : AbstractVanillaTextBuilder() {
 
   override fun appendText(text: ItemText) {
     val itemStack = text.itemStack as ItemStackImpl
-    // TODO: Add prefix
     this.builder.append("[i")
     val modifier = itemStack.modifier.numericId
     if (modifier != 0) {

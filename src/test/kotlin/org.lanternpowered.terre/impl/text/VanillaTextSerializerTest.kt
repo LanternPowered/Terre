@@ -78,7 +78,7 @@ class VanillaTextSerializerTest {
 
   @Test fun `test translatable, grouped and colored text`() {
     val localized = localizedTextOf("path.to.key").color(Colors.Red)
-    val text = (localized + ", Part 1 ".text().color(Colors.Green) + " and Part 2".text()) as TextImpl
+    val text = (localized + ", Part 1 ".text().color(Colors.Lime) + " and Part 2".text()) as TextImpl
     val expected = formattedTextOf("[c/ff0000:{0}][c/ff00:, Part 1 ] and Part 2", localized)
     assertEquals(expected, text.toTaggedVanillaText())
   }

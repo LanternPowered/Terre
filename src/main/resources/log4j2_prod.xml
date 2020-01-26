@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+  <Appenders>
+    <TerminalConsole name="Console">
+      <PatternLayout pattern="%highlightError{[%d{HH:mm:ss}] [%t/%level] [%logger{1}]: %msg%n"/>
+    </TerminalConsole>
+    <TerminalConsole name="DefaultConsole">
+      <PatternLayout pattern="%highlightError{[%d{HH:mm:ss}] [%t/%level]: %msg%n"/>
+    </TerminalConsole>
+    <RollingRandomAccessFile name="File" fileName="logs/latest.log" filePattern="logs/%d{yyyy-MM-dd}-%i.log.gz"
+                             immediateFlush="false">
+      <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level] [%logger{1}]: %msg%n"/>
+      <Policies>
+        <TimeBasedTriggeringPolicy/>
+        <OnStartupTriggeringPolicy/>
+      </Policies>
+    </RollingRandomAccessFile>
+  </Appenders>
+  <Loggers>
+    <!-- Log server messages without prefix. -->
+    <Logger name="terre" level="all" additivity="false">
+      <AppenderRef ref="DefaultConsole" level="info"/>
+      <AppenderRef ref="File"/>
+    </Logger>
+    <!-- Log all other messages with prefix. -->
+    <Root level="all">
+      <AppenderRef ref="Console" level="info"/>
+      <AppenderRef ref="File"/>
+    </Root>
+  </Loggers>
+</Configuration>
