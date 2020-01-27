@@ -16,6 +16,7 @@ repositories {
   maven("https://repo.spongepowered.org/maven/")
   maven("https://jitpack.io")
   maven("https://kotlin.bintray.com/kotlinx")
+  maven("https://oss.sonatype.org/content/groups/public")
 }
 
 dependencies {
@@ -45,6 +46,12 @@ dependencies {
 
   // Networking
   implementation(group = "io.netty", name = "netty-all", version = "4.1.38.Final")
+
+  // Cache
+  implementation(group = "com.github.ben-manes.caffeine", name = "caffeine", version = "2.8.1")
+
+  // Lambda generation
+  implementation(group = "org.lanternpowered", name = "lmbda", version = "2.0.0-SNAPSHOT")
 
   // Logging
   val log4jVersion = "2.12.1"
@@ -118,6 +125,7 @@ tasks {
       languageVersion = "1.3"
 
       val args = mutableListOf<String>()
+      args += "-Xjvm-default=enable"
 
       fun useExperimentalAnnotation(name: String) {
         args += "-Xuse-experimental=$name"

@@ -20,7 +20,6 @@ import org.lanternpowered.terre.text.textOf
 import java.net.SocketAddress
 
 internal class PlayerImpl(
-    override val remoteAddress: SocketAddress,
     val clientConnection: Connection,
     override val name: String,
     override val identifier: PlayerIdentifier
@@ -30,6 +29,9 @@ internal class PlayerImpl(
 
   override val serverConnection: ServerConnectionImpl?
     get() = this.theServerConnection
+
+  override val remoteAddress: SocketAddress
+    get() = this.clientConnection.remoteAddress
 
   private val theServerConnection: ServerConnectionImpl? = null
 

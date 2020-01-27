@@ -22,7 +22,7 @@ internal class PacketMessageEncoder(private val context: PacketCodecContext) : M
 
   override fun encode(ctx: ChannelHandlerContext, input: Packet, output: ByteBuf) {
     val registration = this.context.protocol.getEncoder(input.javaClass)
-        ?: throw EncoderException("No codec is registered for packet type ${input::class.simpleName}")
+        ?: throw EncoderException("No encoder is registered for packet type ${input::class.simpleName}")
 
     val result = try {
       registration.encoder.encode(this.context, input)

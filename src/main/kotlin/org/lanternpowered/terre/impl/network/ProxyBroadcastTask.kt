@@ -35,7 +35,7 @@ internal class ProxyBroadcastTask(private val proxy: Proxy) {
       return
     }
 
-    val thread = Thread(this::broadcast, "lan_broadcast")
+    val thread = Thread(this::broadcast, "lan-broadcast")
     thread.isDaemon = true
     thread.start()
 

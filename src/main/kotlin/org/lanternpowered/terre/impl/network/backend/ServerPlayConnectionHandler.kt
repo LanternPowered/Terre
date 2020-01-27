@@ -49,7 +49,7 @@ internal open class ServerPlayConnectionHandler(
   private inline fun updateDeathSourceCache(crossinline fn: DeathSourceInfoCache.() -> Unit) {
     val cache = this.deathSourceInfoCache
     if (cache != null) {
-      this.player.clientConnection.eventLoop().execute {
+      this.player.clientConnection.eventLoop.execute {
         cache.fn()
       }
     }

@@ -27,5 +27,5 @@ internal object Terre {
   /**
    * The logger of the platform.
    */
-  val logger: Logger = LogManager.getLogger(Terre)
+  val logger: Logger = LogManager.getLogger(this.name)
 }

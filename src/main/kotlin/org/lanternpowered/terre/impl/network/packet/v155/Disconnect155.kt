@@ -9,10 +9,17 @@
  */
 package org.lanternpowered.terre.impl.network.packet.v155
 
+import org.lanternpowered.terre.impl.network.buffer.readString
 import org.lanternpowered.terre.impl.network.buffer.writeString
 import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
+import org.lanternpowered.terre.impl.network.packetDecoderOf
 import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.text.text
 
 internal val Disconnect155Encoder = packetEncoderOf<DisconnectPacket> { buf, packet ->
   buf.writeString(packet.reason.toPlain())
+}
+
+internal val Disconnect155Decoder = packetDecoderOf { buf ->
+  DisconnectPacket(buf.readString().text())
 }

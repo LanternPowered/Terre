@@ -19,6 +19,7 @@ class PlayerIdentifier {
    * Create a safe clone.
    */
   private val backing: ByteArray
+  private val hashCode: Int
 
   /**
    * Constructs a new [PlayerIdentifier] from the given [ByteArray].
@@ -30,6 +31,7 @@ class PlayerIdentifier {
    */
   private constructor(bytes: ByteArray, unit: Unit) {
     this.backing = bytes
+    this.hashCode = this.backing.contentHashCode()
   }
 
   /**
@@ -53,8 +55,7 @@ class PlayerIdentifier {
   override fun equals(other: Any?)
       = other is PlayerIdentifier && other.backing contentEquals this.backing
 
-  override fun hashCode()
-      = this.backing.contentHashCode()
+  override fun hashCode() = this.hashCode
 
   companion object {
 

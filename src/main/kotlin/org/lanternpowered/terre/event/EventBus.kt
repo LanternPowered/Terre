@@ -30,32 +30,25 @@ abstract class EventBus {
   /**
    * Subscribes to events with the given event type.
    */
-  inline fun <reified T : Event> register(
-      pluginContainer: PluginContainer = PluginContainer.Active,
-      order: Int = Order.Normal, noinline listener: (event: T) -> Unit) {
-    register(pluginContainer, T::class, order, listener)
-  }
-
-  /**
-   * Subscribes to events with the given event type.
-   */
   abstract fun <T : Event> register(
       pluginContainer: PluginContainer = PluginContainer.Active,
       eventType: KClass<T>, order: Int = Order.Normal, listener: suspend (event: T) -> Unit
   )
 
   /**
-   * Subscribes to events with the given event type.
+   * Subscribes to events of annotated methods within the listener class.
    */
-  abstract fun <T : Event> register(
-      pluginContainer: PluginContainer = PluginContainer.Active,
-      eventType: KClass<T>, order: Int = Order.Normal, listener: (event: T) -> Unit
-  )
+  abstract fun register(pluginContainer: PluginContainer = PluginContainer.Active, listener: Any)
 
   /**
    * Posts an [Event] to this event bus.
    */
-  suspend fun <T : Event> post(event: T) = postAsync(event).await()
+  abstract suspend fun <T : Event> post(event: T)
+
+  /**
+   * Posts an [Event] to this event bus.
+   */
+  abstract fun <T : Event> postAndForget(event: T)
 
   /**
    * Posts an async [Event] to this event bus.

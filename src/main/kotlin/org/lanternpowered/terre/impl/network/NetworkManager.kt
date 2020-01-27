@@ -13,24 +13,29 @@ import com.google.common.collect.Sets
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.buffer.ByteBufAllocator
 import io.netty.buffer.PooledByteBufAllocator
-import io.netty.channel.*
+import io.netty.channel.Channel
+import io.netty.channel.ChannelFactory
+import io.netty.channel.ChannelFuture
+import io.netty.channel.ChannelFutureListener
+import io.netty.channel.ChannelInitializer
+import io.netty.channel.ChannelOption
+import io.netty.channel.EventLoopGroup
 import io.netty.channel.socket.SocketChannel
-import io.netty.handler.flush.FlushConsolidationHandler
 import io.netty.handler.timeout.ReadTimeoutHandler
 import org.lanternpowered.terre.impl.Terre
+import org.lanternpowered.terre.impl.network.client.ClientInitConnectionHandler
 import org.lanternpowered.terre.impl.network.pipeline.FrameDecoder
 import org.lanternpowered.terre.impl.network.pipeline.FrameEncoder
 import org.lanternpowered.terre.impl.network.pipeline.PacketMessageDecoder
 import org.lanternpowered.terre.impl.network.pipeline.PacketMessageEncoder
+import org.lanternpowered.terre.impl.util.listFutureOf
 import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.util.collection.toImmutableList
-import org.lanternpowered.terre.impl.util.listFutureOf
 import java.net.SocketAddress
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
 private const val ReadTimeoutSeconds = 20
-private const val ExplicitFlushAfterFlushes = 5
 
 internal class NetworkManager {
 
@@ -71,17 +76,16 @@ internal class NetworkManager {
   }
 
   private fun initChannel(channel: SocketChannel) {
-    val session = Connection(this, channel)
-    val context = PacketCodecContextImpl(session, channel)
+    val connection = Connection(this, channel)
+    connection.setConnectionHandler(ClientInitConnectionHandler(connection))
     val pipeline = channel.pipeline()
     pipeline.apply {
-      addLast(FlushConsolidationHandler(ExplicitFlushAfterFlushes))
       addLast(ReadTimeoutHandler(ReadTimeoutSeconds))
       addLast(FrameDecoder())
       addLast(FrameEncoder())
-      addLast(PacketMessageDecoder(context))
-      addLast(PacketMessageEncoder(context))
-      addLast(session)
+      addLast(PacketMessageDecoder(PacketCodecContextImpl(connection, channel, PacketDirection.ClientToServer)))
+      addLast(PacketMessageEncoder(PacketCodecContextImpl(connection, channel, PacketDirection.ServerToClient)))
+      addLast(connection)
     }
   }
 
@@ -113,7 +117,8 @@ internal class NetworkManager {
 
   private class PacketCodecContextImpl(
       override val connection: Connection,
-      override val channel: Channel
+      override val channel: Channel,
+      override val direction: PacketDirection
   ) : PacketCodecContext {
     override val protocol: Protocol get() = this.connection.protocol
     override val byteBufAllocator: ByteBufAllocator get() = this.channel.alloc()

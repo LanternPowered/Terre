@@ -10,23 +10,22 @@
 package org.lanternpowered.terre.impl
 
 import com.fasterxml.jackson.databind.module.SimpleModule
-import com.google.common.util.concurrent.ThreadFactoryBuilder
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.toml
 import com.uchuhimo.konf.source.toml.toToml
 import org.lanternpowered.terre.Console
 import org.lanternpowered.terre.Player
-import org.lanternpowered.terre.PlayerCollection
+import org.lanternpowered.terre.PlayerIdentifier
 import org.lanternpowered.terre.Proxy
 import org.lanternpowered.terre.impl.config.ServerConfigSpec
 import org.lanternpowered.terre.impl.console.ConsoleImpl
+import org.lanternpowered.terre.impl.event.TerreEventBus
 import org.lanternpowered.terre.impl.network.NetworkManager
 import org.lanternpowered.terre.impl.network.ProxyBroadcastTask
 import org.lanternpowered.terre.impl.network.TransportType
 import org.lanternpowered.terre.impl.plugin.PluginManagerImpl
 import org.lanternpowered.terre.impl.text.TextDeserializer
 import org.lanternpowered.terre.impl.text.TextSerializer
-import org.lanternpowered.terre.item.ItemRegistry
 import org.lanternpowered.terre.plugin.PluginContainer
 import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.text.textOf
@@ -34,17 +33,12 @@ import java.net.BindException
 import java.net.InetSocketAddress
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 internal object ProxyImpl : Proxy {
-
-  /**
-   * The base executor that will handle events.
-   */
-  val executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
-      ThreadFactoryBuilder().setNameFormat("Event Executor - #%d").setDaemon(true).build())
 
   val console = ConsoleImpl(::processCommand, ::shutdown)
 
@@ -55,8 +49,25 @@ internal object ProxyImpl : Proxy {
   private val config: Config = loadConfig()
   private lateinit var networkManager: NetworkManager
 
-  override val players: PlayerCollection
-    get() = PlayerCollectionImpl(mapOf()) // TODO
+  private val playersByIdentifier = ConcurrentHashMap<PlayerIdentifier, Player>()
+
+  override val players = PlayerCollectionImpl(this.playersByIdentifier)
+
+  /**
+   * Attempts to register a player to the proxy. Returns true if the
+   * registration was successful and false in case of failure. Failure
+   * can occur if there's already a player with the same identifier.
+   */
+  fun registerPlayer(player: Player): Boolean {
+    return this.playersByIdentifier.putIfAbsent(player.identifier, player) == null
+  }
+
+  /**
+   * Unregisters the given player.
+   */
+  fun unregisterPlayer(player: Player) {
+    this.playersByIdentifier -= player.identifier
+  }
 
   override var name: String
     get() = Terre.name
@@ -78,9 +89,6 @@ internal object ProxyImpl : Proxy {
   fun init() {
     Terre.logger.info("Starting ${Terre.name} Server ${Terre.version}")
 
-    // Initialize the registries
-    ItemRegistry
-
     initServer()
 
     // Start the console, reading commands starts now
@@ -95,7 +103,7 @@ internal object ProxyImpl : Proxy {
 
   private fun processCommand(command: String) {
     // TODO: Process commands
-    this.executor.execute {
+    TerreEventBus.executor.execute {
       if (command.trim().toLowerCase() == "shutdown") {
         shutdown()
       } else {
@@ -114,9 +122,9 @@ internal object ProxyImpl : Proxy {
     this.networkManager.shutdown(reason)
     this.console.stop()
 
-    this.executor.shutdown()
-    if (!this.executor.awaitTermination(10, TimeUnit.SECONDS)) {
-      this.executor.shutdownNow()
+    TerreEventBus.executor.shutdown()
+    if (!TerreEventBus.executor.awaitTermination(10, TimeUnit.SECONDS)) {
+      TerreEventBus.executor.shutdownNow()
     }
   }
 

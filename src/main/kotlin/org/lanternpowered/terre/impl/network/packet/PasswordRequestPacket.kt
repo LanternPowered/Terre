@@ -10,8 +10,11 @@
 package org.lanternpowered.terre.impl.network.packet
 
 import org.lanternpowered.terre.impl.network.Packet
+import org.lanternpowered.terre.impl.network.packetDecoderOf
 import org.lanternpowered.terre.impl.network.packetEncoderOf
 
 internal object PasswordRequestPacket : Packet
 
 internal val PasswordRequestEncoder = packetEncoderOf<PasswordRequestPacket> { _, _ -> }
+
+internal val PasswordRequestDecoder = packetDecoderOf { PasswordRequestPacket }

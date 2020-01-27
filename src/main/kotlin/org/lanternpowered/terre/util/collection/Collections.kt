@@ -81,6 +81,16 @@ fun <T, E : Any> Iterable<T>.mapToImmutableList(transform: (T) -> E): ImmutableL
 }
 
 /**
+ * Matches whether the contents of the iterables are equal. The
+ * position within the iterables must also match.
+ */
+internal infix fun <E> Iterable<E>.contentEquals(that: Iterable<E>): Boolean {
+  val thisList = this as? List<E> ?: this.toList()
+  val thatList = that as? List<E> ?: that.toList()
+  return thisList contentEquals thatList
+}
+
+/**
  * Matches whether the contents of the lists are equal.
  */
 infix fun <E> List<E>.contentEquals(that: List<E>): Boolean {
@@ -91,6 +101,17 @@ infix fun <E> List<E>.contentEquals(that: List<E>): Boolean {
     }
   }
   return true
+}
+
+/**
+ * Gets hashcode for the contents of the iterable.
+ */
+internal fun <E> Iterable<E>.contentHashCode(): Int {
+  var result = 1
+  for (element in this) {
+    result = 31 * result + (element?.hashCode() ?: 0)
+  }
+  return result
 }
 
 /**

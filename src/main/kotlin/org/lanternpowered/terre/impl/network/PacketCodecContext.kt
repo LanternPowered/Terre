@@ -25,4 +25,10 @@ internal interface PacketCodecContext : NetworkContext {
    * is not yet known.
    */
   val protocol: Protocol
+
+  /**
+   * The direction for which the packet is
+   * being encoded or decoded.
+   */
+  val direction: PacketDirection
 }

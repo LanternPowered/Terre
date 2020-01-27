@@ -46,7 +46,7 @@ internal class ClientPlayConnectionHandler(
 
   private fun initializeKeepAliveTask() {
     val connection = this.playerImpl.clientConnection
-    this.keepAliveTask = connection.eventLoop().scheduleAtFixedRate({
+    this.keepAliveTask = connection.eventLoop.scheduleAtFixedRate({
       if (this.keepAliveTime == -1L) {
         this.keepAliveTime = System.currentTimeMillis()
         connection.send(KeepAlivePacket)

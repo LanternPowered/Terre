@@ -15,6 +15,7 @@ import io.netty.util.concurrent.Future
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import org.lanternpowered.terre.impl.ProxyImpl
+import org.lanternpowered.terre.impl.event.TerreEventBus
 
 /**
  *
@@ -23,7 +24,7 @@ import org.lanternpowered.terre.impl.ProxyImpl
 internal fun Future<Void>.toDeferred(): Deferred<Unit> {
   val deferred = CompletableDeferred<Unit>()
   addListener {
-    ProxyImpl.executor.execute {
+    TerreEventBus.executor.execute {
       if (it.isSuccess) {
         deferred.complete(Unit)
       } else {
@@ -38,7 +39,7 @@ internal fun <V> Future<V>.toDeferred(): Deferred<V> {
   val future = this
   val deferred = CompletableDeferred<V>()
   addListener {
-    ProxyImpl.executor.execute {
+    TerreEventBus.executor.execute {
       if (future.isSuccess) {
         deferred.complete(future.get())
       } else {

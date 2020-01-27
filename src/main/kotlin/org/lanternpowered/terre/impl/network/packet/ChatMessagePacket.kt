@@ -10,11 +10,15 @@
 package org.lanternpowered.terre.impl.network.packet
 
 import org.lanternpowered.terre.impl.network.Packet
+import org.lanternpowered.terre.impl.network.buffer.readColor
+import org.lanternpowered.terre.impl.network.buffer.readTaggedText
 import org.lanternpowered.terre.impl.network.buffer.writeColor
 import org.lanternpowered.terre.impl.network.buffer.writeTaggedText
+import org.lanternpowered.terre.impl.network.packetDecoderOf
 import org.lanternpowered.terre.impl.network.packetEncoderOf
 import org.lanternpowered.terre.text.ColorableText
 import org.lanternpowered.terre.text.Text
+import org.lanternpowered.terre.text.color
 import org.lanternpowered.terre.util.Color
 import org.lanternpowered.terre.util.Colors
 
@@ -28,6 +32,13 @@ internal val ChatMessageEncoder = packetEncoderOf<ChatMessagePacket> { buf, pack
   buf.writeColor(color)
   buf.writeTaggedText(text)
   buf.writeShortLE(packet.maxWidth)
+}
+
+internal val ChatMessageDecoder = packetDecoderOf { buf ->
+  val color = buf.readColor()
+  val text = buf.readTaggedText().color(color)
+  val maxWidth = buf.readUnsignedShortLE()
+  ChatMessagePacket(text, maxWidth)
 }
 
 internal object ChatMessageHelper {

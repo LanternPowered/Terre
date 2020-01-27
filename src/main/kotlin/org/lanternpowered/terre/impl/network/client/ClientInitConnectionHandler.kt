@@ -18,20 +18,27 @@ import org.lanternpowered.terre.impl.network.ConnectionHandler
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.ProtocolRegistry
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
-import org.lanternpowered.terre.impl.network.packet.*
+import org.lanternpowered.terre.impl.network.packet.ClientUniqueIdPacket
+import org.lanternpowered.terre.impl.network.packet.ConnectionApprovedPacket
+import org.lanternpowered.terre.impl.network.packet.ConnectionRequestPacket
+import org.lanternpowered.terre.impl.network.packet.PasswordRequestPacket
+import org.lanternpowered.terre.impl.network.packet.PasswordResponsePacket
+import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
+import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
+import org.lanternpowered.terre.impl.player.PlayerImpl
 import org.lanternpowered.terre.text.textOf
 import java.security.MessageDigest
 import kotlin.streams.toList
-
 
 /**
  * The connection handler that is used initially to establish a connection
  * between the client and the proxy server.
  */
 internal class ClientInitConnectionHandler(
-    val inboundConnection: InitialInboundConnection,
     val connection: Connection
 ) : ConnectionHandler {
+
+  private val inboundConnection = InitialInboundConnection(this.connection.remoteAddress)
 
   private var identifier: PlayerIdentifier? = null
   private var name: String? = null
@@ -115,7 +122,10 @@ internal class ClientInitConnectionHandler(
   }
 
   private fun initPlayPhase() {
-
+    val name = this.name ?: error("Player name is unknown.")
+    val identifier = this.identifier ?: error("Player identifier is unknown.")
+    val player = PlayerImpl(this.connection, name, identifier)
+    this.connection.setConnectionHandler(ClientPlayConnectionHandler(player))
   }
 
   override fun handleGeneric(packet: Packet) {

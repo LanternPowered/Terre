@@ -38,7 +38,7 @@ import kotlin.reflect.KClass
 
 internal object ConnectionHandlerBindings {
 
-  private val handlersByPacketType = mutableMapOf<Class<*>, ConnectionHandler.(Packet) -> Unit>()
+  private val handlersByPacketType = mutableMapOf<Class<*>, ConnectionHandler.(Packet) -> Boolean>()
 
   init {
     bind<ChatMessagePacket>(ConnectionHandler::handle)
@@ -67,14 +67,14 @@ internal object ConnectionHandlerBindings {
   }
 
   internal fun <P : Packet> getHandler(packetType: Class<P>): (ConnectionHandler.(packet: P) -> Boolean)?
-      = this.handlersByPacketType[packetType] as (ConnectionHandler.(packet: P) -> Boolean)?
+      = this.handlersByPacketType[packetType]
 
   private inline fun <reified P : Packet> bind(
-      noinline handler: ConnectionHandler.(packet: P) -> Unit) {
+      noinline handler: ConnectionHandler.(packet: P) -> Boolean) {
     bind(P::class, handler)
   }
 
-  private fun <P : Packet> bind(type: KClass<P>, handler: ConnectionHandler.(packet: P) -> Unit) {
-    this.handlersByPacketType[type.java] = handler as ConnectionHandler.(packet: Packet) -> Unit
+  private fun <P : Packet> bind(type: KClass<P>, handler: ConnectionHandler.(packet: P) -> Boolean) {
+    this.handlersByPacketType[type.java] = handler as ConnectionHandler.(packet: Packet) -> Boolean
   }
 }

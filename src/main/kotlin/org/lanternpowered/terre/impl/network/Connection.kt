@@ -26,9 +26,11 @@ import io.netty.util.AttributeKey
 import io.netty.util.ReferenceCountUtil
 import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
+import org.lanternpowered.terre.impl.network.packet.KeepAlivePacket
 import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.text.textOf
 import java.io.IOException
+import java.net.SocketAddress
 
 internal class Connection(
     private val networkManager: NetworkManager,
@@ -45,15 +47,34 @@ internal class Connection(
   val protocol: Protocol
     get() = this.currentProtocol
 
+  /**
+   * Sets the current [ConnectionHandler].
+   */
+  fun setConnectionHandler(connectionHandler: ConnectionHandler) {
+    this.connectionHandler = connectionHandler
+    connectionHandler.initialize()
+  }
+
+  /**
+   * Initializes the protocol version.
+   */
   fun initProtocol(protocol: Protocol) {
     check(this.currentProtocol == InitProtocol) {
       "Protocol is already initialized." }
-    this.channel.eventLoop().execute {
-      this.currentProtocol = protocol
-    }
+    this.currentProtocol = protocol
   }
 
-  fun eventLoop(): EventLoop = this.channel.eventLoop()
+  /**
+   * The event loop of the connection.
+   */
+  val eventLoop: EventLoop
+    get() = this.channel.eventLoop()
+
+  /**
+   * The remote address this connection is connected to.
+   */
+  val remoteAddress: SocketAddress
+      get() = this.channel.remoteAddress()
 
   /**
    * Closes the connection.
@@ -89,7 +110,8 @@ internal class Connection(
     val connectionHandler = this.connectionHandler ?: return
     try {
       if (packet is Packet) {
-        Terre.logger.info("Received packet: $packet")
+        if (packet !is KeepAlivePacket)
+          Terre.logger.info("Received packet: $packet")
 
         val handler = ConnectionHandlerBindings.getHandler(packet.javaClass)
         if (handler != null) {
@@ -109,12 +131,13 @@ internal class Connection(
 
   override fun channelActive(ctx: ChannelHandlerContext) {
     this.networkManager.sessionActive(this)
-    Terre.logger.info("Client connected from: ${this.channel.remoteAddress()}")
+    Terre.logger.info("Client connected from: $remoteAddress")
   }
 
   override fun channelInactive(ctx: ChannelHandlerContext) {
     this.networkManager.sessionInactive(this)
-    Terre.logger.info("Client disconnected from: ${this.channel.remoteAddress()}")
+    this.connectionHandler?.disconnect()
+    Terre.logger.info("Client disconnected from: $remoteAddress")
     // The player probably just left the server
     if (this.disconnectReason == null) {
       if (this.channel.isOpen) {
