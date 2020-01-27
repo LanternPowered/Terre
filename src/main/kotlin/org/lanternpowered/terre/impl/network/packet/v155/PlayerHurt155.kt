@@ -28,7 +28,7 @@ internal val PlayerHurt155Encoder = packetEncoderOf<PlayerHurtPacket> { buf, pac
     flags += 0x1
   if (packet.pvp)
     flags += 0x2
-  when (packet.cooldownCounter) {
+  when (packet.cooldownCounter.coerceIn(-1, 2)) {
     -1 -> flags += 0x4
     1 -> flags += 0x8
     2 -> flags += 0x10

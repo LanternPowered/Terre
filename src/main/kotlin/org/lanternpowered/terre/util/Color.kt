@@ -11,8 +11,6 @@
 
 package org.lanternpowered.terre.util
 
-import org.lanternpowered.terre.impl.util.Optional
-
 /**
  * Constructs a new color from the rgba values.
  */

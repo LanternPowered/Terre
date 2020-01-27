@@ -12,6 +12,7 @@ package org.lanternpowered.terre.impl.network.client
 import io.netty.buffer.ByteBuf
 import org.lanternpowered.terre.PlayerIdentifier
 import org.lanternpowered.terre.impl.ProxyImpl
+import org.lanternpowered.terre.impl.network.ClientVersion
 import org.lanternpowered.terre.impl.network.Connection
 import org.lanternpowered.terre.impl.network.ConnectionHandler
 import org.lanternpowered.terre.impl.network.Packet
@@ -44,7 +45,12 @@ internal class ClientInitConnectionHandler(
 
   override fun handle(packet: ConnectionRequestPacket): Boolean {
     val currentVersion = packet.version
-    val protocol = ProtocolRegistry[currentVersion]
+    if (currentVersion !is ClientVersion.Vanilla) {
+      // TODO: Modded support
+      this.connection.close(textOf("Only vanilla clients are supported."))
+      return true
+    }
+    val protocol = ProtocolRegistry[currentVersion.protocol]
     if (protocol == null) {
       val expected = ProtocolRegistry.all.stream()
           .map { it.version }.toList()
