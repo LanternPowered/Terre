@@ -10,6 +10,8 @@
 package org.lanternpowered.terre.impl
 
 internal fun main(args: Array<String>) {
+  System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager")
+
   val server = ProxyImpl
   server.init()
 }

@@ -84,7 +84,7 @@ fun <T> T.alsoAsync(block: suspend (T) -> Unit): T {
   return this
 }
 
-fun <T, R> withAsync(receiver: T, block: T.() -> R): Deferred<R> {
+fun <T, R> withAsync(receiver: T, block: suspend T.() -> R): Deferred<R> {
   val scope = CoroutineScope(Proxy.dispatcher)
   return scope.async {
     block(receiver)

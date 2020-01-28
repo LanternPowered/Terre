@@ -9,6 +9,7 @@
  */
 package org.lanternpowered.terre.plugin
 
+import org.lanternpowered.terre.impl.plugin.inject as doInject
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
 
@@ -18,7 +19,7 @@ import kotlin.reflect.typeOf
  */
 inline fun <reified T> Any.inject(): T {
   @Suppress("UNCHECKED_CAST")
-  return inject0(typeOf<T>()) as T
+  return doInject(typeOf<T>()) as T
 }
 
 /**
@@ -27,7 +28,7 @@ inline fun <reified T> Any.inject(): T {
  */
 fun <T> Any.inject(type: KType): T {
   @Suppress("UNCHECKED_CAST")
-  return inject0(type) as T
+  return doInject(type) as T
 }
 
 /**
@@ -35,7 +36,7 @@ fun <T> Any.inject(type: KType): T {
  */
 inline fun <reified T : Any> inject(): T {
   @Suppress("UNCHECKED_CAST")
-  return null.inject0(typeOf<T>()) as T
+  return null.doInject(typeOf<T>()) as T
 }
 
 /**
@@ -43,10 +44,5 @@ inline fun <reified T : Any> inject(): T {
  */
 fun <T> inject(type: KType): T {
   @Suppress("UNCHECKED_CAST")
-  return null.inject0(type) as T
-}
-
-@PublishedApi
-internal fun Any?.inject0(type: KType): Any? {
-  TODO()
+  return null.doInject(type) as T
 }

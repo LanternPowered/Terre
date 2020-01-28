@@ -25,6 +25,11 @@ interface PluginContainer {
   val name: String
 
   /**
+   * The version of the plugin.
+   */
+  val version: String?
+
+  /**
    * The description of the plugin, if there's one.
    */
   val description: String?
@@ -33,6 +38,11 @@ interface PluginContainer {
    * The authors of the plugin.
    */
   val authors: List<String>
+
+  /**
+   * The url of the project page of the plugin.
+   */
+  val url: String?
 
   /**
    * The instance of the plugin.
