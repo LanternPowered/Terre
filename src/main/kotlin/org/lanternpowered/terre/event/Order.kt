@@ -11,13 +11,13 @@ package org.lanternpowered.terre.event
 
 object Order {
 
-  const val First = 0
+  const val First = -100
 
-  const val Early = 50
+  const val Early = -50
 
-  const val Normal = 100
+  const val Normal = 0
 
-  const val Late = 150
+  const val Late = 50
 
-  const val Last = 200
+  const val Last = 100
 }

@@ -15,9 +15,11 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import org.lanternpowered.terre.Proxy
+import org.lanternpowered.terre.impl.event.EventExecutor
+import org.lanternpowered.terre.impl.plugin.ActivePluginThreadLocalElement
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -49,44 +51,47 @@ fun <T> CoroutineDispatcher.submit(
 }
 
 /**
- * Launches a new async task on the proxy coroutine dispatcher.
+ * Creates a new coroutine scope.
  */
+private fun newCoroutineScope() = CoroutineScope(EventExecutor.dispatcher + ActivePluginThreadLocalElement())
+
+/**
+ * Launches a new async job on the proxy coroutine dispatcher.
+ */
+fun launchAsync(block: suspend CoroutineScope.() -> Unit): Job {
+  return newCoroutineScope().launch {
+    block()
+  }
+}
+
 fun <T, R> T.letAsync(block: suspend (T) -> R): Deferred<R> {
-  val scope = CoroutineScope(Proxy.dispatcher)
-  return scope.async {
+  return newCoroutineScope().async {
     block(this@letAsync)
   }
 }
 
-/**
- * Launches a new async task on the proxy coroutine dispatcher.
- */
 fun <T, R> T.runAsync(block: suspend T.() -> R): Deferred<R> {
-  val scope = CoroutineScope(Proxy.dispatcher)
-  return scope.async {
+  return newCoroutineScope().async {
     block()
   }
 }
 
 fun <T> T.applyAsync(block: suspend T.() -> Unit): T {
-  val scope = CoroutineScope(Proxy.dispatcher)
-  scope.launch {
+  newCoroutineScope().launch {
     block()
   }
   return this
 }
 
 fun <T> T.alsoAsync(block: suspend (T) -> Unit): T {
-  val scope = CoroutineScope(Proxy.dispatcher)
-  scope.launch {
+  newCoroutineScope().launch {
     block(this@alsoAsync)
   }
   return this
 }
 
 fun <T, R> withAsync(receiver: T, block: suspend T.() -> R): Deferred<R> {
-  val scope = CoroutineScope(Proxy.dispatcher)
-  return scope.async {
+  return newCoroutineScope().async {
     block(receiver)
   }
 }

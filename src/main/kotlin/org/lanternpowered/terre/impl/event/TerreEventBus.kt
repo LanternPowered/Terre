@@ -13,12 +13,11 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.LoadingCache
 import com.google.common.collect.HashMultimap
 import com.google.common.reflect.TypeToken
-import com.google.common.util.concurrent.ThreadFactoryBuilder
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.lanternpowered.lmbda.kt.createLambda
 import org.lanternpowered.lmbda.kt.lambdaType
 import org.lanternpowered.lmbda.kt.privateLookupIn
@@ -27,25 +26,20 @@ import org.lanternpowered.terre.event.EventBus
 import org.lanternpowered.terre.event.EventSubscription
 import org.lanternpowered.terre.event.Subscribe
 import org.lanternpowered.terre.impl.Terre
+import org.lanternpowered.terre.impl.plugin.ActivePluginThreadLocalElement
 import org.lanternpowered.terre.plugin.PluginContainer
 import java.lang.invoke.MethodHandles
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 import kotlin.reflect.KClass
 import kotlin.reflect.jvm.kotlinFunction
 
 internal object TerreEventBus : EventBus {
 
-  val executor: ExecutorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
-      ThreadFactoryBuilder().setNameFormat("event-executor-#%d").setDaemon(true).build())
-
   private val lock = Any()
 
-  val dispatcher = this.executor.asCoroutineDispatcher()
-  private val coroutineScope = CoroutineScope(this.dispatcher)
+  private val coroutineScope = CoroutineScope(EventExecutor.dispatcher)
 
   private val handlersByEvent = HashMultimap.create<Class<*>, RegisteredHandler>()
   private val handlersCache: LoadingCache<Class<*>, List<RegisteredHandler>>
@@ -258,7 +252,9 @@ internal object TerreEventBus : EventBus {
   private suspend fun handleHandlers(event: Event, handlers: List<RegisteredHandler>) {
     for (handler in handlers) {
       try {
-        handler.handler.handle(event)
+        withContext(ActivePluginThreadLocalElement(handler.plugin)) {
+          handler.handler.handle(event)
+        }
       } catch (ex: Throwable) {
         Terre.logger.info("Couldn't pass ${event::class.simpleName} to ${handler.plugin.id}", ex)
       }

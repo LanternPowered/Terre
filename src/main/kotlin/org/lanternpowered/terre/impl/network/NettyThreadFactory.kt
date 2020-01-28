@@ -9,7 +9,7 @@
  */
 package org.lanternpowered.terre.impl.network
 
-import io.netty.util.concurrent.FastThreadLocalThread
+import org.lanternpowered.terre.impl.util.TerreThread
 import java.util.concurrent.ThreadFactory
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -18,5 +18,5 @@ internal class NettyThreadFactory(private val group: String) : ThreadFactory {
   private val counter = AtomicInteger()
 
   override fun newThread(r: Runnable): Thread
-      = FastThreadLocalThread(r, "netty-$group-${this.counter.incrementAndGet()}")
+      = TerreThread(r, "netty-$group-${this.counter.incrementAndGet()}")
 }

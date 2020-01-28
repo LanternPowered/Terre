@@ -25,22 +25,44 @@ class EventBusTest {
 
   private val plugin = SimplePluginContainer("test")
 
+  @Test fun `test active plugin`(): Unit = runBlocking {
+    val counter = LongAdder()
+    EventBus.subscribe<TestEvent>(plugin) {
+      assertEquals(plugin, PluginContainer.Active)
+      counter.increment()
+    }
+    EventBus.post(TestEvent)
+    assertEquals(1, counter.toInt())
+  }
+
+  @Test fun `test active plugin - in async task`(): Unit = runBlocking {
+    val counter = LongAdder()
+    EventBus.subscribe<TestEvent>(plugin) {
+      runAsync {
+        assertEquals(plugin, PluginContainer.Active)
+        counter.increment()
+      }.join()
+    }
+    EventBus.post(TestEvent)
+    assertEquals(1, counter.toInt())
+  }
 
   @Test fun `test generic registration`(): Unit = runBlocking {
     val counter = LongAdder()
 
-    EventBus.subscribe<TestEvent>(plugin) { event ->
-      counter.add(event.value.toLong())
+    EventBus.subscribe<TestEvent>(plugin) {
+      counter.add(1)
     }
-    EventBus.post(TestEvent(100))
+    EventBus.post(TestEvent)
 
-    assertEquals(100, counter.toInt())
+    assertEquals(plugin, PluginContainer.Active)
+    assertEquals(1, counter.toInt())
   }
 
   @Test fun `test instance registration`(): Unit = runBlocking {
     val listeners = TestListeners()
     EventBus.subscribe(plugin, listeners)
-    EventBus.post(TestEvent(100))
+    EventBus.post(TestEvent)
 
     delay(100) // Wait for async task
 
@@ -71,7 +93,7 @@ class EventBusTest {
     }
   }
 
-  class TestEvent(val value: Int) : Event
+  object TestEvent : Event
 
   class OtherEvent(val value: Int) : Event
 
@@ -80,6 +102,8 @@ class EventBusTest {
       override val name: String = id,
       override val description: String? = null,
       override val authors: List<String> = emptyList(),
-      override val instance: Any = Any()
+      override val instance: Any = Any(),
+      override val version: String? = null,
+      override val url: String? = null
   ) : PluginContainer
 }

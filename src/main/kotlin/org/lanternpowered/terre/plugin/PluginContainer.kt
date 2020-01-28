@@ -9,6 +9,8 @@
  */
 package org.lanternpowered.terre.plugin
 
+import org.lanternpowered.terre.impl.plugin.activePlugin
+
 /**
  * Represents a plugin.
  */
@@ -55,6 +57,6 @@ interface PluginContainer {
      * The current plugin that is executing code.
      */
     val Active: PluginContainer
-      get() = TODO()
+      get() = Thread.currentThread().activePlugin ?: error("The active plugin is unavailable.")
   }
 }

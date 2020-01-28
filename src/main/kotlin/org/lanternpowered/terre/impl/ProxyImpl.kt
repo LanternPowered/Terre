@@ -22,6 +22,8 @@ import org.lanternpowered.terre.event.proxy.ProxyInitializeEvent
 import org.lanternpowered.terre.event.proxy.ProxyShutdownEvent
 import org.lanternpowered.terre.impl.config.ServerConfigSpec
 import org.lanternpowered.terre.impl.console.ConsoleImpl
+import org.lanternpowered.terre.impl.dispatcher.ActivePluginCoroutineDispatcher
+import org.lanternpowered.terre.impl.event.EventExecutor
 import org.lanternpowered.terre.impl.event.TerreEventBus
 import org.lanternpowered.terre.impl.network.NetworkManager
 import org.lanternpowered.terre.impl.network.ProxyBroadcastTask
@@ -84,7 +86,7 @@ internal object ProxyImpl : Proxy {
     get() = this.networkManager.address as InetSocketAddress
 
   override val dispatcher: CoroutineDispatcher
-    get() = TerreEventBus.dispatcher
+      = ActivePluginCoroutineDispatcher(EventExecutor.dispatcher) // Expose a safely wrapped dispatcher
 
   override val pluginContainer: PluginContainer
     get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
@@ -112,7 +114,7 @@ internal object ProxyImpl : Proxy {
 
   private fun processCommand(command: String) {
     // TODO: Process commands
-    TerreEventBus.executor.execute {
+    EventExecutor.executor.execute {
       if (command.trim().toLowerCase() == "shutdown") {
         shutdown()
       } else {
@@ -134,9 +136,9 @@ internal object ProxyImpl : Proxy {
     // Post the proxy shutdown event and wait for it to finish before continuing
     TerreEventBus.postAsyncWithFuture(ProxyShutdownEvent()).get(10, TimeUnit.SECONDS)
 
-    TerreEventBus.executor.shutdown()
-    if (!TerreEventBus.executor.awaitTermination(10, TimeUnit.SECONDS)) {
-      TerreEventBus.executor.shutdownNow()
+    EventExecutor.executor.shutdown()
+    if (!EventExecutor.executor.awaitTermination(10, TimeUnit.SECONDS)) {
+      EventExecutor.executor.shutdownNow()
     }
   }
 
