@@ -55,11 +55,11 @@ dependencies {
 
   // Logging
   val log4jVersion = "2.12.1"
-  implementation(group = "org.apache.logging.log4j", name = "log4j-slf4j-impl", version = log4jVersion)
-  implementation(group = "org.apache.logging.log4j", name = "log4j-core", version = log4jVersion)
+  runtime(group = "org.apache.logging.log4j", name = "log4j-slf4j-impl", version = log4jVersion)
+  runtime(group = "org.apache.logging.log4j", name = "log4j-core", version = log4jVersion)
   implementation(group = "org.apache.logging.log4j", name = "log4j-api", version = log4jVersion)
   implementation(group = "org.apache.logging.log4j", name = "log4j-iostreams", version = log4jVersion)
-  implementation(group = "com.lmax", name = "disruptor", version = "3.4.2")
+  runtime(group = "com.lmax", name = "disruptor", version = "3.4.2")
 
   // Console
   implementation(group = "net.minecrell", name = "terminalconsoleappender", version = "1.2.0")

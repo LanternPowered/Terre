@@ -9,6 +9,7 @@
  */
 package org.lanternpowered.terre
 
+import kotlinx.coroutines.CoroutineDispatcher
 import org.lanternpowered.terre.impl.ProxyImpl
 import org.lanternpowered.terre.plugin.PluginContainer
 import org.lanternpowered.terre.text.Text
@@ -18,6 +19,11 @@ import java.net.InetSocketAddress
  * Represents the proxy server.
  */
 interface Proxy {
+
+  /**
+   * The coroutine dispatcher.
+   */
+  val dispatcher: CoroutineDispatcher
 
   /**
    * The plugin container that represents the server.

@@ -9,6 +9,8 @@
  */
 package org.lanternpowered.terre.plugin
 
+import org.lanternpowered.terre.impl.util.`use named arguments`
+
 /**
  * An annotation to mark plugin classes or objects.
  *
@@ -19,7 +21,10 @@ package org.lanternpowered.terre.plugin
  * @property url The url to the website of the plugin
  * @property authors The authors
  */
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.RUNTIME)
 annotation class Plugin(
+    vararg val `use named arguments`: `use named arguments`,
     val id: String,
     val name: String = "",
     val version: String = "",

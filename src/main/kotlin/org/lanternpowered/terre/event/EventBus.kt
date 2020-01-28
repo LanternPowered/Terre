@@ -10,48 +10,59 @@
 package org.lanternpowered.terre.event
 
 import kotlinx.coroutines.Deferred
+import org.lanternpowered.terre.impl.event.TerreEventBus
 import org.lanternpowered.terre.plugin.PluginContainer
 import kotlin.reflect.KClass
 
 /**
+ * Subscribes to events with the given event type.
+ */
+inline fun <reified T : Event> EventBus.subscribe(
+    pluginContainer: PluginContainer = PluginContainer.Active,
+    order: Int = Order.Normal, noinline listener: suspend (event: T) -> Unit): EventSubscription {
+  return subscribe(pluginContainer, T::class, order, listener)
+}
+
+/**
  * A bus that can be used to post events and listen to them.
  */
-abstract class EventBus {
+interface EventBus {
 
   /**
    * Subscribes to events with the given event type.
    */
-  inline fun <reified T : Event> register(
-      pluginContainer: PluginContainer = PluginContainer.Active,
-      order: Int = Order.Normal, noinline listener: suspend (event: T) -> Unit) {
-    register(pluginContainer, T::class, order, listener)
-  }
-
-  /**
-   * Subscribes to events with the given event type.
-   */
-  abstract fun <T : Event> register(
+  fun <T : Event> subscribe(
       pluginContainer: PluginContainer = PluginContainer.Active,
       eventType: KClass<T>, order: Int = Order.Normal, listener: suspend (event: T) -> Unit
-  )
+  ) : EventSubscription
 
   /**
    * Subscribes to events of annotated methods within the listener class.
    */
-  abstract fun register(pluginContainer: PluginContainer = PluginContainer.Active, listener: Any)
+  fun subscribe(pluginContainer: PluginContainer = PluginContainer.Active, listener: Any): EventSubscription
+
+  /**
+   * Unregisters listeners for the given listener instance.
+   */
+  fun unregister(listener: Any)
 
   /**
    * Posts an [Event] to this event bus.
    */
-  abstract suspend fun <T : Event> post(event: T)
+  suspend fun <T : Event> post(event: T)
 
   /**
    * Posts an [Event] to this event bus.
    */
-  abstract fun <T : Event> postAndForget(event: T)
+  fun <T : Event> postAndForget(event: T)
 
   /**
    * Posts an async [Event] to this event bus.
    */
-  abstract fun <T : Event> postAsync(event: T): Deferred<T>
+  fun <T : Event> postAsync(event: T): Deferred<T>
+
+  /**
+   * The singleton instance of the event bus.
+   */
+  companion object : EventBus by TerreEventBus
 }

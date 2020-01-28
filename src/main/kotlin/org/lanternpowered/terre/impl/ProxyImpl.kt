@@ -13,10 +13,13 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.toml
 import com.uchuhimo.konf.source.toml.toToml
+import kotlinx.coroutines.CoroutineDispatcher
 import org.lanternpowered.terre.Console
 import org.lanternpowered.terre.Player
 import org.lanternpowered.terre.PlayerIdentifier
 import org.lanternpowered.terre.Proxy
+import org.lanternpowered.terre.event.proxy.ProxyInitializeEvent
+import org.lanternpowered.terre.event.proxy.ProxyShutdownEvent
 import org.lanternpowered.terre.impl.config.ServerConfigSpec
 import org.lanternpowered.terre.impl.console.ConsoleImpl
 import org.lanternpowered.terre.impl.event.TerreEventBus
@@ -80,6 +83,9 @@ internal object ProxyImpl : Proxy {
   override val address: InetSocketAddress
     get() = this.networkManager.address as InetSocketAddress
 
+  override val dispatcher: CoroutineDispatcher
+    get() = TerreEventBus.dispatcher
+
   override val pluginContainer: PluginContainer
     get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
 
@@ -90,6 +96,9 @@ internal object ProxyImpl : Proxy {
     Terre.logger.info("Starting ${Terre.name} Server ${Terre.version}")
 
     initServer()
+
+    // Post the proxy init event and wait for it to finish before continuing
+    TerreEventBus.postAsyncWithFuture(ProxyInitializeEvent()).join()
 
     // Start the console, reading commands starts now
     this.console.start()
@@ -121,6 +130,9 @@ internal object ProxyImpl : Proxy {
 
     this.networkManager.shutdown(reason)
     this.console.stop()
+
+    // Post the proxy shutdown event and wait for it to finish before continuing
+    TerreEventBus.postAsyncWithFuture(ProxyShutdownEvent()).get(10, TimeUnit.SECONDS)
 
     TerreEventBus.executor.shutdown()
     if (!TerreEventBus.executor.awaitTermination(10, TimeUnit.SECONDS)) {

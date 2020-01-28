@@ -24,7 +24,8 @@ import org.lanternpowered.lmbda.kt.lambdaType
 import org.lanternpowered.lmbda.kt.privateLookupIn
 import org.lanternpowered.terre.event.Event
 import org.lanternpowered.terre.event.EventBus
-import org.lanternpowered.terre.event.Listener
+import org.lanternpowered.terre.event.EventSubscription
+import org.lanternpowered.terre.event.Subscribe
 import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.plugin.PluginContainer
 import java.lang.invoke.MethodHandles
@@ -36,14 +37,14 @@ import java.util.concurrent.Executors
 import kotlin.reflect.KClass
 import kotlin.reflect.jvm.kotlinFunction
 
-internal object TerreEventBus : EventBus() {
+internal object TerreEventBus : EventBus {
 
   val executor: ExecutorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
       ThreadFactoryBuilder().setNameFormat("event-executor-#%d").setDaemon(true).build())
 
   private val lock = Any()
 
-  private val dispatcher = this.executor.asCoroutineDispatcher()
+  val dispatcher = this.executor.asCoroutineDispatcher()
   private val coroutineScope = CoroutineScope(this.dispatcher)
 
   private val handlersByEvent = HashMultimap.create<Class<*>, RegisteredHandler>()
@@ -73,8 +74,9 @@ internal object TerreEventBus : EventBus() {
   private val Class<*>.eventTypes
     get() = TypeToken.of(this).types.rawTypes().filter { Event::class.java.isAssignableFrom(it) }
 
-  override fun <T : Event> register(
-      pluginContainer: PluginContainer, eventType: KClass<T>, order: Int, listener: suspend (event: T) -> Unit) {
+  override fun <T : Event> subscribe(
+      pluginContainer: PluginContainer, eventType: KClass<T>, order: Int, listener: suspend (event: T) -> Unit
+  ): EventSubscription {
     val handler = object : EventHandler {
       override suspend fun handle(event: Event) {
         @Suppress("UNCHECKED_CAST")
@@ -83,9 +85,14 @@ internal object TerreEventBus : EventBus() {
     }
     val registration = RegisteredHandler(pluginContainer, order, eventType.java, listener, handler)
     register(listOf(registration))
+    return object : EventSubscription {
+      override fun unregister() {
+        unregister(listener)
+      }
+    }
   }
 
-  override fun register(pluginContainer: PluginContainer, listener: Any) {
+  override fun subscribe(pluginContainer: PluginContainer, listener: Any): EventSubscription {
     val registrations = mutableListOf<RegisteredHandler>()
     val map = mutableMapOf<String, Pair<MethodListenerInfo, String?>>()
     collectEventMethods(listener.javaClass, map)
@@ -105,9 +112,36 @@ internal object TerreEventBus : EventBus() {
       }
 
       registrations.add(RegisteredHandler(pluginContainer, info.order, info.eventType, listener, handler))
+      return object : EventSubscription {
+        override fun unregister() {
+          unregister(listener)
+        }
+      }
     }
 
     register(registrations)
+    return object : EventSubscription {
+      override fun unregister() {
+        unregister(listener)
+      }
+    }
+  }
+
+  override fun unregister(listener: Any) {
+    val removed = mutableListOf<RegisteredHandler>()
+    synchronized(this.lock) {
+      val it = this.handlersByEvent.values().iterator()
+      while (it.hasNext()) {
+        val handler = it.next()
+        if (handler.instance === listener) {
+          it.remove()
+          removed += handler
+        }
+      }
+    }
+
+    // Invalidate the affected event types
+    this.handlersCache.invalidateAll(removed.flatMap { it.eventType.eventTypes }.distinct())
   }
 
   private class MethodListenerInfo(
@@ -121,7 +155,7 @@ internal object TerreEventBus : EventBus() {
       if (method.isSynthetic)
         continue
 
-      val annotation = method.getAnnotation(Listener::class.java) ?: continue
+      val annotation = method.getAnnotation(Subscribe::class.java) ?: continue
       val key = method.name + method.parameterTypes.joinToString(
           separator = ",", prefix = "(", postfix = ")")
       if (key in map)
@@ -134,6 +168,8 @@ internal object TerreEventBus : EventBus() {
       val function = method.kotlinFunction ?: error("Cannot get function for ${method.name}")
       if (function.isOperator)
         errors += "function must not be an operator"
+      if (function.isInline)
+        errors += "function must not be inlined"
       if (function.parameters.size != 2) {
         errors += "function must have 1 parameter which is the event"
       } else {
