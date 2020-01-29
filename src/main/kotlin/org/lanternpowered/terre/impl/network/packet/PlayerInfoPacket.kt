@@ -11,79 +11,50 @@ package org.lanternpowered.terre.impl.network.packet
 
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
-import org.lanternpowered.terre.impl.network.buffer.readColor
 import org.lanternpowered.terre.impl.network.buffer.readPlayerId
 import org.lanternpowered.terre.impl.network.buffer.readString
-import org.lanternpowered.terre.impl.network.buffer.writeColor
 import org.lanternpowered.terre.impl.network.buffer.writePlayerId
 import org.lanternpowered.terre.impl.network.buffer.writeString
+import org.lanternpowered.terre.impl.network.calculateLength
 import org.lanternpowered.terre.impl.network.packetDecoderOf
 import org.lanternpowered.terre.impl.network.packetEncoderOf
-import org.lanternpowered.terre.util.Color
+import org.lanternpowered.terre.util.toString
 
-internal data class PlayerInfoPacket(
+internal class PlayerInfoPacket(
     val playerId: PlayerId,
     val playerName: String,
-    val difficulty: Int,
-    val skinVariant: Int,
-    val skinColor: Color,
-    val hair: Int,
-    val hairDye: Int,
-    val hairColor: Color,
-    val hideVisuals: Int,
-    val eyeColor: Color,
-    val shirtColor: Color,
-    val underShirtColor: Color,
-    val pantsColor: Color,
-    val shoeColor: Color,
-    val extraAccessory: Boolean
-) : Packet
+    val data: ByteArray
+) : Packet {
+
+  override fun toString() = toString {
+    "playerId" to playerId
+    "playerName" to playerName
+  }
+}
+
+private val idToNameOffset = calculateLength {
+  byte() // skin variant
+  byte() // hair
+}
 
 internal val PlayerInfoDecoder = packetDecoderOf { buf ->
   val playerId = buf.readPlayerId()
-  val skinVariant = buf.readByte().toInt()
-  val hair = buf.readByte().toInt()
+  val index = buf.readerIndex()
+  buf.skipBytes(idToNameOffset)
   val playerName = buf.readString()
-  val hairDye = buf.readByte().toInt()
-  var hideVisuals = buf.readByte().toInt()
-  hideVisuals = hideVisuals or ((buf.readByte().toInt() and 0x3) shl 8)
-  hideVisuals = hideVisuals or (buf.readByte().toInt() shl 10)
-  val hairColor = buf.readColor()
-  val skinColor = buf.readColor()
-  val eyeColor = buf.readColor()
-  val shirtColor = buf.readColor()
-  val underShirtColor = buf.readColor()
-  val pantsColor = buf.readColor()
-  val shoeColor = buf.readColor()
-  val difficultyAndExtraAccessory = buf.readByte().toInt()
-  val difficulty = difficultyAndExtraAccessory and 0x3
-  val extraAccessory = (difficultyAndExtraAccessory and 0x4) != 0
-  PlayerInfoPacket(playerId, playerName, difficulty, skinVariant, skinColor, hair, hairDye,
-      hairColor, hideVisuals, eyeColor, shirtColor, underShirtColor, pantsColor, shoeColor, extraAccessory)
+
+  val data = ByteArray(buf.readableBytes() + idToNameOffset)
+  buf.readBytes(data, idToNameOffset, buf.readableBytes())
+  buf.readerIndex(index)
+  buf.readBytes(data, 0, idToNameOffset)
+
+  PlayerInfoPacket(playerId, playerName, data)
 }
 
 internal val PlayerInfoEncoder = packetEncoderOf<PlayerInfoPacket> { buf, packet ->
+  val data = packet.data
   buf.writePlayerId(packet.playerId)
-  buf.writeByte(packet.skinVariant)
-  buf.writeByte(packet.hair)
+  buf.writeBytes(data, 0, idToNameOffset)
   buf.writeString(packet.playerName)
-  buf.writeByte(packet.hairDye)
-  val hideVisuals = packet.hideVisuals
-  // hideVisuals1 and 2, 10 bits in total
-  buf.writeByte(hideVisuals and 0xff)
-  buf.writeByte((hideVisuals shr 8) and 0x3)
-  // hideMisc, 2 bits, related to light pets
-  buf.writeByte(hideVisuals shr 10)
-  buf.writeColor(packet.hairColor)
-  buf.writeColor(packet.skinColor)
-  buf.writeColor(packet.eyeColor)
-  buf.writeColor(packet.shirtColor)
-  buf.writeColor(packet.underShirtColor)
-  buf.writeColor(packet.pantsColor)
-  buf.writeColor(packet.shoeColor)
-  var difficultyAndExtraAccessory = packet.difficulty
-  if (packet.extraAccessory) {
-    difficultyAndExtraAccessory = difficultyAndExtraAccessory or 0x4
-  }
-  buf.writeByte(difficultyAndExtraAccessory)
+  buf.writeBytes(data, idToNameOffset, data.size)
 }

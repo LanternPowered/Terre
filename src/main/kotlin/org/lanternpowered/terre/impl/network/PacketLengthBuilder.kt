@@ -16,6 +16,7 @@ internal fun calculateLength(fn: PacketLengthBuilder.() -> Unit): Int {
 internal interface PacketLengthBuilder {
   fun int()
   fun byte()
+  fun playerId()
   fun short()
   fun long()
   fun double()
@@ -37,6 +38,10 @@ private class PacketLengthBuilderImpl : PacketLengthBuilder {
     this.length += Byte.SIZE_BYTES
   }
 
+  override fun playerId() {
+    byte()
+  }
+
   override fun short() {
     this.length += Short.SIZE_BYTES
   }
@@ -46,22 +51,22 @@ private class PacketLengthBuilderImpl : PacketLengthBuilder {
   }
 
   override fun double() {
-    this.length += Long.SIZE_BYTES
+    long()
   }
 
   override fun float() {
-    this.length += Int.SIZE_BYTES
+    int()
   }
 
   override fun vec2f() {
-    this.length += Long.SIZE_BYTES // 2 Floats
+    long() // 2 Floats
   }
 
   override fun vec2i() {
-    this.length += Long.SIZE_BYTES // 2 Ints
+    long() // 2 Ints
   }
 
   override fun shortVec2i() {
-    this.length += Int.SIZE_BYTES // 2 Shorts
+    int() // 2 Shorts
   }
 }

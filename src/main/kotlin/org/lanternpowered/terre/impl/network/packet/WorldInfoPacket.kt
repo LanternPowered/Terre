@@ -20,6 +20,7 @@ import org.lanternpowered.terre.impl.network.buffer.writeUUID
 import org.lanternpowered.terre.impl.network.calculateLength
 import org.lanternpowered.terre.impl.network.packetDecoderOf
 import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.util.toString
 import java.util.*
 
 internal class WorldInfoPacket(
@@ -28,7 +29,15 @@ internal class WorldInfoPacket(
     val name: String,
     val generatorVersion: Long,
     val data: ByteArray
-) : Packet
+) : Packet {
+
+  override fun toString() = toString {
+    "id" to id
+    "name" to name
+    "uniqueId" to uniqueId
+    "generatorVersion" to generatorVersion
+  }
+}
 
 private val idOffset = calculateLength {
   int() // time
@@ -63,11 +72,9 @@ internal val WorldInfoDecoder = packetDecoderOf { buf ->
   val uniqueId = if (this.protocol == Protocol155) EmptyUUID else buf.readUUID()
   val generatorVersion = if (this.protocol == Protocol155) 0L else buf.readLongLE()
 
-  val after = buf.readableBytes()
-  val data = ByteArray(idOffset + after)
-
+  val data = ByteArray(idOffset + buf.readableBytes())
   // Read data after the generator version or name
-  buf.readBytes(data, 0, after)
+  buf.readBytes(data, 0, buf.readableBytes())
   val end = buf.readerIndex()
   // Read data before the id
   buf.readerIndex(0)

@@ -7,10 +7,24 @@
  * This work is licensed under the terms of the MIT License (MIT). For
  * a copy, see 'LICENSE.txt' or <https://opensource.org/licenses/MIT>.
  */
+@file:Suppress("FunctionName")
+
 package org.lanternpowered.terre.util
 
 import com.google.common.collect.Iterables
 import kotlin.reflect.KClass
+
+/**
+ * Creates a new string.
+ */
+fun Any.toString(
+    name: String = this::class.simpleName ?: "Unknown", fn: ToStringHelper.() -> Unit
+): String = toString(name, fn)
+
+/**
+ * Creates a new string.
+ */
+fun toString(name: String, fn: ToStringHelper.() -> Unit) = ToStringHelper(name).also(fn).toString()
 
 /**
  * A helper class to build [String]s for
@@ -81,6 +95,16 @@ class ToStringHelper(
    * @return This helper, for chaining
    */
   fun add(key: String, value: Any?): ToStringHelper = addEntry(key, value)
+
+  /**
+   * Adds a key-value pair.
+   *
+   * @param value The value to add
+   * @return This helper, for chaining
+   */
+  infix fun String.to(value: Any?) {
+    add(this, value)
+  }
 
   /**
    * Adds a value without a key.
