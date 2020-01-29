@@ -12,6 +12,11 @@ package org.lanternpowered.terre.impl.network
 internal interface PacketRegistration<P : Packet> {
 
   /**
+   * The directions applicable to the registration.
+   */
+  val directions: Set<PacketDirection>
+
+  /**
    * The type of the packet.
    */
   val packetType: Class<P>

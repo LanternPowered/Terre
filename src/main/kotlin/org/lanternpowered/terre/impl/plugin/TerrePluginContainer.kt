@@ -17,10 +17,10 @@ import org.lanternpowered.terre.util.ToStringHelper
 class TerrePluginContainer(
     override val id: String,
     override val name: String,
-    override val version: String?,
-    override val description: String?,
-    override val authors: List<String>,
-    override val url: String?,
+    override val version: String? = null,
+    override val description: String? = null,
+    override val authors: List<String> = listOf(),
+    override val url: String? = null,
     override val instance: Any
 ) : PluginContainer {
 

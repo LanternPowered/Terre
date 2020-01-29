@@ -12,12 +12,26 @@
 package org.lanternpowered.terre.impl.network
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
+import org.lanternpowered.terre.util.collection.immutableSetOf
 import kotlin.reflect.KClass
 
 /**
  * The base class for all packet protocol versions.
  */
 internal abstract class Protocol(val version: Int) {
+
+  companion object {
+
+    private val bothDirectionsSet =
+        immutableSetOf(PacketDirection.ServerToClient, PacketDirection.ClientToServer)
+    private val toServerDirectionSet =
+        immutableSetOf(PacketDirection.ClientToServer)
+    private val toClientDirectionSet =
+        immutableSetOf(PacketDirection.ServerToClient)
+
+    fun directionSetOf(packetDirection: PacketDirection) =
+        if (packetDirection == PacketDirection.ClientToServer) this.toServerDirectionSet else this.toClientDirectionSet
+  }
 
   private val decodersByOpcode = Int2ObjectOpenHashMap<PacketDecoderRegistration<*>>()
   private val encodersByPacketType = mutableMapOf<Class<*>, PacketEncoderRegistration<*>>()
@@ -42,17 +56,19 @@ internal abstract class Protocol(val version: Int) {
   }
 
   protected fun <P : Packet> bind(opcode: Int, type: KClass<P>, encoder: PacketEncoder<in P>) {
-    this.encodersByPacketType[type.java] = PacketEncoderRegistrationImpl(type.java, opcode, encoder)
+    this.encodersByPacketType[type.java] = PacketEncoderRegistrationImpl(
+        type.java, opcode, encoder, bothDirectionsSet)
     if (type.isSealed) {
       for (subclass in type.sealedSubclasses) {
         if (!this.encodersByPacketType.containsKey(subclass.java)) {
-          this.encodersByPacketType[subclass.java] = PacketEncoderRegistrationImpl(type.java, opcode, encoder)
+          this.encodersByPacketType[subclass.java] = PacketEncoderRegistrationImpl(
+              type.java, opcode, encoder, bothDirectionsSet)
         }
       }
     }
   }
 
   protected fun <P : Packet> bind(opcode: Int, type: KClass<P>, decoder: PacketDecoder<out P>) {
-    this.decodersByOpcode[opcode] = PacketDecoderRegistrationImpl(type.java, opcode, decoder)
+    this.decodersByOpcode[opcode] = PacketDecoderRegistrationImpl(type.java, opcode, decoder, bothDirectionsSet)
   }
 }

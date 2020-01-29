@@ -12,5 +12,6 @@ package org.lanternpowered.terre.impl.network
 internal class PacketDecoderRegistrationImpl<P : Packet>(
     override val packetType: Class<P>,
     override val opcode: Int,
-    override val decoder: PacketDecoder<out P>
+    override val decoder: PacketDecoder<out P>,
+    override val directions: Set<PacketDirection>
 ) : PacketDecoderRegistration<P>

@@ -14,6 +14,7 @@ package org.lanternpowered.terre.impl.network.packet
 import io.netty.buffer.ByteBuf
 import org.lanternpowered.terre.impl.math.Vec2i
 import org.lanternpowered.terre.impl.network.Packet
+import org.lanternpowered.terre.impl.network.Protocol155
 import org.lanternpowered.terre.impl.network.buffer.readShortVec2i
 import org.lanternpowered.terre.impl.network.buffer.readString
 import org.lanternpowered.terre.impl.network.buffer.readUByte
@@ -111,7 +112,7 @@ internal fun ByteBuf.readZoneBasedStyles(): WorldZoneBasedStyles {
   return WorldZoneBasedStyles(zonesEndX, zoneStyles)
 }
 
-internal fun newWorldInfoEncoder(version155: Boolean = false) = packetEncoderOf<WorldInfoPacket> { buf, packet ->
+internal val WorldInfoEncoder = packetEncoderOf<WorldInfoPacket> { buf, packet ->
   val flags = packet.flags
   buf.writeIntLE(packet.time)
   buf.writeByte((flags and 0xff).toInt())
@@ -122,7 +123,7 @@ internal fun newWorldInfoEncoder(version155: Boolean = false) = packetEncoderOf<
   buf.writeShortLE(packet.rockLayerPosition)
   buf.writeIntLE(packet.id)
   buf.writeString(packet.name)
-  if (!version155) {
+  if (this.protocol != Protocol155) {
     buf.writeUUID(packet.uniqueId)
     buf.writeLongLE(packet.generatorVersion)
   }
@@ -155,7 +156,7 @@ internal fun newWorldInfoEncoder(version155: Boolean = false) = packetEncoderOf<
 
 private val EmptyUUID = UUID(0L, 0L)
 
-internal fun newWorldInfoDecoder(version155: Boolean = false) = packetDecoderOf { buf ->
+internal val WorldInfoDecoder = packetDecoderOf { buf ->
   val time = buf.readIntLE()
   var flags = buf.readByte().toLong()
   val moonPhase = buf.readByte()
@@ -165,6 +166,7 @@ internal fun newWorldInfoDecoder(version155: Boolean = false) = packetDecoderOf 
   val rockLayerPosition = buf.readShortLE().toInt()
   val id = buf.readIntLE()
   val name = buf.readString()
+  val version155 = this.protocol == Protocol155
   val uniqueId = if (version155) EmptyUUID else buf.readUUID()
   val generatorVersion = if (version155) 0L else buf.readLongLE()
   val moonStyle = buf.readByte()
@@ -197,7 +199,3 @@ internal fun newWorldInfoDecoder(version155: Boolean = false) = packetDecoderOf 
   WorldInfoPacket(id, uniqueId, name, generatorVersion, time, moonPhase, moonStyle, size, spawnPosition,
       surfacePosition, rockLayerPosition, flags, invasionType, backgroundStyles, treeStyles, windSpeed, clouds, rain)
 }
-
-internal val WorldInfoEncoder = newWorldInfoEncoder()
-
-internal val WorldInfoDecoder = newWorldInfoDecoder()

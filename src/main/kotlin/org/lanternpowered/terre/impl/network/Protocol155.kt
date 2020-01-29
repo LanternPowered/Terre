@@ -19,7 +19,7 @@ internal object Protocol155 : Protocol(155) {
     bind(0x03, ConnectionApprovedEncoder, ConnectionApprovedDecoder)
     bind(0x04, PlayerInfoEncoder, PlayerInfoDecoder)
     bind(0x06, RequestWorldInfoEncoder, RequestWorldInfoDecoder)
-    bind(0x07, WorldInfo155Encoder, WorldInfo155Decoder)
+    bind(0x07, WorldInfoEncoder, WorldInfoDecoder)
     bind(0x09, Status155Encoder, Status155Decoder)
     bind(0x0E, PlayerActiveEncoder)
     bind(0x16, UpdateItemOwnerEncoder)

@@ -9,7 +9,7 @@
  */
 @file:Suppress("ClassName")
 
-package org.lanternpowered.terre.impl.util
+package org.lanternpowered.terre.util
 
 /**
  * A class that can be used as a vararg to

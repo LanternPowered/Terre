@@ -58,40 +58,41 @@ private fun newCoroutineScope() = CoroutineScope(EventExecutor.dispatcher + Acti
 /**
  * Launches a new async job on the proxy coroutine dispatcher.
  */
-fun launchAsync(block: suspend CoroutineScope.() -> Unit): Job {
-  return newCoroutineScope().launch {
+fun launchAsync(context: CoroutineContext = EmptyCoroutineContext, block: suspend CoroutineScope.() -> Unit): Job {
+  return newCoroutineScope().launch(context) {
     block()
   }
 }
 
-fun <T, R> T.letAsync(block: suspend (T) -> R): Deferred<R> {
-  return newCoroutineScope().async {
+fun <T, R> T.letAsync(context: CoroutineContext = EmptyCoroutineContext, block: suspend (T) -> R): Deferred<R> {
+  return newCoroutineScope().async(context) {
     block(this@letAsync)
   }
 }
 
-fun <T, R> T.runAsync(block: suspend T.() -> R): Deferred<R> {
-  return newCoroutineScope().async {
+fun <T, R> T.runAsync(context: CoroutineContext = EmptyCoroutineContext, block: suspend T.() -> R): Deferred<R> {
+  return newCoroutineScope().async(context) {
     block()
   }
 }
 
-fun <T> T.applyAsync(block: suspend T.() -> Unit): T {
-  newCoroutineScope().launch {
+fun <T> T.applyAsync(context: CoroutineContext = EmptyCoroutineContext, block: suspend T.() -> Unit): Deferred<T> {
+  return newCoroutineScope().async(context) {
     block()
+    this@applyAsync
   }
-  return this
 }
 
-fun <T> T.alsoAsync(block: suspend (T) -> Unit): T {
-  newCoroutineScope().launch {
+fun <T> T.alsoAsync(context: CoroutineContext = EmptyCoroutineContext, block: suspend (T) -> Unit): Deferred<T> {
+  return newCoroutineScope().async(context) {
     block(this@alsoAsync)
+    this@alsoAsync
   }
-  return this
 }
 
-fun <T, R> withAsync(receiver: T, block: suspend T.() -> R): Deferred<R> {
-  return newCoroutineScope().async {
+fun <T, R> withAsync(
+    context: CoroutineContext = EmptyCoroutineContext, receiver: T, block: suspend T.() -> R): Deferred<R> {
+  return newCoroutineScope().async(context) {
     block(receiver)
   }
 }

@@ -13,6 +13,7 @@ package org.lanternpowered.terre.util.collection
 
 import com.google.common.collect.ImmutableCollection
 import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableSet
 import java.util.*
 import kotlin.reflect.KClass
 
@@ -35,6 +36,18 @@ inline fun <E : Any> immutableListOf(e1: E, e2: E, e3: E): ImmutableList<E> = Im
 inline fun <E : Any> immutableListOf(e1: E, e2: E, e3: E, e4: E): ImmutableList<E> = ImmutableList.of(e1, e2, e3, e4)
 
 inline fun <E : Any> immutableListOf(vararg elements: E): ImmutableList<E> = ImmutableList.copyOf(elements.toList())
+
+inline fun <E : Any> immutableSetOf(): ImmutableSet<E> = ImmutableSet.of()
+
+inline fun <E : Any> immutableSetOf(element: E): ImmutableSet<E> = ImmutableSet.of(element)
+
+inline fun <E : Any> immutableSetOf(e1: E, e2: E): ImmutableSet<E> = ImmutableSet.of(e1, e2)
+
+inline fun <E : Any> immutableSetOf(e1: E, e2: E, e3: E): ImmutableSet<E> = ImmutableSet.of(e1, e2, e3)
+
+inline fun <E : Any> immutableSetOf(e1: E, e2: E, e3: E, e4: E): ImmutableSet<E> = ImmutableSet.of(e1, e2, e3, e4)
+
+inline fun <E : Any> immutableSetOf(vararg elements: E): ImmutableSet<E> = ImmutableSet.copyOf(elements.toList())
 
 inline fun <E : Any> immutableListBuilderOf(): ImmutableList.Builder<E>
     = ImmutableList.builder()

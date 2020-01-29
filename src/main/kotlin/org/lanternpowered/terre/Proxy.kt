@@ -26,11 +26,6 @@ interface Proxy {
   val dispatcher: CoroutineDispatcher
 
   /**
-   * The plugin container that represents the server.
-   */
-  val pluginContainer: PluginContainer
-
-  /**
    * All the players that are currently connected to this proxy.
    */
   val players: PlayerCollection

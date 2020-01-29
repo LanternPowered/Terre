@@ -31,7 +31,6 @@ import org.lanternpowered.terre.impl.network.TransportType
 import org.lanternpowered.terre.impl.plugin.PluginManagerImpl
 import org.lanternpowered.terre.impl.text.TextDeserializer
 import org.lanternpowered.terre.impl.text.TextSerializer
-import org.lanternpowered.terre.plugin.PluginContainer
 import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.text.textOf
 import java.net.BindException
@@ -39,17 +38,11 @@ import java.net.InetSocketAddress
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.Executor
-import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 internal object ProxyImpl : Proxy {
 
   val console = ConsoleImpl(::processCommand, ::shutdown)
-
-  val pluginManager = PluginManagerImpl()
-
-  val ioExecutor: Executor = Executors.newFixedThreadPool(10) // TODO: Proper amount
 
   private val config: Config = loadConfig()
   private lateinit var networkManager: NetworkManager
@@ -88,8 +81,7 @@ internal object ProxyImpl : Proxy {
   override val dispatcher: CoroutineDispatcher
       = ActivePluginCoroutineDispatcher(EventExecutor.dispatcher) // Expose a safely wrapped dispatcher
 
-  override val pluginContainer: PluginContainer
-    get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+  val pluginManager = PluginManagerImpl()
 
   /**
    * Initializes the server.

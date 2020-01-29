@@ -24,7 +24,8 @@ private val threadLocal = FastThreadLocal<PluginContainer>()
 /**
  * The current active plugin of the thread.
  */
-var Thread.activePlugin: PluginContainer?
+@PublishedApi
+internal var Thread.activePlugin: PluginContainer?
   get() = if (this is TerreThread) {
     this.activePlugin
   } else {

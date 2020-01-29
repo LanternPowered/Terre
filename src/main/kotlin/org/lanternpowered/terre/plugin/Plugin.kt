@@ -9,7 +9,7 @@
  */
 package org.lanternpowered.terre.plugin
 
-import org.lanternpowered.terre.impl.util.`use named arguments`
+import org.lanternpowered.terre.util.`use named arguments`
 
 /**
  * An annotation to mark plugin classes or objects.
