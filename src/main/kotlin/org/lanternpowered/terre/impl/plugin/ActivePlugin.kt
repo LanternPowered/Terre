@@ -22,6 +22,12 @@ import kotlin.coroutines.CoroutineContext
 private val threadLocal = FastThreadLocal<PluginContainer>()
 
 /**
+ * The current active plugin of the current thread.
+ */
+internal val activePlugin: PluginContainer?
+  get() = Thread.currentThread().activePlugin
+
+/**
  * The current active plugin of the thread.
  */
 @PublishedApi

@@ -36,7 +36,7 @@ internal fun Any?.inject(type: KType): Any? {
     else -> {
       val pluginContainer = if (this != null) {
         ProxyImpl.pluginManager.getPluginContainer(this)
-      } else null ?: Thread.currentThread().activePlugin as? TerrePluginContainer
+      } else null ?: activePlugin as? TerrePluginContainer
       pluginContainer?.inject(type)
     }
   }

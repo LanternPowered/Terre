@@ -27,7 +27,7 @@ import org.lanternpowered.terre.event.EventSubscription
 import org.lanternpowered.terre.event.Subscribe
 import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.plugin.ActivePluginThreadLocalElement
-import org.lanternpowered.terre.plugin.PluginContainer
+import org.lanternpowered.terre.impl.plugin.activePlugin
 import java.lang.invoke.MethodHandles
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
@@ -69,7 +69,7 @@ internal object TerreEventBus : EventBus {
     get() = TypeToken.of(this).types.rawTypes().filter { Event::class.java.isAssignableFrom(it) }
 
   override fun <T : Event> subscribe(
-      pluginContainer: PluginContainer, eventType: KClass<T>, order: Int, listener: suspend (event: T) -> Unit
+      eventType: KClass<T>, order: Int, listener: suspend (event: T) -> Unit
   ): EventSubscription {
     val handler = object : EventHandler {
       override suspend fun handle(event: Event) {
@@ -77,7 +77,8 @@ internal object TerreEventBus : EventBus {
         listener(event as T)
       }
     }
-    val registration = RegisteredHandler(pluginContainer, order, eventType.java, listener, handler)
+    val plugin = activePlugin
+    val registration = RegisteredHandler(plugin, order, eventType.java, listener, handler)
     register(listOf(registration))
     return object : EventSubscription {
       override fun unsubscribe() {
@@ -86,7 +87,8 @@ internal object TerreEventBus : EventBus {
     }
   }
 
-  override fun subscribe(pluginContainer: PluginContainer, listener: Any): EventSubscription {
+  override fun subscribe(listener: Any): EventSubscription {
+    val plugin = activePlugin
     val registrations = mutableListOf<RegisteredHandler>()
     val map = mutableMapOf<String, Pair<MethodListenerInfo, String?>>()
     collectEventMethods(listener.javaClass, map)
@@ -105,7 +107,7 @@ internal object TerreEventBus : EventBus {
         }
       }
 
-      registrations.add(RegisteredHandler(pluginContainer, info.order, info.eventType, listener, handler))
+      registrations.add(RegisteredHandler(plugin, info.order, info.eventType, listener, handler))
     }
 
     register(registrations)
@@ -246,12 +248,14 @@ internal object TerreEventBus : EventBus {
 
   private suspend fun handleHandlers(event: Event, handlers: List<RegisteredHandler>) {
     for (handler in handlers) {
+      val plugin = handler.plugin
       try {
-        withContext(ActivePluginThreadLocalElement(handler.plugin)) {
+        withContext(ActivePluginThreadLocalElement(plugin)) {
           handler.handler.handle(event)
         }
       } catch (ex: Throwable) {
-        Terre.logger.info("Couldn't pass ${event::class.simpleName} to ${handler.plugin.id}", ex)
+        Terre.logger.info("Couldn't pass ${event::class.simpleName}" +
+            if (plugin == null) "" else " to ${plugin.id}", ex)
       }
     }
   }

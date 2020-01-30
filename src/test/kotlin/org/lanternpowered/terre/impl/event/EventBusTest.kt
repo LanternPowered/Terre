@@ -17,6 +17,7 @@ import org.lanternpowered.terre.event.EventBus
 import org.lanternpowered.terre.event.Subscribe
 import org.lanternpowered.terre.event.subscribe
 import org.lanternpowered.terre.plugin.PluginContainer
+import org.lanternpowered.terre.plugin.withActivePlugin
 import java.util.concurrent.atomic.LongAdder
 import kotlin.test.assertEquals
 
@@ -26,9 +27,11 @@ class EventBusTest {
 
   @Test fun `test active plugin`(): Unit = runBlocking {
     val counter = LongAdder()
-    EventBus.subscribe<TestEvent>(plugin) {
-      assertEquals(plugin, PluginContainer.Active)
-      counter.increment()
+    withActivePlugin(plugin) {
+      EventBus.subscribe<TestEvent> {
+        assertEquals(plugin, PluginContainer.Active)
+        counter.increment()
+      }
     }
     EventBus.post(TestEvent)
     assertEquals(1, counter.toInt())
@@ -36,11 +39,13 @@ class EventBusTest {
 
   @Test fun `test active plugin - in async task`(): Unit = runBlocking {
     val counter = LongAdder()
-    EventBus.subscribe<TestEvent>(plugin) {
-      launchAsync {
-        assertEquals(plugin, PluginContainer.Active)
-        counter.increment()
-      }.join()
+    withActivePlugin(plugin) {
+      EventBus.subscribe<TestEvent> {
+        launchAsync {
+          assertEquals(plugin, PluginContainer.Active)
+          counter.increment()
+        }.join()
+      }
     }
     EventBus.post(TestEvent)
     assertEquals(1, counter.toInt())
@@ -48,19 +53,21 @@ class EventBusTest {
 
   @Test fun `test generic registration`(): Unit = runBlocking {
     val counter = LongAdder()
-
-    EventBus.subscribe<TestEvent>(plugin) {
-      counter.add(1)
-      assertEquals(plugin, PluginContainer.Active)
+    withActivePlugin(plugin) {
+      EventBus.subscribe<TestEvent> {
+        counter.add(1)
+        assertEquals(plugin, PluginContainer.Active)
+      }
     }
     EventBus.post(TestEvent)
-
     assertEquals(1, counter.toInt())
   }
 
   @Test fun `test instance registration`(): Unit = runBlocking {
     val listeners = TestListeners()
-    EventBus.subscribe(plugin, listeners)
+    withActivePlugin(plugin) {
+      EventBus.subscribe(listeners)
+    }
     EventBus.post(TestEvent)
     assertEquals(3, listeners.counter.toInt())
   }
