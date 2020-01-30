@@ -101,8 +101,7 @@ internal class ClientInitConnectionHandler(
     }
     this.connection.initProtocol(protocol)
     val maxPlayers = ProxyImpl.maxPlayers
-    val currentPlayers = ProxyImpl.players.size
-    if (currentPlayers >= maxPlayers) {
+    if (maxPlayers != -1 && ProxyImpl.players.size >= maxPlayers) {
       this.connection.close(textOf("The server is full."))
       return true
     }

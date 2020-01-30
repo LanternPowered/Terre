@@ -9,7 +9,7 @@
  */
 package org.lanternpowered.terre.impl.player
 
-import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Job
 import org.lanternpowered.terre.Player
 import org.lanternpowered.terre.PlayerIdentifier
 import org.lanternpowered.terre.impl.network.Connection
@@ -43,7 +43,7 @@ internal class PlayerImpl(
     sendMessage(textOf(message))
   }
 
-  override fun disconnectAsync(reason: Text): Deferred<Unit> {
+  override fun disconnectAsync(reason: Text): Job {
     return this.clientConnection.close(reason).toDeferred()
   }
 }

@@ -9,7 +9,7 @@
  */
 package org.lanternpowered.terre
 
-import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Job
 import org.lanternpowered.terre.text.MessageReceiver
 import org.lanternpowered.terre.text.Text
 
@@ -36,10 +36,10 @@ interface Player : Named, MessageReceiver, InboundConnection {
   /**
    * Disconnects the player with the specified reason.
    */
-  suspend fun disconnect(reason: Text) = disconnectAsync(reason).await()
+  suspend fun disconnect(reason: Text) = disconnectAsync(reason).join()
 
   /**
    * Disconnects the player with the specified reason.
    */
-  fun disconnectAsync(reason: Text): Deferred<Unit>
+  fun disconnectAsync(reason: Text): Job
 }

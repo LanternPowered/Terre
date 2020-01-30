@@ -130,12 +130,10 @@ internal class Connection(
   }
 
   override fun channelActive(ctx: ChannelHandlerContext) {
-    this.networkManager.sessionActive(this)
     Terre.logger.info("Client connected from: $remoteAddress")
   }
 
   override fun channelInactive(ctx: ChannelHandlerContext) {
-    this.networkManager.sessionInactive(this)
     this.connectionHandler?.disconnect()
     Terre.logger.info("Client disconnected from: $remoteAddress")
     // The player probably just left the server

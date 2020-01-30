@@ -14,14 +14,20 @@ import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.toml
 import com.uchuhimo.konf.source.toml.toToml
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.TimeoutCancellationException
 import org.lanternpowered.terre.Console
 import org.lanternpowered.terre.Player
 import org.lanternpowered.terre.PlayerIdentifier
 import org.lanternpowered.terre.Proxy
+import org.lanternpowered.terre.coroutines.delay
+import org.lanternpowered.terre.coroutines.withTimeout
+import org.lanternpowered.terre.dispatcher.launchAsync
 import org.lanternpowered.terre.event.proxy.ProxyInitializeEvent
 import org.lanternpowered.terre.event.proxy.ProxyShutdownEvent
 import org.lanternpowered.terre.impl.config.ServerConfigSpec
 import org.lanternpowered.terre.impl.console.ConsoleImpl
+import org.lanternpowered.terre.impl.coroutines.tryWithTimeout
 import org.lanternpowered.terre.impl.dispatcher.ActivePluginCoroutineDispatcher
 import org.lanternpowered.terre.impl.event.EventExecutor
 import org.lanternpowered.terre.impl.event.TerreEventBus
@@ -33,12 +39,18 @@ import org.lanternpowered.terre.impl.text.TextDeserializer
 import org.lanternpowered.terre.impl.text.TextSerializer
 import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.text.textOf
+import org.lanternpowered.terre.util.collection.toImmutableList
 import java.net.BindException
 import java.net.InetSocketAddress
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.time.Duration
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.time.seconds
 
 internal object ProxyImpl : Proxy {
 
@@ -75,8 +87,16 @@ internal object ProxyImpl : Proxy {
   override var maxPlayers: Int by this.config.property(ServerConfigSpec.maxPlayers)
   override var password: String by this.config.property(ServerConfigSpec.password)
 
-  override val address: InetSocketAddress
-    get() = this.networkManager.address as InetSocketAddress
+  override val address: InetSocketAddress by lazy {
+    val ip = this.config[ServerConfigSpec.host]
+    val port = this.config[ServerConfigSpec.port]
+
+    if (ip.isBlank()) {
+      InetSocketAddress(port)
+    } else {
+      InetSocketAddress(ip, port)
+    }
+  }
 
   override val dispatcher: CoroutineDispatcher
       = ActivePluginCoroutineDispatcher(EventExecutor.dispatcher) // Expose a safely wrapped dispatcher
@@ -119,35 +139,52 @@ internal object ProxyImpl : Proxy {
     shutdown(textOf("Shutting down the server."))
   }
 
+  private val shuttingDown = AtomicBoolean()
+
   override fun shutdown(reason: Text) {
-    Terre.logger.info("Shutting down the server.")
+    if (!this.shuttingDown.compareAndSet(false, true)) {
+      return
+    }
 
-    this.networkManager.shutdown(reason)
-    this.console.stop()
+    // Disconnect all players and wait for them, with a timeout of 10 seconds
+    launchAsync(Dispatchers.Default) {
+      Terre.logger.info("Shutting down the server.")
 
-    // Post the proxy shutdown event and wait for it to finish before continuing
-    TerreEventBus.postAsyncWithFuture(ProxyShutdownEvent()).get(10, TimeUnit.SECONDS)
+      // Prevent new connections
+      networkManager.shutdown()
 
-    EventExecutor.executor.shutdown()
-    if (!EventExecutor.executor.awaitTermination(10, TimeUnit.SECONDS)) {
-      EventExecutor.executor.shutdownNow()
+      var timeout = false
+
+      timeout = tryWithTimeout(10.seconds) {
+        players.toImmutableList()
+            .map { it.disconnectAsync(reason) }
+            .forEach { it.join() }
+      }.isFailure || timeout
+
+      // Stop reading the console
+      console.stop()
+
+      // Post the proxy shutdown event and wait for it to finish before continuing
+      timeout = tryWithTimeout(10.seconds) {
+        TerreEventBus.post(ProxyShutdownEvent())
+      }.isFailure || timeout
+
+      // Shutdown the executor, give 10 seconds to finish remaining tasks
+      EventExecutor.executor.shutdown()
+      delay(10.seconds)
+      if (!EventExecutor.executor.isShutdown) {
+        EventExecutor.executor.shutdownNow()
+        timeout = true
+      }
+
+      if (timeout)
+        Terre.logger.error("Shutting down the proxy took too long.")
     }
   }
 
   private fun initServer() {
-    val ip = this.config[ServerConfigSpec.host]
-    val port = this.config[ServerConfigSpec.port]
-
-    val address = if (ip.isBlank()) {
-      InetSocketAddress(port)
-    } else {
-      InetSocketAddress(ip, port)
-    }
-
-    val transportType = TransportType.findBestType()
-
     this.networkManager = NetworkManager()
-    val future = this.networkManager.init(address, transportType)
+    val future = this.networkManager.init(this.address)
     future.awaitUninterruptibly()
     if (!future.isSuccess) {
       val cause = future.cause()

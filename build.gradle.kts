@@ -127,6 +127,7 @@ tasks {
 
       val args = mutableListOf<String>()
       args += "-Xjvm-default=enable"
+      args += "-Xallow-result-return-type"
 
       fun useExperimentalAnnotation(name: String) {
         args += "-Xuse-experimental=$name"
@@ -144,6 +145,7 @@ tasks {
       useExperimentalAnnotation("kotlin.contracts.ExperimentalContracts")
       useExperimentalAnnotation("kotlin.ExperimentalStdlibApi")
       useExperimentalAnnotation("kotlin.experimental.ExperimentalTypeInference")
+      useExperimentalAnnotation("kotlin.time.ExperimentalTime")
 
       freeCompilerArgs = args
     }

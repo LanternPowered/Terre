@@ -18,9 +18,6 @@ import org.lanternpowered.terre.impl.ProxyImpl
 import org.lanternpowered.terre.impl.event.EventExecutor
 import org.lanternpowered.terre.impl.event.TerreEventBus
 
-/**
- *
- */
 @JvmName("toUnitDeferred")
 internal fun Future<Void>.toDeferred(): Deferred<Unit> {
   val deferred = CompletableDeferred<Unit>()

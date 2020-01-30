@@ -9,7 +9,6 @@
  */
 package org.lanternpowered.terre.impl.network
 
-import com.google.common.collect.Sets
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.buffer.ByteBufAllocator
 import io.netty.buffer.PooledByteBufAllocator
@@ -22,45 +21,26 @@ import io.netty.channel.ChannelOption
 import io.netty.channel.EventLoopGroup
 import io.netty.channel.socket.SocketChannel
 import io.netty.handler.timeout.ReadTimeoutHandler
-import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.network.client.ClientInitConnectionHandler
 import org.lanternpowered.terre.impl.network.pipeline.FrameDecoder
 import org.lanternpowered.terre.impl.network.pipeline.FrameEncoder
 import org.lanternpowered.terre.impl.network.pipeline.PacketMessageDecoder
 import org.lanternpowered.terre.impl.network.pipeline.PacketMessageEncoder
-import org.lanternpowered.terre.impl.util.listFutureOf
-import org.lanternpowered.terre.text.Text
-import org.lanternpowered.terre.util.collection.toImmutableList
 import java.net.SocketAddress
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
 
 private const val ReadTimeoutSeconds = 20
 
 internal class NetworkManager {
 
-  private lateinit var bossGroup: EventLoopGroup
-  private lateinit var workerGroup: EventLoopGroup
-  private lateinit var endpoint: Channel
-  private lateinit var theAddress: SocketAddress
+  private val transportType = TransportType.findBestType()
 
-  private val activeSessions = Sets.newConcurrentHashSet<Connection>()
+  val bossGroup: EventLoopGroup = this.transportType.eventLoopGroupSupplier(0, NettyThreadFactory("boss"))
+  val workerGroup: EventLoopGroup = this.transportType.eventLoopGroupSupplier(0, NettyThreadFactory("worker"))
 
-  val address: SocketAddress
-    get() = this.theAddress
+  private var endpoint: Channel? = null
 
-  fun init(address: SocketAddress, transportType: TransportType): ChannelFuture {
-    this.theAddress = address
-
-    val bootstrap = ServerBootstrap()
-
-    val bossThreadFactory = NettyThreadFactory("boss")
-    val workerThreadFactory = NettyThreadFactory("worker")
-
-    this.bossGroup = transportType.eventLoopGroupSupplier(0, bossThreadFactory)
-    this.workerGroup = transportType.eventLoopGroupSupplier(0, workerThreadFactory)
-
-    return bootstrap.apply {
+  fun init(address: SocketAddress): ChannelFuture {
+    return ServerBootstrap().apply {
       group(bossGroup, workerGroup)
       channelFactory(ChannelFactory(transportType.serverSocketChannelSupplier))
       childHandler(object : ChannelInitializer<SocketChannel>() {
@@ -89,30 +69,9 @@ internal class NetworkManager {
     }
   }
 
-  fun shutdown(reason: Text) {
-    // Close endpoint to prevent any new connections
-    this.endpoint.close()
-
-    val sessions = this.activeSessions.toImmutableList()
-    val futures = sessions.map { session -> session.close(reason) }
-
-    val combinedFuture = listFutureOf(futures)
-    try {
-      combinedFuture.get(10, TimeUnit.SECONDS)
-    } catch (ex: TimeoutException) {
-      Terre.logger.info("Kicking players took longer than 10 seconds.")
-    }
-
-    this.bossGroup.shutdownGracefully()
-    this.workerGroup.shutdownGracefully()
-  }
-
-  fun sessionActive(session: Connection) {
-    this.activeSessions.add(session)
-  }
-
-  fun sessionInactive(session: Connection) {
-    this.activeSessions.remove(session)
+  fun shutdown() {
+    // Close the endpoint to prevent any new connections
+    this.endpoint?.close()?.sync()
   }
 
   private class PacketCodecContextImpl(

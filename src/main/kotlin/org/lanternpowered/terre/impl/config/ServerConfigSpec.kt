@@ -23,8 +23,9 @@ internal object ServerConfigSpec : ConfigSpec("server") {
   val password by optional("",
       description = "The password that is required to join. Leave empty to disable.")
 
-  val maxPlayers by optional(8, name = "max-players",
-      description = "The maximum amount of players that are allowed to join simultaneously.")
+  val maxPlayers by optional(-1, name = "max-players",
+      description = "The maximum amount of players that are allowed to join simultaneously. If set to -1, " +
+          "players can join as long that backing servers have empty slots.")
 
   val messageOfTheDay by optional<Text>(textOf("This is a Terre server!"), name = "message-of-the-day")
 }
