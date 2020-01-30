@@ -21,6 +21,7 @@ internal object Protocol155 : Protocol(155) {
     bind(0x06, RequestWorldInfoEncoder, RequestWorldInfoDecoder, PacketDirection.ClientToServer)
     bind(0x07, WorldInfoEncoder, WorldInfoDecoder, PacketDirection.ServerToClient)
     bind(0x09, Status155Encoder, Status155Decoder, PacketDirection.ServerToClient)
+    bind(0x0C, PlayerSpawnEncoder, PlayerSpawnDecoder)
     bind(0x0E, PlayerActiveEncoder, PlayerActiveDecoder, PacketDirection.ServerToClient)
     bind(0x16, UpdateItemOwnerEncoder)
     bind(0x16, UpdateItemOwnerDecoder) // And keep alive
@@ -32,7 +33,7 @@ internal object Protocol155 : Protocol(155) {
     bind(0x25, PasswordRequestEncoder, PasswordRequestDecoder, PacketDirection.ServerToClient)
     bind(0x26, PasswordResponseEncoder, PasswordResponseDecoder, PacketDirection.ClientToServer)
     bind(0x27, KeepAliveEncoder, PacketDirection.ServerToClient)
-    bind(0x31, CompleteConnectionEncoder) // TODO: Could be unneeded
+    bind(0x31, CompleteConnectionEncoder, PacketDirection.ServerToClient)
     bind(0x38, UpdateNpcNameEncoder, UpdateNpcNameDecoder)
     bind(0x44, ClientUniqueIdEncoder, ClientUniqueIdDecoder, PacketDirection.ClientToServer)
     bind(0x51, CombatMessage155Encoder, CombatMessage155Decoder, PacketDirection.ServerToClient)

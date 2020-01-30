@@ -17,5 +17,5 @@ interface EventSubscription {
   /**
    * Unregisters the event subscription.
    */
-  fun unregister()
+  fun unsubscribe()
 }

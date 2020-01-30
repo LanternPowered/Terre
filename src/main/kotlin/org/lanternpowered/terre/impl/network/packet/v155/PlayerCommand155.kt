@@ -32,6 +32,7 @@ internal val PlayerCommand155Encoder = packetEncoderOf<PlayerCommandPacket> { bu
       "Playing" -> "playing"
       "Roll" -> "roll"
       "Emote" -> "me"
+      "Party" -> "p"
       else -> packet.commandId
     }
     '/' + commandId + ' ' + packet.arguments
@@ -47,9 +48,11 @@ internal val PlayerCommand155Decoder = packetDecoderOf { buf ->
     val index = message.indexOf(' ')
     var commandId = if (index == -1) message else message.substring(0, index)
     commandId = when (commandId) {
-      "playing", "players" -> "Playing"
-      "roll" -> "Roll"
-      "me" -> "Emote"
+      "playing", "players", "Spieler", "spielt", "joueurs", "en train de jouer",
+          "gioca", "giocatori", "gracze", "gra" -> "Playing"
+      "roll", "rollen", "lance les dés", "numero", "rzuć" -> "Roll"
+      "me", "ich", "moi", "io", "ja" -> "Emote"
+      "p", "s", "d" -> "Party"
       else -> commandId
     }
     val arguments = if (index == -1) "" else message.substring(index + 1)

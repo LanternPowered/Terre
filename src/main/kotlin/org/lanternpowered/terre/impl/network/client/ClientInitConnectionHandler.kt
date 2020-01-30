@@ -130,7 +130,7 @@ internal class ClientInitConnectionHandler(
     // id for now to receive information from the client. When
     // switching to the play mode the client will receive a new
     // one.
-    this.connection.send(ConnectionApprovedPacket(PlayerId(1)))
+    this.connection.send(ConnectionApprovedPacket(PlayerId(16)))
   }
 
   override fun handle(packet: PlayerInfoPacket): Boolean {

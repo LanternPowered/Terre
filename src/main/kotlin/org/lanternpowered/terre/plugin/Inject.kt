@@ -9,6 +9,8 @@
  */
 package org.lanternpowered.terre.plugin
 
+import org.lanternpowered.terre.impl.util.LazyReadOnlyProperty
+import kotlin.properties.ReadOnlyProperty
 import org.lanternpowered.terre.impl.plugin.inject as doInject
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
@@ -23,12 +25,31 @@ inline fun <reified T> Any.inject(): T {
 }
 
 /**
+ * Gets a [ReadOnlyProperty] that lazily injects the the value.
+ */
+inline fun <reified T> lazyInject(): ReadOnlyProperty<Any?, T> {
+  return LazyReadOnlyProperty {
+    doInject(typeOf<T>()) as T
+  }
+}
+
+/**
  * Injects a value of type [T] for
  * the target receiver.
  */
 fun <T> Any.inject(type: KType): T {
   @Suppress("UNCHECKED_CAST")
   return doInject(type) as T
+}
+
+/**
+ * Gets a [ReadOnlyProperty] that lazily injects the the value.
+ */
+fun <T> lazyInject(type: KType): ReadOnlyProperty<Any?, T> {
+  @Suppress("UNCHECKED_CAST")
+  return LazyReadOnlyProperty {
+    doInject(type) as T
+  }
 }
 
 /**

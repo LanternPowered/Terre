@@ -34,8 +34,10 @@ internal abstract class Protocol(val version: Int) {
         if (packetDirection == PacketDirection.ClientToServer) this.toServerDirectionSet else this.toClientDirectionSet
   }
 
-  private val decodersByOpcode = Array<Int2ObjectMap<PacketDecoderRegistration<*>>>(2) { Int2ObjectOpenHashMap() }
-  private val encodersByPacketType = Array<MutableMap<Class<*>, PacketEncoderRegistration<*>>>(2) { mutableMapOf() }
+  private val decodersByOpcode
+      = Array<Int2ObjectMap<PacketDecoderRegistration<*>>>(bothDirectionsSet.size) { Int2ObjectOpenHashMap() }
+  private val encodersByPacketType
+      = Array<MutableMap<Class<*>, PacketEncoderRegistration<*>>>(bothDirectionsSet.size) { mutableMapOf() }
 
   fun getDecoder(packetDirection: PacketDirection, opcode: Int): PacketDecoderRegistration<*>?
       = this.decodersByOpcode[packetDirection.ordinal][opcode]

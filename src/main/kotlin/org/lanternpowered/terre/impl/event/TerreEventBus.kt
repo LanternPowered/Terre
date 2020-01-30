@@ -80,8 +80,8 @@ internal object TerreEventBus : EventBus {
     val registration = RegisteredHandler(pluginContainer, order, eventType.java, listener, handler)
     register(listOf(registration))
     return object : EventSubscription {
-      override fun unregister() {
-        unregister(listener)
+      override fun unsubscribe() {
+        unsubscribe(listener)
       }
     }
   }
@@ -106,22 +106,17 @@ internal object TerreEventBus : EventBus {
       }
 
       registrations.add(RegisteredHandler(pluginContainer, info.order, info.eventType, listener, handler))
-      return object : EventSubscription {
-        override fun unregister() {
-          unregister(listener)
-        }
-      }
     }
 
     register(registrations)
     return object : EventSubscription {
-      override fun unregister() {
-        unregister(listener)
+      override fun unsubscribe() {
+        unsubscribe(listener)
       }
     }
   }
 
-  override fun unregister(listener: Any) {
+  override fun unsubscribe(listener: Any) {
     val removed = mutableListOf<RegisteredHandler>()
     synchronized(this.lock) {
       val it = this.handlersByEvent.values().iterator()

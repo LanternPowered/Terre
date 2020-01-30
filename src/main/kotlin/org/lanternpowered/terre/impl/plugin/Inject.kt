@@ -34,10 +34,10 @@ internal fun Any?.inject(type: KType): Any? {
     Console::class -> Console
     CoroutineDispatcher::class -> Proxy.dispatcher
     else -> {
-      if (this != null) {
-        val pluginContainer = ProxyImpl.pluginManager.getPluginContainer(this)
-        pluginContainer?.inject(type)
-      } else null
+      val pluginContainer = if (this != null) {
+        ProxyImpl.pluginManager.getPluginContainer(this)
+      } else null ?: Thread.currentThread().activePlugin as? TerrePluginContainer
+      pluginContainer?.inject(type)
     }
   }
 

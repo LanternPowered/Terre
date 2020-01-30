@@ -44,7 +44,7 @@ interface EventBus {
   /**
    * Unregisters listeners for the given listener instance.
    */
-  fun unregister(listener: Any)
+  fun unsubscribe(listener: Any)
 
   /**
    * Posts an [Event] to this event bus.

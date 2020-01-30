@@ -9,10 +9,9 @@
  */
 package org.lanternpowered.terre.impl.event
 
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
-import org.lanternpowered.terre.dispatcher.runAsync
+import org.lanternpowered.terre.dispatcher.launchAsync
 import org.lanternpowered.terre.event.Event
 import org.lanternpowered.terre.event.EventBus
 import org.lanternpowered.terre.event.Subscribe
@@ -38,7 +37,7 @@ class EventBusTest {
   @Test fun `test active plugin - in async task`(): Unit = runBlocking {
     val counter = LongAdder()
     EventBus.subscribe<TestEvent>(plugin) {
-      runAsync {
+      launchAsync {
         assertEquals(plugin, PluginContainer.Active)
         counter.increment()
       }.join()
@@ -52,10 +51,10 @@ class EventBusTest {
 
     EventBus.subscribe<TestEvent>(plugin) {
       counter.add(1)
+      assertEquals(plugin, PluginContainer.Active)
     }
     EventBus.post(TestEvent)
 
-    assertEquals(plugin, PluginContainer.Active)
     assertEquals(1, counter.toInt())
   }
 
@@ -63,9 +62,6 @@ class EventBusTest {
     val listeners = TestListeners()
     EventBus.subscribe(plugin, listeners)
     EventBus.post(TestEvent)
-
-    delay(100) // Wait for async task
-
     assertEquals(3, listeners.counter.toInt())
   }
 
@@ -82,9 +78,9 @@ class EventBusTest {
     suspend fun onSuspendTest(event: TestEvent) {
       this.counter.add(1)
 
-      runAsync {
+      launchAsync {
         EventBus.post(OtherEvent(2000))
-      }
+      }.join()
     }
 
     @Subscribe

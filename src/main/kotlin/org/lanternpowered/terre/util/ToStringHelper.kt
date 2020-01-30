@@ -12,19 +12,29 @@
 package org.lanternpowered.terre.util
 
 import com.google.common.collect.Iterables
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 import kotlin.reflect.KClass
 
 /**
  * Creates a new string.
  */
-fun Any.toString(fn: ToStringHelper.() -> Unit)
-    = ToStringHelper(this).also(fn).toString()
+fun Any.toString(fn: ToStringHelper.() -> Unit): String {
+  contract {
+    callsInPlace(fn, InvocationKind.EXACTLY_ONCE)
+  }
+  return ToStringHelper(this).also(fn).toString()
+}
 
 /**
  * Creates a new string.
  */
-fun toString(name: String, fn: ToStringHelper.() -> Unit)
-    = ToStringHelper(name).also(fn).toString()
+fun toString(name: String, fn: ToStringHelper.() -> Unit): String {
+  contract {
+    callsInPlace(fn, InvocationKind.EXACTLY_ONCE)
+  }
+  return ToStringHelper(name).also(fn).toString()
+}
 
 /**
  * Gets the default name used for a class.
