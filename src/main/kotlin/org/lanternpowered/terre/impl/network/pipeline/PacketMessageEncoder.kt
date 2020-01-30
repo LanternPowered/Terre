@@ -21,7 +21,7 @@ import org.lanternpowered.terre.impl.network.PacketCodecContext
 internal class PacketMessageEncoder(private val context: PacketCodecContext) : MessageToByteEncoder<Packet>() {
 
   override fun encode(ctx: ChannelHandlerContext, input: Packet, output: ByteBuf) {
-    val registration = this.context.protocol.getEncoder(input.javaClass)
+    val registration = this.context.protocol.getEncoder(this.context.direction, input.javaClass)
         ?: throw EncoderException("No encoder is registered for packet type ${input::class.simpleName}")
 
     val result = try {

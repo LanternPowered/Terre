@@ -38,6 +38,39 @@ internal class ClientInitConnectionHandler(
     val connection: Connection
 ) : ConnectionHandler {
 
+  // Client Init
+
+  // Init player id must be 16 in the case that the
+  // mobile client check is implemented.
+
+  // C -> S: ConnectionRequestPacket
+  // If there's a password
+  //   S -> C: PasswordRequestPacket (or ConnectionApprovedPacket)
+  //   C -> S: PasswordResponsePacket
+  //   S -> C: ConnectionApprovedPacket(playerId = 16)
+  // Otherwise
+  //   S -> C: ConnectionApprovedPacket(playerId = 16)
+  // C -> S: PlayerInfoPacket
+  // C -> S: ClientUniqueIdPacket
+  // C -> S: WorldInfoRequestPacket
+
+  // TODO: Is currently unneeded, since the mobile uses an older protocol version,
+  //   but if the versions are equal and catch up, this could be a solution to check it.
+  // For proper mobile integration checking, this method is based on the fact
+  // that in the mobile versions are loops that range between 0..16 (exclusive)
+  // while on desktop version 0..255 (exclusive) is used. The mobile client allows
+  // player ids in the range 0..16 (inclusive) without crashing.
+  // After C -> S: PasswordResponsePacket
+  // S -> C: PlayerActivePacket(playerId = 16, active = true)
+  // S -> C: PlayerActivePacket(playerId = 15, active = true)
+  // S -> C: NebulaLevelUpRequestPacket(playerId = 15, levelUpType = 0, origin = [0;0])
+  // S -> C: KeepAlivePacket
+  // If C -> S: AddPlayerBuffPacket(playerId = 16)
+  //   -> The client isn't mobile, because updates were send for player id 16
+  // C -> S: KeepAlivePacket -> To continue if the player buff packet was never received
+  // S -> C: PlayerActivePacket(playerId = 16, active = false)
+  // S -> C: PlayerActivePacket(playerId = 15, active = false)
+
   private val inboundConnection = InitialInboundConnection(this.connection.remoteAddress)
 
   private var identifier: PlayerIdentifier? = null

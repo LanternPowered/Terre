@@ -10,7 +10,9 @@
 package org.lanternpowered.terre.impl.network.packet
 
 import org.lanternpowered.terre.impl.network.Packet
+import org.lanternpowered.terre.impl.network.buffer.readPlainText
 import org.lanternpowered.terre.impl.network.buffer.writePlainText
+import org.lanternpowered.terre.impl.network.packetDecoderOf
 import org.lanternpowered.terre.impl.network.packetEncoderOf
 import org.lanternpowered.terre.text.Text
 
@@ -22,4 +24,10 @@ internal data class StatusPacket(
 internal val StatusEncoder = packetEncoderOf<StatusPacket> { buf, packet ->
   buf.writeIntLE(packet.statusMax)
   buf.writePlainText(packet.statusText)
+}
+
+internal val StatusDecoder = packetDecoderOf { buf ->
+  val statusMax = buf.readIntLE()
+  val statusText = buf.readPlainText()
+  StatusPacket(statusMax, statusText)
 }

@@ -14,7 +14,7 @@ import org.lanternpowered.terre.PlayerCollection
 import org.lanternpowered.terre.PlayerIdentifier
 
 class PlayerCollectionImpl(
-    val map: Map<PlayerIdentifier, Player>
+    private val map: Map<PlayerIdentifier, Player>
 ) : PlayerCollection, Collection<Player> by map.values {
 
   override fun get(identifier: PlayerIdentifier) = this.map[identifier]

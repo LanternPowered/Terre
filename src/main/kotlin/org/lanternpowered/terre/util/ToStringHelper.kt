@@ -17,14 +17,26 @@ import kotlin.reflect.KClass
 /**
  * Creates a new string.
  */
-fun Any.toString(
-    name: String = this::class.simpleName ?: "Unknown", fn: ToStringHelper.() -> Unit
-): String = toString(name, fn)
+fun Any.toString(fn: ToStringHelper.() -> Unit)
+    = ToStringHelper(this).also(fn).toString()
 
 /**
  * Creates a new string.
  */
-fun toString(name: String, fn: ToStringHelper.() -> Unit) = ToStringHelper(name).also(fn).toString()
+fun toString(name: String, fn: ToStringHelper.() -> Unit)
+    = ToStringHelper(name).also(fn).toString()
+
+/**
+ * Gets the default name used for a class.
+ */
+private fun KClass<*>.getDefaultName(): String {
+  val enclosing = this.nestedClasses.javaClass.enclosingClass
+  return if (enclosing == null) {
+    this.simpleName ?: this.java.simpleName
+  } else {
+    enclosing.kotlin.getDefaultName() + '.' + this.simpleName
+  }
+}
 
 /**
  * A helper class to build [String]s for
@@ -51,13 +63,13 @@ class ToStringHelper(
    * Constructs a new [ToStringHelper] with the
    * simple name of the given [Class].
    */
-  constructor(clazz: Class<*>): this(clazz.simpleName)
+  constructor(javaClass: Class<*>): this(javaClass.kotlin)
 
   /**
    * Constructs a new [ToStringHelper] with the
    * simple name of the given [KClass].
    */
-  constructor(clazz: KClass<*>): this(clazz.simpleName ?: clazz.run { java.simpleName })
+  constructor(kClass: KClass<*>): this(kClass.getDefaultName())
 
   /**
    * Constructs a new [ToStringHelper] with the

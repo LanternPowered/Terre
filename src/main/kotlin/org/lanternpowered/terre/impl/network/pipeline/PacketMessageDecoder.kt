@@ -28,7 +28,7 @@ internal class PacketMessageDecoder(private val context: PacketCodecContext) : M
       opcode = input.readUnsignedShortLE() // Module id
       opcode = (opcode shl ModuleIdOffset) or ModuleIdMask
     }
-    val registration = this.context.protocol.getDecoder(opcode)
+    val registration = this.context.protocol.getDecoder(this.context.direction, opcode)
 
     // No registration is available, so just process
     // as an unknown packet.
@@ -47,7 +47,8 @@ internal class PacketMessageDecoder(private val context: PacketCodecContext) : M
     } catch (ex: Exception) {
       throw DecoderException(ex)
     }
-    output += packet
+    if (packet != null)
+      output += packet
 
     // Consume the bytes in the input, reading from the content
     // slice doesn't affect the input
