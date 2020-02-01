@@ -12,6 +12,7 @@
 package org.lanternpowered.terre.impl.network
 
 import io.netty.buffer.ByteBuf
+import io.netty.buffer.ByteBufAllocator
 import io.netty.channel.Channel
 import io.netty.channel.ChannelFuture
 import io.netty.channel.ChannelFutureListener
@@ -33,7 +34,6 @@ import java.io.IOException
 import java.net.SocketAddress
 
 internal class Connection(
-    private val networkManager: NetworkManager,
     private val channel: Channel
 ) : ChannelInboundHandlerAdapter() {
 
@@ -69,6 +69,12 @@ internal class Connection(
    */
   val eventLoop: EventLoop
     get() = this.channel.eventLoop()
+
+  /**
+   * The byte buf allocator of the connection.
+   */
+  val byteBufAlloc: ByteBufAllocator
+    get() = this.channel.alloc()
 
   /**
    * The remote address this connection is connected to.

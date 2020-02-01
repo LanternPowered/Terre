@@ -9,15 +9,29 @@
  */
 package org.lanternpowered.terre.impl.player
 
-import org.lanternpowered.terre.Player
-import org.lanternpowered.terre.Server
+import io.netty.channel.Channel
+import io.netty.handler.timeout.ReadTimeoutHandler
+import org.lanternpowered.terre.ConnectionRequestResult
 import org.lanternpowered.terre.ServerConnection
+import org.lanternpowered.terre.impl.ProxyImpl
+import org.lanternpowered.terre.impl.ServerImpl
+import org.lanternpowered.terre.impl.network.ClientVersion
 import org.lanternpowered.terre.impl.network.Connection
+import org.lanternpowered.terre.impl.network.PacketCodecContextImpl
+import org.lanternpowered.terre.impl.network.PacketDirection
+import org.lanternpowered.terre.impl.network.ReadTimeout
+import org.lanternpowered.terre.impl.network.addChannelFutureListener
+import org.lanternpowered.terre.impl.network.backend.ServerInitConnectionHandler
+import org.lanternpowered.terre.impl.network.pipeline.FrameDecoder
+import org.lanternpowered.terre.impl.network.pipeline.FrameEncoder
+import org.lanternpowered.terre.impl.network.pipeline.PacketMessageDecoder
+import org.lanternpowered.terre.impl.network.pipeline.PacketMessageEncoder
 import java.util.concurrent.CompletableFuture
+import kotlin.time.DurationUnit
 
 internal class ServerConnectionImpl(
-    override val server: Server,
-    override val player: Player
+    override val server: ServerImpl,
+    override val player: PlayerImpl
 ) : ServerConnection {
 
   val connection: Connection?
@@ -25,8 +39,43 @@ internal class ServerConnectionImpl(
 
   private var theConnection: Connection? = null
 
-  fun connect(): CompletableFuture<Boolean> {
-    TODO()
+  fun connect(): CompletableFuture<ConnectionRequestResult> {
+    val result = CompletableFuture<ConnectionRequestResult>()
+    val connected = this.player.serverConnection
+    if (connected != null && connected.server == this.server) {
+      result.complete(ConnectionRequestResult.AlreadyConnected(this.server))
+      return result
+    }
+    val bootstrap = ProxyImpl.networkManager
+        .createClientBootstrap(this.player.clientConnection.eventLoop)
+    val connectFuture = bootstrap
+        .connect(this.server.info.address)
+    connectFuture.addChannelFutureListener { future ->
+      if (future.isSuccess) {
+        future.channel().init(result)
+      } else {
+        result.completeExceptionally(future.cause())
+      }
+    }
+    return result
+  }
+
+  private fun Channel.init(result: CompletableFuture<ConnectionRequestResult>) {
+    val connection = Connection(this)
+    pipeline().apply {
+      addLast(ReadTimeoutHandler(ReadTimeout.toLongMilliseconds(), DurationUnit.MILLISECONDS))
+      addLast(FrameDecoder())
+      addLast(FrameEncoder())
+      addLast(PacketMessageDecoder(PacketCodecContextImpl(connection, PacketDirection.ServerToClient)))
+      addLast(PacketMessageEncoder(PacketCodecContextImpl(connection, PacketDirection.ClientToServer)))
+      addLast(connection)
+    }
+    theConnection = connection
+    // TODO: Support for modded
+    // TODO: Retry a connection if packet translation is supported
+    //  for specific versions, but with a different protocol version.
+    connection.setConnectionHandler(ServerInitConnectionHandler(this@ServerConnectionImpl, result,
+        listOf(ClientVersion.Vanilla(player.clientConnection.protocol.version))))
   }
 
   fun ensureConnected(): Connection {

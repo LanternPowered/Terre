@@ -9,6 +9,7 @@
  */
 package org.lanternpowered.terre.impl.network
 
+import io.netty.bootstrap.Bootstrap
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.buffer.ByteBufAllocator
 import io.netty.buffer.PooledByteBufAllocator
@@ -18,6 +19,7 @@ import io.netty.channel.ChannelFuture
 import io.netty.channel.ChannelFutureListener
 import io.netty.channel.ChannelInitializer
 import io.netty.channel.ChannelOption
+import io.netty.channel.EventLoop
 import io.netty.channel.EventLoopGroup
 import io.netty.channel.socket.SocketChannel
 import io.netty.handler.timeout.ReadTimeoutHandler
@@ -27,19 +29,22 @@ import org.lanternpowered.terre.impl.network.pipeline.FrameEncoder
 import org.lanternpowered.terre.impl.network.pipeline.PacketMessageDecoder
 import org.lanternpowered.terre.impl.network.pipeline.PacketMessageEncoder
 import java.net.SocketAddress
+import kotlin.time.DurationUnit
+import kotlin.time.seconds
 
-private const val ReadTimeoutSeconds = 20
+internal val ReadTimeout = 20.seconds
+internal val ConnectTimeout = 5.seconds
 
 internal class NetworkManager {
 
   private val transportType = TransportType.findBestType()
 
-  val bossGroup: EventLoopGroup = this.transportType.eventLoopGroupSupplier(0, NettyThreadFactory("boss"))
-  val workerGroup: EventLoopGroup = this.transportType.eventLoopGroupSupplier(0, NettyThreadFactory("worker"))
+  val bossGroup = this.transportType.eventLoopGroupSupplier(0, NettyThreadFactory("boss"))
+  val workerGroup = this.transportType.eventLoopGroupSupplier(0, NettyThreadFactory("worker"))
 
   private var endpoint: Channel? = null
 
-  fun init(address: SocketAddress): ChannelFuture {
+  fun bind(address: SocketAddress): ChannelFuture {
     return ServerBootstrap().apply {
       group(bossGroup, workerGroup)
       channelFactory(ChannelFactory(transportType.serverSocketChannelSupplier))
@@ -50,21 +55,21 @@ internal class NetworkManager {
       childOption(ChannelOption.TCP_NODELAY, true)
       childOption(ChannelOption.IP_TOS, 0x18)
       childOption(ChannelOption.SO_KEEPALIVE, true)
-    }.bind(address).addListener(ChannelFutureListener { future -> // SAM constructor isn't redundant
+    }.bind(address).addChannelFutureListener { future -> // SAM constructor isn't redundant
       this.endpoint = future.channel()
-    })
+    }
   }
 
   private fun initChannel(channel: SocketChannel) {
-    val connection = Connection(this, channel)
+    val connection = Connection(channel)
     connection.setConnectionHandler(ClientInitConnectionHandler(connection))
     val pipeline = channel.pipeline()
     pipeline.apply {
-      addLast(ReadTimeoutHandler(ReadTimeoutSeconds))
+      addLast(ReadTimeoutHandler(ReadTimeout.toLongMilliseconds(), DurationUnit.MILLISECONDS))
       addLast(FrameDecoder())
       addLast(FrameEncoder())
-      addLast(PacketMessageDecoder(PacketCodecContextImpl(connection, channel, PacketDirection.ClientToServer)))
-      addLast(PacketMessageEncoder(PacketCodecContextImpl(connection, channel, PacketDirection.ServerToClient)))
+      addLast(PacketMessageDecoder(PacketCodecContextImpl(connection, PacketDirection.ClientToServer)))
+      addLast(PacketMessageEncoder(PacketCodecContextImpl(connection, PacketDirection.ServerToClient)))
       addLast(connection)
     }
   }
@@ -74,12 +79,15 @@ internal class NetworkManager {
     this.endpoint?.close()?.sync()
   }
 
-  private class PacketCodecContextImpl(
-      override val connection: Connection,
-      override val channel: Channel,
-      override val direction: PacketDirection
-  ) : PacketCodecContext {
-    override val protocol: Protocol get() = this.connection.protocol
-    override val byteBufAllocator: ByteBufAllocator get() = this.channel.alloc()
+  /**
+   * Creates a client bootstrap.
+   */
+  fun createClientBootstrap(group: EventLoopGroup = this.workerGroup): Bootstrap {
+    return Bootstrap().apply {
+      channelFactory(ChannelFactory(transportType.socketChannelSupplier))
+      group(group)
+      option(ChannelOption.TCP_NODELAY, true)
+      option(ChannelOption.CONNECT_TIMEOUT_MILLIS, ConnectTimeout.toInt(DurationUnit.MILLISECONDS))
+    }
   }
 }

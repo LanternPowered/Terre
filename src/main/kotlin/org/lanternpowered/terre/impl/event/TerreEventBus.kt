@@ -26,7 +26,7 @@ import org.lanternpowered.terre.event.EventBus
 import org.lanternpowered.terre.event.EventSubscription
 import org.lanternpowered.terre.event.Subscribe
 import org.lanternpowered.terre.impl.Terre
-import org.lanternpowered.terre.impl.plugin.ActivePluginThreadLocalElement
+import org.lanternpowered.terre.impl.plugin.PluginThreadLocalElement
 import org.lanternpowered.terre.impl.plugin.activePlugin
 import java.lang.invoke.MethodHandles
 import java.lang.reflect.Method
@@ -250,7 +250,7 @@ internal object TerreEventBus : EventBus {
     for (handler in handlers) {
       val plugin = handler.plugin
       try {
-        withContext(ActivePluginThreadLocalElement(plugin)) {
+        withContext(PluginThreadLocalElement(plugin)) {
           handler.handler.handle(event)
         }
       } catch (ex: Throwable) {

@@ -40,5 +40,5 @@ sealed class ConnectionRequestResult {
    * @property server The server that the request is targeting
    * @property reason The reason of disconnecting, if present
    */
-  data class Disconnected(override val server: Server, val reason: Text?) : ConnectionRequestResult()
+  data class Disconnected(override val server: Server, val reason: Text? = null) : ConnectionRequestResult()
 }

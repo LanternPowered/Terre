@@ -13,26 +13,26 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Runnable
-import org.lanternpowered.terre.impl.plugin.ActivePluginThreadLocalElement
-import org.lanternpowered.terre.impl.plugin.ActivePluginThreadLocalKey
+import org.lanternpowered.terre.impl.plugin.PluginThreadLocalElement
+import org.lanternpowered.terre.plugin.PluginContextElement
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.CoroutineContext
 
 /**
  * A [CoroutineDispatcher] that makes sure that the
- * [ActivePluginThreadLocalElement] is attached to
+ * [PluginThreadLocalElement] is attached to
  * the context.
  */
-internal class ActivePluginCoroutineDispatcher(
+internal class PluginContextCoroutineDispatcher(
     private val backing: CoroutineDispatcher
 ) : CoroutineDispatcher() {
 
+  private fun populateContext(context: CoroutineContext): CoroutineContext {
+    return if (context[PluginContextElement.Key] == null) context + PluginContextElement() else context
+  }
+
   override fun dispatch(context: CoroutineContext, block: Runnable) {
-    var dispatchContext = context
-    if (context[ActivePluginThreadLocalKey] == null) {
-      dispatchContext += ActivePluginThreadLocalElement()
-    }
-    this.backing.dispatch(dispatchContext, block)
+    this.backing.dispatch(populateContext(context), block)
   }
 
   @ExperimentalCoroutinesApi
@@ -40,14 +40,10 @@ internal class ActivePluginCoroutineDispatcher(
 
   @InternalCoroutinesApi
   override fun dispatchYield(context: CoroutineContext, block: Runnable) {
-    this.backing.dispatchYield(context, block)
+    this.backing.dispatchYield(populateContext(context), block)
   }
 
   override fun releaseInterceptedContinuation(continuation: Continuation<*>) {
     this.backing.releaseInterceptedContinuation(continuation)
-  }
-
-  override fun <E : CoroutineContext.Element> get(key: CoroutineContext.Key<E>): E? {
-    return super.get(key) ?: this.backing[key]
   }
 }

@@ -9,7 +9,12 @@
  */
 package org.lanternpowered.terre.impl.network
 
-internal interface NetworkContext {
+import io.netty.channel.ChannelFuture
+import io.netty.channel.ChannelFutureListener
 
-  val connection: Connection
+@Suppress("RedundantSamConstructor")
+inline fun ChannelFuture.addChannelFutureListener(crossinline block: (future: ChannelFuture) -> Unit): ChannelFuture {
+  return this.addListener(ChannelFutureListener {
+    block(it)
+  })
 }

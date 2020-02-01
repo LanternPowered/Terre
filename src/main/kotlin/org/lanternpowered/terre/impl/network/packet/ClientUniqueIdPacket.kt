@@ -9,32 +9,27 @@
  */
 package org.lanternpowered.terre.impl.network.packet
 
+import io.netty.handler.codec.DecoderException
 import org.lanternpowered.terre.impl.network.Packet
-import org.lanternpowered.terre.impl.network.buffer.readVarInt
-import org.lanternpowered.terre.impl.network.buffer.writeVarInt
+import org.lanternpowered.terre.impl.network.buffer.readString
+import org.lanternpowered.terre.impl.network.buffer.writeString
 import org.lanternpowered.terre.impl.network.packetDecoderOf
 import org.lanternpowered.terre.impl.network.packetEncoderOf
+import java.util.*
 
 internal data class ClientUniqueIdPacket(
-    val bytes: ByteArray
-) : Packet {
-
-  override fun equals(other: Any?)
-      = other is ClientUniqueIdPacket && this.bytes contentEquals other.bytes
-
-  override fun hashCode()
-      = this.bytes.contentHashCode()
-}
+    val uniqueId: UUID
+) : Packet
 
 internal val ClientUniqueIdDecoder = packetDecoderOf { buf ->
-  val length = buf.readVarInt()
-  check(length == 36) { "Invalid client identifier length: $length" }
-  val bytes = ByteArray(length)
-  buf.readBytes(bytes)
-  ClientUniqueIdPacket(bytes)
+  val uniqueId = try {
+    UUID.fromString(buf.readString())
+  } catch (ex: IllegalArgumentException) {
+    throw DecoderException(ex)
+  }
+  ClientUniqueIdPacket(uniqueId)
 }
 
 internal val ClientUniqueIdEncoder = packetEncoderOf<ClientUniqueIdPacket> { buf, packet ->
-  buf.writeVarInt(packet.bytes.size)
-  buf.writeBytes(packet.bytes)
+  buf.writeString(packet.uniqueId.toString())
 }

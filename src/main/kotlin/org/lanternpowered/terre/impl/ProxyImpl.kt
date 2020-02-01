@@ -15,25 +15,20 @@ import com.uchuhimo.konf.source.toml
 import com.uchuhimo.konf.source.toml.toToml
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.TimeoutCancellationException
 import org.lanternpowered.terre.Console
-import org.lanternpowered.terre.Player
-import org.lanternpowered.terre.PlayerIdentifier
 import org.lanternpowered.terre.Proxy
 import org.lanternpowered.terre.coroutines.delay
-import org.lanternpowered.terre.coroutines.withTimeout
 import org.lanternpowered.terre.dispatcher.launchAsync
 import org.lanternpowered.terre.event.proxy.ProxyInitializeEvent
 import org.lanternpowered.terre.event.proxy.ProxyShutdownEvent
 import org.lanternpowered.terre.impl.config.ServerConfigSpec
 import org.lanternpowered.terre.impl.console.ConsoleImpl
 import org.lanternpowered.terre.impl.coroutines.tryWithTimeout
-import org.lanternpowered.terre.impl.dispatcher.ActivePluginCoroutineDispatcher
+import org.lanternpowered.terre.impl.dispatcher.PluginContextCoroutineDispatcher
 import org.lanternpowered.terre.impl.event.EventExecutor
 import org.lanternpowered.terre.impl.event.TerreEventBus
 import org.lanternpowered.terre.impl.network.NetworkManager
 import org.lanternpowered.terre.impl.network.ProxyBroadcastTask
-import org.lanternpowered.terre.impl.network.TransportType
 import org.lanternpowered.terre.impl.plugin.PluginManagerImpl
 import org.lanternpowered.terre.impl.text.TextDeserializer
 import org.lanternpowered.terre.impl.text.TextSerializer
@@ -44,11 +39,6 @@ import java.net.BindException
 import java.net.InetSocketAddress
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.time.Duration
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.Future
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.seconds
 
@@ -57,27 +47,12 @@ internal object ProxyImpl : Proxy {
   val console = ConsoleImpl(::processCommand, ::shutdown)
 
   private val config: Config = loadConfig()
-  private lateinit var networkManager: NetworkManager
+  val networkManager = NetworkManager()
 
-  private val playersByIdentifier = ConcurrentHashMap<PlayerIdentifier, Player>()
+  val mutablePlayers = MutablePlayerCollection.concurrentOf()
 
-  override val players = PlayerCollectionImpl(this.playersByIdentifier)
-
-  /**
-   * Attempts to register a player to the proxy. Returns true if the
-   * registration was successful and false in case of failure. Failure
-   * can occur if there's already a player with the same identifier.
-   */
-  fun registerPlayer(player: Player): Boolean {
-    return this.playersByIdentifier.putIfAbsent(player.identifier, player) == null
-  }
-
-  /**
-   * Unregisters the given player.
-   */
-  fun unregisterPlayer(player: Player) {
-    this.playersByIdentifier -= player.identifier
-  }
+  override val players
+    get() = mutablePlayers.toImmutable()
 
   override var name: String
     get() = Terre.name
@@ -99,7 +74,7 @@ internal object ProxyImpl : Proxy {
   }
 
   override val dispatcher: CoroutineDispatcher
-      = ActivePluginCoroutineDispatcher(EventExecutor.dispatcher) // Expose a safely wrapped dispatcher
+      = PluginContextCoroutineDispatcher(EventExecutor.dispatcher) // Expose a safely wrapped dispatcher
 
   val pluginManager = PluginManagerImpl()
 
@@ -183,8 +158,7 @@ internal object ProxyImpl : Proxy {
   }
 
   private fun initServer() {
-    this.networkManager = NetworkManager()
-    val future = this.networkManager.init(this.address)
+    val future = this.networkManager.bind(this.address)
     future.awaitUninterruptibly()
     if (!future.isSuccess) {
       val cause = future.cause()

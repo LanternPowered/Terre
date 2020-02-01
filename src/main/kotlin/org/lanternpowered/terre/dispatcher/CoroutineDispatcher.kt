@@ -19,7 +19,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import org.lanternpowered.terre.impl.event.EventExecutor
-import org.lanternpowered.terre.impl.plugin.ActivePluginThreadLocalElement
+import org.lanternpowered.terre.plugin.PluginContextElement
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -53,7 +53,7 @@ fun <T> CoroutineDispatcher.submit(
 /**
  * Creates a new coroutine scope.
  */
-private fun newCoroutineScope() = CoroutineScope(EventExecutor.dispatcher + ActivePluginThreadLocalElement())
+private fun newCoroutineScope() = CoroutineScope(EventExecutor.dispatcher + PluginContextElement())
 
 /**
  * Launches a new async job on the proxy coroutine dispatcher.

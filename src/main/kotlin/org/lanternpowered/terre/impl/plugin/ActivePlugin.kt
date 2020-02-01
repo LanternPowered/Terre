@@ -13,6 +13,7 @@ import io.netty.util.concurrent.FastThreadLocal
 import kotlinx.coroutines.ThreadContextElement
 import org.lanternpowered.terre.impl.util.TerreThread
 import org.lanternpowered.terre.plugin.PluginContainer
+import org.lanternpowered.terre.plugin.PluginContextElement
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -43,18 +44,14 @@ internal var Thread.activePlugin: PluginContainer?
     else -> threadLocal.remove()
   }
 
-internal object ActivePluginThreadLocalKey : CoroutineContext.Key<ActivePluginThreadLocalElement>
-
-internal class ActivePluginThreadLocalElement(
-    private val value: PluginContainer? = Thread.currentThread().activePlugin
-) : ThreadContextElement<PluginContainer?> {
-
-  override val key: CoroutineContext.Key<*> get() = ActivePluginThreadLocalKey
+internal class PluginThreadLocalElement(
+    override val plugin: PluginContainer? = activePlugin
+) : ThreadContextElement<PluginContainer?>, PluginContextElement {
 
   override fun updateThreadContext(context: CoroutineContext): PluginContainer? {
     val thread = Thread.currentThread()
     val oldState = thread.activePlugin
-    thread.activePlugin = this.value
+    thread.activePlugin = this.plugin
     return oldState
   }
 
@@ -62,5 +59,5 @@ internal class ActivePluginThreadLocalElement(
     Thread.currentThread().activePlugin = oldState
   }
 
-  override fun toString(): String = "ActivePlugin(plugin=$value)"
+  override fun toString(): String = "ActivePlugin(plugin=$plugin)"
 }

@@ -17,6 +17,7 @@ internal interface PacketCodecContext : NetworkContext {
    * The byte buf allocator.
    */
   val byteBufAllocator: ByteBufAllocator
+    get() = this.connection.byteBufAlloc
 
   /**
    * The protocol used during the encoding or decoding.
@@ -25,6 +26,7 @@ internal interface PacketCodecContext : NetworkContext {
    * is not yet known.
    */
   val protocol: Protocol
+    get() = this.connection.protocol
 
   /**
    * The direction for which the packet is
@@ -32,3 +34,8 @@ internal interface PacketCodecContext : NetworkContext {
    */
   val direction: PacketDirection
 }
+
+internal class PacketCodecContextImpl(
+    override val connection: Connection,
+    override val direction: PacketDirection
+) : PacketCodecContext

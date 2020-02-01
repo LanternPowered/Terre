@@ -9,15 +9,23 @@
  */
 package org.lanternpowered.terre.impl
 
-import org.lanternpowered.terre.PlayerCollection
 import org.lanternpowered.terre.Server
 import org.lanternpowered.terre.ServerInfo
+import org.lanternpowered.terre.impl.network.ClientVersion
 import org.lanternpowered.terre.text.Text
 
 internal class ServerImpl(override val info: ServerInfo) : Server {
 
-  override val players: PlayerCollection
-    get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+  val mutablePlayers = MutablePlayerCollection.concurrentOf()
+
+  /**
+   * The last server version that was noticed by connecting clients. Is
+   * used to speed up connection when multiple versions are possible.
+   */
+  @Volatile var lastKnownVersion: ClientVersion? = null
+
+  override val players
+    get() = this.mutablePlayers.toImmutable()
 
   override fun sendMessage(message: String) {
     this.players.forEach { it.sendMessage(message) }

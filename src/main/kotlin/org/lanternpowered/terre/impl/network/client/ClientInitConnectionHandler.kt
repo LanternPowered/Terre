@@ -138,9 +138,11 @@ internal class ClientInitConnectionHandler(
   }
 
   override fun handle(packet: ClientUniqueIdPacket): Boolean {
+    // Generate a identifier that matches the
+    // tShock player identifiers.
     val digest = MessageDigest.getInstance("SHA-512")
     digest.reset()
-    digest.update(packet.bytes)
+    digest.update(packet.uniqueId.toString().toByteArray(Charsets.UTF_8))
     this.identifier = PlayerIdentifier(digest.digest())
     return true
   }

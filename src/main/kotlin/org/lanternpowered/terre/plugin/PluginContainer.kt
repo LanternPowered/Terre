@@ -10,26 +10,6 @@
 package org.lanternpowered.terre.plugin
 
 import org.lanternpowered.terre.impl.plugin.activePlugin
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
-
-/**
- * Executes the block as if it was executed
- * by the given [PluginContainer].
- */
-inline fun <R> withActivePlugin(pluginContainer: PluginContainer, block: () -> R): R {
-  contract {
-    callsInPlace(block, InvocationKind.EXACTLY_ONCE)
-  }
-  val thread = Thread.currentThread()
-  val old = thread.activePlugin
-  thread.activePlugin = pluginContainer
-  try {
-    return block()
-  } finally {
-    thread.activePlugin = old
-  }
-}
 
 /**
  * Represents a plugin.
@@ -76,7 +56,7 @@ interface PluginContainer {
     /**
      * The current plugin that is executing code.
      */
-    val Active: PluginContainer
-      get() = Thread.currentThread().activePlugin ?: error("The active plugin is unavailable.")
+    val Active: PluginContainer?
+      get() = Thread.currentThread().activePlugin
   }
 }

@@ -25,6 +25,12 @@ class EventBusTest {
 
   private val plugin = SimplePluginContainer("test")
 
+  suspend fun test() {
+    withActivePlugin(plugin) {
+      EventBus.post(TestEvent)
+    }
+  }
+
   @Test fun `test active plugin`(): Unit = runBlocking {
     val counter = LongAdder()
     withActivePlugin(plugin) {

@@ -31,7 +31,6 @@ internal open class ServerPlayConnectionHandler(
   }
 
   override fun disconnect() {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
   private fun initializeDeathSourceCache() {
