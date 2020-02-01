@@ -24,6 +24,7 @@ import org.lanternpowered.lmbda.kt.privateLookupIn
 import org.lanternpowered.terre.event.Event
 import org.lanternpowered.terre.event.EventBus
 import org.lanternpowered.terre.event.EventSubscription
+import org.lanternpowered.terre.event.ListenerRegistration
 import org.lanternpowered.terre.event.Subscribe
 import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.plugin.PluginThreadLocalElement
@@ -82,12 +83,12 @@ internal object TerreEventBus : EventBus {
     register(listOf(registration))
     return object : EventSubscription {
       override fun unsubscribe() {
-        unsubscribe(listener)
+        unregister(listener)
       }
     }
   }
 
-  override fun subscribe(listener: Any): EventSubscription {
+  override fun register(listener: Any): ListenerRegistration {
     val plugin = activePlugin
     val registrations = mutableListOf<RegisteredHandler>()
     val map = mutableMapOf<String, Pair<MethodListenerInfo, String?>>()
@@ -111,20 +112,24 @@ internal object TerreEventBus : EventBus {
     }
 
     register(registrations)
-    return object : EventSubscription {
-      override fun unsubscribe() {
-        unsubscribe(listener)
+    return object : ListenerRegistration {
+      override fun unregister() {
+        unregister(listener)
       }
     }
   }
 
-  override fun unsubscribe(listener: Any) {
+  override fun unregister(listener: Any) {
+    unregisterIf { it.instance === listener }
+  }
+
+  private fun unregisterIf(fn: (RegisteredHandler) -> Boolean) {
     val removed = mutableListOf<RegisteredHandler>()
     synchronized(this.lock) {
       val it = this.handlersByEvent.values().iterator()
       while (it.hasNext()) {
         val handler = it.next()
-        if (handler.instance === listener) {
+        if (fn(handler)) {
           it.remove()
           removed += handler
         }

@@ -16,6 +16,7 @@ import org.lanternpowered.terre.event.Event
 import org.lanternpowered.terre.event.EventBus
 import org.lanternpowered.terre.event.Subscribe
 import org.lanternpowered.terre.event.subscribe
+import org.lanternpowered.terre.impl.plugin.TerrePluginContainer
 import org.lanternpowered.terre.plugin.PluginContainer
 import org.lanternpowered.terre.plugin.withActivePlugin
 import java.util.concurrent.atomic.LongAdder
@@ -23,13 +24,7 @@ import kotlin.test.assertEquals
 
 class EventBusTest {
 
-  private val plugin = SimplePluginContainer("test")
-
-  suspend fun test() {
-    withActivePlugin(plugin) {
-      EventBus.post(TestEvent)
-    }
-  }
+  private val plugin = TerrePluginContainer(id = "test", instance = Any())
 
   @Test fun `test active plugin`(): Unit = runBlocking {
     val counter = LongAdder()
@@ -72,7 +67,7 @@ class EventBusTest {
   @Test fun `test instance registration`(): Unit = runBlocking {
     val listeners = TestListeners()
     withActivePlugin(plugin) {
-      EventBus.subscribe(listeners)
+      EventBus.register(listeners)
     }
     EventBus.post(TestEvent)
     assertEquals(3, listeners.counter.toInt())
@@ -105,14 +100,4 @@ class EventBusTest {
   object TestEvent : Event
 
   class OtherEvent(val value: Int) : Event
-
-  class SimplePluginContainer(
-      override val id: String,
-      override val name: String = id,
-      override val description: String? = null,
-      override val authors: List<String> = emptyList(),
-      override val instance: Any = Any(),
-      override val version: String? = null,
-      override val url: String? = null
-  ) : PluginContainer
 }

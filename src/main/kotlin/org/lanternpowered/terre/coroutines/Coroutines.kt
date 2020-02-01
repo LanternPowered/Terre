@@ -15,8 +15,16 @@ import kotlin.time.Duration
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.delay
 
+suspend inline fun <T> withTimeout(timeMillis: Long, noinline block: suspend CoroutineScope.() -> T): T {
+  return withTimeout(timeMillis, block)
+}
+
 suspend fun <T> withTimeout(duration: Duration, block: suspend CoroutineScope.() -> T): T {
   return withTimeout(duration.toLongMilliseconds(), block)
+}
+
+suspend inline fun delay(timeMillis: Long) {
+  delay(timeMillis)
 }
 
 suspend fun delay(duration: Duration) {

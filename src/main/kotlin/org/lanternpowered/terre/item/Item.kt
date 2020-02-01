@@ -12,11 +12,16 @@ package org.lanternpowered.terre.item
 import org.lanternpowered.terre.catalog.NumericCatalogType
 import org.lanternpowered.terre.catalog.NumericCatalogTypeRegistry
 import org.lanternpowered.terre.impl.item.ItemRegistryImpl
+import org.lanternpowered.terre.text.ItemText
 
 /**
  * Represents the type of an item.
  */
-interface Item : NumericCatalogType
+interface Item : NumericCatalogType {
+
+  fun toText(): ItemText
+      = itemStackOf(this).toText()
+}
 
 /**
  * A registry for all the [Item]s.

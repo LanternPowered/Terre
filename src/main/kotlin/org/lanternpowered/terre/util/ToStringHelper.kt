@@ -12,6 +12,7 @@
 package org.lanternpowered.terre.util
 
 import com.google.common.collect.Iterables
+import java.lang.UnsupportedOperationException
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 import kotlin.reflect.KClass
@@ -19,21 +20,29 @@ import kotlin.reflect.KClass
 /**
  * Creates a new string.
  */
-fun Any.toString(fn: ToStringHelper.() -> Unit): String {
+fun Any.toString(
+    brackets: ToStringHelper.Brackets = ToStringHelper.Brackets.ROUND,
+    omitNullValues: Boolean = false,
+    fn: ToStringHelper.() -> Unit): String {
   contract {
     callsInPlace(fn, InvocationKind.EXACTLY_ONCE)
   }
-  return ToStringHelper(this).also(fn).toString()
+  return ToStringHelper(this::class.getDefaultName(), brackets, omitNullValues).also(fn).toString()
 }
 
 /**
  * Creates a new string.
  */
-fun toString(name: String, fn: ToStringHelper.() -> Unit): String {
+fun toString(
+    name: String,
+    brackets: ToStringHelper.Brackets = ToStringHelper.Brackets.ROUND,
+    omitNullValues: Boolean = false,
+    fn: ToStringHelper.() -> Unit
+): String {
   contract {
     callsInPlace(fn, InvocationKind.EXACTLY_ONCE)
   }
-  return ToStringHelper(name).also(fn).toString()
+  return ToStringHelper(name, brackets, omitNullValues).also(fn).toString()
 }
 
 /**
@@ -117,6 +126,10 @@ class ToStringHelper(
    * @return This helper, for chaining
    */
   fun add(key: String, value: Any?): ToStringHelper = addEntry(key, value)
+
+  @Suppress("DeprecatedCallableAddReplaceWith")
+  @Deprecated(message = "Not allowed.", level = DeprecationLevel.ERROR)
+  infix fun <A, B> A.to(that: B): Nothing = throw UnsupportedOperationException()
 
   /**
    * Adds a key-value pair.

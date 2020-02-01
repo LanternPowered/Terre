@@ -9,6 +9,7 @@
  */
 package org.lanternpowered.terre.impl
 
+import org.lanternpowered.terre.MessageSender
 import org.lanternpowered.terre.Server
 import org.lanternpowered.terre.ServerInfo
 import org.lanternpowered.terre.impl.network.ClientVersion
@@ -28,10 +29,18 @@ internal class ServerImpl(override val info: ServerInfo) : Server {
     get() = this.mutablePlayers.toImmutable()
 
   override fun sendMessage(message: String) {
-    this.players.forEach { it.sendMessage(message) }
+    this.mutablePlayers.forEach { it.sendMessage(message) }
   }
 
   override fun sendMessage(message: Text) {
-    this.players.forEach { it.sendMessage(message) }
+    this.mutablePlayers.forEach { it.sendMessage(message) }
+  }
+
+  override fun sendMessageAs(message: Text, sender: MessageSender) {
+    this.mutablePlayers.forEach { it.sendMessageAs(message, sender) }
+  }
+
+  override fun sendMessageAs(message: String, sender: MessageSender) {
+    this.mutablePlayers.forEach { it.sendMessageAs(message, sender) }
   }
 }

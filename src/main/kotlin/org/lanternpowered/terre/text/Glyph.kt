@@ -18,7 +18,7 @@ import org.lanternpowered.terre.impl.text.GlyphRegistryImpl
  */
 interface Glyph : NumericCatalogType {
 
-  fun text(): GlyphText
+  fun toText(): GlyphText
       = textOf(this)
 }
 

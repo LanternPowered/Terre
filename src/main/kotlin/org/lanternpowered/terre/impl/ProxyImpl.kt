@@ -16,6 +16,7 @@ import com.uchuhimo.konf.source.toml.toToml
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import org.lanternpowered.terre.Console
+import org.lanternpowered.terre.MessageSender
 import org.lanternpowered.terre.Proxy
 import org.lanternpowered.terre.coroutines.delay
 import org.lanternpowered.terre.dispatcher.launchAsync
@@ -30,8 +31,8 @@ import org.lanternpowered.terre.impl.event.TerreEventBus
 import org.lanternpowered.terre.impl.network.NetworkManager
 import org.lanternpowered.terre.impl.network.ProxyBroadcastTask
 import org.lanternpowered.terre.impl.plugin.PluginManagerImpl
-import org.lanternpowered.terre.impl.text.TextDeserializer
-import org.lanternpowered.terre.impl.text.TextSerializer
+import org.lanternpowered.terre.impl.text.TextJsonDeserializer
+import org.lanternpowered.terre.impl.text.TextJsonSerializer
 import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.text.textOf
 import org.lanternpowered.terre.util.collection.toImmutableList
@@ -40,6 +41,7 @@ import java.net.InetSocketAddress
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.system.exitProcess
 import kotlin.time.seconds
 
 internal object ProxyImpl : Proxy {
@@ -144,16 +146,25 @@ internal object ProxyImpl : Proxy {
         TerreEventBus.post(ProxyShutdownEvent())
       }.isFailure || timeout
 
+      val executor = EventExecutor.executor
+      val executorShutdownTimeout = 10.seconds
       // Shutdown the executor, give 10 seconds to finish remaining tasks
-      EventExecutor.executor.shutdown()
-      delay(10.seconds)
-      if (!EventExecutor.executor.isShutdown) {
-        EventExecutor.executor.shutdownNow()
+      executor.shutdown()
+
+      var times = 100
+      val delay = executorShutdownTimeout.toLongMilliseconds() / times
+      while (!executor.isShutdown && times-- > 0) {
+        delay(delay)
+      }
+      if (!executor.isShutdown) {
+        executor.shutdownNow()
         timeout = true
       }
 
       if (timeout)
         Terre.logger.error("Shutting down the proxy took too long.")
+
+      exitProcess(0)
     }
   }
 
@@ -176,8 +187,8 @@ internal object ProxyImpl : Proxy {
 
     val configPath = Paths.get("config.toml")
     val module = SimpleModule().apply {
-      addDeserializer(Text::class.java, TextDeserializer())
-      addSerializer(TextSerializer())
+      addDeserializer(Text::class.java, TextJsonDeserializer())
+      addSerializer(TextJsonSerializer())
     }
     var config = Config {
       this.mapper.registerModule(module)
@@ -195,5 +206,21 @@ internal object ProxyImpl : Proxy {
     }
 
     return config
+  }
+
+  override fun sendMessage(message: String) {
+    this.mutablePlayers.forEach { it.sendMessage(message) }
+  }
+
+  override fun sendMessage(message: Text) {
+    this.mutablePlayers.forEach { it.sendMessage(message) }
+  }
+
+  override fun sendMessageAs(message: Text, sender: MessageSender) {
+    this.mutablePlayers.forEach { it.sendMessageAs(message, sender) }
+  }
+
+  override fun sendMessageAs(message: String, sender: MessageSender) {
+    this.mutablePlayers.forEach { it.sendMessageAs(message, sender) }
   }
 }

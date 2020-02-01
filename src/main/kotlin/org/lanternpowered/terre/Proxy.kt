@@ -11,14 +11,14 @@ package org.lanternpowered.terre
 
 import kotlinx.coroutines.CoroutineDispatcher
 import org.lanternpowered.terre.impl.ProxyImpl
-import org.lanternpowered.terre.plugin.PluginContainer
+import org.lanternpowered.terre.text.MessageReceiver
 import org.lanternpowered.terre.text.Text
 import java.net.InetSocketAddress
 
 /**
  * Represents the proxy server.
  */
-interface Proxy {
+interface Proxy : MessageReceiver {
 
   /**
    * The coroutine dispatcher.
@@ -71,6 +71,18 @@ interface Proxy {
    * the players with the specified reason.
    */
   fun shutdown(reason: Text)
+
+  /**
+   * Broadcasts the message to all the
+   * [Player]s on the proxy.
+   */
+  override fun sendMessage(message: String)
+
+  /**
+   * Broadcasts the message to all the
+   * [Player]s on the proxy.
+   */
+  override fun sendMessage(message: Text)
 
   /**
    * The singleton instance of the proxy.

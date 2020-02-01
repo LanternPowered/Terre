@@ -17,16 +17,16 @@ import org.jline.reader.LineReader
 import org.jline.reader.LineReaderBuilder
 import org.lanternpowered.terre.Console
 import org.lanternpowered.terre.impl.Terre
+import org.lanternpowered.terre.impl.text.MessageReceiverImpl
 import org.lanternpowered.terre.text.Text
 
 internal class ConsoleImpl(
     val commandHandler: (command: String) -> Unit,
     val shutdownHandler: () -> Unit
-) : SimpleTerminalConsole(), Console {
+) : SimpleTerminalConsole(), Console, MessageReceiverImpl {
 
   @Volatile private var active = false
   private var readThread: Thread? = null
-  private val lock = Object()
 
   init {
     LocationPatternConverter.RedirectFqcns += this::class.java.name
@@ -46,9 +46,7 @@ internal class ConsoleImpl(
 
     Terre.logger.info("Starting console.")
     val readThread = Thread({
-      synchronized(this.lock) {
-        super.start()
-      }
+      super.start()
     }, "console")
     this.readThread = readThread
     this.active = true
@@ -57,17 +55,15 @@ internal class ConsoleImpl(
   }
 
   fun stop() {
-    synchronized(this.lock) {
-      val readThread = this.readThread ?: return@synchronized
+    val readThread = this.readThread ?: return
 
-      this.active = false
-      readThread.interrupt()
+    this.active = false
+    readThread.interrupt()
 
-      val terminal = TerminalConsoleAppender.getTerminal()
-      terminal?.writer()?.println()
+    val terminal = TerminalConsoleAppender.getTerminal()
+    terminal?.writer()?.println()
 
-      this.readThread = null
-    }
+    this.readThread = null
   }
 
   override fun buildReader(builder: LineReaderBuilder): LineReader

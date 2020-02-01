@@ -12,11 +12,11 @@ package org.lanternpowered.terre.impl.plugin
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.lanternpowered.terre.plugin.PluginContainer
-import org.lanternpowered.terre.util.ToStringHelper
+import org.lanternpowered.terre.util.toString
 
 class TerrePluginContainer(
     override val id: String,
-    override val name: String,
+    override val name: String = id,
     override val version: String? = null,
     override val description: String? = null,
     override val authors: List<String> = listOf(),
@@ -30,15 +30,15 @@ class TerrePluginContainer(
   val javaLogger: java.util.logging.Logger by lazy { java.util.logging.Logger.getLogger(this.id) }
 
   private val toString by lazy {
-    ToStringHelper(omitNullValues = true)
-        .add("id", this.id)
-        .add("name", this.name)
-        .add("version", this.version)
-        .add("description", this.description)
-        .add("authors", this.authors.joinToString(", ", prefix = "[", postfix = "]"))
-        .add("url", this.url)
-        .add("instance", this.instance)
-        .toString()
+    toString(name = "PluginContainer", omitNullValues = true) {
+      "id" to id
+      "name" to name
+      "version" to version
+      "description" to description
+      "authors" to authors.joinToString(", ", prefix = "[", postfix = "]")
+      "url" to url
+      "instance" to instance
+    }
   }
 
   override fun toString() = this.toString

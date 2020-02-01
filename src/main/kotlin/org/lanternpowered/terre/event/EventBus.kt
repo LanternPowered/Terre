@@ -35,12 +35,12 @@ interface EventBus {
   /**
    * Subscribes to events of annotated methods within the listener class.
    */
-  fun subscribe(listener: Any): EventSubscription
+  fun register(listener: Any): ListenerRegistration
 
   /**
    * Unregisters listeners for the given listener instance.
    */
-  fun unsubscribe(listener: Any)
+  fun unregister(listener: Any)
 
   /**
    * Posts an [Event] to this event bus.

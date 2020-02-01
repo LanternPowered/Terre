@@ -55,7 +55,6 @@ dependencies {
 
   // Logging
   val log4jVersion = "2.12.1"
-  implementation(group = "org.apache.logging.log4j", name = "log4j-slf4j-impl", version = log4jVersion)
   implementation(group = "org.apache.logging.log4j", name = "log4j-core", version = log4jVersion)
   implementation(group = "org.apache.logging.log4j", name = "log4j-jul", version = log4jVersion)
   implementation(group = "org.apache.logging.log4j", name = "log4j-api", version = log4jVersion)

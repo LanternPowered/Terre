@@ -22,6 +22,8 @@ import org.lanternpowered.terre.impl.network.PacketDirection
 import org.lanternpowered.terre.impl.network.ReadTimeout
 import org.lanternpowered.terre.impl.network.addChannelFutureListener
 import org.lanternpowered.terre.impl.network.backend.ServerInitConnectionHandler
+import org.lanternpowered.terre.impl.network.backend.ServerInitConnectionResult
+import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.pipeline.FrameDecoder
 import org.lanternpowered.terre.impl.network.pipeline.FrameEncoder
 import org.lanternpowered.terre.impl.network.pipeline.PacketMessageDecoder
@@ -34,10 +36,14 @@ internal class ServerConnectionImpl(
     override val player: PlayerImpl
 ) : ServerConnection {
 
-  val connection: Connection?
-    get() = this.theConnection
+  /**
+   * The id that the player got assigned by the server.
+   */
+  var playerId: PlayerId? = null
+    private set
 
-  private var theConnection: Connection? = null
+  var connection: Connection? = null
+    private set
 
   fun connect(): CompletableFuture<ConnectionRequestResult> {
     val result = CompletableFuture<ConnectionRequestResult>()
@@ -60,7 +66,7 @@ internal class ServerConnectionImpl(
     return result
   }
 
-  private fun Channel.init(result: CompletableFuture<ConnectionRequestResult>) {
+  private fun Channel.init(resultFuture: CompletableFuture<ConnectionRequestResult>) {
     val connection = Connection(this)
     pipeline().apply {
       addLast(ReadTimeoutHandler(ReadTimeout.toLongMilliseconds(), DurationUnit.MILLISECONDS))
@@ -70,11 +76,21 @@ internal class ServerConnectionImpl(
       addLast(PacketMessageEncoder(PacketCodecContextImpl(connection, PacketDirection.ClientToServer)))
       addLast(connection)
     }
-    theConnection = connection
+    this@ServerConnectionImpl.connection = connection
+    val future = CompletableFuture<ServerInitConnectionResult>()
+    future.whenComplete { (result, playerId), throwable ->
+      if (throwable != null) {
+        resultFuture.completeExceptionally(throwable)
+      } else {
+        if (result is ConnectionRequestResult.Success)
+          this@ServerConnectionImpl.playerId = playerId
+        resultFuture.complete(result)
+      }
+    }
     // TODO: Support for modded
     // TODO: Retry a connection if packet translation is supported
     //  for specific versions, but with a different protocol version.
-    connection.setConnectionHandler(ServerInitConnectionHandler(this@ServerConnectionImpl, result,
+    connection.setConnectionHandler(ServerInitConnectionHandler(this@ServerConnectionImpl, future,
         listOf(ClientVersion.Vanilla(player.clientConnection.protocol.version))))
   }
 

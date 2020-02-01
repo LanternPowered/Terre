@@ -16,7 +16,7 @@ import org.lanternpowered.terre.text.Text
 /**
  * Represents a player.
  */
-interface Player : Named, MessageReceiver, InboundConnection {
+interface Player : Named, MessageReceiver, MessageSender, InboundConnection {
 
   /**
    * The identifier of this player.

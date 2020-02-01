@@ -30,6 +30,14 @@ import org.lanternpowered.terre.text.Text
 import java.util.concurrent.CompletableFuture
 
 /**
+ * Represents the result of a [ServerInitConnectionHandler].
+ */
+internal data class ServerInitConnectionResult(
+    val result: ConnectionRequestResult,
+    val playerId: PlayerId? = null
+)
+
+/**
  * The initial connection handler that is used
  * to establish a connection to a server.
  *
@@ -39,9 +47,12 @@ import java.util.concurrent.CompletableFuture
  */
 internal class ServerInitConnectionHandler(
     private val connection: ServerConnectionImpl,
-    private val future: CompletableFuture<ConnectionRequestResult>,
+    private val future: CompletableFuture<ServerInitConnectionResult>,
     versionsToAttempt: List<ClientVersion>
 ) : ConnectionHandler {
+
+  private fun ConnectionRequestResult.asResult(playerId: PlayerId? = null)
+      = ServerInitConnectionResult(this, playerId)
 
   private val player = this.connection.player
   private var playerId: PlayerId? = null
@@ -76,7 +87,8 @@ internal class ServerInitConnectionHandler(
   private fun tryNextHandshake() {
     if (this.versionsToAttemptQueue.isEmpty()) {
       // No more versions to try, we are done
-      this.future.complete(ConnectionRequestResult.Disconnected(this.connection.server, this.firstDisconnectReason))
+      this.future.complete(ConnectionRequestResult.Disconnected(
+          this.connection.server, this.firstDisconnectReason).asResult())
     } else {
       // Try the next version
       val version = this.versionsToAttemptQueue.removeAt(0)
@@ -87,7 +99,8 @@ internal class ServerInitConnectionHandler(
 
   override fun disconnect() {
     if (!this.future.isDone)
-      this.future.complete(ConnectionRequestResult.Disconnected(this.connection.server, null))
+      this.future.complete(ConnectionRequestResult.Disconnected(
+          this.connection.server, null).asResult())
   }
 
   override fun handle(packet: DisconnectPacket): Boolean {
@@ -134,7 +147,7 @@ internal class ServerInitConnectionHandler(
     }
 
     // Connection phase is complete.
-    this.future.complete(ConnectionRequestResult.Success(this.connection.server))
+    this.future.complete(ConnectionRequestResult.Success(this.connection.server).asResult(playerId))
     return true
   }
 
