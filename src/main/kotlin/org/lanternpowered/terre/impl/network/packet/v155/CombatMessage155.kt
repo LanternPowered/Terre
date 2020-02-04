@@ -19,7 +19,7 @@ import org.lanternpowered.terre.impl.network.packet.ChatMessageHelper
 import org.lanternpowered.terre.impl.network.packet.CombatMessagePacket
 import org.lanternpowered.terre.impl.network.packetDecoderOf
 import org.lanternpowered.terre.impl.network.packetEncoderOf
-import org.lanternpowered.terre.text.toText
+import org.lanternpowered.terre.text.text
 
 internal val CombatMessage155Encoder = packetEncoderOf<CombatMessagePacket> { buf, packet ->
   val (text, color) = ChatMessageHelper.splitTextAndColor(packet.text)
@@ -31,6 +31,6 @@ internal val CombatMessage155Encoder = packetEncoderOf<CombatMessagePacket> { bu
 internal val CombatMessage155Decoder = packetDecoderOf { buf ->
   val position = buf.readVec2f()
   val color = buf.readColor()
-  val text = buf.readString().toText().color(color)
+  val text = buf.readString().text().color(color)
   CombatMessagePacket(position, text)
 }

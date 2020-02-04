@@ -24,7 +24,7 @@ import org.lanternpowered.terre.impl.text.TextImpl
 import org.lanternpowered.terre.impl.text.fromTaggedVanillaText
 import org.lanternpowered.terre.impl.text.toTaggedVanillaText
 import org.lanternpowered.terre.text.color
-import org.lanternpowered.terre.text.toText
+import org.lanternpowered.terre.text.text
 
 internal val ChatMessage155Encoder = packetEncoderOf<ChatMessagePacket> { buf, packet ->
   val (text, color) = ChatMessageHelper.splitTextAndColor(packet.text)
@@ -37,7 +37,7 @@ internal val ChatMessage155Encoder = packetEncoderOf<ChatMessagePacket> { buf, p
 internal val ChatMessage155Decoder = packetDecoderOf { buf ->
   buf.readPlayerId()
   val color = buf.readColor()
-  val text = (buf.readString().toText() as TextImpl).fromTaggedVanillaText().color(color)
+  val text = (buf.readString().text() as TextImpl).fromTaggedVanillaText().color(color)
   val maxWidth = buf.readUnsignedShortLE()
   ChatMessagePacket(text, maxWidth)
 }

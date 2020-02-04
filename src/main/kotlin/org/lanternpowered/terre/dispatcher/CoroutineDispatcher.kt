@@ -18,6 +18,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.lanternpowered.terre.impl.event.EventExecutor
 import org.lanternpowered.terre.plugin.PluginContextElement
 import kotlin.coroutines.CoroutineContext
@@ -94,5 +95,17 @@ fun <T, R> withAsync(
     context: CoroutineContext = EmptyCoroutineContext, receiver: T, block: suspend T.() -> R): Deferred<R> {
   return newCoroutineScope().async(context) {
     block(receiver)
+  }
+}
+
+fun Job.joinBlocking() {
+  runBlocking {
+    this@joinBlocking.join()
+  }
+}
+
+fun <T> Deferred<T>.awaitBlocking(): T {
+  return runBlocking {
+    this@awaitBlocking.await()
   }
 }

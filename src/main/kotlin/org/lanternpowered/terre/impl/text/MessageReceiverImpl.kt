@@ -16,7 +16,7 @@ import org.lanternpowered.terre.text.MessageReceiver
 import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.text.color
 import org.lanternpowered.terre.text.textOf
-import org.lanternpowered.terre.text.toText
+import org.lanternpowered.terre.text.text
 import org.lanternpowered.terre.util.Colors
 
 interface MessageReceiverImpl : MessageReceiver {
@@ -37,6 +37,6 @@ interface MessageReceiverImpl : MessageReceiver {
     // TODO: Team color is normally used
     val color = if (message is ColorableText) message.color else Colors.White
     val name = sender.name
-    sendMessage(("<$name> ".toText() + message).color(color))
+    sendMessage(("<$name> ".text() + message).color(color))
   }
 }

@@ -10,9 +10,12 @@
 package org.lanternpowered.terre.impl.network.client
 
 import io.netty.buffer.ByteBuf
+import org.lanternpowered.terre.MaxPlayers
 import org.lanternpowered.terre.PlayerIdentifier
 import org.lanternpowered.terre.impl.ProxyImpl
-import org.lanternpowered.terre.impl.network.ClientVersion
+import org.lanternpowered.terre.ProtocolVersion
+import org.lanternpowered.terre.event.EventBus
+import org.lanternpowered.terre.event.connection.ConnectionHandshakeEvent
 import org.lanternpowered.terre.impl.network.Connection
 import org.lanternpowered.terre.impl.network.ConnectionHandler
 import org.lanternpowered.terre.impl.network.Packet
@@ -71,8 +74,7 @@ internal class ClientInitConnectionHandler(
   // S -> C: PlayerActivePacket(playerId = 16, active = false)
   // S -> C: PlayerActivePacket(playerId = 15, active = false)
 
-  private val inboundConnection = InitialInboundConnection(this.connection.remoteAddress)
-
+  private lateinit var protocolVersion: ProtocolVersion
   private var identifier: PlayerIdentifier? = null
   private var name: String? = null
 
@@ -84,24 +86,28 @@ internal class ClientInitConnectionHandler(
   }
 
   override fun handle(packet: ConnectionRequestPacket): Boolean {
-    val currentVersion = packet.version
-    if (currentVersion !is ClientVersion.Vanilla) {
+    val protocolVersion = packet.version
+    if (protocolVersion !is ProtocolVersion.Vanilla) {
       // TODO: Modded support
       this.connection.close(textOf("Only vanilla clients are supported."))
       return true
     }
-    val protocol = ProtocolRegistry[currentVersion.protocol]
+    val protocol = ProtocolRegistry[protocolVersion.protocol]
     if (protocol == null) {
       val expected = ProtocolRegistry.all.stream()
           .map { it.version }.toList()
           .joinToString(separator = ", ", prefix = "[", postfix = "]")
       this.connection.close(textOf(
-          "The client isn't supported. Expected version of $expected, but the client is $currentVersion."))
+          "The client isn't supported. Expected version of $expected, but the client is $protocolVersion."))
       return true
     }
     this.connection.initProtocol(protocol)
+    this.protocolVersion = protocolVersion
+    val inboundConnection = InitialInboundConnection(
+        this.connection.remoteAddress, protocolVersion)
+    EventBus.postAndForget(ConnectionHandshakeEvent(inboundConnection))
     val maxPlayers = ProxyImpl.maxPlayers
-    if (maxPlayers != -1 && ProxyImpl.players.size >= maxPlayers) {
+    if (maxPlayers is MaxPlayers.Limited && ProxyImpl.players.size >= maxPlayers.amount) {
       this.connection.close(textOf("The server is full."))
       return true
     }
@@ -158,7 +164,7 @@ internal class ClientInitConnectionHandler(
   private fun initPlayPhase() {
     val name = this.name ?: error("Player name is unknown.")
     val identifier = this.identifier ?: error("Player identifier is unknown.")
-    val player = PlayerImpl(this.connection, name, identifier)
+    val player = PlayerImpl(this.connection, this.protocolVersion, name, identifier)
     this.connection.setConnectionHandler(ClientPlayConnectionHandler(player))
   }
 

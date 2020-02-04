@@ -11,9 +11,9 @@ package org.lanternpowered.terre.plugin
 
 import org.lanternpowered.terre.impl.util.LazyReadOnlyProperty
 import kotlin.properties.ReadOnlyProperty
-import org.lanternpowered.terre.impl.plugin.inject as doInject
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
+import org.lanternpowered.terre.impl.plugin.inject as doInject
 
 /**
  * Injects a value of type [T] for

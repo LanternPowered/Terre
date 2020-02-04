@@ -10,6 +10,7 @@
 package org.lanternpowered.terre.impl.util
 
 import org.junit.jupiter.api.Test
+import org.lanternpowered.terre.util.Version
 import kotlin.test.assertEquals
 
 class VersionTest {

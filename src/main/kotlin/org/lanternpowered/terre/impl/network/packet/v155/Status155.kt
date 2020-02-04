@@ -14,7 +14,7 @@ import org.lanternpowered.terre.impl.network.buffer.writeString
 import org.lanternpowered.terre.impl.network.packet.StatusPacket
 import org.lanternpowered.terre.impl.network.packetDecoderOf
 import org.lanternpowered.terre.impl.network.packetEncoderOf
-import org.lanternpowered.terre.text.toText
+import org.lanternpowered.terre.text.text
 
 internal val Status155Encoder = packetEncoderOf<StatusPacket> { buf, packet ->
   buf.writeIntLE(packet.statusMax)
@@ -23,6 +23,6 @@ internal val Status155Encoder = packetEncoderOf<StatusPacket> { buf, packet ->
 
 internal val Status155Decoder = packetDecoderOf { buf ->
   val statusMax = buf.readIntLE()
-  val statusText = buf.readString().toText()
+  val statusText = buf.readString().text()
   StatusPacket(statusMax, statusText)
 }

@@ -23,7 +23,7 @@ internal class GroupedTextImpl(
     override val optionalColor: OptionalColor = OptionalColor.empty()
 ) : ColorableTextImpl(), GroupedText {
 
-  override fun toPlain() = this.children.joinToString { text -> text.toPlain() }
+  override fun toPlain() = StringBuilder().apply { children.forEach { append(it.toPlain()) } }.toString()
 
   override val isEmpty get() = this.children.isEmpty()
 

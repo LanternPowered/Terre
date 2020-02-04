@@ -43,6 +43,7 @@ internal class PluginContextCoroutineDispatcher(
     this.backing.dispatchYield(populateContext(context), block)
   }
 
+  @InternalCoroutinesApi
   override fun releaseInterceptedContinuation(continuation: Continuation<*>) {
     this.backing.releaseInterceptedContinuation(continuation)
   }

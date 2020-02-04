@@ -11,6 +11,8 @@ package org.lanternpowered.terre.impl.plugin
 
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import org.lanternpowered.terre.impl.ProxyImpl
+import org.lanternpowered.terre.impl.config.ConfigDirectoryImpl
 import org.lanternpowered.terre.plugin.PluginContainer
 import org.lanternpowered.terre.util.toString
 
@@ -28,6 +30,8 @@ class TerrePluginContainer(
 
   @Deprecated(message = "Prefer the log4j logger.")
   val javaLogger: java.util.logging.Logger by lazy { java.util.logging.Logger.getLogger(this.id) }
+
+  val configDirectory = ConfigDirectoryImpl(ProxyImpl.configDirectory.path.resolve(this.id))
 
   private val toString by lazy {
     toString(name = "PluginContainer", omitNullValues = true) {

@@ -23,7 +23,7 @@ import org.lanternpowered.terre.impl.text.TextImpl
 import org.lanternpowered.terre.impl.text.fromTaggedVanillaText
 import org.lanternpowered.terre.impl.text.toTaggedVanillaText
 import org.lanternpowered.terre.text.color
-import org.lanternpowered.terre.text.toText
+import org.lanternpowered.terre.text.text
 
 internal val PlayerChatMessage155Encoder = packetEncoderOf<PlayerChatMessagePacket> { buf, packet ->
   val (text, color) = ChatMessageHelper.splitTextAndColor(packet.text)
@@ -35,6 +35,6 @@ internal val PlayerChatMessage155Encoder = packetEncoderOf<PlayerChatMessagePack
 internal val PlayerChatMessage155Decoder = packetDecoderOf { buf ->
   val authorId = buf.readPlayerId()
   val color = buf.readColor()
-  val text = (buf.readString().toText() as TextImpl).fromTaggedVanillaText().color(color)
+  val text = (buf.readString().text() as TextImpl).fromTaggedVanillaText().color(color)
   PlayerChatMessagePacket(authorId, text)
 }

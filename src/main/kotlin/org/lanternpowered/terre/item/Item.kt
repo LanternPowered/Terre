@@ -19,8 +19,8 @@ import org.lanternpowered.terre.text.ItemText
  */
 interface Item : NumericCatalogType {
 
-  fun toText(): ItemText
-      = itemStackOf(this).toText()
+  fun text(): ItemText
+      = itemStackOf(this).text()
 }
 
 /**

@@ -11,7 +11,7 @@ package org.lanternpowered.terre.impl.text
 
 import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.text.TextSerializer
-import org.lanternpowered.terre.text.toText
+import org.lanternpowered.terre.text.text
 
 object TaggedTextSerializerImpl : TextSerializer {
 
@@ -20,6 +20,6 @@ object TaggedTextSerializerImpl : TextSerializer {
   }
 
   override fun deserialize(string: String): Text {
-    return (string.toText() as TextImpl).fromTaggedVanillaText()
+    return (string.text() as TextImpl).fromTaggedVanillaText()
   }
 }

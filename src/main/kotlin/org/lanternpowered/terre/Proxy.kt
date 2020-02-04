@@ -31,6 +31,11 @@ interface Proxy : MessageReceiver {
   val players: PlayerCollection
 
   /**
+   * All the active server instances.
+   */
+  val servers: ServerCollection
+
+  /**
    * The name of the server.
    */
   var name: String
@@ -43,12 +48,7 @@ interface Proxy : MessageReceiver {
    * but if they disconnect and try to reconnect they
    * won't be able to join.
    */
-  var maxPlayers: Int
-
-  /**
-   * The message of the day.
-   */
-  var messageOfTheDay: Text
+  var maxPlayers: MaxPlayers
 
   /**
    * The password of the server.

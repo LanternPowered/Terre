@@ -13,6 +13,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import org.apache.logging.log4j.Logger
 import org.lanternpowered.terre.Console
 import org.lanternpowered.terre.Proxy
+import org.lanternpowered.terre.config.ConfigDirectory
+import org.lanternpowered.terre.config.RootConfigDirectory
 import org.lanternpowered.terre.event.EventBus
 import org.lanternpowered.terre.impl.ProxyImpl
 import org.lanternpowered.terre.plugin.PluginContainer
@@ -28,6 +30,7 @@ internal fun Any?.inject(type: KType): Any? {
   val kClass = type.classifier as KClass<*>
 
   val value: Any? = when (kClass) {
+    RootConfigDirectory::class -> RootConfigDirectory
     EventBus::class -> EventBus
     Proxy::class -> Proxy
     PluginManager::class -> PluginManager
@@ -56,6 +59,7 @@ private fun TerrePluginContainer.inject(type: KType): Any? {
     PluginContainer::class -> this
     Logger::class -> this.logger
     java.util.logging.Logger::class -> this.javaLogger
+    ConfigDirectory::class -> this.configDirectory
     else -> null
   }
 }

@@ -22,4 +22,10 @@ interface InboundConnection {
    * to connect with the proxy server.
    */
   val remoteAddress: SocketAddress
+
+  /**
+   * The protocol version used by the
+   * inbound connection.
+   */
+  val protocolVersion: ProtocolVersion
 }

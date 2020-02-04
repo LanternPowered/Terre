@@ -11,6 +11,7 @@ package org.lanternpowered.terre.impl.network
 
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
+import org.lanternpowered.terre.MaxPlayers
 import org.lanternpowered.terre.Proxy
 import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.network.buffer.writeString
@@ -79,7 +80,8 @@ internal class ProxyBroadcastTask(private val proxy: Proxy) {
     writeShortLE(8400) // World size - from a large world
     writeBoolean(false) // Is crimson
     writeBoolean(false) // Is expert
-    writeByte(min(proxy.maxPlayers, 255))
+    val maxPlayers = proxy.maxPlayers.let { if (it is MaxPlayers.Limited) it.amount else 255 }
+    writeByte(min(maxPlayers, 255))
     writeByte(min(proxy.players.size, 255))
     writeBoolean(false) // Is hard mode
   }

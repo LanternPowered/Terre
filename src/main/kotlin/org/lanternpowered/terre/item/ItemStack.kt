@@ -53,6 +53,6 @@ interface ItemStack {
   /**
    * Converts this stack into a text component.
    */
-  fun toText(): ItemText
+  fun text(): ItemText
       = textOf(this)
 }

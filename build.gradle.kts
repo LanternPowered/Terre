@@ -39,7 +39,9 @@ dependencies {
   implementation(group = "it.unimi.dsi", name = "fastutil", version = "8.3.0")
 
   // Configuration
-  implementation(group = "com.uchuhimo", name = "konf-toml", version = "0.21.0")
+  // TODO: Fix the toml impl. The output toml was invalid syntax and a mess.
+  // implementation(group = "com.uchuhimo", name = "konf-toml", version = "0.22.1")
+  implementation(group = "com.uchuhimo", name = "konf-hocon", version = "0.22.1")
 
   // Launch Options
   implementation(group = "net.sf.jopt-simple", name = "jopt-simple", version = "5.0.4")

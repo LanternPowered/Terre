@@ -12,6 +12,7 @@ package org.lanternpowered.terre
 import kotlinx.coroutines.Job
 import org.lanternpowered.terre.text.MessageReceiver
 import org.lanternpowered.terre.text.Text
+import org.lanternpowered.terre.text.textOf
 
 /**
  * Represents a player.
@@ -36,10 +37,15 @@ interface Player : Named, MessageReceiver, MessageSender, InboundConnection {
   /**
    * Disconnects the player with the specified reason.
    */
-  suspend fun disconnect(reason: Text) = disconnectAsync(reason).join()
+  suspend fun disconnect(reason: Text = DefaultDisconnectReason) = disconnectAsync(reason).join()
 
   /**
    * Disconnects the player with the specified reason.
    */
-  fun disconnectAsync(reason: Text): Job
+  fun disconnectAsync(reason: Text = DefaultDisconnectReason): Job
 }
+
+/**
+ * The default disconnect reason.
+ */
+val DefaultDisconnectReason = textOf("You were disconnected.")

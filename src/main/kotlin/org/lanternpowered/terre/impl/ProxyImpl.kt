@@ -11,18 +11,20 @@ package org.lanternpowered.terre.impl
 
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.uchuhimo.konf.Config
-import com.uchuhimo.konf.source.toml
-import com.uchuhimo.konf.source.toml.toToml
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import org.lanternpowered.terre.Console
+import org.lanternpowered.terre.MaxPlayers
 import org.lanternpowered.terre.MessageSender
 import org.lanternpowered.terre.Proxy
+import org.lanternpowered.terre.ServerCollection
 import org.lanternpowered.terre.coroutines.delay
+import org.lanternpowered.terre.dispatcher.joinBlocking
 import org.lanternpowered.terre.dispatcher.launchAsync
 import org.lanternpowered.terre.event.proxy.ProxyInitializeEvent
 import org.lanternpowered.terre.event.proxy.ProxyShutdownEvent
-import org.lanternpowered.terre.impl.config.ServerConfigSpec
+import org.lanternpowered.terre.impl.config.RootConfigDirectoryImpl
+import org.lanternpowered.terre.impl.config.ProxyConfigSpec
 import org.lanternpowered.terre.impl.console.ConsoleImpl
 import org.lanternpowered.terre.impl.coroutines.tryWithTimeout
 import org.lanternpowered.terre.impl.dispatcher.PluginContextCoroutineDispatcher
@@ -38,7 +40,6 @@ import org.lanternpowered.terre.text.textOf
 import org.lanternpowered.terre.util.collection.toImmutableList
 import java.net.BindException
 import java.net.InetSocketAddress
-import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.exitProcess
@@ -48,7 +49,6 @@ internal object ProxyImpl : Proxy {
 
   val console = ConsoleImpl(::processCommand, ::shutdown)
 
-  private val config: Config = loadConfig()
   val networkManager = NetworkManager()
 
   val mutablePlayers = MutablePlayerCollection.concurrentOf()
@@ -56,17 +56,29 @@ internal object ProxyImpl : Proxy {
   override val players
     get() = mutablePlayers.toImmutable()
 
-  override var name: String
-    get() = Terre.name
-    set(value) {} // TODO
+  override val servers: ServerCollection
+    get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
 
-  override var messageOfTheDay: Text by this.config.property(ServerConfigSpec.messageOfTheDay)
-  override var maxPlayers: Int by this.config.property(ServerConfigSpec.maxPlayers)
-  override var password: String by this.config.property(ServerConfigSpec.password)
+  val configDirectory = RootConfigDirectoryImpl(Paths.get("config"))
+  private val config: Config = loadConfig()
+
+  override var name by this.config.property(ProxyConfigSpec.name)
+  override var maxPlayers: MaxPlayers
+    get() {
+      val value = this.config[ProxyConfigSpec.maxPlayers]
+      return if (value == -1) MaxPlayers.Unlimited else MaxPlayers.Limited(value.coerceAtLeast(0))
+    }
+    set(value) {
+      this.config[ProxyConfigSpec.maxPlayers] = when (value) {
+        is MaxPlayers.Limited -> value.amount
+        MaxPlayers.Unlimited -> -1
+      }
+    }
+  override var password by this.config.property(ProxyConfigSpec.password)
 
   override val address: InetSocketAddress by lazy {
-    val ip = this.config[ServerConfigSpec.host]
-    val port = this.config[ServerConfigSpec.port]
+    val ip = this.config[ProxyConfigSpec.host]
+    val port = this.config[ProxyConfigSpec.port]
 
     if (ip.isBlank()) {
       InetSocketAddress(port)
@@ -185,26 +197,27 @@ internal object ProxyImpl : Proxy {
   private fun loadConfig(): Config {
     Terre.logger.info("Loading configuration file.")
 
-    val configPath = Paths.get("config.toml")
     val module = SimpleModule().apply {
       addDeserializer(Text::class.java, TextJsonDeserializer())
       addSerializer(TextJsonSerializer())
     }
-    var config = Config {
+    val config = this.configDirectory.config("config") {
       this.mapper.registerModule(module)
-      addSpec(ServerConfigSpec)
+      addSpec(ProxyConfigSpec)
     }
-
-    if (Files.exists(configPath)) {
-      Files.newBufferedReader(configPath).use { reader ->
-        config = config.from.toml.reader(reader)
+    try {
+      if (config.exists) {
+        config.loadAsync().joinBlocking()
       }
-    } else {
-      Files.newBufferedWriter(configPath).use { writer ->
-        config.toToml.toWriter(writer)
-      }
+    } catch (ex: Exception) {
+      Terre.logger.error("Failed to load configuration file", ex)
+      return config
     }
-
+    try {
+      config.saveAsync().joinBlocking()
+    } catch (ex: Exception) {
+      Terre.logger.error("Failed to save configuration file", ex)
+    }
     return config
   }
 

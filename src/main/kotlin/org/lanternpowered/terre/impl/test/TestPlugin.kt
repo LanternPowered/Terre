@@ -9,7 +9,12 @@
  */
 package org.lanternpowered.terre.impl.test
 
+import com.uchuhimo.konf.ConfigSpec
 import org.apache.logging.log4j.Logger
+import org.lanternpowered.terre.config.ConfigDirectory
+import org.lanternpowered.terre.config.ConfigFormats
+import org.lanternpowered.terre.dispatcher.alsoAsync
+import org.lanternpowered.terre.dispatcher.joinBlocking
 import org.lanternpowered.terre.event.Event
 import org.lanternpowered.terre.event.EventBus
 import org.lanternpowered.terre.event.Subscribe
@@ -25,13 +30,24 @@ object TestPlugin {
   private val logger = inject<Logger>()
   private val pluginContainer = inject<PluginContainer>()
   private val eventBus = inject<EventBus>()
+  private val config = inject<ConfigDirectory>().config(format = ConfigFormats.Hocon) {
+    addSpec(TestConfigSpec)
+  }
 
   @Subscribe private suspend fun onInitialize(event: ProxyInitializeEvent) {
+    this.config.load()
     this.eventBus.post(InitEvent)
+
+    println(this.config[TestConfigSpec.name])
   }
 
   @Subscribe private fun onShutdown(event: ProxyShutdownEvent) {
 
+  }
+
+  object TestConfigSpec : ConfigSpec("test") {
+
+    val name by required<String>("name")
   }
 
   /**

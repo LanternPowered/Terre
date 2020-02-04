@@ -10,15 +10,15 @@
 package org.lanternpowered.terre.impl.network.packet
 
 import io.netty.handler.codec.DecoderException
-import org.lanternpowered.terre.impl.network.ClientVersion
+import org.lanternpowered.terre.ProtocolVersion
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.readString
 import org.lanternpowered.terre.impl.network.buffer.writeString
 import org.lanternpowered.terre.impl.network.packetDecoderOf
 import org.lanternpowered.terre.impl.network.packetEncoderOf
-import org.lanternpowered.terre.impl.util.Version
+import org.lanternpowered.terre.util.Version
 
-internal data class ConnectionRequestPacket(val version: ClientVersion) : Packet
+internal data class ConnectionRequestPacket(val version: ProtocolVersion) : Packet
 
 private const val vanillaVersionPrefix = "Terraria"
 
@@ -31,14 +31,14 @@ internal val ConnectionRequestDecoder = packetDecoderOf { buf ->
 
   val clientVersion = run {
     if (value.startsWith(vanillaVersionPrefix)) {
-      ClientVersion.Vanilla(value.substring(vanillaVersionPrefix.length).toInt())
+      ProtocolVersion.Vanilla(value.substring(vanillaVersionPrefix.length).toInt())
     } else if (value.startsWith(tModLoaderVersionPrefix)) {
       val result = tModLoaderVersionRegex.matchEntire(value)
       if (result != null) {
         val version = Version(result.groupValues[1])
         val branch = result.groups[2]?.value
         val beta = result.groups[3]?.value?.toInt()
-        ClientVersion.TModLoader(version, branch, beta)
+        ProtocolVersion.TModLoader(version, branch, beta)
       } else {
         throw DecoderException("Invalid tModLoader client version: $value")
       }
@@ -50,8 +50,8 @@ internal val ConnectionRequestDecoder = packetDecoderOf { buf ->
 
 internal val ConnectionRequestEncoder = packetEncoderOf<ConnectionRequestPacket> { buf, packet ->
   val value = when (val version = packet.version) {
-    is ClientVersion.Vanilla -> "$vanillaVersionPrefix${version.protocol}"
-    is ClientVersion.TModLoader -> {
+    is ProtocolVersion.Vanilla -> "$vanillaVersionPrefix${version.protocol}"
+    is ProtocolVersion.TModLoader -> {
       val builder = StringBuilder("$tModLoaderVersionPrefix v${version.version}")
       if (version.branch != null)
         builder.append(" ${version.branch}")

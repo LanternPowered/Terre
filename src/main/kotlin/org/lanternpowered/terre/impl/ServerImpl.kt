@@ -10,12 +10,15 @@
 package org.lanternpowered.terre.impl
 
 import org.lanternpowered.terre.MessageSender
+import org.lanternpowered.terre.ProtocolVersion
 import org.lanternpowered.terre.Server
 import org.lanternpowered.terre.ServerInfo
-import org.lanternpowered.terre.impl.network.ClientVersion
 import org.lanternpowered.terre.text.Text
 
-internal class ServerImpl(override val info: ServerInfo) : Server {
+internal class ServerImpl(
+    override val info: ServerInfo,
+    override var allowAutoJoin: Boolean
+) : Server {
 
   val mutablePlayers = MutablePlayerCollection.concurrentOf()
 
@@ -23,10 +26,14 @@ internal class ServerImpl(override val info: ServerInfo) : Server {
    * The last server version that was noticed by connecting clients. Is
    * used to speed up connection when multiple versions are possible.
    */
-  @Volatile var lastKnownVersion: ClientVersion? = null
+  @Volatile var lastKnownVersion: ProtocolVersion? = null
 
   override val players
     get() = this.mutablePlayers.toImmutable()
+
+  override fun unregister() {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
 
   override fun sendMessage(message: String) {
     this.mutablePlayers.forEach { it.sendMessage(message) }

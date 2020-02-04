@@ -17,5 +17,5 @@ object PlainTextSerializer : TextSerializer {
 
   override fun serialize(text: Text) = text.toPlain()
 
-  override fun deserialize(string: String) = string.toText()
+  override fun deserialize(string: String) = string.text()
 }

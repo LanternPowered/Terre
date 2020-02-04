@@ -7,9 +7,7 @@
  * This work is licensed under the terms of the MIT License (MIT). For
  * a copy, see 'LICENSE.txt' or <https://opensource.org/licenses/MIT>.
  */
-@file:Suppress("FunctionName")
-
-package org.lanternpowered.terre.impl.util
+package org.lanternpowered.terre.util
 
 import java.lang.NumberFormatException
 import kotlin.math.max
@@ -18,7 +16,7 @@ import kotlin.math.min
 /**
  * Represents a version.
  */
-internal class Version {
+class Version : Comparable<Version> {
 
   private val backing: IntArray
 
@@ -110,7 +108,7 @@ internal class Version {
   /**
    * Compares this version to the other one.
    */
-  operator fun compareTo(other: Version): Int {
+  override fun compareTo(other: Version): Int {
     val s1 = this.values.size
     val s2 = other.values.size
 

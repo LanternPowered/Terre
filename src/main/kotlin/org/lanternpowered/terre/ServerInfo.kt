@@ -22,5 +22,10 @@ import java.net.InetSocketAddress
 data class ServerInfo(
     val name: String,
     val address: InetSocketAddress,
-    val password: String? = null
-)
+    val password: String = ""
+) {
+
+  init {
+    check(this.name.isNotBlank()) { "The server name cannot be blank" }
+  }
+}

@@ -14,7 +14,7 @@ import io.netty.util.AttributeKey
 import org.lanternpowered.terre.ConnectionRequestResult
 import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.math.Vec2i
-import org.lanternpowered.terre.impl.network.ClientVersion
+import org.lanternpowered.terre.ProtocolVersion
 import org.lanternpowered.terre.impl.network.ConnectionHandler
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
@@ -48,7 +48,7 @@ internal data class ServerInitConnectionResult(
 internal class ServerInitConnectionHandler(
     private val connection: ServerConnectionImpl,
     private val future: CompletableFuture<ServerInitConnectionResult>,
-    versionsToAttempt: List<ClientVersion>
+    versionsToAttempt: List<ProtocolVersion>
 ) : ConnectionHandler {
 
   private fun ConnectionRequestResult.asResult(playerId: PlayerId? = null)
@@ -57,7 +57,7 @@ internal class ServerInitConnectionHandler(
   private val player = this.connection.player
   private var playerId: PlayerId? = null
 
-  private lateinit var attemptedVersion: ClientVersion
+  private lateinit var attemptedVersion: ProtocolVersion
   private val versionsToAttemptQueue = versionsToAttempt.toMutableList()
   private var firstDisconnectReason: Text? = null
 

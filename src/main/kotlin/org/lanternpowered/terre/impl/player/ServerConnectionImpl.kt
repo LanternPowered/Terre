@@ -15,7 +15,7 @@ import org.lanternpowered.terre.ConnectionRequestResult
 import org.lanternpowered.terre.ServerConnection
 import org.lanternpowered.terre.impl.ProxyImpl
 import org.lanternpowered.terre.impl.ServerImpl
-import org.lanternpowered.terre.impl.network.ClientVersion
+import org.lanternpowered.terre.ProtocolVersion
 import org.lanternpowered.terre.impl.network.Connection
 import org.lanternpowered.terre.impl.network.PacketCodecContextImpl
 import org.lanternpowered.terre.impl.network.PacketDirection
@@ -91,7 +91,7 @@ internal class ServerConnectionImpl(
     // TODO: Retry a connection if packet translation is supported
     //  for specific versions, but with a different protocol version.
     connection.setConnectionHandler(ServerInitConnectionHandler(this@ServerConnectionImpl, future,
-        listOf(ClientVersion.Vanilla(player.clientConnection.protocol.version))))
+        listOf(ProtocolVersion.Vanilla(player.clientConnection.protocol.version))))
   }
 
   fun ensureConnected(): Connection {

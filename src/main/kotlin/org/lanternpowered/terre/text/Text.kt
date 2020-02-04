@@ -25,7 +25,7 @@ private val Empty = textOf("")
 /**
  * Converts the string into a literal text.
  */
-inline fun String.toText(): LiteralText
+inline fun String.text(): LiteralText
     = textOf(this)
 
 /**

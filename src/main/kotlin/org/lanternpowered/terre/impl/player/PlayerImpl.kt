@@ -13,6 +13,7 @@ import kotlinx.coroutines.Job
 import org.lanternpowered.terre.MessageSender
 import org.lanternpowered.terre.Player
 import org.lanternpowered.terre.PlayerIdentifier
+import org.lanternpowered.terre.ProtocolVersion
 import org.lanternpowered.terre.impl.network.Connection
 import org.lanternpowered.terre.impl.network.packet.ChatMessagePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerChatMessagePacket
@@ -23,6 +24,7 @@ import java.net.SocketAddress
 
 internal class PlayerImpl(
     val clientConnection: Connection,
+    override val protocolVersion: ProtocolVersion,
     override val name: String,
     override val identifier: PlayerIdentifier
 ) : Player, MessageReceiverImpl {
