@@ -9,13 +9,18 @@
  */
 package org.lanternpowered.terre.event.connection
 
-import org.lanternpowered.terre.InboundConnection
+import org.lanternpowered.terre.Player
 import org.lanternpowered.terre.event.Event
+import org.lanternpowered.terre.text.Text
 
 /**
- * An event that's thrown when a new connection
- * is made to the proxy.
+ * An event that's thrown when a player has logged
+ * in successfully. This event is thrown after
+ * [ClientLoginEvent] if the result wasn't
+ * [ClientLoginEvent.Result.Denied].
+ *
+ * @property player The player that logged in
  */
-data class ConnectionHandshakeEvent(
-    val inboundConnection: InboundConnection
+data class ClientPostLoginEvent(
+    val player: Player
 ) : Event

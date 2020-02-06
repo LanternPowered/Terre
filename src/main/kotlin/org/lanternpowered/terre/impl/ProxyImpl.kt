@@ -17,14 +17,13 @@ import org.lanternpowered.terre.Console
 import org.lanternpowered.terre.MaxPlayers
 import org.lanternpowered.terre.MessageSender
 import org.lanternpowered.terre.Proxy
-import org.lanternpowered.terre.ServerCollection
 import org.lanternpowered.terre.coroutines.delay
 import org.lanternpowered.terre.dispatcher.joinBlocking
 import org.lanternpowered.terre.dispatcher.launchAsync
 import org.lanternpowered.terre.event.proxy.ProxyInitializeEvent
 import org.lanternpowered.terre.event.proxy.ProxyShutdownEvent
-import org.lanternpowered.terre.impl.config.RootConfigDirectoryImpl
 import org.lanternpowered.terre.impl.config.ProxyConfigSpec
+import org.lanternpowered.terre.impl.config.RootConfigDirectoryImpl
 import org.lanternpowered.terre.impl.console.ConsoleImpl
 import org.lanternpowered.terre.impl.coroutines.tryWithTimeout
 import org.lanternpowered.terre.impl.dispatcher.PluginContextCoroutineDispatcher
@@ -56,8 +55,7 @@ internal object ProxyImpl : Proxy {
   override val players
     get() = mutablePlayers.toImmutable()
 
-  override val servers: ServerCollection
-    get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+  override val servers = ServerCollectionImpl()
 
   val configDirectory = RootConfigDirectoryImpl(Paths.get("config"))
   private val config: Config = loadConfig()
@@ -98,7 +96,8 @@ internal object ProxyImpl : Proxy {
   fun init() {
     Terre.logger.info("Starting ${Terre.name} Server ${Terre.version}")
 
-    initServer()
+    bindNetworkManager()
+    initServers()
 
     // Post the proxy init event and wait for it to finish before continuing
     TerreEventBus.postAsyncWithFuture(ProxyInitializeEvent()).join()
@@ -180,7 +179,7 @@ internal object ProxyImpl : Proxy {
     }
   }
 
-  private fun initServer() {
+  private fun bindNetworkManager() {
     val future = this.networkManager.bind(this.address)
     future.awaitUninterruptibly()
     if (!future.isSuccess) {
@@ -192,6 +191,16 @@ internal object ProxyImpl : Proxy {
     }
 
     Terre.logger.info("Successfully bound to: $address")
+  }
+
+  private fun initServers() {
+    for (rawServer in this.config[ProxyConfigSpec.servers]) {
+      val info = rawServer.toServerInfo()
+      val allowAutoJoin = rawServer.`allow-auto-join`
+
+      val server = this.servers.register(info)
+      server.allowAutoJoin = allowAutoJoin
+    }
   }
 
   private fun loadConfig(): Config {

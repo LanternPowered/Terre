@@ -10,12 +10,12 @@
 package org.lanternpowered.terre.impl.network.client
 
 import io.netty.buffer.ByteBuf
-import org.lanternpowered.terre.MaxPlayers
 import org.lanternpowered.terre.PlayerIdentifier
-import org.lanternpowered.terre.impl.ProxyImpl
 import org.lanternpowered.terre.ProtocolVersion
-import org.lanternpowered.terre.event.EventBus
-import org.lanternpowered.terre.event.connection.ConnectionHandshakeEvent
+import org.lanternpowered.terre.event.connection.ClientConnectEvent
+import org.lanternpowered.terre.event.connection.ClientLoginEvent
+import org.lanternpowered.terre.event.connection.ClientPreLoginEvent
+import org.lanternpowered.terre.impl.event.TerreEventBus
 import org.lanternpowered.terre.impl.network.Connection
 import org.lanternpowered.terre.impl.network.ConnectionHandler
 import org.lanternpowered.terre.impl.network.Packet
@@ -41,21 +41,31 @@ internal class ClientInitConnectionHandler(
     val connection: Connection
 ) : ConnectionHandler {
 
+  private enum class State {
+    Init,
+    Handshake,
+    RequestClientInfo,
+    RequestPassword,
+    Done,
+  }
+
   // Client Init
 
   // Init player id must be 16 in the case that the
   // mobile client check is implemented.
 
   // C -> S: ConnectionRequestPacket
-  // If there's a password
-  //   S -> C: PasswordRequestPacket (or ConnectionApprovedPacket)
-  //   C -> S: PasswordResponsePacket
-  //   S -> C: ConnectionApprovedPacket(playerId = 16)
-  // Otherwise
-  //   S -> C: ConnectionApprovedPacket(playerId = 16)
+  // E: ClientConnectEvent -> Disconnect if denied
+  // S -> C: ConnectionApprovedPacket(playerId = 16)
   // C -> S: PlayerInfoPacket
   // C -> S: ClientUniqueIdPacket
   // C -> S: WorldInfoRequestPacket
+  // E: ClientPreLoginEvent -> Disconnect if denied
+  // If a password is requested
+  //   S -> C: PasswordRequestPacket
+  //   C -> S: PasswordResponsePacket
+  // E: ClientLoginEvent -> Disconnect if denied
+  // E: ClientPostLoginEvent
 
   // TODO: Is currently unneeded, since the mobile uses an older protocol version,
   //   but if the versions are equal and catch up, this could be a solution to check it.
@@ -75,8 +85,19 @@ internal class ClientInitConnectionHandler(
   // S -> C: PlayerActivePacket(playerId = 15, active = false)
 
   private lateinit var protocolVersion: ProtocolVersion
-  private var identifier: PlayerIdentifier? = null
-  private var name: String? = null
+
+  private lateinit var identifier: PlayerIdentifier
+  private lateinit var name: String
+
+  private lateinit var player: PlayerImpl
+  private lateinit var expectedPassword: String
+
+  private var state: State = State.Init
+
+  private fun checkState(expected: State) {
+    check(this.state == expected) {
+      "Expected the state $expected, but the connection is currently on $state" }
+  }
 
   override fun initialize() {
   }
@@ -86,6 +107,8 @@ internal class ClientInitConnectionHandler(
   }
 
   override fun handle(packet: ConnectionRequestPacket): Boolean {
+    checkState(State.Init)
+    this.state = State.Handshake
     val protocolVersion = packet.version
     if (protocolVersion !is ProtocolVersion.Vanilla) {
       // TODO: Modded support
@@ -105,32 +128,21 @@ internal class ClientInitConnectionHandler(
     this.protocolVersion = protocolVersion
     val inboundConnection = InitialInboundConnection(
         this.connection.remoteAddress, protocolVersion)
-    EventBus.postAndForget(ConnectionHandshakeEvent(inboundConnection))
-    val maxPlayers = ProxyImpl.maxPlayers
-    if (maxPlayers is MaxPlayers.Limited && ProxyImpl.players.size >= maxPlayers.amount) {
-      this.connection.close(textOf("The server is full."))
-      return true
-    }
-    val password = ProxyImpl.password
-    if (password.isNotBlank()) {
-      this.connection.send(PasswordRequestPacket)
-    } else {
-      approve()
-    }
+    TerreEventBus.postAsyncWithFuture(ClientConnectEvent(inboundConnection))
+        .thenAcceptAsync({ event ->
+          val result = event.result
+          if (result is ClientConnectEvent.Result.Denied) {
+            this.connection.close(result.reason)
+          } else {
+            startLogin()
+          }
+        }, this.connection.eventLoop)
     return true
   }
 
-  override fun handle(packet: PasswordResponsePacket): Boolean {
-    val expected = ProxyImpl.password
-    if (expected.isNotBlank() && packet.password != expected) {
-      this.connection.close(textOf("Invalid password."))
-    } else {
-      approve()
-    }
-    return true
-  }
-
-  private fun approve() {
+  private fun startLogin() {
+    checkState(State.Handshake)
+    this.state = State.RequestClientInfo
     // Send the approved packet, we just do this with a fixed
     // id for now to receive information from the client. When
     // switching to the play mode the client will receive a new
@@ -138,12 +150,47 @@ internal class ClientInitConnectionHandler(
     this.connection.send(ConnectionApprovedPacket(PlayerId(16)))
   }
 
+  private fun continueLogin() {
+    checkState(State.RequestClientInfo)
+    this.player = PlayerImpl(this.connection, this.protocolVersion, this.name, this.identifier)
+
+    TerreEventBus.postAsyncWithFuture(ClientPreLoginEvent(this.player))
+        .thenAcceptAsync({ event ->
+          val result = event.result
+          if (result is ClientPreLoginEvent.Result.Denied) {
+            this.state = State.Done
+            this.connection.close(result.reason)
+          } else if (result is ClientPreLoginEvent.Result.RequestPassword && result.password.isNotEmpty()) {
+            this.state = State.RequestPassword
+            this.expectedPassword = result.password
+            this.connection.send(PasswordRequestPacket)
+          } else {
+            this.state = State.Done
+            this.player.finishLogin(ClientLoginEvent.Result.Allowed)
+          }
+        }, this.connection.eventLoop)
+  }
+
+  override fun handle(packet: PasswordResponsePacket): Boolean {
+    checkState(State.RequestPassword)
+    val result = if (packet.password != this.expectedPassword) {
+      ClientLoginEvent.Result.Denied(textOf("Invalid password."))
+    } else {
+      ClientLoginEvent.Result.Allowed
+    }
+    this.player.finishLogin(result)
+    this.state = State.Done
+    return true
+  }
+
   override fun handle(packet: PlayerInfoPacket): Boolean {
+    checkState(State.RequestClientInfo)
     this.name = packet.playerName
     return true
   }
 
   override fun handle(packet: ClientUniqueIdPacket): Boolean {
+    checkState(State.RequestClientInfo)
     // Generate a identifier that matches the
     // tShock player identifiers.
     val digest = MessageDigest.getInstance("SHA-512")
@@ -157,15 +204,8 @@ internal class ClientInitConnectionHandler(
     // By now we should have received all information from the
     // client so we can initialize the play phase. And the client
     // can actually start connecting to backing servers.
-    initPlayPhase()
+    continueLogin()
     return true
-  }
-
-  private fun initPlayPhase() {
-    val name = this.name ?: error("Player name is unknown.")
-    val identifier = this.identifier ?: error("Player identifier is unknown.")
-    val player = PlayerImpl(this.connection, this.protocolVersion, name, identifier)
-    this.connection.setConnectionHandler(ClientPlayConnectionHandler(player))
   }
 
   override fun handleGeneric(packet: Packet) {

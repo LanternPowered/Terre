@@ -25,6 +25,8 @@ import io.netty.handler.timeout.TimeoutException
 import io.netty.util.Attribute
 import io.netty.util.AttributeKey
 import io.netty.util.ReferenceCountUtil
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.asCoroutineDispatcher
 import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
 import org.lanternpowered.terre.impl.network.packet.KeepAlivePacket
@@ -69,6 +71,12 @@ internal class Connection(
    */
   val eventLoop: EventLoop
     get() = this.channel.eventLoop()
+
+  /**
+   * The coroutine dispatcher.
+   */
+  val coroutineDispatcher
+      = this.channel.eventLoop().asCoroutineDispatcher()
 
   /**
    * The byte buf allocator of the connection.

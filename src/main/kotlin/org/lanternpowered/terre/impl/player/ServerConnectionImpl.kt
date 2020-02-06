@@ -11,7 +11,7 @@ package org.lanternpowered.terre.impl.player
 
 import io.netty.channel.Channel
 import io.netty.handler.timeout.ReadTimeoutHandler
-import org.lanternpowered.terre.ConnectionRequestResult
+import org.lanternpowered.terre.ServerConnectionRequestResult
 import org.lanternpowered.terre.ServerConnection
 import org.lanternpowered.terre.impl.ProxyImpl
 import org.lanternpowered.terre.impl.ServerImpl
@@ -45,11 +45,15 @@ internal class ServerConnectionImpl(
   var connection: Connection? = null
     private set
 
-  fun connect(): CompletableFuture<ConnectionRequestResult> {
-    val result = CompletableFuture<ConnectionRequestResult>()
+  fun connect(): CompletableFuture<ServerConnectionRequestResult> {
+    val result = CompletableFuture<ServerConnectionRequestResult>()
+    if (this.server.unregistered) {
+      result.completeExceptionally(IllegalArgumentException("The server \"$server\" is unregistered."))
+      return result
+    }
     val connected = this.player.serverConnection
     if (connected != null && connected.server == this.server) {
-      result.complete(ConnectionRequestResult.AlreadyConnected(this.server))
+      result.complete(ServerConnectionRequestResult.AlreadyConnected(this.server))
       return result
     }
     val bootstrap = ProxyImpl.networkManager
@@ -66,7 +70,7 @@ internal class ServerConnectionImpl(
     return result
   }
 
-  private fun Channel.init(resultFuture: CompletableFuture<ConnectionRequestResult>) {
+  private fun Channel.init(resultFuture: CompletableFuture<ServerConnectionRequestResult>) {
     val connection = Connection(this)
     pipeline().apply {
       addLast(ReadTimeoutHandler(ReadTimeout.toLongMilliseconds(), DurationUnit.MILLISECONDS))
@@ -82,7 +86,7 @@ internal class ServerConnectionImpl(
       if (throwable != null) {
         resultFuture.completeExceptionally(throwable)
       } else {
-        if (result is ConnectionRequestResult.Success)
+        if (result is ServerConnectionRequestResult.Success)
           this@ServerConnectionImpl.playerId = playerId
         resultFuture.complete(result)
       }

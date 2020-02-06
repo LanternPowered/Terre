@@ -9,6 +9,7 @@
  */
 package org.lanternpowered.terre
 
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import org.lanternpowered.terre.text.MessageReceiver
 import org.lanternpowered.terre.text.Text
@@ -43,6 +44,24 @@ interface Player : Named, MessageReceiver, MessageSender, InboundConnection {
    * Disconnects the player with the specified reason.
    */
   fun disconnectAsync(reason: Text = DefaultDisconnectReason): Job
+
+  /**
+   * Attempts to connect to the given [Server]. This will switch from the current
+   * server if the player is already connected to one.
+   *
+   * @param server The server to connect to
+   * @return The connection request result
+   */
+  suspend fun connectTo(server: Server) = this.connectToAsync(server).join()
+
+  /**
+   * Attempts to connect to the given [Server] async. This will switch from the current
+   * server if the player is already connected to one.
+   *
+   * @param server The server to connect to
+   * @return The connection request result
+   */
+  fun connectToAsync(server: Server): Deferred<ServerConnectionRequestResult>
 }
 
 /**

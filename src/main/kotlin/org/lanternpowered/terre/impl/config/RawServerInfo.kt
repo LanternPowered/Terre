@@ -14,6 +14,8 @@ import org.lanternpowered.terre.impl.util.parseInetAddress
 import java.util.*
 
 /**
+ * Represents raw server info, parsed from the configuration file.
+ *
  * @property name The name of the server
  * @property address The ip address and port to connect to
  * @property password The password, if any

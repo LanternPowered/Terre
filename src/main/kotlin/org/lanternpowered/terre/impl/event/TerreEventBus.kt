@@ -33,12 +33,15 @@ import java.lang.invoke.MethodHandles
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.locks.ReentrantReadWriteLock
+import kotlin.concurrent.read
+import kotlin.concurrent.write
 import kotlin.reflect.KClass
 import kotlin.reflect.jvm.kotlinFunction
 
 internal object TerreEventBus : EventBus {
 
-  private val lock = Any()
+  private val lock = ReentrantReadWriteLock()
 
   private val coroutineScope = CoroutineScope(EventExecutor.dispatcher)
 
@@ -53,7 +56,7 @@ internal object TerreEventBus : EventBus {
     val baked = mutableListOf<RegisteredHandler>()
     val types = eventType.eventTypes
 
-    synchronized(this.lock) {
+    this.lock.read {
       for (type in types) {
         baked += this.handlersByEvent.get(type)
       }
@@ -125,7 +128,7 @@ internal object TerreEventBus : EventBus {
 
   private fun unregisterIf(fn: (RegisteredHandler) -> Boolean) {
     val removed = mutableListOf<RegisteredHandler>()
-    synchronized(this.lock) {
+    this.lock.write {
       val it = this.handlersByEvent.values().iterator()
       while (it.hasNext()) {
         val handler = it.next()
@@ -205,7 +208,7 @@ internal object TerreEventBus : EventBus {
   }
 
   private fun register(listeners: List<RegisteredHandler>) {
-    synchronized(this.lock) {
+    this.lock.write {
       for (listener in listeners) {
         this.handlersByEvent.put(listener.eventType, listener)
       }

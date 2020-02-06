@@ -10,7 +10,7 @@
 package org.lanternpowered.terre.text
 
 import org.lanternpowered.terre.impl.text.FormattableTextImpl
-import org.lanternpowered.terre.util.collection.mapToImmutableList
+import org.lanternpowered.terre.util.collection.toImmutableList
 
 /**
  * Constructs a formatted text component with the given substitutions.
@@ -22,8 +22,9 @@ fun formattedTextOf(format: String, vararg substitutions: Any): FormattableText
  * Constructs a formatted text component with the given substitutions.
  */
 fun formattedTextOf(format: String, substitutions: Iterable<Any>): FormattableText {
-  val textSubstitutions = substitutions
-      .mapToImmutableList { it as? Text ?: textOf(it.toString()) }
+  val textSubstitutions = substitutions.asSequence()
+      .map { it as? Text ?: it.toString().text() }
+      .toImmutableList()
   return FormattableTextImpl(format, textSubstitutions)
 }
 

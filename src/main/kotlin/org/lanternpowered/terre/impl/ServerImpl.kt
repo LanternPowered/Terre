@@ -17,8 +17,11 @@ import org.lanternpowered.terre.text.Text
 
 internal class ServerImpl(
     override val info: ServerInfo,
-    override var allowAutoJoin: Boolean
+    override var allowAutoJoin: Boolean = false
 ) : Server {
+
+  var unregistered = false
+    private set
 
   val mutablePlayers = MutablePlayerCollection.concurrentOf()
 
@@ -32,6 +35,11 @@ internal class ServerImpl(
     get() = this.mutablePlayers.toImmutable()
 
   override fun unregister() {
+    this.unregistered = true
+    ProxyImpl.servers.unregister(this)
+  }
+
+  override fun evacuate() {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 

@@ -12,12 +12,12 @@
 package org.lanternpowered.terre.util
 
 /**
- * Constructs a new color from the rgba values.
+ * Constructs a new color from the rgb values.
  */
 fun Color(red: Byte, green: Byte, blue: Byte) = Color(red.toInt(), green.toInt(), blue.toInt())
 
 /**
- * Constructs a new color from the rgba values. Each component with range 0 - 255
+ * Constructs a new color from the rgb values. Each component with range 0 - 255
  */
 fun Color(red: Int, green: Int, blue: Int) = Color((red shl 16) or (green shl 8) or blue)
 

@@ -9,17 +9,29 @@
  */
 package org.lanternpowered.terre.impl.player
 
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.future.asDeferred
+import org.lanternpowered.terre.MaxPlayers
 import org.lanternpowered.terre.MessageSender
 import org.lanternpowered.terre.Player
 import org.lanternpowered.terre.PlayerIdentifier
 import org.lanternpowered.terre.ProtocolVersion
+import org.lanternpowered.terre.Server
+import org.lanternpowered.terre.ServerConnectionRequestResult
+import org.lanternpowered.terre.event.connection.ClientLoginEvent
+import org.lanternpowered.terre.event.connection.ClientPostLoginEvent
+import org.lanternpowered.terre.impl.ProxyImpl
+import org.lanternpowered.terre.impl.ServerImpl
+import org.lanternpowered.terre.impl.event.TerreEventBus
 import org.lanternpowered.terre.impl.network.Connection
+import org.lanternpowered.terre.impl.network.client.ClientPlayConnectionHandler
 import org.lanternpowered.terre.impl.network.packet.ChatMessagePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerChatMessagePacket
 import org.lanternpowered.terre.impl.network.toDeferred
 import org.lanternpowered.terre.impl.text.MessageReceiverImpl
 import org.lanternpowered.terre.text.Text
+import org.lanternpowered.terre.text.textOf
 import java.net.SocketAddress
 
 internal class PlayerImpl(
@@ -31,13 +43,41 @@ internal class PlayerImpl(
 
   @Volatile override var latency = 0
 
-  override val serverConnection: ServerConnectionImpl?
-    get() = this.theServerConnection
+  override var serverConnection: ServerConnectionImpl? = null
+    private set
 
   override val remoteAddress: SocketAddress
     get() = this.clientConnection.remoteAddress
 
-  private var theServerConnection: ServerConnectionImpl? = null
+  /**
+   * Initializes the player and adds it to the proxy.
+   */
+  fun finishLogin(originalResult: ClientLoginEvent.Result) {
+    this.clientConnection.setConnectionHandler(ClientPlayConnectionHandler(this))
+
+    var result = originalResult
+    if (result is ClientLoginEvent.Result.Allowed) {
+      val maxPlayers = ProxyImpl.maxPlayers
+      if (maxPlayers is MaxPlayers.Limited && ProxyImpl.players.size >= maxPlayers.amount) {
+        result = ClientLoginEvent.Result.Denied(textOf("The server is full."))
+      }
+    }
+
+    TerreEventBus.postAsyncWithFuture(ClientLoginEvent(this, result))
+        .thenAccept { event ->
+          val eventResult = event.result
+          if (eventResult is ClientLoginEvent.Result.Denied) {
+            this.clientConnection.close(eventResult.reason)
+          } else {
+            TerreEventBus.postAsyncWithFuture(ClientPostLoginEvent(this))
+                .thenAccept { afterLogin() }
+          }
+        }
+  }
+
+  private fun afterLogin() {
+
+  }
 
   override fun sendMessage(message: Text) {
     this.clientConnection.send(ChatMessagePacket(message))
@@ -59,7 +99,18 @@ internal class PlayerImpl(
     super.sendMessageAs(message, sender)
   }
 
+  private fun disconnectAndForget(reason: Text) {
+    this.clientConnection.close(reason)
+    this.serverConnection?.connection?.close()
+  }
+
   override fun disconnectAsync(reason: Text): Job {
     return this.clientConnection.close(reason).toDeferred()
+  }
+
+  override fun connectToAsync(server: Server): Deferred<ServerConnectionRequestResult> {
+    server as ServerImpl
+    val connection = ServerConnectionImpl(server, this)
+    return connection.connect().asDeferred()
   }
 }

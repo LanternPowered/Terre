@@ -57,6 +57,6 @@ interface PluginContainer {
      * The current plugin that is executing code.
      */
     val Active: PluginContainer?
-      get() = Thread.currentThread().activePlugin
+      get() = activePlugin
   }
 }

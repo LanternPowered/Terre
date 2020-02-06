@@ -25,7 +25,6 @@ internal class ConsoleImpl(
     val shutdownHandler: () -> Unit
 ) : SimpleTerminalConsole(), Console, MessageReceiverImpl {
 
-  @Volatile private var active = false
   private var readThread: Thread? = null
 
   init {
@@ -49,15 +48,12 @@ internal class ConsoleImpl(
       super.start()
     }, "console")
     this.readThread = readThread
-    this.active = true
     readThread.isDaemon = true
     readThread.start()
   }
 
   fun stop() {
     val readThread = this.readThread ?: return
-
-    this.active = false
     readThread.interrupt()
 
     val terminal = TerminalConsoleAppender.getTerminal()
@@ -69,7 +65,7 @@ internal class ConsoleImpl(
   override fun buildReader(builder: LineReaderBuilder): LineReader
       = super.buildReader(builder.appName(Terre.name))
 
-  override fun isRunning() = this.active
+  override fun isRunning() = this.readThread?.isAlive ?: false
 
   override fun runCommand(command: String) {
     this.commandHandler(command)

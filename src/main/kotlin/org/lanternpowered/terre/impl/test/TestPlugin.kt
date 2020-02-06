@@ -13,8 +13,6 @@ import com.uchuhimo.konf.ConfigSpec
 import org.apache.logging.log4j.Logger
 import org.lanternpowered.terre.config.ConfigDirectory
 import org.lanternpowered.terre.config.ConfigFormats
-import org.lanternpowered.terre.dispatcher.alsoAsync
-import org.lanternpowered.terre.dispatcher.joinBlocking
 import org.lanternpowered.terre.event.Event
 import org.lanternpowered.terre.event.EventBus
 import org.lanternpowered.terre.event.Subscribe
@@ -47,7 +45,7 @@ object TestPlugin {
 
   object TestConfigSpec : ConfigSpec("test") {
 
-    val name by required<String>("name")
+    val name by optional("name")
   }
 
   /**

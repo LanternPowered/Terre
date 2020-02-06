@@ -17,7 +17,8 @@ import com.google.common.collect.ImmutableSet
 import java.util.*
 import kotlin.reflect.KClass
 
-inline fun <E : Any> Array<E>.toImmutableList(): ImmutableList<E> = ImmutableList.copyOf(this)
+inline fun <E : Any> Array<E>.toImmutableList(): ImmutableList<E>
+    = ImmutableList.copyOf(this)
 
 fun <E : Any> Iterable<E>.toImmutableList(): ImmutableList<E>
     = this as? ImmutableList<E> ?: ImmutableList.copyOf(this)
@@ -25,29 +26,41 @@ fun <E : Any> Iterable<E>.toImmutableList(): ImmutableList<E>
 fun <E : Any> Iterable<E>.toImmutableCollection(): ImmutableCollection<E>
     = this as? ImmutableCollection<E> ?: ImmutableList.copyOf(this)
 
-inline fun <E : Any> immutableListOf(): ImmutableList<E> = ImmutableList.of()
+inline fun <E : Any> immutableListOf(): ImmutableList<E>
+    = ImmutableList.of()
 
-inline fun <E : Any> immutableListOf(element: E): ImmutableList<E> = ImmutableList.of(element)
+inline fun <E : Any> immutableListOf(element: E): ImmutableList<E>
+    = ImmutableList.of(element)
 
-inline fun <E : Any> immutableListOf(e1: E, e2: E): ImmutableList<E> = ImmutableList.of(e1, e2)
+inline fun <E : Any> immutableListOf(e1: E, e2: E): ImmutableList<E>
+    = ImmutableList.of(e1, e2)
 
-inline fun <E : Any> immutableListOf(e1: E, e2: E, e3: E): ImmutableList<E> = ImmutableList.of(e1, e2, e3)
+inline fun <E : Any> immutableListOf(e1: E, e2: E, e3: E): ImmutableList<E>
+    = ImmutableList.of(e1, e2, e3)
 
-inline fun <E : Any> immutableListOf(e1: E, e2: E, e3: E, e4: E): ImmutableList<E> = ImmutableList.of(e1, e2, e3, e4)
+inline fun <E : Any> immutableListOf(e1: E, e2: E, e3: E, e4: E): ImmutableList<E>
+    = ImmutableList.of(e1, e2, e3, e4)
 
-inline fun <E : Any> immutableListOf(vararg elements: E): ImmutableList<E> = ImmutableList.copyOf(elements.toList())
+inline fun <E : Any> immutableListOf(vararg elements: E): ImmutableList<E>
+    = ImmutableList.copyOf(elements.asList())
 
-inline fun <E : Any> immutableSetOf(): ImmutableSet<E> = ImmutableSet.of()
+inline fun <E : Any> immutableSetOf(): ImmutableSet<E>
+    = ImmutableSet.of()
 
-inline fun <E : Any> immutableSetOf(element: E): ImmutableSet<E> = ImmutableSet.of(element)
+inline fun <E : Any> immutableSetOf(element: E): ImmutableSet<E>
+    = ImmutableSet.of(element)
 
-inline fun <E : Any> immutableSetOf(e1: E, e2: E): ImmutableSet<E> = ImmutableSet.of(e1, e2)
+inline fun <E : Any> immutableSetOf(e1: E, e2: E): ImmutableSet<E>
+    = ImmutableSet.of(e1, e2)
 
-inline fun <E : Any> immutableSetOf(e1: E, e2: E, e3: E): ImmutableSet<E> = ImmutableSet.of(e1, e2, e3)
+inline fun <E : Any> immutableSetOf(e1: E, e2: E, e3: E): ImmutableSet<E>
+    = ImmutableSet.of(e1, e2, e3)
 
-inline fun <E : Any> immutableSetOf(e1: E, e2: E, e3: E, e4: E): ImmutableSet<E> = ImmutableSet.of(e1, e2, e3, e4)
+inline fun <E : Any> immutableSetOf(e1: E, e2: E, e3: E, e4: E): ImmutableSet<E>
+    = ImmutableSet.of(e1, e2, e3, e4)
 
-inline fun <E : Any> immutableSetOf(vararg elements: E): ImmutableSet<E> = ImmutableSet.copyOf(elements.toList())
+inline fun <E : Any> immutableSetOf(vararg elements: E): ImmutableSet<E>
+    = ImmutableSet.copyOf(elements.asList())
 
 inline fun <E : Any> immutableListBuilderOf(): ImmutableList.Builder<E>
     = ImmutableList.builder()
@@ -69,57 +82,71 @@ fun <T, E : Any, B : ImmutableCollection.Builder<E>> Iterable<T>.mapTo(destinati
 }
 
 /**
- * Maps the objects of the iterable and collects them into a immutable list.
+ * Matches whether the contents of the iterables are equal. The
+ * position within the iterables must also match.
  */
-fun <T, E : Any> Iterable<T>.mapToImmutableList(transform: (T) -> E): ImmutableList<E> {
-  if (this is Collection) {
-    if (this.size == 0) return ImmutableList.of()
-    if (this.size == 1) {
-      val element = if (this is List) {
-        this[0]
-      } else {
-        iterator().next()
-      }
-      return ImmutableList.of(transform(element))
-    }
+infix fun <E> Iterable<E>.contentEquals(that: Iterable<E>): Boolean {
+  if (this is List<E> && that is List<E>) {
+    return this contentEquals that
   }
-  val it = iterator()
-  if (!it.hasNext()) return ImmutableList.of()
-  val first = it.next()
-  if (!it.hasNext()) return ImmutableList.of(transform(first))
-  val builder = ImmutableList.builder<E>()
-  builder.add(transform(first))
-  it.forEachRemaining { builder.add(transform(it)) }
-  return builder.build()
+  if (this is Collection<E>) {
+    val thatCollection = that as? Collection<E> ?: that.toList()
+    return this contentEquals thatCollection
+  }
+  if (that is Collection<E>) {
+    val thisCollection = this as? Collection<E> ?: this.toList()
+    return thisCollection contentEquals that
+  }
+  val thisList = this.toList()
+  val thatList = that.toList()
+  return thisList contentEquals thatList
 }
 
 /**
  * Matches whether the contents of the iterables are equal. The
  * position within the iterables must also match.
  */
-internal infix fun <E> Iterable<E>.contentEquals(that: Iterable<E>): Boolean {
-  val thisList = this as? List<E> ?: this.toList()
-  val thatList = that as? List<E> ?: that.toList()
-  return thisList contentEquals thatList
+infix fun <E> Collection<E>.contentEquals(that: Collection<E>): Boolean {
+  if (this.size != that.size)
+    return false
+  val thisIt = this.iterator()
+  val thatIt = that.iterator()
+  while (thisIt.hasNext()) {
+    if (thisIt.next() != thatIt.next())
+      return false
+  }
+  return true
 }
 
 /**
  * Matches whether the contents of the lists are equal.
  */
 infix fun <E> List<E>.contentEquals(that: List<E>): Boolean {
-  if (this.size != that.size) return false
+  if (this.size != that.size)
+    return false
   for (i in this.indices) {
-    if (this[i] != that[i]) {
+    if (this[i] != that[i])
       return false
-    }
   }
   return true
 }
 
 /**
- * Gets hashcode for the contents of the iterable.
+ * Gets hashcode for the contents of the [Sequence].
  */
-internal fun <E> Iterable<E>.contentHashCode(): Int {
+fun <E> Sequence<E>.contentHashCode(): Int
+    = this.iterator().contentHashCode()
+
+/**
+ * Gets hashcode for the contents of the [Iterable].
+ */
+fun <E> Iterable<E>.contentHashCode(): Int
+    = this.iterator().contentHashCode()
+
+/**
+ * Gets hashcode for the contents of the [Iterator].
+ */
+private fun <E> Iterator<E>.contentHashCode(): Int {
   var result = 1
   for (element in this) {
     result = 31 * result + (element?.hashCode() ?: 0)
@@ -130,9 +157,41 @@ internal fun <E> Iterable<E>.contentHashCode(): Int {
 /**
  * Constructs a new [EnumSet] for the given [type].
  */
-inline fun <E : Enum<E>> enumSetOf(type: KClass<E>): EnumSet<E> = EnumSet.noneOf(type.java)
+inline fun <E : Enum<E>> enumSetOf(type: KClass<E>): EnumSet<E>
+    = EnumSet.noneOf(type.java)
 
 /**
  * Constructs a new [EnumSet] for the given type [E].
  */
-inline fun <reified E : Enum<E>> enumSetOf(): EnumSet<E> = EnumSet.noneOf(E::class.java)
+inline fun <reified E : Enum<E>> enumSetOf(): EnumSet<E>
+    = EnumSet.noneOf(E::class.java)
+
+/**
+ * Converts the [Iterable] into a [EnumSet].
+ */
+inline fun <reified E : Enum<E>> Iterable<E>.toEnumSet(): EnumSet<E>
+    = toEnumSet(E::class)
+
+/**
+ * Converts the [Iterable] into a [EnumSet].
+ */
+fun <E : Enum<E>> Iterable<E>.toEnumSet(type: KClass<E>): EnumSet<E>
+    = iterator().toEnumSet(type)
+
+/**
+ * Converts the [Sequence] into a [EnumSet].
+ */
+inline fun <reified E : Enum<E>> Sequence<E>.toEnumSet(): EnumSet<E>
+    = toEnumSet(E::class)
+
+/**
+ * Converts the [Sequence] into a [EnumSet].
+ */
+fun <E : Enum<E>> Sequence<E>.toEnumSet(type: KClass<E>): EnumSet<E>
+    = iterator().toEnumSet(type)
+
+private fun <E : Enum<E>> Iterator<E>.toEnumSet(type: KClass<E>): EnumSet<E> {
+  val set = EnumSet.noneOf(type.java)
+  forEach(set::add)
+  return set
+}

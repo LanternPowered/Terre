@@ -43,6 +43,12 @@ interface Server : MessageReceiver {
   fun unregister()
 
   /**
+   * Evacuates all the [Player]s from this server. The proxy will
+   * attempt to redirect them to another possible server.
+   */
+  fun evacuate()
+
+  /**
    * Broadcasts the message to all the [Player]s on this
    * server.
    */
