@@ -10,7 +10,8 @@
 package org.lanternpowered.terre.impl
 
 import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.Logger
+import org.apache.logging.log4j.spi.ExtendedLogger
+import org.lanternpowered.terre.logger.Logger
 
 internal object Terre {
 
@@ -24,8 +25,18 @@ internal object Terre {
    */
   val version = ProxyImpl::class.java.`package`.implementationVersion ?: ""
 
+  private val backingLogger: ExtendedLogger = LogManager.getLogger(this.name) as ExtendedLogger
+
   /**
    * The logger of the platform.
    */
-  val logger: Logger = LogManager.getLogger(this.name)
+  val logger: Logger = LoggerImpl()
+
+  private class LoggerImpl : Logger, ExtendedLogger by backingLogger {
+
+    override fun debug(fn: () -> String) {
+      if (isDebugEnabled)
+        debug(fn())
+    }
+  }
 }

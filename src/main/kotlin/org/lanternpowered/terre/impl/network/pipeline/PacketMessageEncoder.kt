@@ -14,35 +14,43 @@ import io.netty.channel.ChannelHandlerContext
 import io.netty.handler.codec.CodecException
 import io.netty.handler.codec.EncoderException
 import io.netty.handler.codec.MessageToByteEncoder
-import io.netty.util.ReferenceCountUtil
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.PacketCodecContext
+import org.lanternpowered.terre.impl.network.UnknownPacket
 
 internal class PacketMessageEncoder(private val context: PacketCodecContext) : MessageToByteEncoder<Packet>() {
 
   override fun encode(ctx: ChannelHandlerContext, input: Packet, output: ByteBuf) {
-    val registration = this.context.protocol.getEncoder(this.context.direction, input.javaClass)
-        ?: throw EncoderException("No encoder is registered for packet type ${input::class.simpleName}")
+    val result: ByteBuf
+    val opcode: Int
+    if (input is UnknownPacket) {
+      result = input.content.retain()
+      opcode = input.opcode
+    } else {
+      val registration = this.context.protocol.getEncoder(this.context.direction, input.javaClass)
+          ?: throw EncoderException("No encoder is registered for packet type ${input::class.simpleName} " +
+              "with direction ${context.direction} for protocol ${context.protocol}.")
 
-    val result = try {
-      registration.encoder.encode(this.context, input)
-    } catch (ex: CodecException) {
-      throw ex
-    } catch (ex: Exception) {
-      throw EncoderException(ex)
+      opcode = registration.opcode
+      result = try {
+        registration.encoder.encode(this.context, input)
+      } catch (ex: CodecException) {
+        throw ex
+      } catch (ex: Exception) {
+        throw EncoderException(ex)
+      }
     }
-    val opcode = registration.opcode
+
     try {
       if (opcode >= ModuleIdMask) { // module
         output.writeByte(ModulePacketId)
-        output.writeShortLE(registration.opcode ushr ModuleIdOffset)
+        output.writeShortLE(opcode ushr ModuleIdOffset)
       } else {
         output.writeByte(opcode)
       }
       output.writeBytes(result)
     } finally {
       result.release()
-      ReferenceCountUtil.release(input)
     }
   }
 }

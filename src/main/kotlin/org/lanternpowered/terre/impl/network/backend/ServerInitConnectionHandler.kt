@@ -10,21 +10,18 @@
 package org.lanternpowered.terre.impl.network.backend
 
 import io.netty.buffer.ByteBuf
-import io.netty.util.AttributeKey
+import org.lanternpowered.terre.ProtocolVersion
 import org.lanternpowered.terre.ServerConnectionRequestResult
 import org.lanternpowered.terre.impl.Terre
-import org.lanternpowered.terre.impl.math.Vec2i
-import org.lanternpowered.terre.ProtocolVersion
 import org.lanternpowered.terre.impl.network.ConnectionHandler
 import org.lanternpowered.terre.impl.network.Packet
+import org.lanternpowered.terre.impl.network.Protocol
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
-import org.lanternpowered.terre.impl.network.packet.CompleteConnectionPacket
 import org.lanternpowered.terre.impl.network.packet.ConnectionApprovedPacket
 import org.lanternpowered.terre.impl.network.packet.ConnectionRequestPacket
 import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
 import org.lanternpowered.terre.impl.network.packet.PasswordRequestPacket
 import org.lanternpowered.terre.impl.network.packet.PasswordResponsePacket
-import org.lanternpowered.terre.impl.network.packet.PlayerSpawnPacket
 import org.lanternpowered.terre.impl.player.ServerConnectionImpl
 import org.lanternpowered.terre.text.Text
 import java.util.concurrent.CompletableFuture
@@ -48,7 +45,7 @@ internal data class ServerInitConnectionResult(
 internal class ServerInitConnectionHandler(
     private val connection: ServerConnectionImpl,
     private val future: CompletableFuture<ServerInitConnectionResult>,
-    versionsToAttempt: List<ProtocolVersion>
+    versionsToAttempt: List<Pair<Protocol, ProtocolVersion>>
 ) : ConnectionHandler {
 
   private fun ServerConnectionRequestResult.asResult(playerId: PlayerId? = null)
@@ -58,6 +55,7 @@ internal class ServerInitConnectionHandler(
   private var playerId: PlayerId? = null
 
   private lateinit var attemptedVersion: ProtocolVersion
+  private lateinit var attemptedProtocol: Protocol
   private val versionsToAttemptQueue = versionsToAttempt.toMutableList()
   private var firstDisconnectReason: Text? = null
 
@@ -65,20 +63,17 @@ internal class ServerInitConnectionHandler(
     check(versionsToAttempt.isNotEmpty())
   }
 
-  companion object {
-
-    private val notFirstServerConnection: AttributeKey<Boolean>
-        = AttributeKey.valueOf("not-first-server-connection")
-  }
-
   override fun initialize() {
     // Prioritize the last known client version if present, it's more likely that
     // the client will be allowed using this version.
     val lastKnownVersion = this.connection.server.lastKnownVersion
-    if (lastKnownVersion != null && lastKnownVersion in this.versionsToAttemptQueue
-        && this.versionsToAttemptQueue.size > 1) {
-      this.versionsToAttemptQueue -= lastKnownVersion
-      this.versionsToAttemptQueue.add(0, lastKnownVersion)
+    if (lastKnownVersion != null && this.versionsToAttemptQueue.size > 1) {
+      val pair = this.versionsToAttemptQueue
+          .find { it.second == lastKnownVersion }
+      if (pair != null) {
+        this.versionsToAttemptQueue -= pair
+        this.versionsToAttemptQueue.add(0, pair)
+      }
     }
     // Try initial handshake
     tryNextHandshake()
@@ -86,24 +81,30 @@ internal class ServerInitConnectionHandler(
 
   private fun tryNextHandshake() {
     if (this.versionsToAttemptQueue.isEmpty()) {
+      println("Trying protocol: Done")
       // No more versions to try, we are done
       this.future.complete(ServerConnectionRequestResult.Disconnected(
           this.connection.server, this.firstDisconnectReason).asResult())
     } else {
       // Try the next version
-      val version = this.versionsToAttemptQueue.removeAt(0)
-      this.connection.ensureConnected().send(ConnectionRequestPacket(version))
+      val (protocol, version) = this.versionsToAttemptQueue.removeAt(0)
+      val connection = this.connection.ensureConnected()
+      connection.send(ConnectionRequestPacket(version))
+      Terre.logger.debug { "P -> S(${this.connection.server.info.name}) [${player.name}] Connection request: $version" }
       this.attemptedVersion = version
+      this.attemptedProtocol = protocol
     }
   }
 
   override fun disconnect() {
+    println("Disconnect")
     if (!this.future.isDone)
       this.future.complete(ServerConnectionRequestResult.Disconnected(
           this.connection.server, null).asResult())
   }
 
   override fun handle(packet: DisconnectPacket): Boolean {
+    Terre.logger.debug { "P <- S(${this.connection.server.info.name}) [${player.name}] Disconnect: ${packet.reason}" }
     if (this.future.isDone)
       return true
     if (this.firstDisconnectReason == null)
@@ -115,39 +116,24 @@ internal class ServerInitConnectionHandler(
   }
 
   override fun handle(packet: PasswordRequestPacket): Boolean {
-    this.connection.ensureConnected().send(
-        PasswordResponsePacket(this.connection.server.info.password ?: ""))
+    val password = this.connection.server.info.password
+    this.connection.ensureConnected().send(PasswordResponsePacket(password))
+    Terre.logger.debug { "P <- S(${connection.server.info.name}) [${player.name}] Password request." }
+    Terre.logger.debug { "P -> S(${connection.server.info.name}) [${player.name}] Password response: $password" }
     return true
   }
 
   override fun handle(packet: ConnectionApprovedPacket): Boolean {
     // Connection was approved so the client version was accepted
     this.connection.server.lastKnownVersion = this.attemptedVersion
+    this.connection.ensureConnected().protocol = this.attemptedProtocol
     this.playerId = packet.playerId
     // Sending this packet triggers the client to request all the information
     // from the server once again, this allows it to request and load a new world.
     this.player.clientConnection.send(packet)
-    return true
-  }
-
-  override fun handle(packet: CompleteConnectionPacket): Boolean {
-    val playerId = this.playerId ?: error("Player id isn't known.")
-
-    val notFirstConnection = this.player.clientConnection.attr(notFirstServerConnection).getAndSet(true)
-    if (notFirstConnection) {
-      // Sending this packet makes sure that the player spawns, even if the client
-      // was previously connected to another world. This will trigger the client
-      // to find a new spawn location.
-      this.player.clientConnection.send(PlayerSpawnPacket(playerId, Vec2i.Zero))
-    } else {
-      // Notify the client that the connection is complete, this will attempt
-      // to spawn the player in the world, only affects the first time the client
-      // connects to a server.
-      this.player.clientConnection.send(packet)
-    }
-
-    // Connection phase is complete.
+    // Connection is approved.
     this.future.complete(ServerConnectionRequestResult.Success(this.connection.server).asResult(playerId))
+    Terre.logger.debug { "P <- S(${connection.server.info.name}) [${player.name}] Connection approved: $playerId" }
     return true
   }
 

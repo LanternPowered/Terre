@@ -15,6 +15,7 @@ import org.lanternpowered.terre.ProtocolVersion
 import org.lanternpowered.terre.event.connection.ClientConnectEvent
 import org.lanternpowered.terre.event.connection.ClientLoginEvent
 import org.lanternpowered.terre.event.connection.ClientPreLoginEvent
+import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.event.TerreEventBus
 import org.lanternpowered.terre.impl.network.Connection
 import org.lanternpowered.terre.impl.network.ConnectionHandler
@@ -100,14 +101,15 @@ internal class ClientInitConnectionHandler(
   }
 
   override fun initialize() {
+    Terre.logger.info("P <- C [${connection.remoteAddress}] Connected.")
   }
 
   override fun disconnect() {
-    // TODO
   }
 
   override fun handle(packet: ConnectionRequestPacket): Boolean {
     checkState(State.Init)
+    Terre.logger.debug { "P <- C [${connection.remoteAddress}] Connection request: ${packet.version}" }
     this.state = State.Handshake
     val protocolVersion = packet.version
     if (protocolVersion !is ProtocolVersion.Vanilla) {
@@ -124,7 +126,7 @@ internal class ClientInitConnectionHandler(
           "The client isn't supported. Expected version of $expected, but the client is $protocolVersion."))
       return true
     }
-    this.connection.initProtocol(protocol)
+    this.connection.protocol = protocol
     this.protocolVersion = protocolVersion
     val inboundConnection = InitialInboundConnection(
         this.connection.remoteAddress, protocolVersion)
@@ -150,6 +152,7 @@ internal class ClientInitConnectionHandler(
     // switching to the play mode the client will receive a new
     // one.
     this.connection.send(ConnectionApprovedPacket(PlayerId(16)))
+    Terre.logger.debug { "P -> C [${connection.remoteAddress}] Start login by collecting client info" }
   }
 
   private fun continueLogin() {
@@ -170,6 +173,7 @@ internal class ClientInitConnectionHandler(
             this.state = State.RequestPassword
             this.expectedPassword = result.password
             this.connection.send(PasswordRequestPacket)
+            Terre.logger.debug { "P -> C [${connection.remoteAddress},$name] Password request" }
           } else {
             this.state = State.Done
             this.player.finishLogin(ClientLoginEvent.Result.Allowed)
@@ -178,6 +182,7 @@ internal class ClientInitConnectionHandler(
   }
 
   override fun handle(packet: PasswordResponsePacket): Boolean {
+    Terre.logger.debug { "P <- C [${connection.remoteAddress},$name] Password response" }
     checkState(State.RequestPassword)
     val result = if (packet.password != this.expectedPassword) {
       ClientLoginEvent.Result.Denied(textOf("Invalid password."))
@@ -192,6 +197,7 @@ internal class ClientInitConnectionHandler(
   override fun handle(packet: PlayerInfoPacket): Boolean {
     checkState(State.RequestClientInfo)
     this.name = packet.playerName
+    Terre.logger.debug { "P <- C [${connection.remoteAddress}] Client player name: $name" }
     return true
   }
 
@@ -203,6 +209,7 @@ internal class ClientInitConnectionHandler(
     digest.reset()
     digest.update(packet.uniqueId.toString().toByteArray(Charsets.UTF_8))
     this.identifier = PlayerIdentifier(digest.digest())
+    Terre.logger.debug { "P <- C [${connection.remoteAddress}, $name] Client identifier: $identifier" }
     return true
   }
 
@@ -211,6 +218,7 @@ internal class ClientInitConnectionHandler(
     // client so we can initialize the play phase. And the client
     // can actually start connecting to backing servers.
     continueLogin()
+    Terre.logger.debug { "P <- C [${connection.remoteAddress}, $name] Client info sending done" }
     return true
   }
 

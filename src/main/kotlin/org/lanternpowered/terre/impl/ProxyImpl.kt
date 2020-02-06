@@ -199,6 +199,8 @@ internal object ProxyImpl : Proxy {
       val allowAutoJoin = rawServer.`allow-auto-join`
 
       val server = this.servers.register(info)
+      val passwordInfo = if (info.password.isNotEmpty()) ", password: ${info.password}" else ""
+      Terre.logger.info("Registering server -> ${info.name} -> address: ${rawServer.address}$passwordInfo")
       server.allowAutoJoin = allowAutoJoin
     }
   }

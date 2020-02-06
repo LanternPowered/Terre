@@ -74,7 +74,7 @@ internal val WorldInfoDecoder = packetDecoderOf { buf ->
 
   val data = ByteArray(idOffset + buf.readableBytes())
   // Read data after the generator version or name
-  buf.readBytes(data, 0, buf.readableBytes())
+  buf.readBytes(data, idOffset, buf.readableBytes())
   val end = buf.readerIndex()
   // Read data before the id
   buf.readerIndex(0)

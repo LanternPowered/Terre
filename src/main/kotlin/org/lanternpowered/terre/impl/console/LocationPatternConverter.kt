@@ -15,6 +15,7 @@ import org.apache.logging.log4j.core.pattern.ConverterKeys
 import org.apache.logging.log4j.core.pattern.LogEventPatternConverter
 import org.apache.logging.log4j.core.pattern.PatternConverter
 import org.apache.logging.log4j.io.LoggerPrintStream
+import org.lanternpowered.terre.impl.Terre
 import java.io.PrintStream
 import java.util.regex.Matcher
 
@@ -71,7 +72,8 @@ internal class LocationPatternConverter private constructor(private val format: 
 
   companion object {
 
-    val RedirectFqcns = hashSetOf(PrintStream::class.java.name, LoggerPrintStream::class.java.name)
+    val RedirectFqcns = hashSetOf(
+        PrintStream::class.java.name, LoggerPrintStream::class.java.name, Terre.logger::class.java.name)
     val IgnoreFqcns = hashSetOf<String>()
 
     @JvmStatic

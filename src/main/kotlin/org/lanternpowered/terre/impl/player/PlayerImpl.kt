@@ -9,7 +9,6 @@
  */
 package org.lanternpowered.terre.impl.player
 
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.future.asDeferred
 import org.lanternpowered.terre.MaxPlayers
@@ -23,6 +22,7 @@ import org.lanternpowered.terre.event.connection.ClientLoginEvent
 import org.lanternpowered.terre.event.connection.ClientPostLoginEvent
 import org.lanternpowered.terre.impl.ProxyImpl
 import org.lanternpowered.terre.impl.ServerImpl
+import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.event.TerreEventBus
 import org.lanternpowered.terre.impl.network.Connection
 import org.lanternpowered.terre.impl.network.client.ClientPlayConnectionHandler
@@ -33,6 +33,7 @@ import org.lanternpowered.terre.impl.text.MessageReceiverImpl
 import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.text.textOf
 import java.net.SocketAddress
+import java.util.concurrent.CompletableFuture
 
 internal class PlayerImpl(
     val clientConnection: Connection,
@@ -99,11 +100,44 @@ internal class PlayerImpl(
   }
 
   private fun afterLogin() {
-
+    // Try to connect to one of the servers
+    val possibleServers = ProxyImpl.servers.asSequence()
+        .filter { it.allowAutoJoin }
+        .toList()
+    connectToAnyWithFuture(possibleServers)
   }
+
+  private fun connectToAnyWithFuture(servers: Iterable<Server>): CompletableFuture<Server?> {
+    val queue = servers.toMutableList()
+    if (queue.isEmpty())
+      return CompletableFuture.completedFuture(null)
+
+    val future = CompletableFuture<Server?>()
+
+    fun connectNextOrComplete() {
+      if (queue.isEmpty()) {
+        future.complete(null)
+        return
+      }
+      val next = queue.removeAt(0)
+      connectWithFuture(next).thenAccept { result ->
+        if (result is ServerConnectionRequestResult.Success) {
+          future.complete(result.server)
+        } else {
+          connectNextOrComplete()
+        }
+      }
+    }
+    connectNextOrComplete()
+
+    return future
+  }
+
+  override fun connectToAnyAsync(servers: Iterable<Server>) = connectToAnyWithFuture(servers).asDeferred()
 
   fun cleanup() {
     ProxyImpl.mutablePlayers.remove(this)
+    this.serverConnection?.connection?.close()
   }
 
   override fun sendMessage(message: Text) {
@@ -135,9 +169,21 @@ internal class PlayerImpl(
     return this.clientConnection.close(reason).toDeferred()
   }
 
-  override fun connectToAsync(server: Server): Deferred<ServerConnectionRequestResult> {
+  private fun connectWithFuture(server: Server): CompletableFuture<ServerConnectionRequestResult> {
     server as ServerImpl
     val connection = ServerConnectionImpl(server, this)
-    return connection.connect().asDeferred()
+    return connection.connect().whenComplete { result, throwable ->
+      if (throwable != null) {
+        Terre.logger.debug("Failed to establish connection to backend server: ${server.info}", throwable)
+      } else if (result is ServerConnectionRequestResult.Success) {
+        // Close the old connection
+        this.serverConnection?.connection?.close()
+        // Replace it with the successfully established one
+        this.serverConnection = connection
+        Terre.logger.debug("Successfully established connection to backend server: ${server.info}")
+      }
+    }
   }
+
+  override fun connectToAsync(server: Server) = connectWithFuture(server).asDeferred()
 }

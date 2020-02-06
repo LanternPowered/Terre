@@ -30,6 +30,7 @@ internal object ProtocolRegistry {
     // Allow 1.3.0.7 version to connect to the newer 1.3.5.3 version,
     // this allows mobile clients to connect to a desktop version server.
     allowTranslation(Protocol155 to Protocol194)
+    allowTranslation(Protocol194 to Protocol155)
   }
 
   val all: Collection<Protocol> get() = this.byId.values

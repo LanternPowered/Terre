@@ -14,15 +14,26 @@ import io.netty.channel.ChannelHandlerContext
 import io.netty.handler.codec.CodecException
 import io.netty.handler.codec.DecoderException
 import io.netty.handler.codec.MessageToMessageDecoder
+import org.lanternpowered.terre.impl.Terre
+import org.lanternpowered.terre.impl.network.UnknownPacket
 import org.lanternpowered.terre.impl.network.PacketCodecContext
 
 internal class PacketMessageDecoder(
     private val context: PacketCodecContext
 ) : MessageToMessageDecoder<ByteBuf>() {
 
+  companion object {
+
+    private val DebugUnknownPackets = System.getProperty("terre.debugUnknownPackets")?.toLowerCase() == "true"
+
+    init {
+      Terre.logger.debug("terre.debugUnknownPackets -> $DebugUnknownPackets")
+    }
+  }
+
   override fun decode(ctx: ChannelHandlerContext, input: ByteBuf, output: MutableList<Any>) {
     val index = input.readerIndex()
-    var opcode = input.readByte().toInt()
+    var opcode = input.readUnsignedByte().toInt()
     // A net module packet, but we consider everything
     // a normal packet for simplicity, just with an id
     // offset.
@@ -35,6 +46,13 @@ internal class PacketMessageDecoder(
     // No registration is available, so just process
     // as an unknown packet.
     if (registration == null) {
+      if (DebugUnknownPackets) {
+        val packet = UnknownPacket(opcode, input.retainedSlice())
+        output += packet
+        // Consume the bytes in the input
+        input.skipBytes(input.readableBytes())
+        return
+      }
       input.readerIndex(index)
       input.retain()
       output += input
@@ -42,18 +60,20 @@ internal class PacketMessageDecoder(
     }
 
     val content = input.retainedSlice()
+    val length = content.readableBytes()
     val packet = try {
       registration.decoder.decode(this.context, content)
     } catch (ex: CodecException) {
       throw ex
     } catch (ex: Exception) {
-      throw DecoderException(ex)
+      throw DecoderException("Error while decoding packet, opcode: $opcode, length: $length", ex)
+    } finally {
+      content.release()
     }
     if (packet != null)
       output += packet
 
-    // Consume the bytes in the input, reading from the content
-    // slice doesn't affect the input
+    // Consume the bytes in the input
     input.skipBytes(input.readableBytes())
   }
 }

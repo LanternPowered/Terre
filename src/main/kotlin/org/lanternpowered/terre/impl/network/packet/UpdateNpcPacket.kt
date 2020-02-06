@@ -15,6 +15,7 @@ import org.lanternpowered.terre.impl.network.buffer.UpOrDown
 import org.lanternpowered.terre.impl.network.buffer.NpcId
 import org.lanternpowered.terre.impl.network.buffer.NpcType
 import org.lanternpowered.terre.impl.network.Packet
+import org.lanternpowered.terre.impl.network.Protocol155
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.buffer.readNpcId
 import org.lanternpowered.terre.impl.network.buffer.readPlayerId
@@ -50,7 +51,12 @@ internal val UpdateNpcEncoder = packetEncoderOf<UpdateNpcPacket> { buf, packet -
   buf.writeNpcId(packet.npcId)
   buf.writeVec2f(packet.position)
   buf.writeVec2f(packet.velocity)
-  buf.writeShortLE(packet.target?.value ?: -1)
+  val target = packet.target?.value ?: -1
+  if (this.protocol == Protocol155) {
+    buf.writeByte(target)
+  } else {
+    buf.writeShortLE(target)
+  }
   var flags = 0
   if (packet.direction.isRight)
     flags += 0x1
@@ -68,7 +74,7 @@ internal val UpdateNpcEncoder = packetEncoderOf<UpdateNpcPacket> { buf, packet -
   if (ai.ai4 != 0f)
     flags += 0x20
   val life = packet.life
-  if (life != null)
+  if (life == null)
     flags += 0x80
   buf.writeByte(flags)
   if (ai.ai1 != 0f)
@@ -101,8 +107,8 @@ internal val UpdateNpcDecoder = packetDecoderOf { buf ->
   val npcId = buf.readNpcId()
   val position = buf.readVec2f()
   val velocity = buf.readVec2f()
-  val targetId = buf.readShortLE().toInt()
-  val target = if (targetId == -1) null else PlayerId(buf.readShortLE().toInt())
+  val targetId = if (this.protocol == Protocol155) buf.readByte().toInt() else buf.readShortLE().toInt()
+  val target = if (targetId == -1) null else PlayerId(targetId)
   val flags = buf.readByte().toInt()
   val direction = LeftOrRight((flags and 0x1) != 0)
   val directionY = UpOrDown((flags and 0x2) != 0)
@@ -112,8 +118,8 @@ internal val UpdateNpcDecoder = packetDecoderOf { buf ->
   val ai3 = if ((flags and 0x10) != 0) buf.readFloatLE() else 0f
   val ai4 = if ((flags and 0x20) != 0) buf.readFloatLE() else 0f
   val ai = NpcAI(ai1, ai2, ai3, ai4)
-  val npcType = NpcType(buf.readUnsignedShortLE())
-  val life = if ((flags and 0x80) != 0) {
+  val npcType = NpcType(buf.readShortLE().toInt())
+  val life = if ((flags and 0x80) == 0) {
     when (buf.readByte().toInt()) {
       2 -> buf.readShort().toInt()
       4 -> buf.readInt()

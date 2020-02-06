@@ -34,7 +34,7 @@ internal object Protocol155 : Protocol(155) {
     bind(0x26, PasswordResponseEncoder, PasswordResponseDecoder, PacketDirection.ClientToServer)
     bind(0x27, KeepAliveEncoder, PacketDirection.ServerToClient)
     bind(0x31, CompleteConnectionEncoder, PacketDirection.ServerToClient)
-    bind(0x38, UpdateNpcNameEncoder, UpdateNpcNameDecoder)
+    bind(0x38, UpdateNpcNameEncoder, UpdateNpcNameDecoder, PacketDirection.ServerToClient)
     bind(0x44, ClientUniqueIdEncoder, ClientUniqueIdDecoder, PacketDirection.ClientToServer)
     bind(0x51, CombatMessage155Encoder, CombatMessage155Decoder, PacketDirection.ServerToClient)
     bind(0x5B, SpeechBubbleEncoder, PacketDirection.ServerToClient)

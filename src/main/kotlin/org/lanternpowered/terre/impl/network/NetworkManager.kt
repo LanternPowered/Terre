@@ -11,18 +11,17 @@ package org.lanternpowered.terre.impl.network
 
 import io.netty.bootstrap.Bootstrap
 import io.netty.bootstrap.ServerBootstrap
-import io.netty.buffer.ByteBufAllocator
 import io.netty.buffer.PooledByteBufAllocator
 import io.netty.channel.Channel
 import io.netty.channel.ChannelFactory
 import io.netty.channel.ChannelFuture
-import io.netty.channel.ChannelFutureListener
 import io.netty.channel.ChannelInitializer
 import io.netty.channel.ChannelOption
-import io.netty.channel.EventLoop
 import io.netty.channel.EventLoopGroup
 import io.netty.channel.socket.SocketChannel
 import io.netty.handler.timeout.ReadTimeoutHandler
+import io.netty.resolver.dns.DnsAddressResolverGroup
+import io.netty.resolver.dns.DnsNameResolverBuilder
 import org.lanternpowered.terre.impl.network.client.ClientInitConnectionHandler
 import org.lanternpowered.terre.impl.network.pipeline.FrameDecoder
 import org.lanternpowered.terre.impl.network.pipeline.FrameEncoder
@@ -41,6 +40,11 @@ internal class NetworkManager {
 
   val bossGroup = this.transportType.eventLoopGroupSupplier(0, NettyThreadFactory("boss"))
   val workerGroup = this.transportType.eventLoopGroupSupplier(0, NettyThreadFactory("worker"))
+
+  private val resolverGroup = DnsAddressResolverGroup(DnsNameResolverBuilder()
+          .channelFactory(transportType.datagramChannelSupplier)
+          .negativeTtl(15)
+          .ndots(1))
 
   private var endpoint: Channel? = null
 
@@ -88,6 +92,7 @@ internal class NetworkManager {
       group(group)
       option(ChannelOption.TCP_NODELAY, true)
       option(ChannelOption.CONNECT_TIMEOUT_MILLIS, ConnectTimeout.toInt(DurationUnit.MILLISECONDS))
+      resolver(resolverGroup)
     }
   }
 }

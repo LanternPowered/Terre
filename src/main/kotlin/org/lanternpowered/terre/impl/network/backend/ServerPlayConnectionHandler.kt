@@ -10,19 +10,38 @@
 package org.lanternpowered.terre.impl.network.backend
 
 import io.netty.buffer.ByteBuf
+import io.netty.util.AttributeKey
+import org.lanternpowered.terre.impl.Terre
+import org.lanternpowered.terre.impl.math.Vec2i
 import org.lanternpowered.terre.impl.network.ConnectionHandler
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.Protocol155
 import org.lanternpowered.terre.impl.network.cache.DeathSourceInfoCache
+import org.lanternpowered.terre.impl.network.packet.CompleteConnectionPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
+import org.lanternpowered.terre.impl.network.packet.PlayerSpawnPacket
 import org.lanternpowered.terre.impl.network.packet.UpdateNpcNamePacket
 import org.lanternpowered.terre.impl.network.packet.UpdateNpcPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoPacket
 import org.lanternpowered.terre.impl.player.PlayerImpl
+import org.lanternpowered.terre.impl.player.ServerConnectionImpl
 
 internal open class ServerPlayConnectionHandler(
-    val player: PlayerImpl
+    private val serverConnection: ServerConnectionImpl,
+    private val player: PlayerImpl
 ) : ConnectionHandler {
+
+  companion object {
+
+    private val notFirstServerConnection: AttributeKey<Boolean>
+        = AttributeKey.valueOf("not-first-server-connection")
+  }
+
+  /**
+   * The client connection.
+   */
+  private val clientConnection
+    get() = this.player.clientConnection
 
   private var deathSourceInfoCache: DeathSourceInfoCache? = null
 
@@ -87,6 +106,26 @@ internal open class ServerPlayConnectionHandler(
       }
     }
     return false // Forward
+  }
+
+  override fun handle(packet: CompleteConnectionPacket): Boolean {
+    val playerId = this.serverConnection.playerId ?: error("Player id isn't known.")
+
+    val notFirstConnection = this.player.clientConnection.attr(notFirstServerConnection).getAndSet(true)
+    if (notFirstConnection) {
+      // Sending this packet makes sure that the player spawns, even if the client
+      // was previously connected to another world. This will trigger the client
+      // to find a new spawn location.
+      this.player.clientConnection.send(PlayerSpawnPacket(playerId, Vec2i.Zero))
+    } else {
+      // Notify the client that the connection is complete, this will attempt
+      // to spawn the player in the world, only affects the first time the client
+      // connects to a server.
+      this.player.clientConnection.send(packet)
+    }
+
+    Terre.logger.debug { "P <- S(${serverConnection.server.info.name}) [${player.name}] Connection complete." }
+    return true
   }
 
   override fun handleGeneric(packet: Packet) {

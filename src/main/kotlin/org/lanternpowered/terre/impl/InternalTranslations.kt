@@ -31,7 +31,7 @@ internal object InternalTranslations {
     val mappings = Int2ObjectOpenHashMap<String>()
     for (element in array) {
       element as JsonObject
-      mappings[element["i"].asInt] = element["v"].asString
+      mappings[element["i"].asInt] = element["k"].asString
     }
     return mappings
   }
