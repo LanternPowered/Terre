@@ -25,7 +25,6 @@ import io.netty.handler.timeout.TimeoutException
 import io.netty.util.Attribute
 import io.netty.util.AttributeKey
 import io.netty.util.ReferenceCountUtil
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.asCoroutineDispatcher
 import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
@@ -89,6 +88,18 @@ internal class Connection(
    */
   val remoteAddress: SocketAddress
       get() = this.channel.remoteAddress()
+
+  /**
+   * Whether the connection is open.
+   */
+  val isOpen: Boolean
+    get() = this.channel.isOpen
+
+  /**
+   * Whether the connection is closed.
+   */
+  val isClosed: Boolean
+    get() = !this.channel.isOpen
 
   /**
    * Closes the connection.

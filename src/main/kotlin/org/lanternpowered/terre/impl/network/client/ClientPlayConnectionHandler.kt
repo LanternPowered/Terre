@@ -21,7 +21,7 @@ import java.time.Duration
 import java.util.concurrent.TimeUnit
 
 internal class ClientPlayConnectionHandler(
-    val playerImpl: PlayerImpl
+    private val playerImpl: PlayerImpl
 ) : ConnectionHandler {
 
   companion object {
@@ -42,6 +42,7 @@ internal class ClientPlayConnectionHandler(
 
   override fun disconnect() {
     cleanupKeepAliveTask()
+    this.playerImpl.cleanup()
   }
 
   private fun initializeKeepAliveTask() {

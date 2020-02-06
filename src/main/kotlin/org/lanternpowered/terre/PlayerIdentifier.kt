@@ -39,7 +39,7 @@ class PlayerIdentifier {
    */
   private val toString by lazy(::convertToString)
 
-  private fun convertToString() = this.backing.joinToString { it.toString(radix = 16) }
+  private fun convertToString() = this.backing.joinToString(separator = "") { it.toUByte().toString(radix = 16) }
 
   /**
    * Gets the backing bytes of the identifier.

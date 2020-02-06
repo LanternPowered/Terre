@@ -11,7 +11,6 @@ package org.lanternpowered.terre.event.connection
 
 import org.lanternpowered.terre.Player
 import org.lanternpowered.terre.event.Event
-import org.lanternpowered.terre.text.Text
 
 /**
  * An event that's thrown when a player has logged

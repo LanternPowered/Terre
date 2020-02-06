@@ -130,6 +130,8 @@ internal class ClientInitConnectionHandler(
         this.connection.remoteAddress, protocolVersion)
     TerreEventBus.postAsyncWithFuture(ClientConnectEvent(inboundConnection))
         .thenAcceptAsync({ event ->
+          if (this.connection.isClosed)
+            return@thenAcceptAsync
           val result = event.result
           if (result is ClientConnectEvent.Result.Denied) {
             this.connection.close(result.reason)
@@ -153,9 +155,13 @@ internal class ClientInitConnectionHandler(
   private fun continueLogin() {
     checkState(State.RequestClientInfo)
     this.player = PlayerImpl(this.connection, this.protocolVersion, this.name, this.identifier)
+    if (this.player.checkDuplicateIdentifier())
+      return
 
     TerreEventBus.postAsyncWithFuture(ClientPreLoginEvent(this.player))
         .thenAcceptAsync({ event ->
+          if (this.connection.isClosed)
+            return@thenAcceptAsync
           val result = event.result
           if (result is ClientPreLoginEvent.Result.Denied) {
             this.state = State.Done

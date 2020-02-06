@@ -22,6 +22,12 @@ interface PlayerCollection : Collection<Player> {
    * Attempts to get the player for the given [PlayerIdentifier].
    */
   operator fun get(identifier: PlayerIdentifier): Player?
+
+  /**
+   * Gets whether a player with the given [PlayerIdentifier]
+   * exists in this collection.
+   */
+  operator fun contains(identifier: PlayerIdentifier): Boolean
 }
 
 /**

@@ -9,17 +9,18 @@
  */
 package org.lanternpowered.terre.impl
 
-import com.google.common.collect.ImmutableMap
 import org.lanternpowered.terre.Player
 import org.lanternpowered.terre.PlayerCollection
 import org.lanternpowered.terre.PlayerIdentifier
-import java.util.concurrent.ConcurrentHashMap
+import org.lanternpowered.terre.util.collection.concurrentMapOf
+import org.lanternpowered.terre.util.collection.toImmutableMap
 
 class MutablePlayerCollection private constructor(
     private val map: MutableMap<PlayerIdentifier, Player>
 ) : PlayerCollection, Collection<Player> by map.values {
 
   override fun get(identifier: PlayerIdentifier) = this.map[identifier]
+  override fun contains(identifier: PlayerIdentifier) = this.map.containsKey(identifier)
 
   fun add(player: Player) {
     this.map[player.identifier] = player
@@ -38,7 +39,7 @@ class MutablePlayerCollection private constructor(
   companion object {
 
     fun concurrentOf(): MutablePlayerCollection
-        = MutablePlayerCollection(ConcurrentHashMap())
+        = MutablePlayerCollection(concurrentMapOf())
 
     fun of(): MutablePlayerCollection
         = MutablePlayerCollection(mutableMapOf())
@@ -50,10 +51,11 @@ class ImmutablePlayerCollection private constructor(
 ) : PlayerCollection, Collection<Player> by map.values {
 
   override fun get(identifier: PlayerIdentifier) = this.map[identifier]
+  override fun contains(identifier: PlayerIdentifier) = this.map.containsKey(identifier)
 
   companion object {
 
     fun of(map: Map<PlayerIdentifier, Player>): ImmutablePlayerCollection =
-        ImmutablePlayerCollection(ImmutableMap.copyOf(map))
+        ImmutablePlayerCollection(map.toImmutableMap())
   }
 }

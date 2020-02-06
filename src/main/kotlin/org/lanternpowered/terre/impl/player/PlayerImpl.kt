@@ -49,10 +49,27 @@ internal class PlayerImpl(
   override val remoteAddress: SocketAddress
     get() = this.clientConnection.remoteAddress
 
+  // Duplicate client UUIDs aren't allowed, however duplicate names are.
+  private fun disconnectByDuplicateId() {
+    this.clientConnection.close(textOf(
+        "There's already a player connected with the identifier: $identifier"))
+  }
+
+  fun checkDuplicateIdentifier(): Boolean {
+    if (ProxyImpl.mutablePlayers.contains(this.identifier)) {
+      disconnectByDuplicateId()
+      return true
+    }
+    return false
+  }
+
   /**
    * Initializes the player and adds it to the proxy.
    */
   fun finishLogin(originalResult: ClientLoginEvent.Result) {
+    if (checkDuplicateIdentifier())
+      return
+
     this.clientConnection.setConnectionHandler(ClientPlayConnectionHandler(this))
 
     var result = originalResult
@@ -64,7 +81,13 @@ internal class PlayerImpl(
     }
 
     TerreEventBus.postAsyncWithFuture(ClientLoginEvent(this, result))
-        .thenAccept { event ->
+        .thenAcceptAsync({ event ->
+          if (this.clientConnection.isClosed)
+            return@thenAcceptAsync
+          if (ProxyImpl.mutablePlayers.addIfAbsent(this) != null) {
+            disconnectByDuplicateId()
+            return@thenAcceptAsync
+          }
           val eventResult = event.result
           if (eventResult is ClientLoginEvent.Result.Denied) {
             this.clientConnection.close(eventResult.reason)
@@ -72,11 +95,15 @@ internal class PlayerImpl(
             TerreEventBus.postAsyncWithFuture(ClientPostLoginEvent(this))
                 .thenAccept { afterLogin() }
           }
-        }
+        }, this.clientConnection.eventLoop)
   }
 
   private fun afterLogin() {
 
+  }
+
+  fun cleanup() {
+    ProxyImpl.mutablePlayers.remove(this)
   }
 
   override fun sendMessage(message: Text) {

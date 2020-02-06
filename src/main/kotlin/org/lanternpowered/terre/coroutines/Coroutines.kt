@@ -9,11 +9,15 @@
  */
 package org.lanternpowered.terre.coroutines
 
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlin.time.Duration
 
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.delay
+import org.lanternpowered.terre.dispatcher.dispatch
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 suspend inline fun <T> withTimeout(timeMillis: Long, noinline block: suspend CoroutineScope.() -> T): T {
   return withTimeout(timeMillis, block)
@@ -29,4 +33,16 @@ suspend inline fun delay(timeMillis: Long) {
 
 suspend fun delay(duration: Duration) {
   delay(duration.toLongMilliseconds())
+}
+
+/**
+ * Continues the current coroutine with the given
+ * coroutine dispatcher.
+ */
+suspend fun continueWith(dispatcher: CoroutineDispatcher) {
+  suspendCoroutine<Unit> { continuation ->
+    dispatcher.dispatch {
+      continuation.resume(Unit)
+    }
+  }
 }

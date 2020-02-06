@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableListMultimap
 import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableMultimap
 import com.google.common.collect.Multimap
+import java.util.concurrent.ConcurrentHashMap
 
 inline fun <K, V> Map<K, V>.toImmutableMap(): ImmutableMap<K, V>
     = ImmutableMap.copyOf(this)
@@ -87,3 +88,9 @@ fun <K, V> multimapOf(vararg pairs: Pair<K, V>): Multimap<K, V> {
 
 inline fun <K, V> mutableMultimapOf(): Multimap<K, V>
     = HashMultimap.create()
+
+inline fun <K, V> concurrentHashMapOf(): ConcurrentHashMap<K, V>
+    = ConcurrentHashMap()
+
+inline fun <K, V> concurrentMapOf(): MutableMap<K, V>
+    = ConcurrentHashMap()
