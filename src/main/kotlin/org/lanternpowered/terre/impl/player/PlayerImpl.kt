@@ -104,7 +104,11 @@ internal class PlayerImpl(
     val possibleServers = ProxyImpl.servers.asSequence()
         .filter { it.allowAutoJoin }
         .toList()
-    connectToAnyWithFuture(possibleServers)
+    connectToAnyWithFuture(possibleServers).whenComplete { connected, _ ->
+      if (connected == null) {
+        disconnectAndForget(textOf("Failed to connect to a server."))
+      }
+    }
   }
 
   private fun connectToAnyWithFuture(servers: Iterable<Server>): CompletableFuture<Server?> {
@@ -131,6 +135,27 @@ internal class PlayerImpl(
     connectNextOrComplete()
 
     return future
+  }
+
+  /**
+   * Called when the player loses connection
+   * to the backing server.
+   */
+  fun disconnectedFromServer() {
+    val server = this.serverConnection!!.server
+    this.serverConnection = null
+
+    // Evacuate the player to another server
+
+    // Try to connect to one of the servers
+    val possibleServers = ProxyImpl.servers.asSequence()
+        .filter { it.allowAutoJoin && it != server }
+        .toList()
+    connectToAnyWithFuture(possibleServers).whenComplete { connected, _ ->
+      if (connected == null) {
+        disconnectAndForget(textOf("Failed to connect to a server."))
+      }
+    }
   }
 
   override fun connectToAnyAsync(servers: Iterable<Server>) = connectToAnyWithFuture(servers).asDeferred()

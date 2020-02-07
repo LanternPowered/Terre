@@ -33,12 +33,15 @@ import org.lanternpowered.terre.impl.network.packet.UpdateItemOwnerPacket
 import org.lanternpowered.terre.impl.network.packet.UpdateNpcNamePacket
 import org.lanternpowered.terre.impl.network.packet.UpdateNpcPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoPacket
+import java.lang.Exception
 
 internal interface ConnectionHandler {
 
   fun initialize()
 
   fun disconnect()
+
+  fun exception(throwable: Throwable)
 
   fun handle(packet: ChatMessagePacket): Boolean {
     return false

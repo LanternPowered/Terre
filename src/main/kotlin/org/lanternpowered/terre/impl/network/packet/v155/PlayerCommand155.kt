@@ -26,7 +26,7 @@ internal val PlayerCommand155Encoder = packetEncoderOf<PlayerCommandPacket> { bu
   buf.writeColor(Colors.White)
   buf.writeString(if (packet.commandId == "Say") {
     // Zero space character + content
-    '\u200B' + packet.arguments
+    packet.arguments
   } else {
     val commandId = when (packet.commandId) {
       "Playing" -> "playing"

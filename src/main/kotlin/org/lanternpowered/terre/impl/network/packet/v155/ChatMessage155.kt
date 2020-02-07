@@ -37,7 +37,8 @@ internal val ChatMessage155Encoder = packetEncoderOf<ChatMessagePacket> { buf, p
 internal val ChatMessage155Decoder = packetDecoderOf { buf ->
   buf.readPlayerId()
   val color = buf.readColor()
-  val text = (buf.readString().text() as TextImpl).fromTaggedVanillaText().color(color)
+  val raw = buf.readString().text() as TextImpl
+  val text = raw.fromTaggedVanillaText().color(color)
   val maxWidth = buf.readUnsignedShortLE()
   ChatMessagePacket(text, maxWidth)
 }

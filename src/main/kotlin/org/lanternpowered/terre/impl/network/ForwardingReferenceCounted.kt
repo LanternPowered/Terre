@@ -7,14 +7,8 @@ abstract class ForwardingReferenceCounted(
 ) : ReferenceCounted {
 
   override fun refCnt() = this.referenceCounted.refCnt()
-  override fun release(): Boolean {
-    //Throwable().printStackTrace()
-    return this.referenceCounted.release()
-  }
-  override fun release(decrement: Int): Boolean {
-    //Throwable().printStackTrace()
-    return this.referenceCounted.release(decrement)
-  }
+  override fun release() = this.referenceCounted.release()
+  override fun release(decrement: Int) = this.referenceCounted.release(decrement)
   override fun retain() = apply { this.referenceCounted.retain() }
   override fun retain(increment: Int) = apply { this.referenceCounted.retain(increment) }
   override fun touch() = apply { this.referenceCounted.touch() }

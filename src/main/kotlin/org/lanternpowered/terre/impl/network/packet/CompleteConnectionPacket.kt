@@ -10,8 +10,11 @@
 package org.lanternpowered.terre.impl.network.packet
 
 import org.lanternpowered.terre.impl.network.Packet
+import org.lanternpowered.terre.impl.network.packetDecoderOf
 import org.lanternpowered.terre.impl.network.packetEncoderOf
 
 internal object CompleteConnectionPacket : Packet
 
 internal val CompleteConnectionEncoder = packetEncoderOf<CompleteConnectionPacket> { _, _ -> }
+
+internal val CompleteConnectionDecoder = packetDecoderOf { CompleteConnectionPacket }

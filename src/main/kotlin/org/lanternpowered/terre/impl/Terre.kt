@@ -38,5 +38,10 @@ internal object Terre {
       if (isDebugEnabled)
         debug(fn())
     }
+
+    override fun warn(fn: () -> String) {
+      if (isWarnEnabled)
+        warn(fn())
+    }
   }
 }

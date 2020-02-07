@@ -28,7 +28,7 @@ internal object Protocol194 : Protocol(194) {
     bind(0x25, PasswordRequestEncoder, PasswordRequestDecoder)
     bind(0x26, PasswordResponseEncoder, PasswordResponseDecoder)
     bind(0x27, KeepAliveEncoder, PacketDirection.ServerToClient)
-    bind(0x31, CompleteConnectionEncoder, PacketDirection.ServerToClient)
+    bind(0x31, CompleteConnectionEncoder, CompleteConnectionDecoder, PacketDirection.ServerToClient)
     bind(0x38, UpdateNpcNameEncoder, UpdateNpcNameDecoder, PacketDirection.ServerToClient)
     bind(0x44, ClientUniqueIdEncoder, ClientUniqueIdDecoder, PacketDirection.ClientToServer)
     bind(0x51, CombatMessageEncoder, CombatMessageDecoder, PacketDirection.ServerToClient)

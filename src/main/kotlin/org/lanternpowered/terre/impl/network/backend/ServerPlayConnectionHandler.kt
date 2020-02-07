@@ -16,8 +16,10 @@ import org.lanternpowered.terre.impl.math.Vec2i
 import org.lanternpowered.terre.impl.network.ConnectionHandler
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.Protocol155
+import org.lanternpowered.terre.impl.network.UnknownPacket
 import org.lanternpowered.terre.impl.network.cache.DeathSourceInfoCache
 import org.lanternpowered.terre.impl.network.packet.CompleteConnectionPacket
+import org.lanternpowered.terre.impl.network.packet.PlayerChatMessagePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerSpawnPacket
 import org.lanternpowered.terre.impl.network.packet.UpdateNpcNamePacket
@@ -50,6 +52,11 @@ internal open class ServerPlayConnectionHandler(
   }
 
   override fun disconnect() {
+    this.player.disconnectedFromServer()
+  }
+
+  override fun exception(throwable: Throwable) {
+
   }
 
   private fun initializeDeathSourceCache() {
@@ -111,7 +118,8 @@ internal open class ServerPlayConnectionHandler(
   override fun handle(packet: CompleteConnectionPacket): Boolean {
     val playerId = this.serverConnection.playerId ?: error("Player id isn't known.")
 
-    val notFirstConnection = this.player.clientConnection.attr(notFirstServerConnection).getAndSet(true)
+    val notFirstConnection = this.player.clientConnection
+        .attr(notFirstServerConnection).getAndSet(true) ?: false
     if (notFirstConnection) {
       // Sending this packet makes sure that the player spawns, even if the client
       // was previously connected to another world. This will trigger the client

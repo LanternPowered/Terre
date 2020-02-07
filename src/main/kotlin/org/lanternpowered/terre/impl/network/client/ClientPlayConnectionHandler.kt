@@ -11,6 +11,7 @@ package org.lanternpowered.terre.impl.network.client
 
 import io.netty.buffer.ByteBuf
 import io.netty.util.concurrent.ScheduledFuture
+import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.network.ConnectionHandler
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.packet.KeepAlivePacket
@@ -43,6 +44,10 @@ internal class ClientPlayConnectionHandler(
   override fun disconnect() {
     cleanupKeepAliveTask()
     this.playerImpl.cleanup()
+    Terre.logger.debug { "[${playerImpl.clientConnection.remoteAddress}] Disconnected" }
+  }
+
+  override fun exception(throwable: Throwable) {
   }
 
   private fun initializeKeepAliveTask() {

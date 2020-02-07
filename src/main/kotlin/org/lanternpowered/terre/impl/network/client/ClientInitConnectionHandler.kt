@@ -107,6 +107,9 @@ internal class ClientInitConnectionHandler(
   override fun disconnect() {
   }
 
+  override fun exception(throwable: Throwable) {
+  }
+
   override fun handle(packet: ConnectionRequestPacket): Boolean {
     checkState(State.Init)
     Terre.logger.debug { "P <- C [${connection.remoteAddress}] Connection request: ${packet.version}" }

@@ -9,6 +9,7 @@
  */
 package org.lanternpowered.terre.impl.network.packet.v155
 
+import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.buffer.readColor
 import org.lanternpowered.terre.impl.network.buffer.readPlayerId
 import org.lanternpowered.terre.impl.network.buffer.readString
@@ -33,8 +34,13 @@ internal val PlayerChatMessage155Encoder = packetEncoderOf<PlayerChatMessagePack
 }
 
 internal val PlayerChatMessage155Decoder = packetDecoderOf { buf ->
-  val authorId = buf.readPlayerId()
+  var authorId = buf.readPlayerId()
+  // TODO: Don't assume it's mobile
+  if (authorId.value == 16) { // 16 represents none on mobile
+    authorId = PlayerId.None
+  }
   val color = buf.readColor()
-  val text = (buf.readString().text() as TextImpl).fromTaggedVanillaText().color(color)
-  PlayerChatMessagePacket(authorId, text)
+  val raw = buf.readString().text() as TextImpl
+  val text = raw.fromTaggedVanillaText().color(color)
+  PlayerChatMessagePacket(authorId, text).also { print(it) }
 }

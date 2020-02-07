@@ -17,10 +17,10 @@ import org.lanternpowered.terre.ServerConnection
 import org.lanternpowered.terre.ServerConnectionRequestResult
 import org.lanternpowered.terre.impl.ProxyImpl
 import org.lanternpowered.terre.impl.ServerImpl
-import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.network.Connection
 import org.lanternpowered.terre.impl.network.PacketCodecContextImpl
 import org.lanternpowered.terre.impl.network.PacketDirection
+import org.lanternpowered.terre.impl.network.Protocol
 import org.lanternpowered.terre.impl.network.ProtocolRegistry
 import org.lanternpowered.terre.impl.network.ReadTimeout
 import org.lanternpowered.terre.impl.network.addChannelFutureListener
@@ -32,6 +32,7 @@ import org.lanternpowered.terre.impl.network.pipeline.FrameDecoder
 import org.lanternpowered.terre.impl.network.pipeline.FrameEncoder
 import org.lanternpowered.terre.impl.network.pipeline.PacketMessageDecoder
 import org.lanternpowered.terre.impl.network.pipeline.PacketMessageEncoder
+import org.lanternpowered.terre.text.textOf
 import java.util.concurrent.CompletableFuture
 import kotlin.time.DurationUnit
 
@@ -50,36 +51,94 @@ internal class ServerConnectionImpl(
     private set
 
   fun connect(): CompletableFuture<ServerConnectionRequestResult> {
-    val result = CompletableFuture<ServerConnectionRequestResult>()
+    val future = CompletableFuture<ServerConnectionRequestResult>()
+
+    // Unregistered servers shouldn't be connected to anymore
     if (this.server.unregistered) {
-      result.completeExceptionally(IllegalArgumentException("The server \"$server\" is unregistered."))
-      return result
+      future.completeExceptionally(IllegalArgumentException("The server \"$server\" is unregistered."))
+      return future
     }
+
+    // No need to reconnect to the same server
     val connected = this.player.serverConnection
     if (connected != null && connected.server == this.server) {
-      result.complete(ServerConnectionRequestResult.AlreadyConnected(this.server))
-      return result
+      future.complete(ServerConnectionRequestResult.AlreadyConnected(this.server))
+      return future
     }
-    val bootstrap = ProxyImpl.networkManager
+
+    val clientProtocol = this.player.clientConnection.protocol
+    val versionsToAttempt = ProtocolRegistry.allowedTranslations.asSequence()
+            .filter { it.from == clientProtocol }
+            .map { it.to to ProtocolVersion.Vanilla(it.to.version) }
+            .toMutableList()
+    val lastKnownVersion = this.server.lastKnownVersion
+    if (lastKnownVersion != null) {
+      val entry = versionsToAttempt.find { it.second == lastKnownVersion }
+      // Prioritize the last known entry, for faster connections
+      if (entry != null) {
+        versionsToAttempt.remove(entry)
+        versionsToAttempt.add(0, entry)
+      }
+    }
+
+    var firstThrowable: Throwable? = null
+
+    fun tryConnectNext() {
+      if (this.player.clientConnection.isClosed) {
+        future.complete(ServerConnectionRequestResult.Disconnected(
+            this.server, textOf("Client already disconnected.")))
+        return
+      }
+      val (protocol, version) = versionsToAttempt.removeAt(0)
+      connect(protocol, version).whenComplete { result, throwable ->
+        if (throwable == null) {
+          if (result is ServerInitConnectionResult.Success) {
+            future.complete(ServerConnectionRequestResult.Success(this.server))
+          } else {
+            result as ServerInitConnectionResult.Disconnected
+            if (versionsToAttempt.isEmpty()) {
+              future.complete(ServerConnectionRequestResult.Disconnected(this.server, result.reason))
+            } else {
+              tryConnectNext()
+            }
+          }
+        } else {
+          if (firstThrowable == null)
+            firstThrowable = throwable
+          if (versionsToAttempt.isEmpty()) {
+            future.completeExceptionally(firstThrowable)
+          } else {
+            tryConnectNext()
+          }
+        }
+      }
+    }
+
+    tryConnectNext()
+    return future
+  }
+
+  private fun connect(protocol: Protocol, version: ProtocolVersion): CompletableFuture<ServerInitConnectionResult> {
+    val result = CompletableFuture<ServerInitConnectionResult>()
+    ProxyImpl.networkManager
         .createClientBootstrap(this.player.clientConnection.eventLoop)
-    val connectFuture = bootstrap
         // There must be a handler, otherwise connect just freezes
         .handler(object : ChannelInitializer<Channel>() {
           override fun initChannel(channel: Channel) {}
         })
         .connect(this.server.info.address)
-    connectFuture.addChannelFutureListener { future ->
-      if (future.isSuccess) {
-        future.channel().init(result)
-      } else {
-        result.completeExceptionally(future.cause())
-      }
-    }
+        .addChannelFutureListener { future ->
+          if (future.isSuccess) {
+            future.channel().init(protocol, version, result)
+          } else {
+            result.completeExceptionally(future.cause())
+          }
+        }
     return result
   }
 
-  private fun Channel.init(resultFuture: CompletableFuture<ServerConnectionRequestResult>) {
-    Terre.logger.debug("P -> S(${server.info.name}) [${player.name}] Connection established.")
+  private fun Channel.init(
+      protocol: Protocol, version: ProtocolVersion, future: CompletableFuture<ServerInitConnectionResult>) {
     val connection = Connection(this)
     pipeline().apply {
       addLast(ReadTimeoutHandler(ReadTimeout.toLongMilliseconds(), DurationUnit.MILLISECONDS))
@@ -89,38 +148,22 @@ internal class ServerConnectionImpl(
       addLast(PacketMessageEncoder(PacketCodecContextImpl(connection, PacketDirection.ClientToServer)))
       addLast(connection)
     }
-    this@ServerConnectionImpl.connection = connection
-    val future = CompletableFuture<ServerInitConnectionResult>()
-    future.whenComplete { (result, playerId), throwable ->
-      if (throwable != null) {
-        resultFuture.completeExceptionally(throwable)
+    future.whenComplete { result, throwable ->
+      if (throwable != null || result !is ServerInitConnectionResult.Success) {
         connection.close()
-      } else {
-        if (result is ServerConnectionRequestResult.Success) {
-          this@ServerConnectionImpl.playerId = playerId
-          afterConnectionApproved()
-        } else {
-          connection.close()
-        }
-        resultFuture.complete(result)
+        return@whenComplete
       }
+      // Store the version, so other connections to this
+      // server can be made faster.
+      server.lastKnownVersion = version
+      this@ServerConnectionImpl.playerId = result.playerId
+      this@ServerConnectionImpl.connection = connection
+      // Continue server connection after it has been approved
+      connection.setConnectionHandler(ServerPlayConnectionHandler(
+          this@ServerConnectionImpl, player))
     }
-    val protocol = player.clientConnection.protocol
-    val versionsToAttempt = ProtocolRegistry.all.map { it to ProtocolVersion.Vanilla(it.version) } +
-        ProtocolRegistry.allowedTranslations.asSequence()
-            .filter { it.from == protocol }
-            .map { it.to to ProtocolVersion.Vanilla(it.to.version) }
-            .toList()
-
-    // TODO: Support for modded
     connection.setConnectionHandler(ServerInitConnectionHandler(
-        this@ServerConnectionImpl, future, versionsToAttempt))
-  }
-
-  private fun afterConnectionApproved() {
-    // Continue server connection after it has been approved
-    ensureConnected().setConnectionHandler(
-        ServerPlayConnectionHandler(this, this.player))
+        connection, player.clientConnection, future, version, protocol, server.info.password))
   }
 
   fun ensureConnected(): Connection {

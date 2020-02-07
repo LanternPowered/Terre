@@ -78,6 +78,12 @@ internal class Connection(
       get() = this.channel.remoteAddress()
 
   /**
+   * The local address of this connection.
+   */
+  val localAddress: SocketAddress
+    get() = this.channel.localAddress()
+
+  /**
    * Whether the connection is open.
    */
   val isOpen: Boolean
@@ -160,7 +166,6 @@ internal class Connection(
       } else {
         this.disconnectReason = textOf("Disconnected")
       }
-      println(this.disconnectReason)
     }
   }
 

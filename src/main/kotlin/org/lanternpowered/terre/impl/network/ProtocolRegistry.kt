@@ -10,7 +10,7 @@
 package org.lanternpowered.terre.impl.network
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
-import java.util.Comparator
+import org.lanternpowered.terre.ProtocolVersion
 
 internal object ProtocolRegistry {
 
@@ -27,9 +27,9 @@ internal object ProtocolRegistry {
     register(Protocol155)
     register(Protocol194)
 
-    // Allow 1.3.0.7 version to connect to the newer 1.3.5.3 version,
-    // this allows mobile clients to connect to a desktop version server.
-    allowTranslation(Protocol155 to Protocol194)
+    // Allow 1.3.5.3 version to connect to the older 1.3.0.7 version,
+    // this allows desktop client to join 1.3.0.7 servers, which includes
+    // mobile servers.
     allowTranslation(Protocol194 to Protocol155)
   }
 
@@ -38,12 +38,25 @@ internal object ProtocolRegistry {
   operator fun get(id: Int): Protocol? = this.byId[id]
 
   /**
+   * Attempts to get the [Protocol] instance for the
+   * provided [ProtocolVersion].
+   */
+  operator fun get(version: ProtocolVersion): Protocol? {
+    if (version is ProtocolVersion.Vanilla)
+      return get(version.protocol)
+
+    // TODO: Modded
+    return null
+  }
+
+  /**
    * Registers a new protocol version.
    */
   private fun register(protocol: Protocol) {
     check(protocol.version !in this.byId) {
       "Protocol version ${protocol.version} is already in use." }
     this.byId[protocol.version] = protocol
+    this.mutableTranslations += ProtocolTranslation(protocol, protocol)
   }
 
   /**
