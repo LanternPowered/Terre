@@ -21,7 +21,6 @@ import org.lanternpowered.terre.impl.network.Connection
 import org.lanternpowered.terre.impl.network.MultistateProtocol
 import org.lanternpowered.terre.impl.network.PacketCodecContextImpl
 import org.lanternpowered.terre.impl.network.PacketDirection
-import org.lanternpowered.terre.impl.network.Protocol
 import org.lanternpowered.terre.impl.network.ProtocolRegistry
 import org.lanternpowered.terre.impl.network.ReadTimeout
 import org.lanternpowered.terre.impl.network.addChannelFutureListener

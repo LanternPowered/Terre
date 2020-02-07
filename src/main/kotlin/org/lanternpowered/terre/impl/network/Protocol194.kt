@@ -10,6 +10,8 @@
 package org.lanternpowered.terre.impl.network
 
 import org.lanternpowered.terre.impl.network.packet.*
+import org.lanternpowered.terre.impl.network.packet.v155.AddPlayerBuff155Decoder
+import org.lanternpowered.terre.impl.network.packet.v155.AddPlayerBuff155Encoder
 
 internal val Protocol194 = MultistateProtocol(194) {
   bind(0x01, ConnectionRequestEncoder, ConnectionRequestDecoder, PacketDirection.ClientToServer)
@@ -36,7 +38,7 @@ internal val Protocol194 = MultistateProtocol(194) {
     bind(0x17, UpdateNpcEncoder, UpdateNpcDecoder)
     bind(0x27, KeepAliveEncoder, PacketDirection.ServerToClient)
     bind(0x31, CompleteConnectionEncoder, CompleteConnectionDecoder, PacketDirection.ServerToClient)
-    // bind(0x37, AddPlayerBuffDecoder, PacketDirection.ClientToServer)
+    bind(0x37, AddPlayerBuffEncoder, AddPlayerBuffDecoder)
     bind(0x38, UpdateNpcNameEncoder, UpdateNpcNameDecoder, PacketDirection.ServerToClient)
     bind(0x51, CombatMessageEncoder, CombatMessageDecoder, PacketDirection.ServerToClient)
     bind(0x5B, SpeechBubbleEncoder)

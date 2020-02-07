@@ -42,7 +42,7 @@ internal val Protocol155 = MultistateProtocol(155) {
     bind(0x27, KeepAliveEncoder, PacketDirection.ServerToClient)
     bind(0x2C, PlayerDeath155Encoder, PlayerDeath155Decoder)
     bind(0x31, CompleteConnectionEncoder, CompleteConnectionDecoder, PacketDirection.ServerToClient)
-    // bind(0x37, AddPlayerBuffDecoder, PacketDirection.ClientToServer)
+    bind(0x37, AddPlayerBuff155Encoder, AddPlayerBuff155Decoder)
     bind(0x38, UpdateNpcNameEncoder, UpdateNpcNameDecoder, PacketDirection.ServerToClient)
     bind(0x51, CombatMessage155Encoder, CombatMessage155Decoder, PacketDirection.ServerToClient)
     bind(0x5B, SpeechBubbleEncoder, PacketDirection.ServerToClient)

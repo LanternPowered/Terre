@@ -34,6 +34,11 @@ internal object Terre {
 
   private class LoggerImpl : Logger, ExtendedLogger by backingLogger {
 
+    override fun info(fn: () -> String) {
+      if (isInfoEnabled)
+        info(fn())
+    }
+
     override fun debug(fn: () -> String) {
       if (isDebugEnabled)
         debug(fn())

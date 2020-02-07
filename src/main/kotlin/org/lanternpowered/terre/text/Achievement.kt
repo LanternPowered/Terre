@@ -15,7 +15,7 @@ import org.lanternpowered.terre.impl.AchievementRegistryImpl
 
 interface Achievement : NamedCatalogType {
 
-  fun toText(): AchievementText
+  fun text(): AchievementText
       = textOf(this)
 }
 
