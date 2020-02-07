@@ -7,16 +7,17 @@
  * This work is licensed under the terms of the MIT License (MIT). For
  * a copy, see 'LICENSE.txt' or <https://opensource.org/licenses/MIT>.
  */
+@file:Suppress("FunctionName")
+
 package org.lanternpowered.terre.impl.network.packet
 
 import org.lanternpowered.terre.impl.math.Vec2f
+import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.LeftOrRight
-import org.lanternpowered.terre.impl.network.buffer.UpOrDown
 import org.lanternpowered.terre.impl.network.buffer.NpcId
 import org.lanternpowered.terre.impl.network.buffer.NpcType
-import org.lanternpowered.terre.impl.network.Packet
-import org.lanternpowered.terre.impl.network.Protocol155
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
+import org.lanternpowered.terre.impl.network.buffer.UpOrDown
 import org.lanternpowered.terre.impl.network.buffer.readNpcId
 import org.lanternpowered.terre.impl.network.buffer.readPlayerId
 import org.lanternpowered.terre.impl.network.buffer.readVec2f
@@ -47,12 +48,14 @@ internal data class NpcAI(
     val ai4: Float
 )
 
-internal val UpdateNpcEncoder = packetEncoderOf<UpdateNpcPacket> { buf, packet ->
+internal val UpdateNpcEncoder = UpdateNpcEncoder(Int.MAX_VALUE)
+
+internal fun UpdateNpcEncoder(protocol: Int) = packetEncoderOf<UpdateNpcPacket> { buf, packet ->
   buf.writeNpcId(packet.npcId)
   buf.writeVec2f(packet.position)
   buf.writeVec2f(packet.velocity)
   val target = packet.target?.value ?: -1
-  if (this.protocol == Protocol155) {
+  if (protocol == 155) {
     buf.writeByte(target)
   } else {
     buf.writeShortLE(target)
@@ -103,11 +106,13 @@ internal val UpdateNpcEncoder = packetEncoderOf<UpdateNpcPacket> { buf, packet -
     buf.writePlayerId(releaseOwner)
 }
 
-internal val UpdateNpcDecoder = packetDecoderOf { buf ->
+internal val UpdateNpcDecoder = UpdateNpcDecoder(Int.MAX_VALUE)
+
+internal fun UpdateNpcDecoder(protocol: Int) = packetDecoderOf { buf ->
   val npcId = buf.readNpcId()
   val position = buf.readVec2f()
   val velocity = buf.readVec2f()
-  val targetId = if (this.protocol == Protocol155) buf.readByte().toInt() else buf.readShortLE().toInt()
+  val targetId = if (protocol == 155) buf.readByte().toInt() else buf.readShortLE().toInt()
   val target = if (targetId == -1) null else PlayerId(targetId)
   val flags = buf.readByte().toInt()
   val direction = LeftOrRight((flags and 0x1) != 0)

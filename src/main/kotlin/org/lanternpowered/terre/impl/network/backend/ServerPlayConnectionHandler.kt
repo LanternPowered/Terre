@@ -14,6 +14,7 @@ import io.netty.util.AttributeKey
 import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.math.Vec2i
 import org.lanternpowered.terre.impl.network.ConnectionHandler
+import org.lanternpowered.terre.impl.network.MultistateProtocol
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.Protocol155
 import org.lanternpowered.terre.impl.network.UnknownPacket
@@ -63,7 +64,7 @@ internal open class ServerPlayConnectionHandler(
     val connection = this.player.clientConnection
     // For the legacy protocol we need to keep track of some things to
     // translate death reasons from the new protocol to the old one.
-    if (connection.protocol == Protocol155) {
+    if (connection.protocol == Protocol155[MultistateProtocol.State.Play]) {
       // Initialize every time a new connection is made, so
       // the cache gets cleared.
       this.deathSourceInfoCache = DeathSourceInfoCache(this.player.name)

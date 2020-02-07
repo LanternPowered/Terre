@@ -15,7 +15,7 @@ import org.lanternpowered.terre.ProtocolVersion
 internal object ProtocolRegistry {
 
   private val mutableTranslations = mutableListOf<ProtocolTranslation>()
-  private val byId = Int2ObjectOpenHashMap<Protocol>()
+  private val byId = Int2ObjectOpenHashMap<MultistateProtocol>()
 
   /**
    * All the allowed protocol translations.
@@ -33,15 +33,15 @@ internal object ProtocolRegistry {
     allowTranslation(Protocol194 to Protocol155)
   }
 
-  val all: Collection<Protocol> get() = this.byId.values
+  val all: Collection<MultistateProtocol> get() = this.byId.values
 
-  operator fun get(id: Int): Protocol? = this.byId[id]
+  operator fun get(id: Int): MultistateProtocol? = this.byId[id]
 
   /**
    * Attempts to get the [Protocol] instance for the
    * provided [ProtocolVersion].
    */
-  operator fun get(version: ProtocolVersion): Protocol? {
+  operator fun get(version: ProtocolVersion): MultistateProtocol? {
     if (version is ProtocolVersion.Vanilla)
       return get(version.protocol)
 
@@ -52,7 +52,7 @@ internal object ProtocolRegistry {
   /**
    * Registers a new protocol version.
    */
-  private fun register(protocol: Protocol) {
+  private fun register(protocol: MultistateProtocol) {
     check(protocol.version !in this.byId) {
       "Protocol version ${protocol.version} is already in use." }
     this.byId[protocol.version] = protocol
@@ -62,7 +62,7 @@ internal object ProtocolRegistry {
   /**
    * Allows packets from one version to be translated to another one.
    */
-  private fun allowTranslation(pair: Pair<Protocol, Protocol>) {
+  private fun allowTranslation(pair: Pair<MultistateProtocol, MultistateProtocol>) {
     this.mutableTranslations += ProtocolTranslation(pair.first, pair.second)
   }
 }

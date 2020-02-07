@@ -14,8 +14,8 @@ import org.lanternpowered.terre.ProtocolVersion
 import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.network.Connection
 import org.lanternpowered.terre.impl.network.ConnectionHandler
+import org.lanternpowered.terre.impl.network.MultistateProtocol
 import org.lanternpowered.terre.impl.network.Packet
-import org.lanternpowered.terre.impl.network.Protocol
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.packet.ConnectionApprovedPacket
 import org.lanternpowered.terre.impl.network.packet.ConnectionRequestPacket
@@ -49,7 +49,7 @@ internal class ServerInitConnectionHandler(
     private val clientConnection: Connection,
     private val future: CompletableFuture<ServerInitConnectionResult>,
     private val version: ProtocolVersion,
-    private val protocol: Protocol,
+    private val protocol: MultistateProtocol,
     private val password: String
 ) : ConnectionHandler {
 
@@ -86,7 +86,7 @@ internal class ServerInitConnectionHandler(
     val playerId = packet.playerId
     debug { "Connection approved: $playerId" }
     // Connection was approved so the client version was accepted
-    this.connection.protocol = this.protocol
+    this.connection.protocol = this.protocol[MultistateProtocol.State.Play]
     this.future.complete(ServerInitConnectionResult.Success(playerId))
     // Sending this packet triggers the client to request all the information
     // from the server once again, this allows it to request and load a new world.

@@ -1,3 +1,12 @@
+/*
+ * Terre
+ *
+ * Copyright (c) LanternPowered <https://www.lanternpowered.org>
+ * Copyright (c) contributors
+ *
+ * This work is licensed under the terms of the MIT License (MIT). For
+ * a copy, see 'LICENSE.txt' or <https://opensource.org/licenses/MIT>.
+ */
 package org.lanternpowered.terre.impl.network.packet.init
 
 import org.lanternpowered.terre.impl.network.packet.DisconnectDecoder
@@ -6,9 +15,12 @@ import org.lanternpowered.terre.impl.network.packetDecoderOf
 
 internal val DisconnectInitDecoder = packetDecoderOf { buf ->
   try {
-    DisconnectDecoder.decode(this, buf)
+    val packet = DisconnectDecoder.decode(this, buf)
+    if (buf.readableBytes() == 0)
+      return@packetDecoderOf packet
   } catch (ex: Exception) {
-    buf.readerIndex(0)
-    Disconnect155Decoder.decode(this, buf)
   }
+  // Try again, but with the legacy protocol
+  buf.readerIndex(0)
+  Disconnect155Decoder.decode(this, buf)
 }

@@ -7,7 +7,7 @@
  * This work is licensed under the terms of the MIT License (MIT). For
  * a copy, see 'LICENSE.txt' or <https://opensource.org/licenses/MIT>.
  */
-@file:Suppress("UNCHECKED_CAST")
+@file:Suppress("UNCHECKED_CAST", "FunctionName")
 
 package org.lanternpowered.terre.impl.network
 
@@ -16,10 +16,14 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import org.lanternpowered.terre.util.collection.immutableSetOf
 import kotlin.reflect.KClass
 
+internal fun Protocol(version: Int, fn: Protocol.() -> Unit): Protocol {
+  return Protocol(version).also(fn)
+}
+
 /**
  * The base class for all packet protocol versions.
  */
-internal abstract class Protocol(val version: Int) {
+internal class Protocol(val version: Int) {
 
   companion object {
 
@@ -45,46 +49,56 @@ internal abstract class Protocol(val version: Int) {
   fun <T : Packet> getEncoder(packetDirection: PacketDirection, packetType: Class<T>): PacketEncoderRegistration<T>?
       = this.encodersByPacketType[packetDirection.ordinal][packetType] as (PacketEncoderRegistration<T>?)
 
-  protected inline fun <reified P : Packet> bind(
+  inline fun <reified P : Packet> bind(
       opcode: Int, encoder: PacketEncoder<in P>, decoder: PacketDecoder<out P>) {
     bind(opcode, P::class, encoder)
     bind(opcode, P::class, decoder)
   }
 
-  protected inline fun <reified P : Packet> bind(
+  inline fun <reified P : Packet> bind(
       opcode: Int, encoder: PacketEncoder<in P>, decoder: PacketDecoder<out P>, direction: PacketDirection) {
     bind(opcode, P::class, encoder, direction)
     bind(opcode, P::class, decoder, direction)
   }
 
-  protected inline fun <reified P : Packet> bind(
+  inline fun <reified P : Packet> bind(
       opcode: Int, encoder: PacketEncoder<in P>) {
     bind(opcode, P::class, encoder)
   }
 
-  protected inline fun <reified P : Packet> bind(
+  inline fun <reified P : Packet> bind(
       opcode: Int, encoder: PacketEncoder<in P>, direction: PacketDirection) {
     bind(opcode, P::class, encoder, direction)
   }
 
-  protected inline fun <reified P : Packet> bind(
+  inline fun <reified P : Packet> bind(
       opcode: Int, decoder: PacketDecoder<out P>) {
     bind(opcode, P::class, decoder)
   }
 
-  protected inline fun <reified P : Packet> bind(
+  inline fun <reified P : Packet> bind(
       opcode: Int, decoder: PacketDecoder<out P>, direction: PacketDirection) {
     bind(opcode, P::class, decoder, direction)
   }
 
-  protected fun <P : Packet> bind(
+  fun <P : Packet> bind(
       opcode: Int, type: KClass<P>, encoder: PacketEncoder<in P>) {
     bind0(opcode, type, encoder)
   }
 
-  protected fun <P : Packet> bind(
+  fun <P : Packet> bind(
       opcode: Int, type: KClass<P>, encoder: PacketEncoder<in P>, direction: PacketDirection) {
     bind0(opcode, type, encoder, direction)
+  }
+
+  fun <P : Packet> bind(
+      opcode: Int, type: KClass<P>, decoder: PacketDecoder<out P>) {
+    bind0(opcode, type, decoder, null)
+  }
+
+  fun <P : Packet> bind(
+      opcode: Int, type: KClass<P>, decoder: PacketDecoder<out P>, direction: PacketDirection) {
+    bind0(opcode, type, decoder, direction)
   }
 
   private fun <P : Packet> bind0(
@@ -116,16 +130,6 @@ internal abstract class Protocol(val version: Int) {
         }
       }
     }
-  }
-
-  protected fun <P : Packet> bind(
-      opcode: Int, type: KClass<P>, decoder: PacketDecoder<out P>) {
-    bind0(opcode, type, decoder, null)
-  }
-
-  protected fun <P : Packet> bind(
-      opcode: Int, type: KClass<P>, decoder: PacketDecoder<out P>, direction: PacketDirection) {
-    bind0(opcode, type, decoder, direction)
   }
 
   private fun <P : Packet> bind0(

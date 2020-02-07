@@ -11,6 +11,7 @@
 
 package org.lanternpowered.terre.impl.network
 
+import org.lanternpowered.terre.impl.network.packet.AddPlayerBuffPacket
 import org.lanternpowered.terre.impl.network.packet.ChatMessagePacket
 import org.lanternpowered.terre.impl.network.packet.ClientUniqueIdPacket
 import org.lanternpowered.terre.impl.network.packet.CombatMessagePacket
@@ -18,6 +19,7 @@ import org.lanternpowered.terre.impl.network.packet.CompleteConnectionPacket
 import org.lanternpowered.terre.impl.network.packet.ConnectionApprovedPacket
 import org.lanternpowered.terre.impl.network.packet.ConnectionRequestPacket
 import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
+import org.lanternpowered.terre.impl.network.packet.IsMobileResponsePacket
 import org.lanternpowered.terre.impl.network.packet.KeepAlivePacket
 import org.lanternpowered.terre.impl.network.packet.PasswordRequestPacket
 import org.lanternpowered.terre.impl.network.packet.PasswordResponsePacket
@@ -64,6 +66,8 @@ internal object ConnectionHandlerBindings {
     bind<UpdateNpcPacket>(ConnectionHandler::handle)
     bind<WorldInfoPacket>(ConnectionHandler::handle)
     bind<WorldInfoRequestPacket>(ConnectionHandler::handle)
+    bind<AddPlayerBuffPacket>(ConnectionHandler::handle)
+    bind<IsMobileResponsePacket>(ConnectionHandler::handle)
   }
 
   internal fun <P : Packet> getHandler(packetType: Class<P>): (ConnectionHandler.(packet: P) -> Boolean)?

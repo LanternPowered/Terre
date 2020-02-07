@@ -11,8 +11,12 @@
 
 package org.lanternpowered.terre.impl.network.packet
 
+import io.netty.buffer.ByteBuf
+import org.lanternpowered.terre.impl.network.MultistateProtocol
 import org.lanternpowered.terre.impl.network.Packet
+import org.lanternpowered.terre.impl.network.Protocol
 import org.lanternpowered.terre.impl.network.Protocol155
+import org.lanternpowered.terre.impl.network.Protocol194
 import org.lanternpowered.terre.impl.network.buffer.readString
 import org.lanternpowered.terre.impl.network.buffer.readUUID
 import org.lanternpowered.terre.impl.network.buffer.writeString
@@ -49,12 +53,14 @@ private val idOffset = calculateLength {
   short() // rock layer position
 }
 
-internal val WorldInfoEncoder = packetEncoderOf<WorldInfoPacket> { buf, packet ->
+internal val WorldInfoEncoder = WorldInfoEncoder(Int.MAX_VALUE)
+
+internal inline fun WorldInfoEncoder(protocol: Int) = packetEncoderOf<WorldInfoPacket> { buf, packet ->
   val data = packet.data
   buf.writeBytes(data, 0, idOffset)
   buf.writeIntLE(packet.id)
   buf.writeString(packet.name)
-  if (this.protocol != Protocol155) {
+  if (protocol != 155) {
     buf.writeUUID(packet.uniqueId)
     buf.writeLongLE(packet.generatorVersion)
   }
@@ -62,15 +68,17 @@ internal val WorldInfoEncoder = packetEncoderOf<WorldInfoPacket> { buf, packet -
   // Last long is the steam lobby id, do we need to handle this?
 }
 
+internal val WorldInfoDecoder = WorldInfoDecoder(Int.MAX_VALUE)
+
 private val EmptyUUID = UUID(0L, 0L)
 
-internal val WorldInfoDecoder = packetDecoderOf { buf ->
+internal inline fun WorldInfoDecoder(protocol: Int) = packetDecoderOf { buf ->
   buf.skipBytes(idOffset)
 
   val id = buf.readIntLE()
   val name = buf.readString()
-  val uniqueId = if (this.protocol == Protocol155) EmptyUUID else buf.readUUID()
-  val generatorVersion = if (this.protocol == Protocol155) 0L else buf.readLongLE()
+  val uniqueId = if (protocol == 155) EmptyUUID else buf.readUUID()
+  val generatorVersion = if (protocol == 155) 0L else buf.readLongLE()
 
   val data = ByteArray(idOffset + buf.readableBytes())
   // Read data after the generator version or name

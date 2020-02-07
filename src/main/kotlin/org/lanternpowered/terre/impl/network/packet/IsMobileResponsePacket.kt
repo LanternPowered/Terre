@@ -1,0 +1,33 @@
+/*
+ * Terre
+ *
+ * Copyright (c) LanternPowered <https://www.lanternpowered.org>
+ * Copyright (c) contributors
+ *
+ * This work is licensed under the terms of the MIT License (MIT). For
+ * a copy, see 'LICENSE.txt' or <https://opensource.org/licenses/MIT>.
+ */
+package org.lanternpowered.terre.impl.network.packet
+
+import io.netty.handler.codec.DecoderException
+import org.lanternpowered.terre.impl.network.Packet
+import org.lanternpowered.terre.impl.network.buffer.readPlayerId
+import org.lanternpowered.terre.impl.network.packetDecoderOf
+
+internal data class IsMobileResponsePacket(
+    val isMobile: Boolean
+) : Packet
+
+internal val IsMobileResponseDecoder = packetDecoderOf { buf ->
+  val itemId = buf.readUnsignedShortLE()
+  val playerId = buf.readPlayerId()
+
+  if (itemId != IsMobileItemId)
+    throw DecoderException("Unexpected item id: $itemId")
+
+  when(playerId.value) {
+    16 -> IsMobileResponsePacket(true)
+    255 -> IsMobileResponsePacket(false)
+    else -> throw DecoderException("Unexpected player id: $playerId")
+  }
+}

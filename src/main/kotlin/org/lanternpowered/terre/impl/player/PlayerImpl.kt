@@ -25,6 +25,7 @@ import org.lanternpowered.terre.impl.ServerImpl
 import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.event.TerreEventBus
 import org.lanternpowered.terre.impl.network.Connection
+import org.lanternpowered.terre.impl.network.MultistateProtocol
 import org.lanternpowered.terre.impl.network.client.ClientPlayConnectionHandler
 import org.lanternpowered.terre.impl.network.packet.ChatMessagePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerChatMessagePacket
@@ -38,6 +39,7 @@ import java.util.concurrent.CompletableFuture
 internal class PlayerImpl(
     val clientConnection: Connection,
     override val protocolVersion: ProtocolVersion,
+    val protocol: MultistateProtocol,
     override val name: String,
     override val identifier: PlayerIdentifier
 ) : Player, MessageReceiverImpl {
@@ -68,6 +70,7 @@ internal class PlayerImpl(
    * Initializes the player and adds it to the proxy.
    */
   fun finishLogin(originalResult: ClientLoginEvent.Result) {
+    this.clientConnection.protocol = this.protocol[MultistateProtocol.State.Play]
     if (checkDuplicateIdentifier())
       return
 

@@ -43,7 +43,7 @@ internal class Connection(
   /**
    * The current protocol.
    */
-  var protocol: Protocol = InitProtocol
+  lateinit var protocol: Protocol
 
   /**
    * Sets the current [ConnectionHandler].

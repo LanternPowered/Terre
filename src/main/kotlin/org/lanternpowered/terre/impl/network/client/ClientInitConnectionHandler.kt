@@ -19,12 +19,15 @@ import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.event.TerreEventBus
 import org.lanternpowered.terre.impl.network.Connection
 import org.lanternpowered.terre.impl.network.ConnectionHandler
+import org.lanternpowered.terre.impl.network.MultistateProtocol
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.ProtocolRegistry
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.packet.ClientUniqueIdPacket
 import org.lanternpowered.terre.impl.network.packet.ConnectionApprovedPacket
 import org.lanternpowered.terre.impl.network.packet.ConnectionRequestPacket
+import org.lanternpowered.terre.impl.network.packet.IsMobileRequestPacket
+import org.lanternpowered.terre.impl.network.packet.IsMobileResponsePacket
 import org.lanternpowered.terre.impl.network.packet.PasswordRequestPacket
 import org.lanternpowered.terre.impl.network.packet.PasswordResponsePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
@@ -39,13 +42,14 @@ import kotlin.streams.toList
  * between the client and the proxy server.
  */
 internal class ClientInitConnectionHandler(
-    val connection: Connection
+    private val connection: Connection
 ) : ConnectionHandler {
 
   private enum class State {
     Init,
     Handshake,
     RequestClientInfo,
+    DetectMobile,
     RequestPassword,
     Done,
   }
@@ -61,6 +65,8 @@ internal class ClientInitConnectionHandler(
   // C -> S: PlayerInfoPacket
   // C -> S: ClientUniqueIdPacket
   // C -> S: WorldInfoRequestPacket
+  // S -> C: IsMobileRequestPacket
+  // C -> S: IsMobileResponsePacket
   // E: ClientPreLoginEvent -> Disconnect if denied
   // If a password is requested
   //   S -> C: PasswordRequestPacket
@@ -68,24 +74,8 @@ internal class ClientInitConnectionHandler(
   // E: ClientLoginEvent -> Disconnect if denied
   // E: ClientPostLoginEvent
 
-  // TODO: Is currently unneeded, since the mobile uses an older protocol version,
-  //   but if the versions are equal and catch up, this could be a solution to check it.
-  // For proper mobile integration checking, this method is based on the fact
-  // that in the mobile versions are loops that range between 0..16 (exclusive)
-  // while on desktop version 0..255 (exclusive) is used. The mobile client allows
-  // player ids in the range 0..16 (inclusive) without crashing.
-  // After C -> S: PasswordResponsePacket
-  // S -> C: PlayerActivePacket(playerId = 16, active = true)
-  // S -> C: PlayerActivePacket(playerId = 15, active = true)
-  // S -> C: NebulaLevelUpRequestPacket(playerId = 15, levelUpType = 0, origin = [0;0])
-  // S -> C: KeepAlivePacket
-  // If C -> S: AddPlayerBuffPacket(playerId = 16)
-  //   -> The client isn't mobile, because updates were send for player id 16
-  // C -> S: KeepAlivePacket -> To continue if the player buff packet was never received
-  // S -> C: PlayerActivePacket(playerId = 16, active = false)
-  // S -> C: PlayerActivePacket(playerId = 15, active = false)
-
   private lateinit var protocolVersion: ProtocolVersion
+  private lateinit var protocol: MultistateProtocol
 
   private lateinit var identifier: PlayerIdentifier
   private lateinit var name: String
@@ -129,7 +119,8 @@ internal class ClientInitConnectionHandler(
           "The client isn't supported. Expected version of $expected, but the client is $protocolVersion."))
       return true
     }
-    this.connection.protocol = protocol
+    this.protocol = protocol
+    this.connection.protocol = protocol[MultistateProtocol.State.ClientInit]
     this.protocolVersion = protocolVersion
     val inboundConnection = InitialInboundConnection(
         this.connection.remoteAddress, protocolVersion)
@@ -159,8 +150,7 @@ internal class ClientInitConnectionHandler(
   }
 
   private fun continueLogin() {
-    checkState(State.RequestClientInfo)
-    this.player = PlayerImpl(this.connection, this.protocolVersion, this.name, this.identifier)
+    this.player = PlayerImpl(this.connection, this.protocolVersion, this.protocol, this.name, this.identifier)
     if (this.player.checkDuplicateIdentifier())
       return
 
@@ -192,8 +182,8 @@ internal class ClientInitConnectionHandler(
     } else {
       ClientLoginEvent.Result.Allowed
     }
-    this.player.finishLogin(result)
     this.state = State.Done
+    this.player.finishLogin(result)
     return true
   }
 
@@ -217,19 +207,37 @@ internal class ClientInitConnectionHandler(
   }
 
   override fun handle(packet: WorldInfoRequestPacket): Boolean {
+    checkState(State.RequestClientInfo)
+    this.state = State.DetectMobile
+    this.connection.send(IsMobileRequestPacket)
+    Terre.logger.debug { "P <- C [${connection.remoteAddress}, $name] Start detecting mobile" }
+    return true
+  }
+
+  override fun handle(packet: IsMobileResponsePacket): Boolean {
+    checkState(State.DetectMobile)
+    val isMobile = packet.isMobile
+
+    Terre.logger.debug {
+      val type = if (isMobile) "mobile" else "desktop"
+      "P <- C [${connection.remoteAddress}, $name] Detected $type client"
+    }
+    Terre.logger.debug { "P <- C [${connection.remoteAddress}, $name] Client info sending done" }
+
     // By now we should have received all information from the
     // client so we can initialize the play phase. And the client
     // can actually start connecting to backing servers.
     continueLogin()
-    Terre.logger.debug { "P <- C [${connection.remoteAddress}, $name] Client info sending done" }
     return true
   }
 
   override fun handleGeneric(packet: Packet) {
     // Discard everything
+    // Terre.logger.debug { "Received unexpected packet: $packet" }
   }
 
   override fun handleUnknown(packet: ByteBuf) {
     // Discard everything
+    // Terre.logger.debug { "Received unexpected packet." }
   }
 }

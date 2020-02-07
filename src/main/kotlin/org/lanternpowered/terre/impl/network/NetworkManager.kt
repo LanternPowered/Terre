@@ -23,6 +23,7 @@ import io.netty.handler.timeout.ReadTimeoutHandler
 import io.netty.resolver.dns.DnsAddressResolverGroup
 import io.netty.resolver.dns.DnsNameResolverBuilder
 import org.lanternpowered.terre.impl.network.client.ClientInitConnectionHandler
+import org.lanternpowered.terre.impl.network.client.ClientInitProtocol
 import org.lanternpowered.terre.impl.network.pipeline.FrameDecoder
 import org.lanternpowered.terre.impl.network.pipeline.FrameEncoder
 import org.lanternpowered.terre.impl.network.pipeline.PacketMessageDecoder
@@ -66,6 +67,7 @@ internal class NetworkManager {
 
   private fun initChannel(channel: SocketChannel) {
     val connection = Connection(channel)
+    connection.protocol = ClientInitProtocol
     connection.setConnectionHandler(ClientInitConnectionHandler(connection))
     val pipeline = channel.pipeline()
     pipeline.apply {

@@ -10,6 +10,7 @@
 package org.lanternpowered.terre.impl.network
 
 import io.netty.buffer.ByteBuf
+import org.lanternpowered.terre.impl.network.packet.AddPlayerBuffPacket
 import org.lanternpowered.terre.impl.network.packet.ChatMessagePacket
 import org.lanternpowered.terre.impl.network.packet.ClientUniqueIdPacket
 import org.lanternpowered.terre.impl.network.packet.CombatMessagePacket
@@ -17,6 +18,7 @@ import org.lanternpowered.terre.impl.network.packet.CompleteConnectionPacket
 import org.lanternpowered.terre.impl.network.packet.ConnectionApprovedPacket
 import org.lanternpowered.terre.impl.network.packet.ConnectionRequestPacket
 import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
+import org.lanternpowered.terre.impl.network.packet.IsMobileResponsePacket
 import org.lanternpowered.terre.impl.network.packet.KeepAlivePacket
 import org.lanternpowered.terre.impl.network.packet.PasswordRequestPacket
 import org.lanternpowered.terre.impl.network.packet.PasswordResponsePacket
@@ -134,6 +136,14 @@ internal interface ConnectionHandler {
   }
 
   fun handle(packet: WorldInfoRequestPacket): Boolean {
+    return false
+  }
+
+  fun handle(packet: IsMobileResponsePacket): Boolean {
+    return false
+  }
+
+  fun handle(packet: AddPlayerBuffPacket): Boolean {
     return false
   }
 

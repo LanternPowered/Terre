@@ -18,6 +18,7 @@ import org.lanternpowered.terre.ServerConnectionRequestResult
 import org.lanternpowered.terre.impl.ProxyImpl
 import org.lanternpowered.terre.impl.ServerImpl
 import org.lanternpowered.terre.impl.network.Connection
+import org.lanternpowered.terre.impl.network.MultistateProtocol
 import org.lanternpowered.terre.impl.network.PacketCodecContextImpl
 import org.lanternpowered.terre.impl.network.PacketDirection
 import org.lanternpowered.terre.impl.network.Protocol
@@ -66,7 +67,7 @@ internal class ServerConnectionImpl(
       return future
     }
 
-    val clientProtocol = this.player.clientConnection.protocol
+    val clientProtocol = this.player.protocol
     val versionsToAttempt = ProtocolRegistry.allowedTranslations.asSequence()
             .filter { it.from == clientProtocol }
             .map { it.to to ProtocolVersion.Vanilla(it.to.version) }
@@ -118,7 +119,8 @@ internal class ServerConnectionImpl(
     return future
   }
 
-  private fun connect(protocol: Protocol, version: ProtocolVersion): CompletableFuture<ServerInitConnectionResult> {
+  private fun connect(
+      protocol: MultistateProtocol, version: ProtocolVersion): CompletableFuture<ServerInitConnectionResult> {
     val result = CompletableFuture<ServerInitConnectionResult>()
     ProxyImpl.networkManager
         .createClientBootstrap(this.player.clientConnection.eventLoop)
@@ -138,7 +140,7 @@ internal class ServerConnectionImpl(
   }
 
   private fun Channel.init(
-      protocol: Protocol, version: ProtocolVersion, future: CompletableFuture<ServerInitConnectionResult>) {
+      protocol: MultistateProtocol, version: ProtocolVersion, future: CompletableFuture<ServerInitConnectionResult>) {
     val connection = Connection(this)
     pipeline().apply {
       addLast(ReadTimeoutHandler(ReadTimeout.toLongMilliseconds(), DurationUnit.MILLISECONDS))

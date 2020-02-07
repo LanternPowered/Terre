@@ -14,6 +14,6 @@ package org.lanternpowered.terre.impl.network
  * two protocol versions.
  */
 internal class ProtocolTranslation(
-    val from: Protocol,
-    val to: Protocol
+    val from: MultistateProtocol,
+    val to: MultistateProtocol
 )
