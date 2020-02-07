@@ -149,8 +149,9 @@ internal class ClientInitConnectionHandler(
     Terre.logger.debug { "P -> C [${connection.remoteAddress}] Start login by collecting client info" }
   }
 
-  private fun continueLogin() {
-    this.player = PlayerImpl(this.connection, this.protocolVersion, this.protocol, this.name, this.identifier)
+  private fun continueLogin(isMobile: Boolean) {
+    this.player = PlayerImpl(this.connection, this.protocolVersion,
+        this.protocol, this.name, this.identifier, isMobile)
     if (this.player.checkDuplicateIdentifier())
       return
 
@@ -227,7 +228,7 @@ internal class ClientInitConnectionHandler(
     // By now we should have received all information from the
     // client so we can initialize the play phase. And the client
     // can actually start connecting to backing servers.
-    continueLogin()
+    continueLogin(isMobile)
     return true
   }
 

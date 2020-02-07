@@ -41,7 +41,8 @@ internal class PlayerImpl(
     override val protocolVersion: ProtocolVersion,
     val protocol: MultistateProtocol,
     override val name: String,
-    override val identifier: PlayerIdentifier
+    override val identifier: PlayerIdentifier,
+    override val isMobile: Boolean
 ) : Player, MessageReceiverImpl {
 
   @Volatile override var latency = 0

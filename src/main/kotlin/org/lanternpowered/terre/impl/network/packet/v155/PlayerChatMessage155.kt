@@ -9,6 +9,7 @@
  */
 package org.lanternpowered.terre.impl.network.packet.v155
 
+import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.buffer.readColor
 import org.lanternpowered.terre.impl.network.buffer.readPlayerId
@@ -42,5 +43,6 @@ internal val PlayerChatMessage155Decoder = packetDecoderOf { buf ->
   val color = buf.readColor()
   val raw = buf.readString().text() as TextImpl
   val text = raw.fromTaggedVanillaText().color(color)
-  PlayerChatMessagePacket(authorId, text).also { print(it) }
+  PlayerChatMessagePacket(authorId, text).also { Terre.logger.info(it) }
 }
+

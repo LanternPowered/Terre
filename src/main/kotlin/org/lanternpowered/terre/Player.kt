@@ -21,6 +21,11 @@ import org.lanternpowered.terre.text.textOf
 interface Player : Named, MessageReceiver, MessageSender, InboundConnection {
 
   /**
+   * Whether this player connected using a mobile client.
+   */
+  val isMobile: Boolean
+
+  /**
    * The identifier of this player.
    */
   val identifier: PlayerIdentifier

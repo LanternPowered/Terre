@@ -23,7 +23,7 @@ internal fun Protocol(version: Int, fn: Protocol.() -> Unit): Protocol {
 /**
  * The base class for all packet protocol versions.
  */
-internal class Protocol(val version: Int) {
+internal class Protocol(version: Int) : ProtocolBase(version) {
 
   companion object {
 
@@ -49,54 +49,22 @@ internal class Protocol(val version: Int) {
   fun <T : Packet> getEncoder(packetDirection: PacketDirection, packetType: Class<T>): PacketEncoderRegistration<T>?
       = this.encodersByPacketType[packetDirection.ordinal][packetType] as (PacketEncoderRegistration<T>?)
 
-  inline fun <reified P : Packet> bind(
-      opcode: Int, encoder: PacketEncoder<in P>, decoder: PacketDecoder<out P>) {
-    bind(opcode, P::class, encoder)
-    bind(opcode, P::class, decoder)
-  }
-
-  inline fun <reified P : Packet> bind(
-      opcode: Int, encoder: PacketEncoder<in P>, decoder: PacketDecoder<out P>, direction: PacketDirection) {
-    bind(opcode, P::class, encoder, direction)
-    bind(opcode, P::class, decoder, direction)
-  }
-
-  inline fun <reified P : Packet> bind(
-      opcode: Int, encoder: PacketEncoder<in P>) {
-    bind(opcode, P::class, encoder)
-  }
-
-  inline fun <reified P : Packet> bind(
-      opcode: Int, encoder: PacketEncoder<in P>, direction: PacketDirection) {
-    bind(opcode, P::class, encoder, direction)
-  }
-
-  inline fun <reified P : Packet> bind(
-      opcode: Int, decoder: PacketDecoder<out P>) {
-    bind(opcode, P::class, decoder)
-  }
-
-  inline fun <reified P : Packet> bind(
-      opcode: Int, decoder: PacketDecoder<out P>, direction: PacketDirection) {
-    bind(opcode, P::class, decoder, direction)
-  }
-
-  fun <P : Packet> bind(
+  override fun <P : Packet> bind(
       opcode: Int, type: KClass<P>, encoder: PacketEncoder<in P>) {
     bind0(opcode, type, encoder)
   }
 
-  fun <P : Packet> bind(
+  override fun <P : Packet> bind(
       opcode: Int, type: KClass<P>, encoder: PacketEncoder<in P>, direction: PacketDirection) {
     bind0(opcode, type, encoder, direction)
   }
 
-  fun <P : Packet> bind(
+  override fun <P : Packet> bind(
       opcode: Int, type: KClass<P>, decoder: PacketDecoder<out P>) {
     bind0(opcode, type, decoder, null)
   }
 
-  fun <P : Packet> bind(
+  override fun <P : Packet> bind(
       opcode: Int, type: KClass<P>, decoder: PacketDecoder<out P>, direction: PacketDirection) {
     bind0(opcode, type, decoder, direction)
   }

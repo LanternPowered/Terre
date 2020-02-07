@@ -17,10 +17,8 @@ import org.lanternpowered.terre.impl.network.ConnectionHandler
 import org.lanternpowered.terre.impl.network.MultistateProtocol
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.Protocol155
-import org.lanternpowered.terre.impl.network.UnknownPacket
 import org.lanternpowered.terre.impl.network.cache.DeathSourceInfoCache
 import org.lanternpowered.terre.impl.network.packet.CompleteConnectionPacket
-import org.lanternpowered.terre.impl.network.packet.PlayerChatMessagePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerSpawnPacket
 import org.lanternpowered.terre.impl.network.packet.UpdateNpcNamePacket
@@ -61,13 +59,17 @@ internal open class ServerPlayConnectionHandler(
   }
 
   private fun initializeDeathSourceCache() {
-    val connection = this.player.clientConnection
+    val legacyServerProtocol = Protocol155[MultistateProtocol.State.Play]
+    val connection = this.serverConnection.ensureConnected()
     // For the legacy protocol we need to keep track of some things to
     // translate death reasons from the new protocol to the old one.
-    if (connection.protocol == Protocol155[MultistateProtocol.State.Play]) {
+    if (this.clientConnection.protocol != legacyServerProtocol
+        && connection.protocol == legacyServerProtocol) {
+      Terre.logger.debug { "Init Death Source Cache." }
       // Initialize every time a new connection is made, so
       // the cache gets cleared.
       this.deathSourceInfoCache = DeathSourceInfoCache(this.player.name)
+      this.clientConnection.attr(DeathSourceInfoCache.Attribute).set(this.deathSourceInfoCache)
       connection.attr(DeathSourceInfoCache.Attribute).set(this.deathSourceInfoCache)
     }
   }
@@ -105,7 +107,9 @@ internal open class ServerPlayConnectionHandler(
   override fun handle(packet: UpdateNpcPacket): Boolean {
     updateDeathSourceCache {
       val npc = npcs[packet.npcId]
-      if (npc.type != packet.npcType || !npc.active) {
+      val npcType = packet.npcType
+      if (npc.type != npcType || !npc.active) {
+        npc.type = npcType
         npc.name = null
         npc.active = true
       }

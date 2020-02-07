@@ -22,14 +22,14 @@ private val deathTranslations = InternalTranslations.loadNamedTranslations("deat
 
 private fun format(key: String, vararg args: Any): String {
   val format = deathTranslations[key]
-  return if (format == null) key else String.format(format, args)
+  return if (format == null) key else String.format(format, *args)
 }
 
 internal fun PlayerDamageReason.toDeathMessage(context: PacketCodecContext): String {
   if (custom != null)
     return custom
 
-  val cache = context.connection.attr(DeathSourceInfoCache.Attribute).get()
+  val cache: DeathSourceInfoCache? = context.connection.attr(DeathSourceInfoCache.Attribute).get()
   val projectileName = if (projectile != null) projectileNameMappings[projectile.type.value] ?: null else null
 
   val npcName = if (npcId != null && cache != null) {
@@ -43,25 +43,28 @@ internal fun PlayerDamageReason.toDeathMessage(context: PacketCodecContext): Str
     cache.players.names[playerId] ?: "Unknown"
   } else null
 
-  val deadPlayerName = cache.playerName
-  val worldName = cache.worldName
+  val deadPlayerName = cache?.playerName ?: "Unknown"
+  val worldName = cache?.worldName ?: "Unknown"
+
+  fun randomGenericText() = format("generic_${Random.nextInt(1, 27)}", deadPlayerName, worldName)
 
   if (playerName != null) {
     val weapon = projectileName ?: itemName ?: "Touch of Death"
-    return format("player", deadPlayerName, playerName, weapon)
+    return format("player", randomGenericText(), playerName, weapon)
   }
-  if (npcName != null) {
-    return format("npc", deadPlayerName, npcName)
-  }
-  if (projectileName != null) {
-    return format("projectile", deadPlayerName, projectileName)
-  }
+
+  if (npcName != null)
+    return format("npc", randomGenericText(), npcName)
+
+  if (projectileName != null)
+    return format("projectile", randomGenericText(), projectileName)
+
   fun formatSimple(key: String) = format(key, deadPlayerName, worldName)
   return when (other) {
     PlayerDamageReason.Other.Falling -> formatSimple("fell_${Random.nextInt(1, 3)}")
     PlayerDamageReason.Other.Drowning -> formatSimple("drowned_${Random.nextInt(1, 5)}")
     PlayerDamageReason.Other.Lava -> formatSimple("lava_${Random.nextInt(1, 5)}")
-    PlayerDamageReason.Other.Default -> formatSimple("default_${Random.nextInt(1, 27)}")
+    PlayerDamageReason.Other.Default -> format("default", randomGenericText())
     PlayerDamageReason.Other.Slain -> formatSimple("slain")
     PlayerDamageReason.Other.Petrified -> formatSimple("petrified_${Random.nextInt(1, 5)}")
     PlayerDamageReason.Other.Stabbed -> formatSimple("stabbed")
