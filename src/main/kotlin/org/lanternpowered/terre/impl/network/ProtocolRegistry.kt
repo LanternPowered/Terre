@@ -45,8 +45,8 @@ internal object ProtocolRegistry {
     if (version is ProtocolVersion.Vanilla)
       return get(version.protocol)
 
-    // TODO: Modded
-    return null
+    // TODO: Change version ranges for modded, etc.
+    return null // Protocol194
   }
 
   /**

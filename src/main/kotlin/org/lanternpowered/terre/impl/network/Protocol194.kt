@@ -10,6 +10,14 @@
 package org.lanternpowered.terre.impl.network
 
 import org.lanternpowered.terre.impl.network.packet.*
+import org.lanternpowered.terre.impl.network.packet.tmodloader.ModDataDecoder
+import org.lanternpowered.terre.impl.network.packet.tmodloader.ModDataEncoder
+import org.lanternpowered.terre.impl.network.packet.tmodloader.ModFileRequestDecoder
+import org.lanternpowered.terre.impl.network.packet.tmodloader.ModFileRequestEncoder
+import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsDecoder
+import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsDoneDecoder
+import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsDoneEncoder
+import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsEncoder
 
 internal val Protocol194 = MultistateProtocol(194) {
   bind(0x01, ConnectionRequestEncoder, ConnectionRequestDecoder, PacketDirection.ClientToServer)
@@ -20,6 +28,12 @@ internal val Protocol194 = MultistateProtocol(194) {
   bind(0x25, PasswordRequestEncoder, PasswordRequestDecoder, PacketDirection.ServerToClient)
   bind(0x26, PasswordResponseEncoder, PasswordResponseDecoder, PacketDirection.ClientToServer)
   bind(0x44, ClientUniqueIdEncoder, ClientUniqueIdDecoder, PacketDirection.ClientToServer)
+
+  // tModLoader
+  bind(0xFA, ModDataEncoder, ModDataDecoder, PacketDirection.ClientToServer)
+  bind(0xFB, SyncModsEncoder, SyncModsDecoder, PacketDirection.ServerToClient)
+  bind(0xFB, SyncModsDoneEncoder, SyncModsDoneDecoder, PacketDirection.ClientToServer)
+  bind(0xFC, ModFileRequestEncoder, ModFileRequestDecoder, PacketDirection.ClientToServer)
 
   init {
     bind(0x16, IsMobileResponseDecoder, PacketDirection.ClientToServer)

@@ -36,7 +36,8 @@ import org.lanternpowered.terre.impl.network.packet.UpdateItemOwnerPacket
 import org.lanternpowered.terre.impl.network.packet.UpdateNpcNamePacket
 import org.lanternpowered.terre.impl.network.packet.UpdateNpcPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoPacket
-import java.lang.Exception
+import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsDonePacket
+import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsPacket
 
 internal interface ConnectionHandler {
 
@@ -45,6 +46,14 @@ internal interface ConnectionHandler {
   fun disconnect()
 
   fun exception(throwable: Throwable)
+
+  fun handle(packet: SyncModsPacket): Boolean {
+    return false
+  }
+
+  fun handle(packet: SyncModsDonePacket): Boolean {
+    return false
+  }
 
   fun handle(packet: ChatMessagePacket): Boolean {
     return false

@@ -133,10 +133,6 @@ internal class Connection(
     }
     try {
       if (packet is Packet) {
-        /*
-        if (packet !is KeepAlivePacket && !(packet is UnknownPacket && (packet.opcode == 5 || packet.opcode == 255)))
-          Terre.logger.info("Received packet: $packet")
-          */
         val handler = ConnectionHandlerBindings.getHandler(packet.javaClass)
         if (handler != null) {
           if (!handler(connectionHandler, packet)) {
@@ -170,6 +166,7 @@ internal class Connection(
   }
 
   override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
+    this.connectionHandler?.exception(cause)
     // Pipeline error, just log it
     if (cause is CodecException) {
       Terre.logger.error("A netty pipeline error occurred", cause)

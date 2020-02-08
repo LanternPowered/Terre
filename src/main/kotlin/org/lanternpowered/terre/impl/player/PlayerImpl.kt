@@ -9,7 +9,6 @@
  */
 package org.lanternpowered.terre.impl.player
 
-import io.netty.util.AttributeKey
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.future.asDeferred
 import org.lanternpowered.terre.MaxPlayers
@@ -27,7 +26,6 @@ import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.event.TerreEventBus
 import org.lanternpowered.terre.impl.network.Connection
 import org.lanternpowered.terre.impl.network.MultistateProtocol
-import org.lanternpowered.terre.impl.network.backend.ServerPlayConnectionHandler
 import org.lanternpowered.terre.impl.network.client.ClientPlayConnectionHandler
 import org.lanternpowered.terre.impl.network.packet.ChatMessagePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerChatMessagePacket
@@ -36,7 +34,7 @@ import org.lanternpowered.terre.impl.text.MessageReceiverImpl
 import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.text.textOf
 import java.net.SocketAddress
-import java.util.*
+import java.util.UUID
 import java.util.concurrent.CompletableFuture
 
 internal class PlayerImpl(
@@ -48,12 +46,6 @@ internal class PlayerImpl(
     override val isMobile: Boolean,
     val uniqueId: UUID
 ) : Player, MessageReceiverImpl {
-
-  companion object {
-
-    private val previouslyConnectedToServer: AttributeKey<Boolean>
-        = AttributeKey.valueOf("not-first-server-connection")
-  }
 
   @Volatile override var latency = 0
 
@@ -143,7 +135,7 @@ internal class PlayerImpl(
         return
       }
       val next = queue.removeAt(0)
-      connectToWithFuture(next).thenAccept { result ->
+      connectToWithFuture(next).whenComplete { result, _ ->
         if (result is ServerConnectionRequestResult.Success) {
           future.complete(result.server)
         } else {
