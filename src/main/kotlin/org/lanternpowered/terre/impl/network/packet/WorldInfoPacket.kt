@@ -11,6 +11,8 @@
 
 package org.lanternpowered.terre.impl.network.packet
 
+import io.netty.buffer.ByteBuf
+import org.lanternpowered.terre.impl.network.ForwardingReferenceCounted
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.readString
 import org.lanternpowered.terre.impl.network.buffer.readUUID
@@ -27,8 +29,8 @@ internal class WorldInfoPacket(
     val uniqueId: UUID,
     val name: String,
     val generatorVersion: Long,
-    val data: ByteArray
-) : Packet {
+    val data: ByteBuf
+) : Packet, ForwardingReferenceCounted(data) {
 
   override fun toString() = toString {
     "id" to id
@@ -59,7 +61,7 @@ internal inline fun WorldInfoEncoder(protocol: Int) = packetEncoderOf<WorldInfoP
     buf.writeUUID(packet.uniqueId)
     buf.writeLongLE(packet.generatorVersion)
   }
-  buf.writeBytes(data, idOffset, data.size - idOffset)
+  buf.writeBytes(data, idOffset, data.readableBytes() - idOffset)
   // Last long is the steam lobby id, do we need to handle this?
 }
 
@@ -75,7 +77,8 @@ internal inline fun WorldInfoDecoder(protocol: Int) = packetDecoderOf { buf ->
   val uniqueId = if (protocol == 155) EmptyUUID else buf.readUUID()
   val generatorVersion = if (protocol == 155) 0L else buf.readLongLE()
 
-  val data = ByteArray(idOffset + buf.readableBytes())
+  val size = idOffset + buf.readableBytes()
+  val data = this.byteBufAllocator.buffer(size)
   // Read data after the generator version or name
   buf.readBytes(data, idOffset, buf.readableBytes())
   val end = buf.readerIndex()
@@ -84,6 +87,7 @@ internal inline fun WorldInfoDecoder(protocol: Int) = packetDecoderOf { buf ->
   buf.readBytes(data, 0, idOffset)
   // Move reader index back to the end
   buf.readerIndex(end)
+  data.writerIndex(size)
 
   WorldInfoPacket(id, uniqueId, name, generatorVersion, data)
 }

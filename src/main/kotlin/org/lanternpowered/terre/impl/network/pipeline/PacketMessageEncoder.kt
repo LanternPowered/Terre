@@ -24,7 +24,7 @@ internal class PacketMessageEncoder(private val context: PacketCodecContext) : M
     val result: ByteBuf
     val opcode: Int
     if (input is UnknownPacket) {
-      result = input.content.retain()
+      result = input.data.retain()
       opcode = input.opcode
     } else {
       val registration = this.context.protocol.getEncoder(this.context.direction, input.javaClass)
@@ -48,7 +48,7 @@ internal class PacketMessageEncoder(private val context: PacketCodecContext) : M
       } else {
         output.writeByte(opcode)
       }
-      output.writeBytes(result)
+      output.writeBytes(result, 0, result.readableBytes())
     } finally {
       result.release()
     }

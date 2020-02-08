@@ -9,6 +9,8 @@
  */
 package org.lanternpowered.terre.impl.network.packet
 
+import io.netty.buffer.ByteBuf
+import org.lanternpowered.terre.impl.network.ForwardingReferenceCounted
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.buffer.readPlayerId
@@ -23,8 +25,8 @@ import org.lanternpowered.terre.util.toString
 internal class PlayerInfoPacket(
     val playerId: PlayerId,
     val playerName: String,
-    val data: ByteArray
-) : Packet {
+    val data: ByteBuf
+) : Packet, ForwardingReferenceCounted(data) {
 
   override fun toString() = toString {
     "playerId" to playerId
@@ -43,10 +45,12 @@ internal val PlayerInfoDecoder = packetDecoderOf { buf ->
   buf.skipBytes(idToNameOffset)
   val playerName = buf.readString()
 
-  val data = ByteArray(buf.readableBytes() + idToNameOffset)
+  val size = buf.readableBytes() + idToNameOffset
+  val data = this.byteBufAllocator.buffer(size)
   buf.readBytes(data, idToNameOffset, buf.readableBytes())
   buf.readerIndex(index)
   buf.readBytes(data, 0, idToNameOffset)
+  data.writerIndex(size)
 
   PlayerInfoPacket(playerId, playerName, data)
 }
@@ -56,5 +60,5 @@ internal val PlayerInfoEncoder = packetEncoderOf<PlayerInfoPacket> { buf, packet
   buf.writePlayerId(packet.playerId)
   buf.writeBytes(data, 0, idToNameOffset)
   buf.writeString(packet.playerName)
-  buf.writeBytes(data, idToNameOffset, data.size - idToNameOffset)
+  buf.writeBytes(data, idToNameOffset, data.readableBytes() - idToNameOffset)
 }

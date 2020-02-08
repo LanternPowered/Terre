@@ -21,13 +21,14 @@ import org.lanternpowered.terre.impl.network.packetEncoderOf
 internal data class PlayerInventorySlotPacket(
     val playerId: PlayerId,
     val slot: Int,
-    val content: ByteBuf
-) : Packet, ForwardingReferenceCounted(content)
+    val data: ByteBuf
+) : Packet, ForwardingReferenceCounted(data)
 
 internal val PlayerInventorySlotEncoder = packetEncoderOf<PlayerInventorySlotPacket> { buf, packet ->
   buf.writePlayerId(packet.playerId)
   buf.writeByte(packet.slot)
-  buf.writeBytes(packet.content)
+  val data = packet.data
+  buf.writeBytes(data, 0, data.readableBytes())
 }
 
 internal val PlayerInventorySlotDecoder = packetDecoderOf { buf ->

@@ -20,12 +20,13 @@ import org.lanternpowered.terre.impl.network.packetEncoderOf
 
 internal data class PlayerBuffsPacket(
     val playerId: PlayerId,
-    val content: ByteBuf
-) : ForwardingReferenceCounted(content), Packet
+    val data: ByteBuf
+) : Packet, ForwardingReferenceCounted(data)
 
 internal val PlayerBuffsEncoder = packetEncoderOf<PlayerBuffsPacket> { buf, packet ->
+  val content = packet.data
   buf.writePlayerId(packet.playerId)
-  buf.writeBytes(packet.content)
+  buf.writeBytes(content, 0, content.readableBytes())
 }
 
 internal val PlayerBuffsDecoder = packetDecoderOf { buf ->

@@ -14,11 +14,11 @@ import org.lanternpowered.terre.util.toString
 
 internal class UnknownPacket(
     val opcode: Int,
-    val content: ByteBuf
-) : ForwardingReferenceCounted(content), Packet {
+    val data: ByteBuf
+) : Packet, ForwardingReferenceCounted(data) {
 
   val length: Int
-    get() = this.content.readableBytes()
+    get() = this.data.readableBytes()
 
   override fun toString() = toString {
     "opcode" to opcode
