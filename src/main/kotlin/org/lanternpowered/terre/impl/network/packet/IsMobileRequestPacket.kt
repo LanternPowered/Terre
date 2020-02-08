@@ -20,6 +20,6 @@ internal object IsMobileRequestPacket : Packet
  */
 internal const val IsMobileItemId = 400
 
-internal val IsMobileRequestEncoder = packetEncoderOf<IsMobileRequestPacket> { buf, packet ->
+internal val IsMobileRequestEncoder = packetEncoderOf<IsMobileRequestPacket> { buf, _ ->
   buf.writeShortLE(IsMobileItemId)
 }

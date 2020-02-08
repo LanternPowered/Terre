@@ -28,6 +28,9 @@ internal interface PacketCodecContext : NetworkContext {
   val protocol: Protocol
     get() = this.connection.protocol
 
+  val isMobile: Boolean
+    get() = this.connection.isMobile
+
   /**
    * The direction for which the packet is
    * being encoded or decoded.

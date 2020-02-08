@@ -154,6 +154,7 @@ internal class ClientInitConnectionHandler(
     digest.update(this.uniqueId.toString().toByteArray(Charsets.UTF_8))
     val identifier = PlayerIdentifier(digest.digest())
 
+    this.connection.isMobile = isMobile
     this.player = PlayerImpl(this.connection, this.protocolVersion,
         this.protocol, this.name, identifier, isMobile, this.uniqueId)
     if (this.player.checkDuplicateIdentifier())

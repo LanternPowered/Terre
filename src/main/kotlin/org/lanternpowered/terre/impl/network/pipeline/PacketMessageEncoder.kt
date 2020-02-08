@@ -48,7 +48,7 @@ internal class PacketMessageEncoder(private val context: PacketCodecContext) : M
       } else {
         output.writeByte(opcode)
       }
-      output.writeBytes(result, 0, result.readableBytes())
+      output.writeBytes(result, result.readerIndex(), result.readableBytes())
     } finally {
       result.release()
     }

@@ -96,6 +96,11 @@ internal class Connection(
     get() = !this.channel.isOpen
 
   /**
+   * Whether this connection uses mobile.
+   */
+  var isMobile: Boolean = false
+
+  /**
    * Closes the connection.
    */
   fun close(): ChannelFuture {

@@ -54,7 +54,7 @@ internal fun UpdateNpcEncoder(protocol: Int) = packetEncoderOf<UpdateNpcPacket> 
   buf.writeNpcId(packet.npcId)
   buf.writeVec2f(packet.position)
   buf.writeVec2f(packet.velocity)
-  val target = packet.target?.value ?: -1
+  val target = packet.target?.to(this.isMobile)?.value ?: -1
   if (protocol == 155) {
     buf.writeByte(target)
   } else {
@@ -97,13 +97,13 @@ internal fun UpdateNpcEncoder(protocol: Int) = packetEncoderOf<UpdateNpcPacket> 
     })
     when {
       life <= Byte.MAX_VALUE -> buf.writeByte(life)
-      life <= Short.MAX_VALUE -> buf.writeShort(life)
-      else -> buf.writeInt(life)
+      life <= Short.MAX_VALUE -> buf.writeShortLE(life)
+      else -> buf.writeIntLE(life)
     }
   }
   val releaseOwner = packet.releaseOwner
   if (releaseOwner != null)
-    buf.writePlayerId(releaseOwner)
+    buf.writePlayerId(releaseOwner.to(this.isMobile))
 }
 
 internal val UpdateNpcDecoder = UpdateNpcDecoder(Int.MAX_VALUE)
@@ -112,8 +112,8 @@ internal fun UpdateNpcDecoder(protocol: Int) = packetDecoderOf { buf ->
   val npcId = buf.readNpcId()
   val position = buf.readVec2f()
   val velocity = buf.readVec2f()
-  val targetId = if (protocol == 155) buf.readByte().toInt() else buf.readShortLE().toInt()
-  val target = if (targetId == -1) null else PlayerId(targetId)
+  val targetId = if (protocol == 155) buf.readUnsignedByte().toInt() else buf.readUnsignedShortLE()
+  val target = if (targetId == -1) null else PlayerId(targetId).from(this.isMobile)
   val flags = buf.readByte().toInt()
   val direction = LeftOrRight((flags and 0x1) != 0)
   val directionY = UpOrDown((flags and 0x2) != 0)
@@ -126,12 +126,12 @@ internal fun UpdateNpcDecoder(protocol: Int) = packetDecoderOf { buf ->
   val npcType = NpcType(buf.readShortLE().toInt())
   val life = if ((flags and 0x80) == 0) {
     when (buf.readByte().toInt()) {
-      2 -> buf.readShort().toInt()
-      4 -> buf.readInt()
+      2 -> buf.readShortLE().toInt()
+      4 -> buf.readIntLE()
       else -> buf.readByte().toInt()
     }
   } else null
-  val releaseOwner = if (buf.readableBytes() > 0) buf.readPlayerId() else null
+  val releaseOwner = if (buf.readableBytes() > 0) buf.readPlayerId().from(this.isMobile) else null
   UpdateNpcPacket(npcId, npcType, position, velocity, target, ai,
       direction, directionY, spriteDirection, life, releaseOwner)
 }

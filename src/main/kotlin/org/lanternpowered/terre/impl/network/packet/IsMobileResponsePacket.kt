@@ -11,6 +11,7 @@ package org.lanternpowered.terre.impl.network.packet
 
 import io.netty.handler.codec.DecoderException
 import org.lanternpowered.terre.impl.network.Packet
+import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.buffer.readPlayerId
 import org.lanternpowered.terre.impl.network.packetDecoderOf
 
@@ -25,9 +26,9 @@ internal val IsMobileResponseDecoder = packetDecoderOf { buf ->
   if (itemId != IsMobileItemId)
     throw DecoderException("Unexpected item id: $itemId")
 
-  when(playerId.value) {
-    16 -> IsMobileResponsePacket(true)
-    255 -> IsMobileResponsePacket(false)
+  when(playerId) {
+    PlayerId.MobileNone -> IsMobileResponsePacket(true)
+    PlayerId.None -> IsMobileResponsePacket(false)
     else -> throw DecoderException("Unexpected player id: $playerId")
   }
 }

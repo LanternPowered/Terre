@@ -86,20 +86,9 @@ fun <T, E : Any, B : ImmutableCollection.Builder<E>> Iterable<T>.mapTo(destinati
  * position within the iterables must also match.
  */
 infix fun <E> Iterable<E>.contentEquals(that: Iterable<E>): Boolean {
-  if (this is List<E> && that is List<E>) {
-    return this contentEquals that
-  }
-  if (this is Collection<E>) {
-    val thatCollection = that as? Collection<E> ?: that.toList()
-    return this contentEquals thatCollection
-  }
-  if (that is Collection<E>) {
-    val thisCollection = this as? Collection<E> ?: this.toList()
-    return thisCollection contentEquals that
-  }
-  val thisList = this.toList()
-  val thatList = that.toList()
-  return thisList contentEquals thatList
+  if (this is Collection<*> && that is Collection<*>)
+    return contentEquals(that)
+  return iterableContentEquals(that)
 }
 
 /**
@@ -109,10 +98,13 @@ infix fun <E> Iterable<E>.contentEquals(that: Iterable<E>): Boolean {
 infix fun <E> Collection<E>.contentEquals(that: Collection<E>): Boolean {
   if (this.size != that.size)
     return false
-  val thisIt = this.iterator()
+  return iterableContentEquals(that)
+}
+
+private fun <E> Iterable<E>.iterableContentEquals(that: Iterable<E>): Boolean {
   val thatIt = that.iterator()
-  while (thisIt.hasNext()) {
-    if (thisIt.next() != thatIt.next())
+  for (thisValue in this) {
+    if (!thatIt.hasNext() || thisValue != thatIt.next())
       return false
   }
   return true
