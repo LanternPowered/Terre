@@ -12,6 +12,9 @@ package org.lanternpowered.terre.impl
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.spi.ExtendedLogger
 import org.lanternpowered.terre.logger.Logger
+import org.lanternpowered.terre.text.Text
+import org.lanternpowered.terre.text.text
+import org.lanternpowered.terre.util.Color
 
 internal object Terre {
 
@@ -24,6 +27,20 @@ internal object Terre {
    * The version of the implementation.
    */
   val version = ProxyImpl::class.java.`package`.implementationVersion ?: ""
+
+  /**
+   * The color used for chat messages from terre.
+   */
+  val color = Color(61, 105, 95)
+
+  /**
+   * The prefix used in from of terre messages.
+   */
+  private val messagePrefix = "[$name] ".text().color(this.color)
+
+  fun message(text: Text) = this.messagePrefix + text
+
+  fun message(text: String) = message(text.text())
 
   private val backingLogger: ExtendedLogger = LogManager.getLogger(this.name) as ExtendedLogger
 

@@ -17,6 +17,7 @@ import org.lanternpowered.terre.ServerConnection
 import org.lanternpowered.terre.ServerConnectionRequestResult
 import org.lanternpowered.terre.impl.ProxyImpl
 import org.lanternpowered.terre.impl.ServerImpl
+import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.network.Connection
 import org.lanternpowered.terre.impl.network.MultistateProtocol
 import org.lanternpowered.terre.impl.network.PacketCodecContextImpl
@@ -49,6 +50,16 @@ internal class ServerConnectionImpl(
 
   var connection: Connection? = null
     private set
+
+  /**
+   * Whether the world is initialized.
+   */
+  var isWorldInitialized: Boolean = false
+
+  init {
+    if (!this.player.wasPreviouslyConnectedToServer)
+      this.isWorldInitialized = true
+  }
 
   fun connect(): CompletableFuture<ServerConnectionRequestResult> {
     val future = CompletableFuture<ServerConnectionRequestResult>()
@@ -159,6 +170,7 @@ internal class ServerConnectionImpl(
       server.lastKnownVersion = version
       this@ServerConnectionImpl.playerId = result.playerId
       this@ServerConnectionImpl.connection = connection
+      Terre.logger.debug { "Successfully made a new connection to ${server.info}" }
       // Continue server connection after it has been approved
       connection.setConnectionHandler(ServerPlayConnectionHandler(
           this@ServerConnectionImpl, player))

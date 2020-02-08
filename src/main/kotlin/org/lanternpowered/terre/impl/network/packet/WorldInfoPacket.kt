@@ -11,12 +11,7 @@
 
 package org.lanternpowered.terre.impl.network.packet
 
-import io.netty.buffer.ByteBuf
-import org.lanternpowered.terre.impl.network.MultistateProtocol
 import org.lanternpowered.terre.impl.network.Packet
-import org.lanternpowered.terre.impl.network.Protocol
-import org.lanternpowered.terre.impl.network.Protocol155
-import org.lanternpowered.terre.impl.network.Protocol194
 import org.lanternpowered.terre.impl.network.buffer.readString
 import org.lanternpowered.terre.impl.network.buffer.readUUID
 import org.lanternpowered.terre.impl.network.buffer.writeString
@@ -25,7 +20,7 @@ import org.lanternpowered.terre.impl.network.calculateLength
 import org.lanternpowered.terre.impl.network.packetDecoderOf
 import org.lanternpowered.terre.impl.network.packetEncoderOf
 import org.lanternpowered.terre.util.toString
-import java.util.*
+import java.util.UUID
 
 internal class WorldInfoPacket(
     val id: Int,
@@ -64,7 +59,7 @@ internal inline fun WorldInfoEncoder(protocol: Int) = packetEncoderOf<WorldInfoP
     buf.writeUUID(packet.uniqueId)
     buf.writeLongLE(packet.generatorVersion)
   }
-  buf.writeBytes(data, idOffset, data.size)
+  buf.writeBytes(data, idOffset, data.size - idOffset)
   // Last long is the steam lobby id, do we need to handle this?
 }
 

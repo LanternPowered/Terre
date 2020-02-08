@@ -48,9 +48,9 @@ internal class Connection(
   /**
    * Sets the current [ConnectionHandler].
    */
-  fun setConnectionHandler(connectionHandler: ConnectionHandler) {
+  fun setConnectionHandler(connectionHandler: ConnectionHandler?) {
     this.connectionHandler = connectionHandler
-    connectionHandler.initialize()
+    connectionHandler?.initialize()
   }
 
   /**

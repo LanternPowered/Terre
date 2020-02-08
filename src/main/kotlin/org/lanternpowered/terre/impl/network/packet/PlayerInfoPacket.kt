@@ -56,5 +56,5 @@ internal val PlayerInfoEncoder = packetEncoderOf<PlayerInfoPacket> { buf, packet
   buf.writePlayerId(packet.playerId)
   buf.writeBytes(data, 0, idToNameOffset)
   buf.writeString(packet.playerName)
-  buf.writeBytes(data, idToNameOffset, data.size)
+  buf.writeBytes(data, idToNameOffset, data.size - idToNameOffset)
 }

@@ -60,7 +60,7 @@ interface Player : Named, MessageReceiver, MessageSender, InboundConnection {
    * @param server The server to connect to
    * @return The connection request result
    */
-  suspend fun connectTo(server: Server) = connectToAsync(server).join()
+  suspend fun connectTo(server: Server) = connectToAsync(server).await()
 
   /**
    * Attempts to connect to the given [Server] async. This will switch from the current

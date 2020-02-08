@@ -29,6 +29,7 @@ import org.lanternpowered.terre.impl.network.packet.PlayerCommandPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerDeathPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerHurtPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
+import org.lanternpowered.terre.impl.network.packet.PlayerSpawnPacket
 import org.lanternpowered.terre.impl.network.packet.SpeechBubblePacket
 import org.lanternpowered.terre.impl.network.packet.StatusPacket
 import org.lanternpowered.terre.impl.network.packet.UpdateItemOwnerPacket
@@ -68,6 +69,7 @@ internal object ConnectionHandlerBindings {
     bind<WorldInfoRequestPacket>(ConnectionHandler::handle)
     bind<AddPlayerBuffPacket>(ConnectionHandler::handle)
     bind<IsMobileResponsePacket>(ConnectionHandler::handle)
+    bind<PlayerSpawnPacket>(ConnectionHandler::handle)
   }
 
   internal fun <P : Packet> getHandler(packetType: Class<P>): (ConnectionHandler.(packet: P) -> Boolean)?

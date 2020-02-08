@@ -37,7 +37,7 @@ internal class PacketMessageEncoder(private val context: PacketCodecContext) : M
       } catch (ex: CodecException) {
         throw ex
       } catch (ex: Exception) {
-        throw EncoderException(ex)
+        throw EncoderException("Error while encoding packet, type: $input opcode: $opcode", ex)
       }
     }
 

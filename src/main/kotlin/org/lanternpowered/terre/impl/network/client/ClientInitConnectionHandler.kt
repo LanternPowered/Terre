@@ -35,6 +35,7 @@ import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
 import org.lanternpowered.terre.impl.player.PlayerImpl
 import org.lanternpowered.terre.text.textOf
 import java.security.MessageDigest
+import java.util.*
 import kotlin.streams.toList
 
 /**
@@ -56,9 +57,6 @@ internal class ClientInitConnectionHandler(
 
   // Client Init
 
-  // Init player id must be 16 in the case that the
-  // mobile client check is implemented.
-
   // C -> S: ConnectionRequestPacket
   // E: ClientConnectEvent -> Disconnect if denied
   // S -> C: ConnectionApprovedPacket(playerId = 16)
@@ -77,7 +75,7 @@ internal class ClientInitConnectionHandler(
   private lateinit var protocolVersion: ProtocolVersion
   private lateinit var protocol: MultistateProtocol
 
-  private lateinit var identifier: PlayerIdentifier
+  private lateinit var uniqueId: UUID
   private lateinit var name: String
 
   private lateinit var player: PlayerImpl
@@ -145,13 +143,19 @@ internal class ClientInitConnectionHandler(
     // id for now to receive information from the client. When
     // switching to the play mode the client will receive a new
     // one.
-    this.connection.send(ConnectionApprovedPacket(PlayerId(16)))
+    this.connection.send(ConnectionApprovedPacket(PlayerId(1)))
     Terre.logger.debug { "P -> C [${connection.remoteAddress}] Start login by collecting client info" }
   }
 
   private fun continueLogin(isMobile: Boolean) {
+    // Generate a identifier that matches the tShock player identifiers.
+    val digest = MessageDigest.getInstance("SHA-512")
+    digest.reset()
+    digest.update(this.uniqueId.toString().toByteArray(Charsets.UTF_8))
+    val identifier = PlayerIdentifier(digest.digest())
+
     this.player = PlayerImpl(this.connection, this.protocolVersion,
-        this.protocol, this.name, this.identifier, isMobile)
+        this.protocol, this.name, identifier, isMobile, this.uniqueId)
     if (this.player.checkDuplicateIdentifier())
       return
 
@@ -197,13 +201,7 @@ internal class ClientInitConnectionHandler(
 
   override fun handle(packet: ClientUniqueIdPacket): Boolean {
     checkState(State.RequestClientInfo)
-    // Generate a identifier that matches the
-    // tShock player identifiers.
-    val digest = MessageDigest.getInstance("SHA-512")
-    digest.reset()
-    digest.update(packet.uniqueId.toString().toByteArray(Charsets.UTF_8))
-    this.identifier = PlayerIdentifier(digest.digest())
-    Terre.logger.debug { "P <- C [${connection.remoteAddress}, $name] Client identifier: $identifier" }
+    this.uniqueId = packet.uniqueId
     return true
   }
 

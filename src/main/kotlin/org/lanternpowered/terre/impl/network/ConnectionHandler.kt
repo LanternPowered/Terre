@@ -28,6 +28,7 @@ import org.lanternpowered.terre.impl.network.packet.PlayerCommandPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerDeathPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerHurtPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
+import org.lanternpowered.terre.impl.network.packet.PlayerSpawnPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
 import org.lanternpowered.terre.impl.network.packet.SpeechBubblePacket
 import org.lanternpowered.terre.impl.network.packet.StatusPacket
@@ -144,6 +145,10 @@ internal interface ConnectionHandler {
   }
 
   fun handle(packet: AddPlayerBuffPacket): Boolean {
+    return false
+  }
+
+  fun handle(packet: PlayerSpawnPacket): Boolean {
     return false
   }
 

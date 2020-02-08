@@ -29,10 +29,13 @@ internal val Protocol155 = MultistateProtocol(155) {
   }
 
   play {
+    bind(0x05, PlayerInventorySlotEncoder, PlayerInventorySlotDecoder)
     bind(0x07, WorldInfo155Encoder, WorldInfo155Decoder, PacketDirection.ServerToClient)
+    bind(0x08, EssentialTilesRequestEncoder, PacketDirection.ClientToServer)
     bind(0x09, Status155Encoder, Status155Decoder, PacketDirection.ServerToClient)
     bind(0x0C, PlayerSpawnEncoder, PlayerSpawnDecoder)
     bind(0x0E, PlayerActiveEncoder, PlayerActiveDecoder, PacketDirection.ServerToClient)
+    bind(0x10, PlayerHealthEncoder, PlayerHealthDecoder)
     bind(0x16, UpdateItemOwnerEncoder)
     bind(0x16, UpdateItemOwnerDecoder) // And keep alive
     bind(0x17, UpdateNpc155Encoder, UpdateNpc155Decoder)
@@ -40,8 +43,10 @@ internal val Protocol155 = MultistateProtocol(155) {
     bind(0x19, PlayerChatMessage155Encoder, PlayerChatMessage155Decoder, PacketDirection.ServerToClient)
     bind(0x1A, PlayerHurt155Encoder, PlayerHurt155Decoder)
     bind(0x27, KeepAliveEncoder, PacketDirection.ServerToClient)
+    bind(0x2A, PlayerManaEncoder, PlayerManaDecoder)
     bind(0x2C, PlayerDeath155Encoder, PlayerDeath155Decoder)
     bind(0x31, CompleteConnectionEncoder, CompleteConnectionDecoder, PacketDirection.ServerToClient)
+    bind(0x32, PlayerBuffsEncoder, PlayerBuffsDecoder)
     bind(0x37, AddPlayerBuff155Encoder, AddPlayerBuff155Decoder)
     bind(0x38, UpdateNpcNameEncoder, UpdateNpcNameDecoder, PacketDirection.ServerToClient)
     bind(0x51, CombatMessage155Encoder, CombatMessage155Decoder, PacketDirection.ServerToClient)

@@ -10,7 +10,6 @@
 package org.lanternpowered.terre.impl.network.backend
 
 import io.netty.buffer.ByteBuf
-import io.netty.util.AttributeKey
 import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.math.Vec2i
 import org.lanternpowered.terre.impl.network.ConnectionHandler
@@ -19,6 +18,8 @@ import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.Protocol155
 import org.lanternpowered.terre.impl.network.cache.DeathSourceInfoCache
 import org.lanternpowered.terre.impl.network.packet.CompleteConnectionPacket
+import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
+import org.lanternpowered.terre.impl.network.packet.EssentialTilesRequestPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerSpawnPacket
 import org.lanternpowered.terre.impl.network.packet.UpdateNpcNamePacket
@@ -32,30 +33,32 @@ internal open class ServerPlayConnectionHandler(
     private val player: PlayerImpl
 ) : ConnectionHandler {
 
-  companion object {
-
-    private val notFirstServerConnection: AttributeKey<Boolean>
-        = AttributeKey.valueOf("not-first-server-connection")
-  }
-
   /**
    * The client connection.
    */
   private val clientConnection
     get() = this.player.clientConnection
 
+  private val wasPreviouslyConnectedToServer = this.player.wasPreviouslyConnectedToServer
+
   private var deathSourceInfoCache: DeathSourceInfoCache? = null
+  private var sendRequestEssentialTiles = false
 
   override fun initialize() {
     initializeDeathSourceCache()
+    this.player.wasPreviouslyConnectedToServer = true
   }
 
   override fun disconnect() {
-    this.player.disconnectedFromServer()
+    this.player.disconnectedFromServer(this.serverConnection)
+  }
+
+  override fun handle(packet: DisconnectPacket): Boolean {
+    Terre.logger.info { "Got disconnect: $packet" }
+    return true
   }
 
   override fun exception(throwable: Throwable) {
-
   }
 
   private fun initializeDeathSourceCache() {
@@ -65,7 +68,6 @@ internal open class ServerPlayConnectionHandler(
     // translate death reasons from the new protocol to the old one.
     if (this.clientConnection.protocol != legacyServerProtocol
         && connection.protocol == legacyServerProtocol) {
-      Terre.logger.debug { "Init Death Source Cache." }
       // Initialize every time a new connection is made, so
       // the cache gets cleared.
       this.deathSourceInfoCache = DeathSourceInfoCache(this.player.name)
@@ -86,6 +88,14 @@ internal open class ServerPlayConnectionHandler(
   override fun handle(packet: WorldInfoPacket): Boolean {
     updateDeathSourceCache {
       worldName = packet.name
+    }
+    if (!this.sendRequestEssentialTiles) {
+      this.sendRequestEssentialTiles = true
+      // The client sends this the first time it connects to a server,
+      // this time we need to fake it.
+      if (this.wasPreviouslyConnectedToServer) {
+        this.serverConnection.ensureConnected().send(EssentialTilesRequestPacket(Vec2i(-1, -1)))
+      }
     }
     return false // Forward
   }
@@ -123,9 +133,7 @@ internal open class ServerPlayConnectionHandler(
   override fun handle(packet: CompleteConnectionPacket): Boolean {
     val playerId = this.serverConnection.playerId ?: error("Player id isn't known.")
 
-    val notFirstConnection = this.player.clientConnection
-        .attr(notFirstServerConnection).getAndSet(true) ?: false
-    if (notFirstConnection) {
+    if (this.wasPreviouslyConnectedToServer) {
       // Sending this packet makes sure that the player spawns, even if the client
       // was previously connected to another world. This will trigger the client
       // to find a new spawn location.

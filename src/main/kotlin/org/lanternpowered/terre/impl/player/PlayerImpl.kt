@@ -9,6 +9,7 @@
  */
 package org.lanternpowered.terre.impl.player
 
+import io.netty.util.AttributeKey
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.future.asDeferred
 import org.lanternpowered.terre.MaxPlayers
@@ -26,6 +27,7 @@ import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.event.TerreEventBus
 import org.lanternpowered.terre.impl.network.Connection
 import org.lanternpowered.terre.impl.network.MultistateProtocol
+import org.lanternpowered.terre.impl.network.backend.ServerPlayConnectionHandler
 import org.lanternpowered.terre.impl.network.client.ClientPlayConnectionHandler
 import org.lanternpowered.terre.impl.network.packet.ChatMessagePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerChatMessagePacket
@@ -34,6 +36,7 @@ import org.lanternpowered.terre.impl.text.MessageReceiverImpl
 import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.text.textOf
 import java.net.SocketAddress
+import java.util.*
 import java.util.concurrent.CompletableFuture
 
 internal class PlayerImpl(
@@ -42,8 +45,15 @@ internal class PlayerImpl(
     val protocol: MultistateProtocol,
     override val name: String,
     override val identifier: PlayerIdentifier,
-    override val isMobile: Boolean
+    override val isMobile: Boolean,
+    val uniqueId: UUID
 ) : Player, MessageReceiverImpl {
+
+  companion object {
+
+    private val previouslyConnectedToServer: AttributeKey<Boolean>
+        = AttributeKey.valueOf("not-first-server-connection")
+  }
 
   @Volatile override var latency = 0
 
@@ -52,6 +62,11 @@ internal class PlayerImpl(
 
   override val remoteAddress: SocketAddress
     get() = this.clientConnection.remoteAddress
+
+  /**
+   * Whether the player was previously connected to another server.
+   */
+  var wasPreviouslyConnectedToServer = false
 
   // Duplicate client UUIDs aren't allowed, however duplicate names are.
   private fun disconnectByDuplicateId() {
@@ -128,7 +143,7 @@ internal class PlayerImpl(
         return
       }
       val next = queue.removeAt(0)
-      connectWithFuture(next).thenAccept { result ->
+      connectToWithFuture(next).thenAccept { result ->
         if (result is ServerConnectionRequestResult.Success) {
           future.complete(result.server)
         } else {
@@ -145,13 +160,13 @@ internal class PlayerImpl(
    * Called when the player loses connection
    * to the backing server.
    */
-  fun disconnectedFromServer() {
-    val server = this.serverConnection!!.server
+  fun disconnectedFromServer(connection: ServerConnectionImpl) {
+    if (this.serverConnection != connection)
+      return
     this.serverConnection = null
 
+    val server = connection.server
     // Evacuate the player to another server
-
-    // Try to connect to one of the servers
     val possibleServers = ProxyImpl.servers.asSequence()
         .filter { it.allowAutoJoin && it != server }
         .toList()
@@ -198,15 +213,18 @@ internal class PlayerImpl(
     return this.clientConnection.close(reason).toDeferred()
   }
 
-  private fun connectWithFuture(server: Server): CompletableFuture<ServerConnectionRequestResult> {
+  fun connectToWithFuture(server: Server): CompletableFuture<ServerConnectionRequestResult> {
     server as ServerImpl
     val connection = ServerConnectionImpl(server, this)
     return connection.connect().whenComplete { result, throwable ->
       if (throwable != null) {
         Terre.logger.debug("Failed to establish connection to backend server: ${server.info}", throwable)
       } else if (result is ServerConnectionRequestResult.Success) {
-        // Close the old connection
-        this.serverConnection?.connection?.close()
+        val old = this.serverConnection?.connection
+        if (old != null) {
+          old.setConnectionHandler(null)
+          old.close()
+        }
         // Replace it with the successfully established one
         this.serverConnection = connection
         Terre.logger.debug("Successfully established connection to backend server: ${server.info}")
@@ -214,5 +232,5 @@ internal class PlayerImpl(
     }
   }
 
-  override fun connectToAsync(server: Server) = connectWithFuture(server).asDeferred()
+  override fun connectToAsync(server: Server) = connectToWithFuture(server).asDeferred()
 }
