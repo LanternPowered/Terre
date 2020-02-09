@@ -10,14 +10,18 @@
 package org.lanternpowered.terre.impl.network.backend
 
 import io.netty.buffer.ByteBuf
+import org.lanternpowered.terre.ServerInfo
+import org.lanternpowered.terre.impl.ProxyImpl
 import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.math.Vec2i
 import org.lanternpowered.terre.impl.network.ConnectionHandler
 import org.lanternpowered.terre.impl.network.MultistateProtocol
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.Protocol155
+import org.lanternpowered.terre.impl.network.buffer.readString
 import org.lanternpowered.terre.impl.network.cache.DeathSourceInfoCache
 import org.lanternpowered.terre.impl.network.packet.CompleteConnectionPacket
+import org.lanternpowered.terre.impl.network.packet.CustomPayloadPacket
 import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
 import org.lanternpowered.terre.impl.network.packet.EssentialTilesRequestPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
@@ -27,6 +31,8 @@ import org.lanternpowered.terre.impl.network.packet.UpdateNpcPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoPacket
 import org.lanternpowered.terre.impl.player.PlayerImpl
 import org.lanternpowered.terre.impl.player.ServerConnectionImpl
+import org.lanternpowered.terre.impl.util.parseInetAddress
+import org.lanternpowered.terre.impl.util.resolve
 
 internal open class ServerPlayConnectionHandler(
     private val serverConnection: ServerConnectionImpl,
@@ -147,6 +153,50 @@ internal open class ServerPlayConnectionHandler(
 
     Terre.logger.debug { "P <- S(${serverConnection.server.info.name}) [${player.name}] Connection complete." }
     return true
+  }
+
+  /**
+   * Implement "dimensions" compatible server switching which can be
+   * requested by backing servers.
+   */
+  override fun handle(packet: CustomPayloadPacket): Boolean {
+    val buf = packet.content
+    val index = buf.readerIndex()
+    if (buf.readableBytes() < Short.SIZE_BYTES)
+      return false // Forward
+
+    val (server, success) = try {
+      val servers = ProxyImpl.servers
+      when (buf.readUnsignedShortLE()) {
+        2 -> {
+          // By name
+          val name = buf.readString()
+          servers[name] to true
+        }
+        3 -> {
+          // By server info
+          val ip = buf.readString()
+          val port = buf.readUnsignedShortLE()
+          val address = parseInetAddress("$ip:$port").resolve()
+          val server = servers.find { it.info.address == address } ?: run {
+            val info = ServerInfo(address.hostName, address)
+            servers.register(info)
+          }
+          server to true
+        }
+        else -> null to false
+      }
+    } catch (ex: Exception) {
+      null to false
+    }
+    if (server != null)
+      this.player.connectToWithFuture(server)
+
+    if (success)
+      return true
+
+    buf.readerIndex(index)
+    return false // Forward
   }
 
   override fun handleGeneric(packet: Packet) {

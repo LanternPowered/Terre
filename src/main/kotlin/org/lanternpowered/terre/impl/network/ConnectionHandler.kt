@@ -17,6 +17,7 @@ import org.lanternpowered.terre.impl.network.packet.CombatMessagePacket
 import org.lanternpowered.terre.impl.network.packet.CompleteConnectionPacket
 import org.lanternpowered.terre.impl.network.packet.ConnectionApprovedPacket
 import org.lanternpowered.terre.impl.network.packet.ConnectionRequestPacket
+import org.lanternpowered.terre.impl.network.packet.CustomPayloadPacket
 import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
 import org.lanternpowered.terre.impl.network.packet.IsMobileResponsePacket
 import org.lanternpowered.terre.impl.network.packet.KeepAlivePacket
@@ -46,6 +47,10 @@ internal interface ConnectionHandler {
   fun disconnect()
 
   fun exception(throwable: Throwable)
+
+  fun handle(packet: CustomPayloadPacket): Boolean {
+    return false
+  }
 
   fun handle(packet: SyncModsPacket): Boolean {
     return false

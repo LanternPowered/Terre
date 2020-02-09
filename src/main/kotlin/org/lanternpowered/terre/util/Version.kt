@@ -13,8 +13,6 @@ import java.lang.NumberFormatException
 import kotlin.math.max
 import kotlin.math.min
 
-class InvalidVersionException(message: String) : Exception(message)
-
 /**
  * Represents a version.
  */
@@ -31,7 +29,7 @@ class Version : Comparable<Version> {
   /**
    * Constructs a new version from the given version string.
    *
-   * @throws IllegalArgumentException If the version string uses an invalid format
+   * @throws IllegalArgumentException If the version string is empty or uses an invalid format
    */
   constructor(version: String) {
     check(version.isNotBlank()) { "Version string cannot be blank." }
@@ -41,7 +39,7 @@ class Version : Comparable<Version> {
       try {
         this.backing[index] = s.toInt()
       } catch (ex: NumberFormatException) {
-        throw InvalidVersionException("Invalid version string: $version, $s isn't an int.")
+        throw IllegalArgumentException("Invalid version string: $version, $s isn't an int.")
       }
     }
   }

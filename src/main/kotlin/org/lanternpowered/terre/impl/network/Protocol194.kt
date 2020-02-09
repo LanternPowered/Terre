@@ -57,6 +57,7 @@ internal val Protocol194 = MultistateProtocol(194) {
     bind(0x32, PlayerBuffsEncoder, PlayerBuffsDecoder)
     bind(0x37, AddPlayerBuffEncoder, AddPlayerBuffDecoder)
     bind(0x38, UpdateNpcNameEncoder, UpdateNpcNameDecoder, PacketDirection.ServerToClient)
+    bind(0x43, CustomPayloadEncoder, CustomPayloadDecoder)
     bind(0x51, CombatMessageEncoder, CombatMessageDecoder, PacketDirection.ServerToClient)
     bind(0x5B, SpeechBubbleEncoder)
     // bind(0x66, NebulaLevelUpRequestEncoder, PacketDirection.ServerToClient)
