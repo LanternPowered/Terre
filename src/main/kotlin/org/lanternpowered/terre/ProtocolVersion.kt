@@ -20,11 +20,20 @@ sealed class ProtocolVersion {
    * Represents a vanilla protocol version.
    */
   data class Vanilla(
+      val version: Version,
       val protocol: Int
   ) : ProtocolVersion(), Comparable<Vanilla> {
 
+    constructor(version: String, protocol: Int) : this(Version(version), protocol)
+
     override fun compareTo(other: Vanilla)
         = this.protocol.compareTo(other.protocol)
+
+    override fun equals(other: Any?)
+        = other is Vanilla && other.protocol == this.protocol
+
+    override fun hashCode()
+        = this.protocol.hashCode()
   }
 
   /**

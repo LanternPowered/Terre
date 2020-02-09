@@ -34,6 +34,7 @@ import org.lanternpowered.terre.impl.network.pipeline.FrameEncoder
 import org.lanternpowered.terre.impl.network.pipeline.PacketMessageDecoder
 import org.lanternpowered.terre.impl.network.pipeline.PacketMessageEncoder
 import org.lanternpowered.terre.text.textOf
+import org.lanternpowered.terre.util.collection.sortedWith
 import java.util.concurrent.CompletableFuture
 import kotlin.time.DurationUnit
 
@@ -79,18 +80,18 @@ internal class ServerConnectionImpl(
 
     val clientProtocol = this.player.protocol
     val versionsToAttempt = ProtocolRegistry.allowedTranslations.asSequence()
-            .filter { it.from == clientProtocol }
-            .map { it.to to ProtocolVersion.Vanilla(it.to.version) }
-            .toMutableList()
-    val lastKnownVersion = this.server.lastKnownVersion
-    if (lastKnownVersion != null) {
-      val entry = versionsToAttempt.find { it.second == lastKnownVersion }
-      // Prioritize the last known entry, for faster connections
-      if (entry != null) {
-        versionsToAttempt.remove(entry)
-        versionsToAttempt.add(0, entry)
-      }
-    }
+        .filter { translation -> translation.from == clientProtocol }
+        .flatMap { translation -> ProtocolRegistry.all.asSequence().filter { it.protocol == translation.to } }
+        .let {
+          // Prioritize the last known entry, for faster connections
+          val lastKnownVersion = this.server.lastKnownVersion
+          if (lastKnownVersion != null) {
+            it.sortedWith { o1, _ ->
+              if (o1.version == lastKnownVersion) -1 else 0
+            }
+          } else it
+        }
+        .toMutableList()
 
     var firstThrowable: Throwable? = null
 
@@ -100,7 +101,7 @@ internal class ServerConnectionImpl(
             this.server, textOf("Client already disconnected.")))
         return
       }
-      val (protocol, version) = versionsToAttempt.removeAt(0)
+      val (version, protocol) = versionsToAttempt.removeAt(0)
       connect(protocol, version).whenComplete { result, throwable ->
         if (throwable == null) {
           if (result is ServerInitConnectionResult.Success) {

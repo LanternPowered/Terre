@@ -47,7 +47,7 @@ internal class LocalizedTextImpl(
 
   override fun toString() = ToStringHelper(LocalizedText::class).omitNullValues()
       .add("key", this.key)
-      .add("substitutions", this.substitutions)
+      .add("substitutions", this.substitutions.joinToString { "," })
       .add("color", this.color)
       .toString()
 }

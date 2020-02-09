@@ -71,4 +71,6 @@ object Colors {
   val Cyan = Color(0, 255, 255)
 
   val White = Color(255, 255, 255)
+
+  val LightGray = Color(211, 211, 211)
 }

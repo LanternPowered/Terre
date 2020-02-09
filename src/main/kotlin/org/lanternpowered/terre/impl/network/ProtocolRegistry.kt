@@ -15,7 +15,7 @@ import org.lanternpowered.terre.ProtocolVersion
 internal object ProtocolRegistry {
 
   private val mutableTranslations = mutableListOf<ProtocolTranslation>()
-  private val byId = Int2ObjectOpenHashMap<MultistateProtocol>()
+  private val byId = Int2ObjectOpenHashMap<VersionedProtocol>()
 
   /**
    * All the allowed protocol translations.
@@ -24,8 +24,9 @@ internal object ProtocolRegistry {
     get() = this.mutableTranslations
 
   init {
-    register(Protocol155)
-    register(Protocol194)
+    register(ProtocolVersions[155], Protocol155)
+    register(ProtocolVersions[156], Protocol155)
+    register(ProtocolVersions[194], Protocol194)
 
     // Allow 1.3.5.3 version to connect to the older 1.3.0.7 version,
     // this allows desktop client to join 1.3.0.7 servers, which includes
@@ -33,9 +34,9 @@ internal object ProtocolRegistry {
     allowTranslation(Protocol194 to Protocol155)
   }
 
-  val all: Collection<MultistateProtocol> get() = this.byId.values
+  val all: Collection<VersionedProtocol> get() = this.byId.values
 
-  operator fun get(id: Int): MultistateProtocol? = this.byId[id]
+  operator fun get(id: Int): MultistateProtocol? = this.byId[id]?.protocol
 
   /**
    * Attempts to get the [Protocol] instance for the
@@ -52,10 +53,11 @@ internal object ProtocolRegistry {
   /**
    * Registers a new protocol version.
    */
-  private fun register(protocol: MultistateProtocol) {
-    check(protocol.version !in this.byId) {
-      "Protocol version ${protocol.version} is already in use." }
-    this.byId[protocol.version] = protocol
+  private fun register(version: ProtocolVersion, protocol: MultistateProtocol) {
+    check(version is ProtocolVersion.Vanilla) // TODO: Modded
+    check(version.protocol !in this.byId) {
+      "Protocol version ${version.protocol} is already in use." }
+    this.byId[version.protocol] = VersionedProtocol(version, protocol)
     this.mutableTranslations += ProtocolTranslation(protocol, protocol)
   }
 

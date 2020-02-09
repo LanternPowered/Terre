@@ -108,11 +108,16 @@ internal class ClientInitConnectionHandler(
       this.connection.close(textOf("Only vanilla clients are supported."))
       return true
     }
-    val protocol = ProtocolRegistry[protocolVersion.protocol]
+    val protocol = ProtocolRegistry[protocolVersion]
     if (protocol == null) {
       val expected = ProtocolRegistry.all.stream()
           .map { it.version }.toList()
-          .joinToString(separator = ", ", prefix = "[", postfix = "]")
+          .joinToString(separator = ", ", prefix = "[", postfix = "]") {
+            when (it) {
+              is ProtocolVersion.Vanilla -> it.version.toString()
+              is ProtocolVersion.TModLoader -> "tModLoader ${it.version}"
+            }
+          }
       this.connection.close(textOf(
           "The client isn't supported. Expected version of $expected, but the client is $protocolVersion."))
       return true

@@ -15,6 +15,7 @@ import com.google.common.collect.ImmutableCollection
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
 import java.util.*
+import kotlin.Comparator
 import kotlin.reflect.KClass
 
 inline fun <E : Any> Array<E>.toImmutableList(): ImmutableList<E>
@@ -186,4 +187,12 @@ private fun <E : Enum<E>> Iterator<E>.toEnumSet(type: KClass<E>): EnumSet<E> {
   val set = EnumSet.noneOf(type.java)
   forEach(set::add)
   return set
+}
+
+inline fun <T> Sequence<T>.sortedWith(crossinline fn: (o1: T, o2: T) -> Int): Sequence<T> {
+  return sortedWith(Comparator { o1, o2 -> fn(o1, o2) })
+}
+
+inline fun <T> Iterable<T>.sortedWith(crossinline fn: (o1: T, o2: T) -> Int): List<T> {
+  return sortedWith(Comparator { o1, o2 -> fn(o1, o2) })
 }

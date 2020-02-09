@@ -12,6 +12,7 @@ package org.lanternpowered.terre.impl.network.packet
 import io.netty.handler.codec.DecoderException
 import org.lanternpowered.terre.ProtocolVersion
 import org.lanternpowered.terre.impl.network.Packet
+import org.lanternpowered.terre.impl.network.ProtocolVersions
 import org.lanternpowered.terre.impl.network.buffer.readString
 import org.lanternpowered.terre.impl.network.buffer.writeString
 import org.lanternpowered.terre.impl.network.packetDecoderOf
@@ -31,7 +32,7 @@ internal val ConnectionRequestDecoder = packetDecoderOf { buf ->
 
   val clientVersion = run {
     if (value.startsWith(vanillaVersionPrefix)) {
-      ProtocolVersion.Vanilla(value.substring(vanillaVersionPrefix.length).toInt())
+      ProtocolVersions[value.substring(vanillaVersionPrefix.length).toInt()]
     } else if (value.startsWith(tModLoaderVersionPrefix)) {
       val result = tModLoaderVersionRegex.matchEntire(value)
       if (result != null) {

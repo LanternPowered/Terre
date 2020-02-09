@@ -101,7 +101,7 @@ internal class ClientPlayConnectionHandler(
   }
 
   private fun handleConnectCommand(args: List<String>) {
-    val name = args.getOrNull(0)
+    var name = args.getOrNull(0)
     fun send(text: Text) {
       this.playerImpl.sendMessage(Terre.message(text))
     }
@@ -112,6 +112,8 @@ internal class ClientPlayConnectionHandler(
     // TODO: Use command framework
     val server = Proxy.servers[name]
     if (server != null) {
+      name = server.info.name
+      send(textOf("Attempting to connect to $name."))
       this.playerImpl.connectToWithFuture(server)
           .whenComplete { result, _ ->
             val message = if (result != null) {
@@ -130,7 +132,7 @@ internal class ClientPlayConnectionHandler(
                   textOf("You're already connecting to another server.")
                 }
               }
-            } else textOf("Failed to connect to $name")
+            } else textOf("Failed to connect to $name.")
             send(message)
           }
     } else {
