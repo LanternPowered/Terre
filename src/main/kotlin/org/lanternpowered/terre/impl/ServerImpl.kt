@@ -13,11 +13,13 @@ import org.lanternpowered.terre.MessageSender
 import org.lanternpowered.terre.ProtocolVersion
 import org.lanternpowered.terre.Server
 import org.lanternpowered.terre.ServerInfo
+import org.lanternpowered.terre.impl.network.VersionedProtocol
 import org.lanternpowered.terre.text.Text
 
 internal class ServerImpl(
     override val info: ServerInfo,
-    override var allowAutoJoin: Boolean = false
+    override var allowAutoJoin: Boolean = false,
+    val versionedProtocol: VersionedProtocol? = null
 ) : Server {
 
   var unregistered = false

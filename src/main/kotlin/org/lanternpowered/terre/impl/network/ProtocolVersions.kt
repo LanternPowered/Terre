@@ -18,15 +18,23 @@ object ProtocolVersions {
    * All the known protocol version numbers
    * paired to their version name.
    */
-  private val knownVanillaVersions = mapOf(
-      155 to "1.3.0.7",
-      156 to "1.3.0.8",
-      194 to "1.3.5.3"
-  ).mapValues { (key, value) -> ProtocolVersion.Vanilla(Version(value), key) }
+  private val knownVanillaVersions = listOf(
+      ProtocolVersion.Vanilla.`1․3․0․7`,
+      ProtocolVersion.Vanilla.`1․3․0․8`,
+      ProtocolVersion.Vanilla.`1․3․5․3`
+  ).associateBy { it.protocol }
 
   /**
    * Gets the vanilla [ProtocolVersion] for the given protocol version number.
    */
   operator fun get(protocol: Int)
-      = this.knownVanillaVersions[protocol] ?: ProtocolVersion.Vanilla(Version(0), protocol)
+      = this.knownVanillaVersions[protocol]
+
+  /**
+   * Gets the vanilla [ProtocolVersion] for the given protocol version number.
+   */
+  operator fun get(version: String): ProtocolVersion.Vanilla? {
+    val v = Version(version)
+    return this.knownVanillaVersions.asSequence().firstOrNull { v == it.value.version }?.value
+  }
 }

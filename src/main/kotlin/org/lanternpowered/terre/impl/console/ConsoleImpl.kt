@@ -39,10 +39,12 @@ internal class ConsoleImpl(
     Terre.logger.info(message)
   }
 
-  override fun start() {
+  fun init() {
     System.setOut(IoBuilder.forLogger(Terre.logger).setLevel(Level.INFO).buildPrintStream())
     System.setErr(IoBuilder.forLogger(Terre.logger).setLevel(Level.ERROR).buildPrintStream())
+  }
 
+  override fun start() {
     Terre.logger.info("Starting console.")
     val readThread = Thread({
       super.start()

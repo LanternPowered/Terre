@@ -12,6 +12,8 @@ package org.lanternpowered.terre.impl
 import org.lanternpowered.terre.Server
 import org.lanternpowered.terre.ServerCollection
 import org.lanternpowered.terre.ServerInfo
+import org.lanternpowered.terre.impl.network.ProtocolRegistry
+import org.lanternpowered.terre.impl.network.VersionedProtocol
 import java.util.concurrent.ConcurrentHashMap
 
 internal class ServerCollectionImpl(
@@ -22,7 +24,14 @@ internal class ServerCollectionImpl(
 
   override fun register(serverInfo: ServerInfo): ServerImpl {
     val key = serverInfo.name.toLowerCase()
-    val server = ServerImpl(serverInfo)
+    val version = serverInfo.protocolVersion
+    val protocol = if (version != null) {
+      val protocol = ProtocolRegistry[version]
+      checkNotNull(protocol) {
+        "The provided protocol version isn't supported: $version" }
+      VersionedProtocol(version, protocol)
+    } else null
+    val server = ServerImpl(serverInfo, false, protocol)
     val previous = this.map.putIfAbsent(key, server)
     check(previous == null) {
       "A server already exists with the name: ${serverInfo.name}" }

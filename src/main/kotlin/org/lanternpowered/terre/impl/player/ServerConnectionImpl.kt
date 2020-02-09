@@ -79,19 +79,26 @@ internal class ServerConnectionImpl(
     }
 
     val clientProtocol = this.player.protocol
-    val versionsToAttempt = ProtocolRegistry.allowedTranslations.asSequence()
-        .filter { translation -> translation.from == clientProtocol }
-        .flatMap { translation -> ProtocolRegistry.all.asSequence().filter { it.protocol == translation.to } }
-        .let {
-          // Prioritize the last known entry, for faster connections
-          val lastKnownVersion = this.server.lastKnownVersion
-          if (lastKnownVersion != null) {
-            it.sortedWith { o1, _ ->
-              if (o1.version == lastKnownVersion) -1 else 0
-            }
-          } else it
-        }
-        .toMutableList()
+    // Check if there's a fixed version that should be used,
+    // otherwise try every possible protocol version.
+    val versionedProtocol = this.server.versionedProtocol
+    val versionsToAttempt = if (versionedProtocol != null) {
+      mutableListOf(versionedProtocol)
+    } else {
+      ProtocolRegistry.allowedTranslations.asSequence()
+          .filter { translation -> translation.from == clientProtocol }
+          .flatMap { translation -> ProtocolRegistry.all.asSequence().filter { it.protocol == translation.to } }
+          .let {
+            // Prioritize the last known entry, for faster connections
+            val lastKnownVersion = this.server.lastKnownVersion
+            if (lastKnownVersion != null) {
+              it.sortedWith { o1, _ ->
+                if (o1.version == lastKnownVersion) -1 else 0
+              }
+            } else it
+          }
+          .toMutableList()
+    }
 
     var firstThrowable: Throwable? = null
 

@@ -10,6 +10,8 @@
 package org.lanternpowered.terre.impl.config
 
 import org.lanternpowered.terre.ServerInfo
+import org.lanternpowered.terre.impl.Terre
+import org.lanternpowered.terre.impl.network.ProtocolVersions
 import org.lanternpowered.terre.impl.util.parseInetAddress
 import java.util.*
 
@@ -25,13 +27,31 @@ data class RawServerInfo(
     val name: String,
     val address: String,
     val password: String = "",
-    val `allow-auto-join`: Boolean = false
+    val `allow-auto-join`: Boolean = false,
+    val protocol: String = ""
 ) {
 
   fun toServerInfo(): ServerInfo {
     val address = parseInetAddress(this.address)
     val name = if (this.name.isBlank()) UUID.randomUUID().toString().take(8) else this.name
-    return ServerInfo(name, address, this.password)
+    val version = if (this.protocol.isBlank()) null else {
+      val number = this.protocol.toIntOrNull()
+      val version = if (number != null) {
+        ProtocolVersions[number]
+      } else {
+        try {
+          ProtocolVersions[this.protocol]
+        } catch (ex: IllegalArgumentException) {
+          null
+        }
+      }
+      // TODO: Modded
+      if (version == null) {
+        Terre.logger.error("Found invalid vanilla protocol version \"$protocol\" while parsing server \"$name\".")
+      }
+      version
+    }
+    return ServerInfo(name, address, this.password, version)
   }
 
   companion object {

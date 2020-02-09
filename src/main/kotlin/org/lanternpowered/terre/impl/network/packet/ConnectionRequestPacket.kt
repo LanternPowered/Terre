@@ -32,7 +32,8 @@ internal val ConnectionRequestDecoder = packetDecoderOf { buf ->
 
   val clientVersion = run {
     if (value.startsWith(vanillaVersionPrefix)) {
-      ProtocolVersions[value.substring(vanillaVersionPrefix.length).toInt()]
+      val protocol = value.substring(vanillaVersionPrefix.length).toInt()
+      ProtocolVersions[protocol] ?: ProtocolVersion.Vanilla(Version(0), protocol)
     } else if (value.startsWith(tModLoaderVersionPrefix)) {
       val result = tModLoaderVersionRegex.matchEntire(value)
       if (result != null) {

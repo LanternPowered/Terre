@@ -94,6 +94,7 @@ internal object ProxyImpl : Proxy {
    * Initializes the server.
    */
   fun init() {
+    this.console.init()
     Terre.logger.info("Starting ${Terre.name} Server ${Terre.version}")
 
     bindNetworkManager()
@@ -200,7 +201,8 @@ internal object ProxyImpl : Proxy {
 
       val server = this.servers.register(info)
       val passwordInfo = if (info.password.isNotEmpty()) ", password: ${info.password}" else ""
-      Terre.logger.info("Registering server -> ${info.name} -> address: ${rawServer.address}$passwordInfo")
+      val protocolInfo = if (info.protocolVersion != null) ", protocol: ${info.protocolVersion}" else ""
+      Terre.logger.info("Registering server -> ${info.name} -> address: ${rawServer.address}$passwordInfo$protocolInfo")
       server.allowAutoJoin = allowAutoJoin
     }
   }

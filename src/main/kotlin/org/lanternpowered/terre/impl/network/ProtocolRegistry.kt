@@ -24,9 +24,9 @@ internal object ProtocolRegistry {
     get() = this.mutableTranslations
 
   init {
-    register(ProtocolVersions[155], Protocol155)
-    register(ProtocolVersions[156], Protocol155)
-    register(ProtocolVersions[194], Protocol194)
+    register(ProtocolVersion.Vanilla.`1․3․0․7`, Protocol155)
+    register(ProtocolVersion.Vanilla.`1․3․0․8`, Protocol155)
+    register(ProtocolVersion.Vanilla.`1․3․5․3`, Protocol194)
 
     // Allow 1.3.5.3 version to connect to the older 1.3.0.7 version,
     // this allows desktop client to join 1.3.0.7 servers, which includes

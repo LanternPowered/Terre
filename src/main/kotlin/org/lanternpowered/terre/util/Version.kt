@@ -13,6 +13,8 @@ import java.lang.NumberFormatException
 import kotlin.math.max
 import kotlin.math.min
 
+class InvalidVersionException(message: String) : Exception(message)
+
 /**
  * Represents a version.
  */
@@ -39,7 +41,7 @@ class Version : Comparable<Version> {
       try {
         this.backing[index] = s.toInt()
       } catch (ex: NumberFormatException) {
-        throw IllegalArgumentException("Invalid version string: $version, $s isn't an int.")
+        throw InvalidVersionException("Invalid version string: $version, $s isn't an int.")
       }
     }
   }
@@ -129,7 +131,7 @@ class Version : Comparable<Version> {
     return 0
   }
 
-  override fun equals(other: Any?) = other === this || (other is Version && this.values contentEquals other.values)
+  override fun equals(other: Any?) = other === this || (other is Version && this.compareTo(other) == 0)
 
   override fun hashCode() = this.values.contentHashCode()
 

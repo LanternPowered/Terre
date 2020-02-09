@@ -7,6 +7,8 @@
  * This work is licensed under the terms of the MIT License (MIT). For
  * a copy, see 'LICENSE.txt' or <https://opensource.org/licenses/MIT>.
  */
+@file:Suppress("NonAsciiCharacters", "ObjectPropertyName")
+
 package org.lanternpowered.terre
 
 import org.lanternpowered.terre.util.Version
@@ -34,6 +36,24 @@ sealed class ProtocolVersion {
 
     override fun hashCode()
         = this.protocol.hashCode()
+
+    companion object {
+
+      /**
+       * The 1.3.0.7 vanilla version.
+       */
+      val `1․3․0․7` = Vanilla("1.3.0.7", 155)
+
+      /**
+       * The 1.3.0.8 vanilla version.
+       */
+      val `1․3․0․8` = Vanilla("1.3.0.8", 156)
+
+      /**
+       * The 1.3.5.3 vanilla version.
+       */
+      val `1․3․5․3` = Vanilla("1.3.5.3", 194)
+    }
   }
 
   /**

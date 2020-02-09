@@ -24,6 +24,9 @@ interface ServerCollection : Collection<Server> {
    * Attempts to register a new [Server] with the given [ServerInfo]. If a
    * server with the same name is already registered (case insensitive), this
    * will result in an [IllegalArgumentException].
+   *
+   * If a [ProtocolVersion] is provided and it's not supported by the proxy,
+   * a [IllegalArgumentException] is expected.
    */
   fun register(serverInfo: ServerInfo): Server
 }
