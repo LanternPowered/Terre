@@ -29,20 +29,16 @@ import org.lanternpowered.terre.text.text
 
 internal val PlayerChatMessage155Encoder = packetEncoderOf<PlayerChatMessagePacket> { buf, packet ->
   val (text, color) = ChatMessageHelper.splitTextAndColor(packet.text)
-  buf.writePlayerId(packet.authorId)
+  buf.writePlayerId(packet.authorId.to(this.isMobile))
   buf.writeColor(color)
   buf.writeString((text as TextImpl).toTaggedVanillaText().toPlain())
 }
 
 internal val PlayerChatMessage155Decoder = packetDecoderOf { buf ->
-  var authorId = buf.readPlayerId()
-  // TODO: Don't assume it's mobile
-  if (authorId.value == 16) { // 16 represents none on mobile
-    authorId = PlayerId.None
-  }
+  val authorId = buf.readPlayerId().from(this.isMobile)
   val color = buf.readColor()
   val raw = buf.readString().text() as TextImpl
   val text = raw.fromTaggedVanillaText().color(color)
-  PlayerChatMessagePacket(authorId, text).also { Terre.logger.info(it) }
+  PlayerChatMessagePacket(authorId, text)
 }
 
