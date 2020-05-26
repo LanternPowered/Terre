@@ -32,7 +32,8 @@ data class RawServerInfo(
 ) {
 
   fun toServerInfo(): ServerInfo {
-    val address = parseInetAddress(this.address)
+    val address = parseInetAddress(
+        if (':' in this.address) this.address else "$address:7777")
     val name = if (this.name.isBlank()) UUID.randomUUID().toString().take(8) else this.name
     val version = if (this.protocol.isBlank()) null else {
       val number = this.protocol.toIntOrNull()

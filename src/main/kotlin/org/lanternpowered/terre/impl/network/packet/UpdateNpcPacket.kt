@@ -11,6 +11,7 @@
 
 package org.lanternpowered.terre.impl.network.packet
 
+import io.netty.handler.codec.DecoderException
 import org.lanternpowered.terre.impl.math.Vec2f
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.LeftOrRight
@@ -125,10 +126,11 @@ internal fun UpdateNpcDecoder(protocol: Int) = packetDecoderOf { buf ->
   val ai = NpcAI(ai1, ai2, ai3, ai4)
   val npcType = NpcType(buf.readShortLE().toInt())
   val life = if ((flags and 0x80) == 0) {
-    when (buf.readByte().toInt()) {
-      2 -> buf.readShortLE().toInt()
-      4 -> buf.readIntLE()
-      else -> buf.readByte().toInt()
+    when (val length = buf.readByte().toInt()) {
+      Byte.SIZE_BYTES -> buf.readByte().toInt()
+      Short.SIZE_BYTES -> buf.readShortLE().toInt()
+      Int.SIZE_BYTES -> buf.readIntLE()
+      else -> throw DecoderException("Invalid life length: $length")
     }
   } else null
   val releaseOwner = if (buf.readableBytes() > 0) buf.readPlayerId().from(this.isMobile) else null
