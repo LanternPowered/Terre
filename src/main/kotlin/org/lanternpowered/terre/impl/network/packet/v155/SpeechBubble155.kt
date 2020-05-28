@@ -9,8 +9,6 @@
  */
 package org.lanternpowered.terre.impl.network.packet.v155
 
-import org.lanternpowered.terre.impl.network.packet.UpdateNpcDecoder
-import org.lanternpowered.terre.impl.network.packet.UpdateNpcEncoder
+import org.lanternpowered.terre.impl.network.packet.v194.SpeechBubble194Encoder
 
-internal val UpdateNpc155Encoder = UpdateNpcEncoder(155)
-internal val UpdateNpc155Decoder = UpdateNpcDecoder(155)
+internal val SpeechBubble155Encoder = SpeechBubble194Encoder

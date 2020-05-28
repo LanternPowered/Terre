@@ -29,11 +29,11 @@ internal val Protocol155 = MultistateProtocol(155) {
   }
 
   play {
-    bind(0x05, PlayerInventorySlotEncoder, PlayerInventorySlotDecoder)
+    bind(0x05, PlayerInventorySlot155Encoder, PlayerInventorySlot155Decoder)
     bind(0x07, WorldInfo155Encoder, WorldInfo155Decoder, PacketDirection.ServerToClient)
     bind(0x08, EssentialTilesRequestEncoder, PacketDirection.ClientToServer)
     bind(0x09, Status155Encoder, Status155Decoder, PacketDirection.ServerToClient)
-    bind(0x0C, PlayerSpawnEncoder, PlayerSpawnDecoder)
+    bind(0x0C, PlayerSpawn155Encoder, PlayerSpawn155Decoder)
     bind(0x0E, PlayerActiveEncoder, PlayerActiveDecoder, PacketDirection.ServerToClient)
     bind(0x10, PlayerHealthEncoder, PlayerHealthDecoder)
     bind(0x16, UpdateItemOwnerEncoder)
@@ -48,10 +48,10 @@ internal val Protocol155 = MultistateProtocol(155) {
     bind(0x31, CompleteConnectionEncoder, CompleteConnectionDecoder, PacketDirection.ServerToClient)
     bind(0x32, PlayerBuffsEncoder, PlayerBuffsDecoder)
     bind(0x37, AddPlayerBuff155Encoder, AddPlayerBuff155Decoder)
-    bind(0x38, UpdateNpcNameEncoder, UpdateNpcNameDecoder, PacketDirection.ServerToClient)
+    bind(0x38, UpdateNpcName155Encoder, UpdateNpcName155Decoder, PacketDirection.ServerToClient)
     bind(0x43, CustomPayloadEncoder, CustomPayloadDecoder)
     bind(0x51, CombatMessage155Encoder, CombatMessage155Decoder, PacketDirection.ServerToClient)
-    bind(0x5B, SpeechBubbleEncoder, PacketDirection.ServerToClient)
+    bind(0x5B, SpeechBubble155Encoder, PacketDirection.ServerToClient)
     // bind(0x66, NebulaLevelUpRequestEncoder, PacketDirection.ServerToClient)
     bind(0x6B, ChatMessage155Encoder, ChatMessage155Decoder)
   }

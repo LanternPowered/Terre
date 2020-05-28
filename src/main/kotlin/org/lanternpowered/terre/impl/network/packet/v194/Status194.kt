@@ -7,22 +7,21 @@
  * This work is licensed under the terms of the MIT License (MIT). For
  * a copy, see 'LICENSE.txt' or <https://opensource.org/licenses/MIT>.
  */
-package org.lanternpowered.terre.impl.network.packet.v155
+package org.lanternpowered.terre.impl.network.packet.v194
 
-import org.lanternpowered.terre.impl.network.buffer.readString
-import org.lanternpowered.terre.impl.network.buffer.writeString
+import org.lanternpowered.terre.impl.network.buffer.readPlainText
+import org.lanternpowered.terre.impl.network.buffer.writePlainText
 import org.lanternpowered.terre.impl.network.packet.StatusPacket
 import org.lanternpowered.terre.impl.network.packetDecoderOf
 import org.lanternpowered.terre.impl.network.packetEncoderOf
-import org.lanternpowered.terre.text.text
 
-internal val Status155Encoder = packetEncoderOf<StatusPacket> { buf, packet ->
+internal val Status194Encoder = packetEncoderOf<StatusPacket> { buf, packet ->
   buf.writeIntLE(packet.statusMax)
-  buf.writeString(packet.statusText.toPlain())
+  buf.writePlainText(packet.statusText)
 }
 
-internal val Status155Decoder = packetDecoderOf { buf ->
+internal val Status194Decoder = packetDecoderOf { buf ->
   val statusMax = buf.readIntLE()
-  val statusText = buf.readString().text()
+  val statusText = buf.readPlainText()
   StatusPacket(statusMax, statusText, 0)
 }

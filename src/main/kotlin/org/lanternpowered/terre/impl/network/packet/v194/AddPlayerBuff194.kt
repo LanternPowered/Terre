@@ -7,32 +7,23 @@
  * This work is licensed under the terms of the MIT License (MIT). For
  * a copy, see 'LICENSE.txt' or <https://opensource.org/licenses/MIT>.
  */
-@file:Suppress("FunctionName")
+package org.lanternpowered.terre.impl.network.packet.v194
 
-package org.lanternpowered.terre.impl.network.packet
-
-import org.lanternpowered.terre.impl.network.Packet
-import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.buffer.readPlayerId
 import org.lanternpowered.terre.impl.network.buffer.writePlayerId
+import org.lanternpowered.terre.impl.network.packet.AddPlayerBuffPacket
 import org.lanternpowered.terre.impl.network.packetDecoderOf
 import org.lanternpowered.terre.impl.network.packetEncoderOf
 
-internal data class AddPlayerBuffPacket(
-    val playerId: PlayerId,
-    val buff: Int,
-    val time: Int
-) : Packet
-
-internal val AddPlayerBuffEncoder = packetEncoderOf<AddPlayerBuffPacket> { buf, packet ->
+internal val AddPlayerBuff194Encoder = packetEncoderOf<AddPlayerBuffPacket> { buf, packet ->
   buf.writePlayerId(packet.playerId)
-  buf.writeShortLE(packet.buff)
+  buf.writeByte(packet.buff)
   buf.writeIntLE(packet.time)
 }
 
-internal val AddPlayerBuffDecoder = packetDecoderOf { buf ->
+internal val AddPlayerBuff194Decoder = packetDecoderOf { buf ->
   val playerId = buf.readPlayerId()
-  val buff = buf.readUnsignedShortLE()
+  val buff = buf.readByte().toInt()
   val time = buf.readIntLE()
   AddPlayerBuffPacket(playerId, buff, time)
 }

@@ -18,16 +18,19 @@ import org.lanternpowered.terre.text.Text
 
 internal data class StatusPacket(
     val statusMax: Int,
-    val statusText: Text
+    val statusText: Text,
+    val flags: Int // TODO: What flags?
 ) : Packet
 
 internal val StatusEncoder = packetEncoderOf<StatusPacket> { buf, packet ->
   buf.writeIntLE(packet.statusMax)
   buf.writePlainText(packet.statusText)
+  buf.writeByte(packet.flags)
 }
 
 internal val StatusDecoder = packetDecoderOf { buf ->
   val statusMax = buf.readIntLE()
   val statusText = buf.readPlainText()
-  StatusPacket(statusMax, statusText)
+  val flags = buf.readUnsignedByte().toInt()
+  StatusPacket(statusMax, statusText, flags)
 }

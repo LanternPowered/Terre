@@ -7,23 +7,23 @@
  * This work is licensed under the terms of the MIT License (MIT). For
  * a copy, see 'LICENSE.txt' or <https://opensource.org/licenses/MIT>.
  */
-package org.lanternpowered.terre.impl.network.packet.v155
+package org.lanternpowered.terre.impl.network.packet.v194
 
 import org.lanternpowered.terre.impl.network.buffer.readPlayerId
+import org.lanternpowered.terre.impl.network.buffer.readShortVec2i
 import org.lanternpowered.terre.impl.network.buffer.writePlayerId
-import org.lanternpowered.terre.impl.network.packet.AddPlayerBuffPacket
+import org.lanternpowered.terre.impl.network.buffer.writeShortVec2i
+import org.lanternpowered.terre.impl.network.packet.PlayerSpawnPacket
 import org.lanternpowered.terre.impl.network.packetDecoderOf
 import org.lanternpowered.terre.impl.network.packetEncoderOf
 
-internal val AddPlayerBuff155Encoder = packetEncoderOf<AddPlayerBuffPacket> { buf, packet ->
+internal val PlayerSpawn194Encoder = packetEncoderOf<PlayerSpawnPacket> { buf, packet ->
   buf.writePlayerId(packet.playerId)
-  buf.writeByte(packet.buff)
-  buf.writeShortLE(packet.time)
+  buf.writeShortVec2i(packet.position)
 }
 
-internal val AddPlayerBuff155Decoder = packetDecoderOf { buf ->
+internal val PlayerSpawn194Decoder = packetDecoderOf { buf ->
   val playerId = buf.readPlayerId()
-  val buff = buf.readByte().toInt()
-  val time = buf.readShortLE().toInt()
-  AddPlayerBuffPacket(playerId, buff, time)
+  val position = buf.readShortVec2i()
+  PlayerSpawnPacket(playerId, position, 0, PlayerSpawnPacket.Context.SpawningIntoWorld)
 }

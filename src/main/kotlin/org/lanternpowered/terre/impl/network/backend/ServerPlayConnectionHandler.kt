@@ -143,7 +143,8 @@ internal open class ServerPlayConnectionHandler(
       // Sending this packet makes sure that the player spawns, even if the client
       // was previously connected to another world. This will trigger the client
       // to find a new spawn location.
-      this.player.clientConnection.send(PlayerSpawnPacket(playerId, Vec2i.Zero))
+      this.player.clientConnection.send(PlayerSpawnPacket(
+          playerId, Vec2i.Zero, 0, PlayerSpawnPacket.Context.SpawningIntoWorld))
     } else {
       // Notify the client that the connection is complete, this will attempt
       // to spawn the player in the world, only affects the first time the client

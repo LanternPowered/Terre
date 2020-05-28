@@ -44,7 +44,9 @@ internal sealed class SpeechBubblePacket : Packet {
   }
 }
 
-internal val SpeechBubbleEncoder = packetEncoderOf<SpeechBubblePacket> { buf, packet ->
+internal val SpeechBubbleEncoder = SpeechBubbleEncoder(Integer.MAX_VALUE)
+
+internal fun SpeechBubbleEncoder(version: Int) = packetEncoderOf<SpeechBubblePacket> { buf, packet ->
   buf.writeIntLE(packet.id)
   if (packet is SpeechBubblePacket.Remove) {
     buf.writeByte(255)
@@ -64,7 +66,11 @@ internal val SpeechBubbleEncoder = packetEncoderOf<SpeechBubblePacket> { buf, pa
         buf.writeShortLE(anchor.id.value)
       }
     }
-    buf.writeByte(packet.lifetime)
+    if (version > 194) {
+      buf.writeShortLE(packet.lifetime)
+    } else {
+      buf.writeByte(packet.lifetime)
+    }
     buf.writeByte(packet.emote)
     if (packet.emote < 0) {
       buf.writeShortLE(packet.emote)

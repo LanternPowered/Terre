@@ -29,6 +29,7 @@ internal class WorldInfoPacket(
     val uniqueId: UUID,
     val name: String,
     val generatorVersion: Long,
+    val gameMode: Int,
     val data: ByteBuf
 ) : Packet, ForwardingReferenceCounted(data) {
 
@@ -57,6 +58,8 @@ internal inline fun WorldInfoEncoder(protocol: Int) = packetEncoderOf<WorldInfoP
   buf.writeBytes(data, 0, idOffset)
   buf.writeIntLE(packet.id)
   buf.writeString(packet.name)
+  if (protocol > 194)
+    buf.writeByte(packet.gameMode)
   if (protocol != 155) {
     buf.writeUUID(packet.uniqueId)
     buf.writeLongLE(packet.generatorVersion)
@@ -74,6 +77,7 @@ internal inline fun WorldInfoDecoder(protocol: Int) = packetDecoderOf { buf ->
 
   val id = buf.readIntLE()
   val name = buf.readString()
+  val gameMode = if (protocol > 194) buf.readUnsignedByte().toInt() else 0
   val uniqueId = if (protocol == 155) EmptyUUID else buf.readUUID()
   val generatorVersion = if (protocol == 155) 0L else buf.readLongLE()
 
@@ -89,5 +93,5 @@ internal inline fun WorldInfoDecoder(protocol: Int) = packetDecoderOf { buf ->
   buf.readerIndex(end)
   data.writerIndex(size)
 
-  WorldInfoPacket(id, uniqueId, name, generatorVersion, data)
+  WorldInfoPacket(id, uniqueId, name, generatorVersion, gameMode, data)
 }

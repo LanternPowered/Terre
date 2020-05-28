@@ -21,16 +21,31 @@ import org.lanternpowered.terre.impl.network.packetEncoderOf
 
 internal data class PlayerSpawnPacket(
     val playerId: PlayerId,
-    val position: Vec2i
-) : Packet
+    val position: Vec2i,
+    val respawnTimeRemaining: Int,
+    val respawnContext: Context
+) : Packet {
+
+  enum class Context {
+    ReviveFromDeath,
+    SpawningIntoWorld,
+    RecallFromItem,
+  }
+}
+
+private val contextById = PlayerSpawnPacket.Context.values()
 
 internal val PlayerSpawnEncoder = packetEncoderOf<PlayerSpawnPacket> { buf, packet ->
   buf.writePlayerId(packet.playerId)
   buf.writeShortVec2i(packet.position)
+  buf.writeIntLE(packet.respawnTimeRemaining)
+  buf.writeByte(packet.respawnContext.ordinal)
 }
 
 internal val PlayerSpawnDecoder = packetDecoderOf { buf ->
   val playerId = buf.readPlayerId()
   val position = buf.readShortVec2i()
-  PlayerSpawnPacket(playerId, position)
+  val respawnTimeRemaining = buf.readIntLE()
+  val respawnContext = contextById[buf.readUnsignedByte().toInt()]
+  PlayerSpawnPacket(playerId, position, respawnTimeRemaining, respawnContext)
 }

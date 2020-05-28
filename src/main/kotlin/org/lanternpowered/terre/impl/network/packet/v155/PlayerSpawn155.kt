@@ -9,8 +9,8 @@
  */
 package org.lanternpowered.terre.impl.network.packet.v155
 
-import org.lanternpowered.terre.impl.network.packet.UpdateNpcDecoder
-import org.lanternpowered.terre.impl.network.packet.UpdateNpcEncoder
+import org.lanternpowered.terre.impl.network.packet.v194.PlayerSpawn194Decoder
+import org.lanternpowered.terre.impl.network.packet.v194.PlayerSpawn194Encoder
 
-internal val UpdateNpc155Encoder = UpdateNpcEncoder(155)
-internal val UpdateNpc155Decoder = UpdateNpcDecoder(155)
+internal val PlayerSpawn155Encoder = PlayerSpawn194Encoder
+internal val PlayerSpawn155Decoder = PlayerSpawn194Decoder
