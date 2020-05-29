@@ -61,7 +61,9 @@ Thumbs.db
 .externalToolBuilders
 .gradle
 .nb-gradle
-.idea
+.idea/*
+!.idea/runConfigurations/
+!.idea/runConfigurations/*
 .project
 .settings
 nbproject
@@ -74,9 +76,8 @@ nb-configuration.xml
 
 # Other Files #
 ###############
-/run
-/test-server/run
+!/test/
+/test/run/
+!/test/run/.gitkeep
 !.gitkeep
 *.launch
-
-test\.nbt
