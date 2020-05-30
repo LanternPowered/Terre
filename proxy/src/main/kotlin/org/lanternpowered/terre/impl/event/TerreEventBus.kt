@@ -37,7 +37,11 @@ import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
 import kotlin.concurrent.write
 import kotlin.reflect.KClass
-import kotlin.reflect.jvm.kotlinFunction
+import kotlin.reflect.KFunction
+import kotlin.reflect.full.declaredFunctions
+import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.instanceParameter
+import kotlin.reflect.jvm.javaMethod
 
 internal object TerreEventBus : EventBus {
 
@@ -49,8 +53,13 @@ internal object TerreEventBus : EventBus {
   private val handlersCache: LoadingCache<Class<*>, List<RegisteredHandler>>
       = Caffeine.newBuilder().initialCapacity(150).build(::bakeHandlers)
 
-  private val methodHandlers: LoadingCache<Method, UntargetedEventHandler>
+  private val methodHandlers: LoadingCache<MethodInfo, UntargetedEventHandler>
       = Caffeine.newBuilder().build(::buildMethodListener)
+
+  private data class MethodInfo(
+      val method: Method,
+      val isSuspend: Boolean
+  )
 
   private fun bakeHandlers(eventType: Class<*>): List<RegisteredHandler> {
     val baked = mutableListOf<RegisteredHandler>()
@@ -99,12 +108,15 @@ internal object TerreEventBus : EventBus {
 
     for ((info, errors) in map.values) {
       if (errors != null) {
-        Terre.logger.warn("Invalid listener method {} in {}: {}", info.method.name,
-            info.method.declaringClass.name, errors)
+        val declaring = if (info.method != null) info.method.declaringClass.name else {
+          (info.function.instanceParameter?.type?.classifier as? KClass<*>)?.qualifiedName
+        } ?: "unknown"
+        Terre.logger.warn("Invalid listener method ${info.function.name} in $declaring: $errors", info.function.name)
         continue
       }
 
-      val untargetedHandler = this.methodHandlers.get(info.method) ?: error("Shouldn't happen.")
+      val untargetedHandler = this.methodHandlers
+          .get(MethodInfo(info.method!!, info.function.isSuspend)) ?: error("Shouldn't happen.")
       val handler = object : EventHandler {
         override suspend fun handle(event: Event) {
           untargetedHandler.handle(listener, event)
@@ -144,27 +156,41 @@ internal object TerreEventBus : EventBus {
   }
 
   private class MethodListenerInfo(
-      val method: Method,
+      val function: KFunction<*>,
+      val method: Method?,
       val eventType: Class<*>,
       val order: Int
   )
 
   private fun collectEventMethods(type: Class<*>, map: MutableMap<String, Pair<MethodListenerInfo, String?>>) {
-    for (method in type.declaredMethods) {
-      if (method.isSynthetic)
+    // We can't depend on methods directly, we must use kotlin functions,
+    // see: https://youtrack.jetbrains.com/issue/KT-34024
+    for (function in type.kotlin.declaredFunctions) {
+      val annotation = function.findAnnotation<Subscribe>() ?: continue
+      val errors = mutableSetOf<String>()
+      val javaMethod = try {
+        function.javaMethod
+      } catch (error: Error) { // KotlinReflectionInternalError
+        error.printStackTrace()
+        // Parameter is an inline class, that's currently not supported
+        if (error.stackTrace.any { element -> element.className.contains("InlineClassAwareCaller") }) {
+          // https://youtrack.jetbrains.com/issue/KT-34024
+          errors += "parameter isn't an event"
+        } else {
+          throw error
+        }
+        null
+      }
+      if (!function.isSuspend && javaMethod?.isSynthetic == true)
         continue
-
-      val annotation = method.getAnnotation(Subscribe::class.java) ?: continue
-      val key = method.name + method.parameterTypes.joinToString(
+      if (javaMethod != null && Modifier.isStatic(javaMethod.modifiers))
+        errors += "function must not be static"
+      val suspend = if (function.isSuspend) "suspend " else ""
+      val key = suspend + function.name + function.parameters.joinToString(
           separator = ",", prefix = "(", postfix = ")")
       if (key in map)
         continue
-
       var eventType: Class<*> = Event::class.java
-      val errors = mutableListOf<String>()
-      if (Modifier.isStatic(method.modifiers))
-        errors += "function must not be static"
-      val function = method.kotlinFunction ?: error("Cannot get function for ${method.name}")
       if (function.isOperator)
         errors += "function must not be an operator"
       if (function.isInline)
@@ -172,25 +198,22 @@ internal object TerreEventBus : EventBus {
       if (function.parameters.size != 2) {
         errors += "function must have 1 parameter which is the event"
       } else {
-        eventType = method.parameterTypes[0]
+        val parameter = function.parameters[1]
+        eventType = (parameter.type.classifier as KClass<*>).java
         if (!Event::class.java.isAssignableFrom(eventType))
           errors += "parameter isn't an event"
-        val parameter = function.parameters[1]
         if (parameter.isOptional)
           errors += "parameter can't be optional"
         if (parameter.isVararg)
           errors += "parameter can't be vararg"
       }
-
-      val info = MethodListenerInfo(method, eventType, annotation.order)
+      val info = MethodListenerInfo(function, javaMethod, eventType, annotation.order)
       map[key] = info to if (errors.isEmpty()) null else errors.joinToString(", ")
     }
-    for (itf in type.interfaces) {
+    for (itf in type.interfaces)
       collectEventMethods(itf, map)
-    }
-    if (type.superclass != Any::class.java) {
+    if (type.superclass != Any::class.java)
       collectEventMethods(type.superclass, map)
-    }
   }
 
   private val untargetedEventHandlerType = lambdaType<UntargetedEventHandler>()
@@ -198,12 +221,12 @@ internal object TerreEventBus : EventBus {
 
   private val methodHandlesLookup = MethodHandles.lookup()
 
-  private fun buildMethodListener(method: Method): UntargetedEventHandler {
-    val function = method.kotlinFunction ?: error("Cannot get function for ${method.name}")
-    val methodHandle = this.methodHandlesLookup.privateLookupIn(method.declaringClass).unreflect(method)
+  private fun buildMethodListener(methodInfo: MethodInfo): UntargetedEventHandler {
+    val methodHandle = this.methodHandlesLookup
+        .privateLookupIn(methodInfo.method.declaringClass).unreflect(methodInfo.method)
 
     val handlerType
-        = if (function.isSuspend) this.untargetedEventHandlerType else this.untargetedEventHandlerNoSuspendType
+        = if (methodInfo.isSuspend) this.untargetedEventHandlerType else this.untargetedEventHandlerNoSuspendType
     return methodHandle.createLambda(handlerType)
   }
 

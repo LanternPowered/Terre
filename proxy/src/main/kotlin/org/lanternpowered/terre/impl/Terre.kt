@@ -10,7 +10,7 @@
 package org.lanternpowered.terre.impl
 
 import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.spi.ExtendedLogger
+import org.lanternpowered.terre.impl.logger.LoggerImpl
 import org.lanternpowered.terre.logger.Logger
 import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.text.text
@@ -42,28 +42,8 @@ internal object Terre {
 
   fun message(text: String) = message(text.text())
 
-  private val backingLogger: ExtendedLogger = LogManager.getLogger(this.name) as ExtendedLogger
-
   /**
    * The logger of the platform.
    */
-  val logger: Logger = LoggerImpl()
-
-  private class LoggerImpl : Logger, ExtendedLogger by backingLogger {
-
-    override fun info(fn: () -> String) {
-      if (isInfoEnabled)
-        info(fn())
-    }
-
-    override fun debug(fn: () -> String) {
-      if (isDebugEnabled)
-        debug(fn())
-    }
-
-    override fun warn(fn: () -> String) {
-      if (isWarnEnabled)
-        warn(fn())
-    }
-  }
+  val logger: Logger = LoggerImpl(LogManager.getLogger(this.name))
 }

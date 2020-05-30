@@ -9,6 +9,10 @@
  */
 package org.lanternpowered.terre.portals
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.builtins.list
 import kotlinx.serialization.json.Json
 import org.lanternpowered.terre.Proxy
@@ -26,7 +30,6 @@ import org.lanternpowered.terre.plugin.inject
 import org.lanternpowered.terre.portal.Portal
 import org.lanternpowered.terre.util.ColorHue
 import java.nio.file.Files
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.random.Random
 
 /**
@@ -41,52 +44,81 @@ object Portals {
   private val configDir = inject<ConfigDirectory>()
 
   private val portalsFile = configDir.path.resolve("portals.json")
-
-  // TODO: Use lock
+  private val mutex = Mutex()
 
   /**
    * All the data of known portals that should be persisted.
    */
-  private val portalData = ConcurrentHashMap<String, PortalData>()
+  private val portalData = mutableMapOf<String, PortalData>()
 
   /**
    * All the portals that are currently opened.
    */
-  private val portals = ConcurrentHashMap<String, Portal>()
+  private val portals = mutableMapOf<String, Portal>()
 
   /**
    * Loads the portal data.
    */
-  private fun loadPortalData() {
+  private suspend fun loadPortalData() {
     logger.info { "Loading portal data..." }
-    if (!Files.exists(portalsFile))
-      return
-    val content = Files.newBufferedReader(portalsFile).useLines { it.joinToString("") }
-    val portals = Json.parse(PortalData.serializer().list, content)
-    this.portalData.clear()
-    for (portal in portals)
-      this.portalData[portal.name] = portal
+    withContext(Dispatchers.IO) {
+      if (!Files.exists(portalsFile))
+        return@withContext
+      val content = Files.newBufferedReader(portalsFile).useLines { it.joinToString("") }
+      val portals = Json.parse(PortalData.serializer().list, content)
+      // TODO: Use mutex.withLock {}
+      //   when it actually compiles...
+      mutex.lock()
+      try {
+        portalData.clear()
+        for (portal in portals)
+          portalData[portal.name] = portal
+        for (portal in this@Portals.portals.values)
+          portal.close()
+        this@Portals.portals.clear()
+      } finally {
+        mutex.unlock()
+      }
+    }
+  }
+
+  /**
+   * Saves the portal data.
+   */
+  private suspend fun savePortalData() {
+    logger.info { "Saving portal data..." }
+    withContext(Dispatchers.IO) {
+      val parent = portalsFile.parent
+      if (!Files.exists(parent))
+        Files.createDirectories(parent)
+      val portals = mutex.withLock { portalData.values.toList() }
+      val content = Json.stringify(PortalData.serializer().list, portals)
+      Files.newBufferedWriter(portalsFile).use { writer -> writer.append(content) }
+    }
   }
 
   /**
    * Creates a new portal with the given parameters.
    */
-  private fun createPortal(
+  private suspend fun createPortal(
       name: String, origin: String, destination: String, position: Vec2f, colorHue: ColorHue = randomColorHue()
   ): PortalData {
-    check(portalData.containsKey(name)) { "The name '$name' is already used." }
     val data = PortalData(name, position, colorHue, origin, destination)
-    portalData[name] = data
-    val originServer = Proxy.servers[origin]
-    if (originServer != null)
-      openPortal(originServer, data)
-    return data
+    mutex.withLock {
+      check(portalData.containsKey(name)) { "The name '$name' is already used." }
+      portalData[name] = data
+      val originServer = Proxy.servers[origin]
+      if (originServer != null)
+        openPortal(originServer, data)
+      return data
+    }
   }
 
   @Subscribe
-  private fun onInit(event: ProxyInitializeEvent) {
-    loadPortalData()
+  private suspend fun onInit(event: ProxyInitializeEvent) {
+    logger.info { "Initializing Portals plugin!" }
 
+    loadPortalData()
     for (server in Proxy.servers)
       loadPortals(server)
 

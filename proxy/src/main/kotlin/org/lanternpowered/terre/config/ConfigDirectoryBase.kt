@@ -10,6 +10,7 @@
 package org.lanternpowered.terre.config
 
 import com.uchuhimo.konf.Config
+import java.nio.file.Files
 import java.nio.file.Path
 
 /**
@@ -18,8 +19,7 @@ import java.nio.file.Path
 interface ConfigDirectoryBase {
 
   /**
-   * The root path of the configuration
-   * directory.
+   * The root path of the configuration directory.
    */
   val path: Path
 

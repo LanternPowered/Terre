@@ -8,7 +8,7 @@ dependencies {
   api(kotlin("stdlib-jdk8"))
   api(kotlin("reflect"))
 
-  val coroutinesVersion = "1.3.0-RC2"
+  val coroutinesVersion = "1.3.7"
   api(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = coroutinesVersion)
   api(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-jdk8", version = coroutinesVersion)
   api(group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-runtime", version = "0.20.0")
