@@ -10,7 +10,6 @@
 package org.lanternpowered.terre.portal
 
 import org.lanternpowered.terre.math.Vec2f
-import org.lanternpowered.terre.util.ColorHue
 
 /**
  * Represents something that is aware of portals.
@@ -18,16 +17,8 @@ import org.lanternpowered.terre.util.ColorHue
 interface PortalAware {
 
   /**
-   * Opens a new portal at the given position and color hue. When
-   * the portal is no longer desired, it must be cleaned up through
-   * [Portal.close].
+   * Opens a new portal at the given position. When the portal is no
+   * longer desired, it must be cleaned up through [Portal.close].
    */
-  fun openPortal(position: Vec2f, colorHue: ColorHue): Portal
-
-  /**
-   * Opens a new portal at the given position and a random color hue.
-   * When the portal is no longer desired, it must be cleaned up through
-   * [Portal.close].
-   */
-  fun openPortal(position: Vec2f): Portal
+  fun openPortal(type: PortalType, position: Vec2f, fn: PortalBuilder.() -> Unit = {}): Portal
 }

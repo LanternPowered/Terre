@@ -35,6 +35,7 @@ internal class ServerCollectionImpl(
     val previous = this.map.putIfAbsent(key, server)
     check(previous == null) {
       "A server already exists with the name: ${serverInfo.name}" }
+    server.init()
     return server
   }
 

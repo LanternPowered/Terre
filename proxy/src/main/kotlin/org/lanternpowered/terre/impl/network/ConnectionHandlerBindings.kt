@@ -19,6 +19,7 @@ import org.lanternpowered.terre.impl.network.packet.CompleteConnectionPacket
 import org.lanternpowered.terre.impl.network.packet.ConnectionApprovedPacket
 import org.lanternpowered.terre.impl.network.packet.ConnectionRequestPacket
 import org.lanternpowered.terre.impl.network.packet.CustomPayloadPacket
+import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
 import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
 import org.lanternpowered.terre.impl.network.packet.IsMobileResponsePacket
 import org.lanternpowered.terre.impl.network.packet.KeepAlivePacket
@@ -31,6 +32,8 @@ import org.lanternpowered.terre.impl.network.packet.PlayerDeathPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerHurtPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerSpawnPacket
+import org.lanternpowered.terre.impl.network.packet.PlayerTeleportThroughPortalPacket
+import org.lanternpowered.terre.impl.network.packet.PlayerUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.SpeechBubblePacket
 import org.lanternpowered.terre.impl.network.packet.StatusPacket
 import org.lanternpowered.terre.impl.network.packet.UpdateItemOwnerPacket
@@ -72,6 +75,9 @@ internal object ConnectionHandlerBindings {
     bind<IsMobileResponsePacket>(ConnectionHandler::handle)
     bind<PlayerSpawnPacket>(ConnectionHandler::handle)
     bind<CustomPayloadPacket>(ConnectionHandler::handle)
+    bind<PlayerTeleportThroughPortalPacket>(ConnectionHandler::handle)
+    bind<ProjectileDestroyPacket>(ConnectionHandler::handle)
+    bind<PlayerUpdatePacket>(ConnectionHandler::handle)
   }
 
   internal fun <P : Packet> getHandler(packetType: Class<P>): (ConnectionHandler.(packet: P) -> Boolean)?

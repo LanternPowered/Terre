@@ -14,7 +14,7 @@ import org.lanternpowered.terre.impl.network.buffer.Projectile
 import org.lanternpowered.terre.impl.network.buffer.NpcId
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
-import org.lanternpowered.terre.impl.network.buffer.ProjectileType
+import org.lanternpowered.terre.impl.ProjectileType
 import org.lanternpowered.terre.impl.network.buffer.readNpcId
 import org.lanternpowered.terre.impl.network.buffer.readPlayerId
 import org.lanternpowered.terre.impl.network.buffer.readProjectileId

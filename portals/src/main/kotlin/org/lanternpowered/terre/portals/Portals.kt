@@ -28,9 +28,8 @@ import org.lanternpowered.terre.math.Vec2f
 import org.lanternpowered.terre.plugin.Plugin
 import org.lanternpowered.terre.plugin.inject
 import org.lanternpowered.terre.portal.Portal
-import org.lanternpowered.terre.util.ColorHue
+import org.lanternpowered.terre.portal.PortalType
 import java.nio.file.Files
-import kotlin.random.Random
 
 /**
  * A plugin which can be used to open portals in your servers
@@ -65,17 +64,17 @@ object Portals {
       if (!Files.exists(portalsFile))
         return@withContext
       val content = Files.newBufferedReader(portalsFile).useLines { it.joinToString("") }
-      val portals = Json.parse(PortalData.serializer().list, content)
+      val newPortalData = Json.parse(PortalData.serializer().list, content)
       // TODO: Use mutex.withLock {}
-      //   when it actually compiles...
+      //   when it actually compiles... here...
       mutex.lock()
       try {
         portalData.clear()
-        for (portal in portals)
+        for (portal in newPortalData)
           portalData[portal.name] = portal
-        for (portal in this@Portals.portals.values)
+        for (portal in portals.values)
           portal.close()
-        this@Portals.portals.clear()
+        portals.clear()
       } finally {
         mutex.unlock()
       }
@@ -101,9 +100,9 @@ object Portals {
    * Creates a new portal with the given parameters.
    */
   private suspend fun createPortal(
-      name: String, origin: String, destination: String, position: Vec2f, colorHue: ColorHue = randomColorHue()
+      name: String, origin: String, destination: String, type: PortalType, position: Vec2f
   ): PortalData {
-    val data = PortalData(name, position, colorHue, origin, destination)
+    val data = PortalData(name, type, position, origin, destination)
     mutex.withLock {
       check(portalData.containsKey(name)) { "The name '$name' is already used." }
       portalData[name] = data
@@ -112,6 +111,20 @@ object Portals {
         openPortal(originServer, data)
       return data
     }
+  }
+
+  /**
+   * Removes a portal with the given name, if it exists.
+   */
+  private suspend fun removePortal(name: String): Boolean {
+    mutex.withLock {
+      val data = portalData.remove(name)
+      if (data != null) {
+        portals.remove(name)?.close()
+        return true
+      }
+    }
+    return false
   }
 
   @Subscribe
@@ -126,29 +139,35 @@ object Portals {
   }
 
   @Subscribe
-  private fun onShutdown(event: ProxyShutdownEvent) {
-
+  private suspend fun onShutdown(event: ProxyShutdownEvent) {
+    savePortalData()
   }
 
   @Subscribe
-  private fun onServerRegister(event: ServerRegisterEvent) {
-    loadPortals(event.server)
+  private suspend fun onServerRegister(event: ServerRegisterEvent) {
+    mutex.withLock {
+      loadPortals(event.server)
+    }
   }
 
   @Subscribe
-  private fun onServerUnregister(event: ServerUnregisterEvent) {
-    closePortals(event.server)
+  private suspend fun onServerUnregister(event: ServerUnregisterEvent) {
+    mutex.withLock {
+      closePortals(event.server)
+    }
   }
 
   private fun openPortal(server: Server, data: PortalData) {
-    val portal = server.openPortal(data.position, data.colorHue)
-    portal.onUse { player ->
-      val destination = Proxy.servers[data.destination]
-      // Do nothing if the server doesn't exist, otherwise teleport
-      // the player to the other server
-      if (destination != null)
-        player.connectTo(destination)
+    val portal = server.openPortal(data.type, data.position) {
+      onStartCollide { player ->
+        val destination = Proxy.servers[data.destination]
+        // Do nothing if the server doesn't exist, otherwise teleport
+        // the player to the other server
+        if (destination != null)
+          player.connectTo(destination)
+      }
     }
+    portals[data.name] = portal
   }
 
   /**
@@ -177,9 +196,4 @@ object Portals {
       openPortal(server, data)
     }
   }
-
-  /**
-   * Generates a random color hue.
-   */
-  fun randomColorHue(): ColorHue = ColorHue(Random.nextFloat())
 }

@@ -18,6 +18,7 @@ import org.lanternpowered.terre.impl.network.packet.CompleteConnectionPacket
 import org.lanternpowered.terre.impl.network.packet.ConnectionApprovedPacket
 import org.lanternpowered.terre.impl.network.packet.ConnectionRequestPacket
 import org.lanternpowered.terre.impl.network.packet.CustomPayloadPacket
+import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
 import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
 import org.lanternpowered.terre.impl.network.packet.IsMobileResponsePacket
 import org.lanternpowered.terre.impl.network.packet.KeepAlivePacket
@@ -30,6 +31,8 @@ import org.lanternpowered.terre.impl.network.packet.PlayerDeathPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerHurtPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerSpawnPacket
+import org.lanternpowered.terre.impl.network.packet.PlayerTeleportThroughPortalPacket
+import org.lanternpowered.terre.impl.network.packet.PlayerUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
 import org.lanternpowered.terre.impl.network.packet.SpeechBubblePacket
 import org.lanternpowered.terre.impl.network.packet.StatusPacket
@@ -163,6 +166,18 @@ internal interface ConnectionHandler {
   }
 
   fun handle(packet: PlayerSpawnPacket): Boolean {
+    return false
+  }
+
+  fun handle(packet: PlayerUpdatePacket): Boolean {
+    return false
+  }
+
+  fun handle(packet: PlayerTeleportThroughPortalPacket): Boolean {
+    return false
+  }
+
+  fun handle(packet: ProjectileDestroyPacket): Boolean {
     return false
   }
 

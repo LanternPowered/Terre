@@ -11,11 +11,13 @@ package org.lanternpowered.terre
 
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
+import org.lanternpowered.terre.math.Vec2f
 import org.lanternpowered.terre.portal.PortalAware
 import org.lanternpowered.terre.text.MessageReceiver
 import org.lanternpowered.terre.text.MessageSender
 import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.text.textOf
+import org.lanternpowered.terre.util.AABB
 
 /**
  * Represents a player.
@@ -41,6 +43,18 @@ interface Player : Named, MessageReceiver, MessageSender, PortalAware, InboundCo
    * The connection to a server, if present.
    */
   val serverConnection: ServerConnection?
+
+  /**
+   * The position of the player in the world.
+   *
+   * Defaults to [Vec2f.Zero] if the player isn't connected.
+   */
+  val position: Vec2f
+
+  /**
+   * The bounding box of the player.
+   */
+  val boundingBox: AABB
 
   /**
    * Disconnects the player with the specified reason.

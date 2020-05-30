@@ -12,7 +12,6 @@ package org.lanternpowered.terre.impl.player
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.future.asDeferred
 import org.lanternpowered.terre.MaxPlayers
-import org.lanternpowered.terre.text.MessageSender
 import org.lanternpowered.terre.Player
 import org.lanternpowered.terre.PlayerIdentifier
 import org.lanternpowered.terre.ProtocolVersion
@@ -33,9 +32,12 @@ import org.lanternpowered.terre.impl.network.toDeferred
 import org.lanternpowered.terre.impl.text.MessageReceiverImpl
 import org.lanternpowered.terre.math.Vec2f
 import org.lanternpowered.terre.portal.Portal
+import org.lanternpowered.terre.portal.PortalBuilder
+import org.lanternpowered.terre.portal.PortalType
+import org.lanternpowered.terre.text.MessageSender
 import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.text.textOf
-import org.lanternpowered.terre.util.ColorHue
+import org.lanternpowered.terre.util.AABB
 import java.net.SocketAddress
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
@@ -57,6 +59,11 @@ internal class PlayerImpl(
 
   override val remoteAddress: SocketAddress
     get() = this.clientConnection.remoteAddress
+
+  @Volatile override var position: Vec2f = Vec2f.Zero
+
+  override val boundingBox: AABB
+    get() = AABB.centerSize(Vec2f(20f, 42f)).offset(position)
 
   /**
    * Whether the player was previously connected to another server.
@@ -199,11 +206,7 @@ internal class PlayerImpl(
     super.sendMessageAs(message, sender)
   }
 
-  override fun openPortal(position: Vec2f, colorHue: ColorHue): Portal {
-    TODO("Not yet implemented")
-  }
-
-  override fun openPortal(position: Vec2f): Portal {
+  override fun openPortal(type: PortalType, position: Vec2f, fn: PortalBuilder.() -> Unit): Portal {
     TODO("Not yet implemented")
   }
 
@@ -228,8 +231,10 @@ internal class PlayerImpl(
           old.setConnectionHandler(null)
           old.close()
         }
+        this.serverConnection?.server?.removePlayer(this)
         // Replace it with the successfully established one
         this.serverConnection = connection
+        connection.server.initPlayer(this)
         Terre.logger.debug("Successfully established connection to backend server: ${server.info}")
       }
     }

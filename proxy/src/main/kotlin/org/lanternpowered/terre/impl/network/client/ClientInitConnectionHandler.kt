@@ -30,6 +30,7 @@ import org.lanternpowered.terre.impl.network.packet.IsMobileRequestPacket
 import org.lanternpowered.terre.impl.network.packet.IsMobileResponsePacket
 import org.lanternpowered.terre.impl.network.packet.PasswordRequestPacket
 import org.lanternpowered.terre.impl.network.packet.PasswordResponsePacket
+import org.lanternpowered.terre.impl.network.packet.PlayerActivePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
 import org.lanternpowered.terre.impl.player.PlayerImpl

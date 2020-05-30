@@ -11,9 +11,29 @@ package org.lanternpowered.terre.portal
 
 import org.lanternpowered.terre.Player
 import org.lanternpowered.terre.Server
+import org.lanternpowered.terre.impl.ProjectileType
 import org.lanternpowered.terre.math.Vec2f
-import org.lanternpowered.terre.util.ColorHue
+import org.lanternpowered.terre.util.AABB
 import java.util.UUID
+
+/**
+ * The builder for [Portal]s.
+ */
+interface PortalBuilder {
+
+  /**
+   * When a player starts colliding with the portal, this
+   * function will be called.
+   */
+  fun onStartCollide(block: suspend Portal.(player: Player) -> Unit)
+
+  /**
+   * When a player stop colliding with the portal, this
+   * function will be called. [onStartCollide] will always be
+   * called before this.
+   */
+  fun onStopCollide(block: suspend Portal.(player: Player) -> Unit)
+}
 
 /**
  * Represents a portal. A portal can be spawned into a [Server]
@@ -30,9 +50,14 @@ interface Portal {
   val id: UUID
 
   /**
-   * The color hue that's used for the portal.
+   * The type of the portal.
    */
-  val colorHue: ColorHue
+  val type: PortalType
+
+  /**
+   * The bounding box of the portal.
+   */
+  val boundingBox: AABB
 
   /**
    * The server this portal is located in.
@@ -43,13 +68,6 @@ interface Portal {
    * The position of the portal.
    */
   val position: Vec2f
-
-  /**
-   * When a player walks into the portal, the [onUse] block
-   * will be called. By default, nothing will happen when a
-   * player attempts to use the portal.
-   */
-  fun onUse(onUse: suspend Portal.(player: Player) -> Unit)
 
   /**
    * Closes the portal.

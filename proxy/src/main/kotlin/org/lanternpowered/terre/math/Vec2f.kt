@@ -73,6 +73,9 @@ inline class Vec2f private constructor(private val packed: Long) {
   operator fun div(that: Float): Vec2f
       = Vec2f(this.x / that, this.y / that)
 
+  operator fun div(that: Int): Vec2f
+      = div(that.toFloat())
+
   operator fun rem(that: Vec2f): Vec2f
       = Vec2f(this.x % that.x, this.y % that.y)
 

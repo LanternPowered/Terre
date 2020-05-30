@@ -11,6 +11,8 @@ package org.lanternpowered.terre.impl.network
 
 import org.lanternpowered.terre.impl.network.packet.*
 import org.lanternpowered.terre.impl.network.packet.v155.*
+import org.lanternpowered.terre.impl.network.packet.v194.PlayerUpdate194Decoder
+import org.lanternpowered.terre.impl.network.packet.v194.PlayerUpdate194Encoder
 
 internal val Protocol155 = multistateProtocol {
   // Packets used in both the init and play states
@@ -34,6 +36,7 @@ internal val Protocol155 = multistateProtocol {
     bind(0x08, EssentialTilesRequestEncoder, PacketDirection.ClientToServer)
     bind(0x09, Status155Encoder, Status155Decoder, PacketDirection.ServerToClient)
     bind(0x0C, PlayerSpawn155Encoder, PlayerSpawn155Decoder)
+    bind(0x0D, PlayerUpdate155Encoder, PlayerUpdate155Decoder)
     bind(0x0E, PlayerActiveEncoder, PlayerActiveDecoder, PacketDirection.ServerToClient)
     bind(0x10, PlayerHealthEncoder, PlayerHealthDecoder)
     bind(0x16, UpdateItemOwnerEncoder)
@@ -42,6 +45,8 @@ internal val Protocol155 = multistateProtocol {
     bind(0x19, PlayerCommand155Encoder, PlayerCommand155Decoder, PacketDirection.ClientToServer)
     bind(0x19, PlayerChatMessage155Encoder, PlayerChatMessage155Decoder, PacketDirection.ServerToClient)
     bind(0x1A, PlayerHurt155Encoder, PlayerHurt155Decoder)
+    bind(0x1B, ProjectileUpdate155Encoder, ProjectileUpdate155Decoder)
+    bind(0x1D, ProjectileDestroyEncoder, ProjectileDestroyDecoder)
     bind(0x27, KeepAliveEncoder, PacketDirection.ServerToClient)
     bind(0x2A, PlayerManaEncoder, PlayerManaDecoder)
     bind(0x2C, PlayerDeath155Encoder, PlayerDeath155Decoder)
@@ -52,6 +57,7 @@ internal val Protocol155 = multistateProtocol {
     bind(0x43, CustomPayloadEncoder, CustomPayloadDecoder)
     bind(0x51, CombatMessage155Encoder, CombatMessage155Decoder, PacketDirection.ServerToClient)
     bind(0x5B, SpeechBubble155Encoder, PacketDirection.ServerToClient)
+    bind(0x60, PlayerTeleportThroughPortalEncoder, PlayerTeleportThroughPortalDecoder)
     // bind(0x66, NebulaLevelUpRequestEncoder, PacketDirection.ServerToClient)
     bind(0x6B, ChatMessage155Encoder, ChatMessage155Decoder)
   }

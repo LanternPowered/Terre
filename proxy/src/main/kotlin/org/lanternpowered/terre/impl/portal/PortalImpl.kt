@@ -10,53 +10,70 @@
 package org.lanternpowered.terre.impl.portal
 
 import org.lanternpowered.terre.Player
-import org.lanternpowered.terre.Server
+import org.lanternpowered.terre.impl.ServerImpl
+import org.lanternpowered.terre.impl.network.buffer.PlayerId
+import org.lanternpowered.terre.impl.network.buffer.ProjectileId
+import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
+import org.lanternpowered.terre.impl.network.packet.ProjectileUpdatePacket
 import org.lanternpowered.terre.math.Vec2f
 import org.lanternpowered.terre.portal.Portal
-import org.lanternpowered.terre.util.ColorHue
+import org.lanternpowered.terre.portal.PortalBuilder
+import org.lanternpowered.terre.portal.PortalType
+import org.lanternpowered.terre.util.AABB
 import java.util.UUID
-import kotlin.math.abs
 
-class PortalImpl(
+internal class PortalBuilderImpl(
+    val server: ServerImpl,
+    val type: PortalType,
+    val position: Vec2f
+) : PortalBuilder {
+
+  private var onStartCollide: suspend Portal.(player: Player) -> Unit = {}
+  private var onStopCollide: suspend Portal.(player: Player) -> Unit = {}
+
+  override fun onStartCollide(block: suspend Portal.(player: Player) -> Unit) {
+    onStartCollide = block
+  }
+
+  override fun onStopCollide(block: suspend Portal.(player: Player) -> Unit) {
+    onStopCollide = block
+  }
+
+  fun build(): PortalImpl {
+    type as PortalTypeImpl
+    val id = UUID.randomUUID()
+    val projectileId = server.projectileIdAllocator.allocate()
+    return PortalImpl(id, type, projectileId, server, position, onStartCollide, onStopCollide)
+  }
+}
+
+/**
+ * @property projectileId The projectile id
+ */
+internal class PortalImpl(
     override val id: UUID,
-    override val server: Server,
+    override val type: PortalTypeImpl,
+    val projectileId: ProjectileId,
+    override val server: ServerImpl,
     override val position: Vec2f,
-    override val colorHue: ColorHue
+    val onStartCollide: suspend Portal.(player: Player) -> Unit,
+    val onStopCollide: suspend Portal.(player: Player) -> Unit
 ) : Portal {
 
-  override fun onUse(onUse: suspend Portal.(player: Player) -> Unit) {
-    TODO("Not yet implemented")
-  }
+  val colliding = mutableSetOf<Player>()
+
+  override val boundingBox: AABB = AABB.centerSize(type.size).offset(position)
 
   override fun close() {
-    TODO("Not yet implemented")
+    server.closePortal(this)
   }
 
-  companion object {
+  fun createUpdatePacket(): ProjectileUpdatePacket {
+    return ProjectileUpdatePacket(projectileId, position, Vec2f.Zero, null,
+        null, null, PlayerId.None, type.projectileType, null, null, null)
+  }
 
-    /**
-     * The number of possible base ids. This also the
-     * maximum number of different portal colors.
-     */
-    const val BASE_ID_COUNT = 25
-
-    private val HUE_VALUES = FloatArray(BASE_ID_COUNT)
-
-    init {
-      // A table with all the possible hue values for portals
-      for (i in HUE_VALUES.indices)
-        HUE_VALUES[i] = (i.toFloat() * 0.08f + 0.5f) % 1.0f
-    }
-
-    /**
-     * Generates the base id for a portal based on the color hue.
-     */
-    fun generateBaseId(colorHue: ColorHue): Int {
-      // Find the closest hue value and return its index
-      return HUE_VALUES
-          .mapIndexed { index, hue -> index to abs(colorHue.value - hue) }
-          .minBy { (_, hueDiff) -> hueDiff }!! // Find the closest hue value
-          .first
-    }
+  fun createDestroyPacket(): ProjectileDestroyPacket {
+    return ProjectileDestroyPacket(projectileId, PlayerId.None)
   }
 }

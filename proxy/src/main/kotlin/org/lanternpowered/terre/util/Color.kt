@@ -44,16 +44,6 @@ inline class Color(val rgb: Int) {
   val blue: Int
     get() = this.rgb and 0xff
 
-  /**
-   * The hue value of the color.
-   */
-  val hue: ColorHue
-    get() {
-      val hsv = FloatArray(3)
-      java.awt.Color.RGBtoHSB(red, green, blue, hsv)
-      return ColorHue(hsv[0])
-    }
-
   override fun toString(): String = "Color(red=$red, green=$green, blue=$blue)"
 }
 

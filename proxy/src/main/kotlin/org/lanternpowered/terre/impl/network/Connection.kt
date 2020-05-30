@@ -27,7 +27,9 @@ import io.netty.util.AttributeKey
 import io.netty.util.ReferenceCountUtil
 import kotlinx.coroutines.asCoroutineDispatcher
 import org.lanternpowered.terre.impl.Terre
+import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
 import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
+import org.lanternpowered.terre.impl.network.packet.ProjectileUpdatePacket
 import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.text.textOf
 import java.io.IOException
@@ -142,7 +144,6 @@ internal class Connection(
         if (handler != null) {
           if (!handler(connectionHandler, packet)) {
             connectionHandler.handleGeneric(packet)
-
           }
         } else {
           connectionHandler.handleGeneric(packet)

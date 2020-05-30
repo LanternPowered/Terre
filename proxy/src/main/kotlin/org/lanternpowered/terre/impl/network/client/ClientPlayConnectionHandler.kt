@@ -16,8 +16,10 @@ import org.lanternpowered.terre.ServerConnectionRequestResult
 import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.network.ConnectionHandler
 import org.lanternpowered.terre.impl.network.Packet
+import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.packet.ClientUniqueIdPacket
 import org.lanternpowered.terre.impl.network.packet.KeepAlivePacket
+import org.lanternpowered.terre.impl.network.packet.PlayerActivePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerBuffsPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerCommandPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerHealthPacket
@@ -25,8 +27,11 @@ import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInventorySlotPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerManaPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerSpawnPacket
+import org.lanternpowered.terre.impl.network.packet.PlayerUpdatePacket
+import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
 import org.lanternpowered.terre.impl.player.PlayerImpl
+import org.lanternpowered.terre.portal.PortalTypes
 import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.text.text
 import org.lanternpowered.terre.text.textOf
@@ -51,6 +56,7 @@ internal class ClientPlayConnectionHandler(
 
   override fun initialize() {
     initializeKeepAliveTask()
+    playerImpl.clientConnection.send(PlayerActivePacket(PlayerId.None, false))
   }
 
   override fun disconnect() {
@@ -141,7 +147,6 @@ internal class ClientPlayConnectionHandler(
   }
 
   override fun handle(packet: PlayerCommandPacket): Boolean {
-    Terre.logger.info { "Received: $packet" }
     if (packet.commandId == "Say") {
       val command = packet.arguments
       if (command.startsWith("/")) {
@@ -160,6 +165,16 @@ internal class ClientPlayConnectionHandler(
 
   override fun handle(packet: PlayerSpawnPacket): Boolean {
     this.playerImpl.serverConnection?.isWorldInitialized = true
+    this.playerImpl.position = packet.position.toFloat()
+    return false // Forward
+  }
+
+  override fun handle(packet: PlayerUpdatePacket): Boolean {
+    this.playerImpl.position = packet.position
+    return false // Forward
+  }
+
+  override fun handle(packet: ProjectileDestroyPacket): Boolean {
     return false // Forward
   }
 

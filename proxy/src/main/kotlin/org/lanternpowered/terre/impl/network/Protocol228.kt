@@ -46,10 +46,13 @@ internal val Protocol228 = multistateProtocol {
     bind(0x08, EssentialTilesRequestEncoder, PacketDirection.ClientToServer)
     bind(0x09, StatusEncoder, StatusDecoder, PacketDirection.ServerToClient)
     bind(0x0C, PlayerSpawnEncoder, PlayerSpawnDecoder)
+    bind(0x0D, PlayerUpdateEncoder, PlayerUpdateDecoder)
     bind(0x0E, PlayerActiveEncoder, PlayerActiveDecoder, PacketDirection.ServerToClient)
     bind(0x10, PlayerHealthEncoder, PlayerHealthDecoder)
     bind(0x16, UpdateItemOwnerEncoder)
     bind(0x16, UpdateItemOwnerDecoder) // And keep alive
+    bind(0x1B, ProjectileUpdateEncoder, ProjectileUpdateDecoder)
+    bind(0x1D, ProjectileDestroyEncoder, ProjectileDestroyDecoder)
     bind(0x27, KeepAliveEncoder, PacketDirection.ServerToClient)
     bind(0x2A, PlayerManaEncoder, PlayerManaDecoder)
     bind(0x31, CompleteConnectionEncoder, CompleteConnectionDecoder, PacketDirection.ServerToClient)
@@ -58,6 +61,7 @@ internal val Protocol228 = multistateProtocol {
     bind(0x43, CustomPayloadEncoder, CustomPayloadDecoder)
     bind(0x51, CombatMessageEncoder, CombatMessageDecoder, PacketDirection.ServerToClient) // TODO
     bind(0x5B, SpeechBubbleEncoder)
+    bind(0x60, PlayerTeleportThroughPortalEncoder, PlayerTeleportThroughPortalDecoder)
     // bind(0x66, NebulaLevelUpRequestEncoder, PacketDirection.ServerToClient)
     bind(0x6B, ChatMessageEncoder, ChatMessageDecoder, PacketDirection.ServerToClient)
     bind(0x75, PlayerHurtEncoder, PlayerHurtDecoder)
