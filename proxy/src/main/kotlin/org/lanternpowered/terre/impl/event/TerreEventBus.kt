@@ -171,7 +171,6 @@ internal object TerreEventBus : EventBus {
       val javaMethod = try {
         function.javaMethod
       } catch (error: Error) { // KotlinReflectionInternalError
-        error.printStackTrace()
         // Parameter is an inline class, that's currently not supported
         if (error.stackTrace.any { element -> element.className.contains("InlineClassAwareCaller") }) {
           // https://youtrack.jetbrains.com/issue/KT-34024
@@ -242,9 +241,8 @@ internal object TerreEventBus : EventBus {
 
   override suspend fun <T : Event> post(event: T) {
     val handlers = getHandlers(event.javaClass)
-    if (handlers.isEmpty()) {
+    if (handlers.isEmpty())
       return
-    }
     handleHandlers(event, handlers)
   }
 
