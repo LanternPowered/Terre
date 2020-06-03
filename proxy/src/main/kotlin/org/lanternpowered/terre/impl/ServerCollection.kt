@@ -12,6 +12,9 @@ package org.lanternpowered.terre.impl
 import org.lanternpowered.terre.Server
 import org.lanternpowered.terre.ServerCollection
 import org.lanternpowered.terre.ServerInfo
+import org.lanternpowered.terre.event.EventBus
+import org.lanternpowered.terre.event.server.ServerRegisterEvent
+import org.lanternpowered.terre.event.server.ServerUnregisterEvent
 import org.lanternpowered.terre.impl.network.ProtocolRegistry
 import org.lanternpowered.terre.impl.network.VersionedProtocol
 import java.util.concurrent.ConcurrentHashMap
@@ -22,7 +25,9 @@ internal class ServerCollectionImpl(
 
   override fun get(name: String): Server? = this.map[name.toLowerCase()]
 
-  override fun register(serverInfo: ServerInfo): ServerImpl {
+  override fun register(serverInfo: ServerInfo): ServerImpl = register(serverInfo, silently = false)
+
+  fun register(serverInfo: ServerInfo, silently: Boolean = false): ServerImpl {
     val key = serverInfo.name.toLowerCase()
     val version = serverInfo.protocolVersion
     val protocol = if (version != null) {
@@ -32,14 +37,23 @@ internal class ServerCollectionImpl(
       VersionedProtocol(version, protocol)
     } else null
     val server = ServerImpl(serverInfo, false, protocol)
-    val previous = this.map.putIfAbsent(key, server)
-    check(previous == null) {
-      "A server already exists with the name: ${serverInfo.name}" }
-    server.init()
+    synchronized(server.registerLock) {
+      val previous = this.map.putIfAbsent(key, server)
+      check(previous == null) {
+        "A server already exists with the name: ${serverInfo.name}" }
+      server.init()
+      if (!silently)
+        EventBus.postAndForget(ServerRegisterEvent(server))
+    }
     return server
   }
 
   fun unregister(server: Server) {
-    this.map.remove(server.info.name.toLowerCase(), server)
+    server as ServerImpl
+    synchronized(server.registerLock) {
+      if (!this.map.remove(server.info.name.toLowerCase(), server))
+        return
+      EventBus.postAndForget(ServerUnregisterEvent(server))
+    }
   }
 }

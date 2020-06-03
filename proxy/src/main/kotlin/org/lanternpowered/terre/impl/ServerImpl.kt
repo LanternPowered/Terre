@@ -38,6 +38,8 @@ internal class ServerImpl(
   var unregistered = false
     private set
 
+  val registerLock = Any()
+
   private val mutablePlayers = MutablePlayerCollection.concurrentOf()
 
   val portalsByProjectileId = ConcurrentHashMap<Int, PortalImpl>()

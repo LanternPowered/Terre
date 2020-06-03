@@ -13,7 +13,6 @@ import io.netty.buffer.ByteBuf
 import org.lanternpowered.terre.ServerInfo
 import org.lanternpowered.terre.impl.ProxyImpl
 import org.lanternpowered.terre.impl.Terre
-import org.lanternpowered.terre.math.Vec2i
 import org.lanternpowered.terre.impl.network.ConnectionHandler
 import org.lanternpowered.terre.impl.network.MultistateProtocol
 import org.lanternpowered.terre.impl.network.Packet
@@ -33,6 +32,7 @@ import org.lanternpowered.terre.impl.player.PlayerImpl
 import org.lanternpowered.terre.impl.player.ServerConnectionImpl
 import org.lanternpowered.terre.impl.util.parseInetAddress
 import org.lanternpowered.terre.impl.util.resolve
+import org.lanternpowered.terre.math.Vec2i
 
 internal open class ServerPlayConnectionHandler(
     private val serverConnection: ServerConnectionImpl,

@@ -1,4 +1,4 @@
-# Terre [![Build Status](https://travis-ci.org/LanternPowered/Terre.svg?branch=master)](https://travis-ci.org/LanternPowered/Lantern) [![Discord](https://img.shields.io/badge/chat-on%20discord-6E85CF.svg)](https://discord.gg/ArSrsuU)
+# Terre [![Build Status](https://travis-ci.org/LanternPowered/Terre.svg?branch=master)](https://travis-ci.org/LanternPowered/Terre) [![Discord](https://img.shields.io/badge/chat-on%20discord-6E85CF.svg)](https://discord.gg/ArSrsuU)
 
 Terre is a Terraria proxy which aims to bring support for multi world and cross platform play between mobile and desktop
  clients. It is possible to customize the proxy to your liking by installing plugins or even develop your own.
