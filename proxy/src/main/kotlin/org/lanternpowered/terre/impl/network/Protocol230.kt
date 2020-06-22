@@ -19,7 +19,7 @@ import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsDoneDecod
 import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsDoneEncoder
 import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsEncoder
 
-internal val Protocol228 = multistateProtocol {
+internal val Protocol230 = multistateProtocol {
   bind(0x01, ConnectionRequestEncoder, ConnectionRequestDecoder, PacketDirection.ClientToServer)
   bind(0x02, DisconnectEncoder, DisconnectDecoder, PacketDirection.ServerToClient)
   bind(0x03, ConnectionApprovedEncoder, ConnectionApprovedDecoder, PacketDirection.ServerToClient)

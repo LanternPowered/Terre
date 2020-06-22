@@ -27,7 +27,7 @@ internal object ProtocolRegistry {
     register(ProtocolVersion.Vanilla.`1․3․0․7`, Protocol155)
     register(ProtocolVersion.Vanilla.`1․3․0․8`, Protocol155)
     register(ProtocolVersion.Vanilla.`1․3․5․3`, Protocol194)
-    register(ProtocolVersion.Vanilla.`1․4․0․4`, Protocol228)
+    register(ProtocolVersion.Vanilla.`1․4․0․5`, Protocol230)
 
     // Allow 1.3.5.3 version to connect to the older 1.3.0.7 version,
     // this allows desktop client to join 1.3.0.7 servers, which includes

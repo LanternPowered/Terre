@@ -22,7 +22,7 @@ object ProtocolVersions {
       ProtocolVersion.Vanilla.`1․3․0․7`,
       ProtocolVersion.Vanilla.`1․3․0․8`,
       ProtocolVersion.Vanilla.`1․3․5․3`,
-      ProtocolVersion.Vanilla.`1․4․0․4`
+      ProtocolVersion.Vanilla.`1․4․0․5`
   ).associateBy { it.protocol }
 
   /**
