@@ -9,4 +9,5 @@
  */
 package org.lanternpowered.terre.impl.network.buffer
 
-internal inline class NpcType(val value: Int)
+@JvmInline
+internal value class NpcType(val value: Int)

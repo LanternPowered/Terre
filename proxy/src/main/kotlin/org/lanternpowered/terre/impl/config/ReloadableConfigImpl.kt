@@ -19,9 +19,9 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 class ReloadableConfigImpl(
-    private val backing: Config,
-    override val path: Path,
-    override val format: ConfigFormat
+  private val backing: Config,
+  override val path: Path,
+  override val format: ConfigFormat
 ) : ReloadableConfig, Config by backing {
 
   override val exists: Boolean
@@ -34,9 +34,8 @@ class ReloadableConfigImpl(
       val loaded = Files.newBufferedReader(path).use {
         format.readerFor(backing).reader(it)
       }
-      for (item in loaded.items) {
+      for (item in loaded.items)
         backing.rawSet(item, loaded[item])
-      }
     }
   }
 

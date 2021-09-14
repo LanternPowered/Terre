@@ -24,11 +24,11 @@ import org.lanternpowered.terre.portal.PortalTypeRegistry
  */
 @Serializable
 class PortalData(
-    val name: String,
-    @SerialName("type") private val typeName: String,
-    @SerialName("pos") private val positionArray: FloatArray,
-    val origin: String,
-    val destination: String
+  val name: String,
+  @SerialName("type") private val typeName: String,
+  @SerialName("pos") private val positionArray: FloatArray,
+  val origin: String,
+  val destination: String
 ) {
 
   val position: Vec2f
@@ -38,5 +38,5 @@ class PortalData(
     get() = PortalTypeRegistry[typeName]!!
 
   constructor(name: String, type: PortalType, position: Vec2f, origin: String, target: String) :
-      this(name, type.name, floatArrayOf(position.x, position.y), origin, target)
+    this(name, type.name, floatArrayOf(position.x, position.y), origin, target)
 }

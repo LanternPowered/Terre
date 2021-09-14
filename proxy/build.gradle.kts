@@ -11,7 +11,7 @@ dependencies {
   val coroutinesVersion = "1.3.7"
   api(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = coroutinesVersion)
   api(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-jdk8", version = coroutinesVersion)
-  api(group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-runtime", version = "0.20.0")
+  api(group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json-jvm", version = "1.3.0-RC")
 
   // General utilities
   api(group = "com.google.guava", name = "guava", version = "28.0-jre")
@@ -52,8 +52,8 @@ dependencies {
   implementation(group = "org.jline", name = "jline-terminal-jansi", version = "3.12.1")
 
   // Testing
-  testCompile(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = "5.2.0")
-  testCompile(kotlin(module = "test", version = "1.3.41"))
+  testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = "5.2.0")
+  testImplementation(kotlin(module = "test", version = "1.3.41"))
 }
 
 tasks {

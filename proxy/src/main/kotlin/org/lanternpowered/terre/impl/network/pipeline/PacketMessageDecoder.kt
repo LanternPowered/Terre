@@ -24,7 +24,8 @@ internal class PacketMessageDecoder(
 
   companion object {
 
-    private val DebugUnknownPackets = System.getProperty("terre.debugUnknownPackets")?.toLowerCase() == "true"
+    private val DebugUnknownPackets =
+      System.getProperty("terre.debugUnknownPackets")?.lowercase() == "true"
 
     init {
       Terre.logger.debug("terre.debugUnknownPackets -> $DebugUnknownPackets")

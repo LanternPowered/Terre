@@ -12,7 +12,8 @@ package org.lanternpowered.terre.impl.network.buffer
 /**
  * Represents the id of a projectile.
  */
-internal inline class ProjectileId(inline val value: Int) {
+@JvmInline
+internal value class ProjectileId(inline val value: Int) {
 
   companion object {
 

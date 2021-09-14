@@ -68,7 +68,7 @@ private fun fromTaggedVanillaFormat(format: String, builder: TextBuilder) {
 
     when (type) {
       "a" -> {
-        val achievement = AchievementRegistry[value.toLowerCase(Locale.ROOT)]
+        val achievement = AchievementRegistry[value.lowercase()]
         if (achievement == null) {
           builder.append(value)
         } else {

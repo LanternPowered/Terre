@@ -19,9 +19,11 @@ import java.nio.file.Path
 
 open class ConfigDirectoryBaseImpl(override val path: Path) : ConfigDirectoryBase {
 
-  override fun config(name: String, format: ConfigFormat, extension: String, fn: Config.() -> Unit): ReloadableConfig {
+  override fun config(
+    name: String, format: ConfigFormat, extension: String, fn: Config.() -> Unit
+  ): ReloadableConfig {
     val config = Config().also(fn)
-    val path = this.path.resolve(name + if (extension.isNotBlank()) ".$extension" else "")
+    val path = path.resolve(name + if (extension.isNotBlank()) ".$extension" else "")
     return ReloadableConfigImpl(config, path, format)
   }
 }

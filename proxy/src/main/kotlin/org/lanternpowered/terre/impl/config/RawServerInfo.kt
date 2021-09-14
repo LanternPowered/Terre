@@ -24,11 +24,11 @@ import java.util.*
  * @property `allow-auto-join` Whether players are allowed to automatically connect to the server
  */
 data class RawServerInfo(
-    val name: String,
-    val address: String,
-    val password: String = "",
-    val `allow-auto-join`: Boolean = false,
-    val protocol: String = ""
+  val name: String,
+  val address: String,
+  val password: String = "",
+  val `allow-auto-join`: Boolean = false,
+  val protocol: String = ""
 ) {
 
   fun toServerInfo(): ServerInfo {

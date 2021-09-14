@@ -25,6 +25,7 @@ import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioDatagramChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.channel.socket.nio.NioSocketChannel
+import java.util.*
 import java.util.concurrent.ThreadFactory
 
 internal sealed class TransportType(
@@ -47,7 +48,7 @@ internal sealed class TransportType(
      * Searches for the best transport type.
      */
     fun findBestType(): TransportType {
-      if (System.getProperty("terre.disable-native-transport")?.toLowerCase() != "true") {
+      if (System.getProperty("terre.disable-native-transport")?.lowercase() != "true") {
         if (io.netty.channel.kqueue.KQueue.isAvailable()) {
           return KQueue
         }

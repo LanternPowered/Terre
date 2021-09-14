@@ -16,18 +16,21 @@ import org.lanternpowered.terre.impl.util.OptionalColor
 import org.lanternpowered.terre.text.*
 import org.lanternpowered.terre.util.Color
 import org.lanternpowered.terre.util.text.indexOf
+import java.util.*
 
-internal fun TextImpl.toTaggedVanillaText(parentColor: OptionalColor = OptionalColor.empty()): FormattableText
-    = toVanillaText(TaggedVanillaTextBuilder(), parentColor)
+internal fun TextImpl.toTaggedVanillaText(
+  parentColor: OptionalColor = OptionalColor.empty()
+): FormattableText = toVanillaText(TaggedVanillaTextBuilder(), parentColor)
 
-internal fun TextImpl.toPlainVanillaText(parentColor: OptionalColor = OptionalColor.empty()): FormattableText
-    = toVanillaText(PlainVanillaTextBuilder(), parentColor)
+internal fun TextImpl.toPlainVanillaText(
+  parentColor: OptionalColor = OptionalColor.empty()
+): FormattableText = toVanillaText(PlainVanillaTextBuilder(), parentColor)
 
 /**
  * Converts this text component into a flattened text component.
  */
 private fun TextImpl.toVanillaText(
-    builder: AbstractVanillaTextBuilder, parentColor: OptionalColor
+  builder: AbstractVanillaTextBuilder, parentColor: OptionalColor
 ): FormattableText {
   appendToBuilder(builder, parentColor)
   return builder.build()
@@ -48,7 +51,7 @@ private abstract class AbstractVanillaTextBuilder {
   private var color = OptionalColor.empty()
 
   fun ensureCapacity(minimumCapacity: Int) {
-    this.builder.ensureCapacity(minimumCapacity)
+    builder.ensureCapacity(minimumCapacity)
   }
 
   fun append(text: String, color: OptionalColor) {
@@ -61,29 +64,29 @@ private abstract class AbstractVanillaTextBuilder {
     switchColor(color)
     var index = text.indexOf(']', start, end)
     if (color.isEmpty && (index != -1 || text.indexOf('[', start, end) != -1)) {
-      this.builder.ensureCapacity((end - start) * 2)
+      builder.ensureCapacity((end - start) * 2)
       for (i in start until end) {
         val c = text[i]
         if (c == '[' || c == ']') {
           appendLiteral(c)
         } else {
-          this.builder.append(c)
+          builder.append(c)
         }
       }
       return
     }
     if (index == -1) {
-      this.builder.append(text, start, end)
+      builder.append(text, start, end)
     } else {
-      this.builder.append(text, start, index)
+      builder.append(text, start, index)
       while (true) {
         val next = text.indexOf(']', index + 1, end)
         resetColor()
         switchColor(color)
         if (next != -1) {
-          this.builder.append(text, index, next)
+          builder.append(text, index, next)
         } else {
-          this.builder.append(text, index, end)
+          builder.append(text, index, end)
           break
         }
         index = next
@@ -93,12 +96,10 @@ private abstract class AbstractVanillaTextBuilder {
 
   private fun switchColor(color: OptionalColor) {
     if (color != this.color) {
-      if (this.color.isPresent) {
+      if (this.color.isPresent)
         stopColor()
-      }
-      if (color.isPresent) {
+      if (color.isPresent)
         startColor(color.value)
-      }
       this.color = color
     }
   }
@@ -211,7 +212,7 @@ private class TaggedVanillaTextBuilder : AbstractVanillaTextBuilder() {
   }
 
   override fun appendText(text: AchievementText) {
-    builder.append("[a:").append(text.achievement.name.toUpperCase()).append(']')
+    builder.append("[a:").append(text.achievement.name.uppercase(Locale.ROOT)).append(']')
   }
 }
 
@@ -238,8 +239,9 @@ private fun TextImpl.appendToBuilder(builder: AbstractVanillaTextBuilder, parent
         val match = formatPattern.find(format, index)
         if (match != null) {
           val substitutionIndex = match.groupValues[1].toInt()
-          val substitution = if (substitutionIndex < substitutions.size)
-            substitutions[substitutionIndex] else null
+          val substitution =
+            if (substitutionIndex < substitutions.size) substitutions[substitutionIndex]
+            else null
 
           val start = if (substitution == null) match.range.last + 1 else match.range.first
           if (start != index) {

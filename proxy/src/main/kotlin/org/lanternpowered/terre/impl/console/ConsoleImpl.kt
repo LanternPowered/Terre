@@ -64,16 +64,16 @@ internal class ConsoleImpl(
     this.readThread = null
   }
 
-  override fun buildReader(builder: LineReaderBuilder): LineReader
-      = super.buildReader(builder.appName(Terre.name))
+  override fun buildReader(builder: LineReaderBuilder): LineReader =
+    super.buildReader(builder.appName(Terre.name))
 
-  override fun isRunning() = this.readThread?.isAlive ?: false
+  override fun isRunning() = readThread?.isAlive ?: false
 
   override fun runCommand(command: String) {
-    this.commandHandler(command)
+    commandHandler(command)
   }
 
   override fun shutdown() {
-    this.shutdownHandler()
+    shutdownHandler()
   }
 }

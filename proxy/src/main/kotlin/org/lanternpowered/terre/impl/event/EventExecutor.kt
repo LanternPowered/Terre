@@ -36,6 +36,5 @@ internal object EventExecutor {
    * A coroutine dispatcher that makes sure that the context of the plugin that's submitting a
    * task is known.
    */
-  @InternalCoroutinesApi
   val pluginAwareDispatcher = PluginContextCoroutineDispatcher(dispatcher)
 }

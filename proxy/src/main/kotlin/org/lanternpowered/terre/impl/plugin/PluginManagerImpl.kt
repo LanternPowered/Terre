@@ -29,10 +29,10 @@ internal class PluginManagerImpl : PluginManager {
   private val classToContainers = ConcurrentHashMap<KClass<*>, TerrePluginContainer>()
 
   override val all: List<PluginContainer>
-    get() = this.instanceToContainers.values.toImmutableList()
+    get() = instanceToContainers.values.toImmutableList()
 
-  override fun get(id: String): PluginContainer?
-      = this.idToContainers[id.toLowerCase()]
+  override fun get(id: String): PluginContainer? =
+    idToContainers[id.lowercase()]
 
   /**
    * Loads all the plugins from the target directory.
@@ -82,7 +82,7 @@ internal class PluginManagerImpl : PluginManager {
 
     val kClass = instance::class
 
-    val container = this.instanceToContainers[instance]
+    val container = instanceToContainers[instance]
     if (container != null)
       return container
 
@@ -92,10 +92,10 @@ internal class PluginManagerImpl : PluginManager {
   }
 
   private fun addOrGetPluginContainer(annotation: Plugin, instance: Any): TerrePluginContainer {
-    return this.instanceToContainers.computeIfAbsent(instance) {
+    return instanceToContainers.computeIfAbsent(instance) {
       createPluginContainer(annotation, instance).also {
-        this.classToContainers[instance::class] = it
-        this.idToContainers[it.id] = it
+        classToContainers[instance::class] = it
+        idToContainers[it.id] = it
       }
     }
   }

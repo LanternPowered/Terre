@@ -28,11 +28,14 @@ internal fun <T : NamedCatalogType> buildNamedCatalogTypeRegistryOf(
 }
 
 internal inline fun <reified T : NamedCatalogType> buildNamedCatalogTypeRegistryOf(
-    noinline autoRegisterFunction: (String) -> T?, noinline fn: CatalogTypeRegistryBuilder<T>.() -> Unit = {}
+  noinline autoRegisterFunction: (String) -> T?,
+  noinline fn: CatalogTypeRegistryBuilder<T>.() -> Unit = {}
 ) = buildNamedCatalogTypeRegistryOf(T::class, autoRegisterFunction, fn)
 
 internal fun <T : NamedCatalogType> buildNamedCatalogTypeRegistryOf(
-    type: KClass<T>, autoRegisterFunction: (String) -> T?, fn: CatalogTypeRegistryBuilder<T>.() -> Unit
+  type: KClass<T>,
+  autoRegisterFunction: (String) -> T?,
+  fn: CatalogTypeRegistryBuilder<T>.() -> Unit
 ): NamedCatalogTypeRegistryImpl<T> {
   val builder = NamedCatalogTypeRegistryBuilderImpl<T>()
   fn(builder)
@@ -44,22 +47,23 @@ internal open class NamedCatalogTypeRegistryBuilderImpl<T : NamedCatalogType> : 
   val byName = hashMapOf<String, T>()
 
   override fun register(catalogType: T) {
-    check(!this.byName.containsKey(catalogType.name)) { "The name '${catalogType.name}' is already in use." }
-    this.byName[catalogType.name.toLowerCase(Locale.ROOT)] = catalogType
+    check(!byName.containsKey(catalogType.name)) {
+      "The name '${catalogType.name}' is already in use." }
+    byName[catalogType.name.lowercase()] = catalogType
   }
 }
 
 internal class NamedCatalogTypeRegistryImpl<T : NamedCatalogType>(
-    private val type: KClass<T>,
-    private val byName: MutableMap<String, T>,
-    private val autoRegisterFunction: ((String) -> T?)? = null
+  private val type: KClass<T>,
+  private val byName: MutableMap<String, T>,
+  private val autoRegisterFunction: ((String) -> T?)? = null
 ) : NamedCatalogTypeRegistry<T> {
 
   override val all: Collection<T>
     get() = this.byName.values.toImmutableCollection()
 
   override fun get(name: String): T? {
-    val key = name.toLowerCase(Locale.ROOT)
+    val key = name.lowercase()
     var catalogType = this.byName[key]
     val autoRegisterFunction = this.autoRegisterFunction
     if (catalogType != null || autoRegisterFunction == null) {

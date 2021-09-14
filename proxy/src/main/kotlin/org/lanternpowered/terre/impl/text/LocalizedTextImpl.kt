@@ -31,14 +31,13 @@ internal class LocalizedTextImpl(
   override fun color(color: Color?): LocalizedTextImpl =
     color(color.optionalFromNullable())
 
-  fun color(optionalColor: OptionalColor): LocalizedTextImpl =
-    if (optionalColor == optionalColor) this
-    else LocalizedTextImpl(key, substitutions, optionalColor)
+  fun color(color: OptionalColor): LocalizedTextImpl =
+    if (optionalColor == color) this
+    else LocalizedTextImpl(key, substitutions, color)
 
   override fun equals(other: Any?): Boolean {
-    if (other !is LocalizedTextImpl) {
+    if (other !is LocalizedTextImpl)
       return false
-    }
     return key == other.key
       && substitutions contentEquals other.substitutions
       && optionalColor == other.optionalColor

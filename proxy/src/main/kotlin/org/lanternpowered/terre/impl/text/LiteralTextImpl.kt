@@ -24,13 +24,15 @@ internal data class LiteralTextImpl(
 
   override val isEmpty get() = literal.isEmpty()
 
-  override fun color(color: Color?): LiteralTextImpl = color(color.optionalFromNullable())
+  override fun color(color: Color?): LiteralTextImpl =
+    color(color.optionalFromNullable())
 
-  fun color(optionalColor: OptionalColor): LiteralTextImpl =
-    if (optionalColor == optionalColor) this
-    else LiteralTextImpl(literal, optionalColor)
+  fun color(color: OptionalColor): LiteralTextImpl =
+    if (optionalColor == color) this
+    else LiteralTextImpl(literal, color)
 
-  override fun toString() = ToStringHelper(LiteralText::class).omitNullValues()
+  override fun toString() = ToStringHelper(LiteralText::class)
+    .omitNullValues()
     .add("literal", literal)
     .add("color", color)
     .toString()

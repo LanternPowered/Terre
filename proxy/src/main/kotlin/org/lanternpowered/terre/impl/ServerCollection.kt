@@ -20,15 +20,16 @@ import org.lanternpowered.terre.impl.network.VersionedProtocol
 import java.util.concurrent.ConcurrentHashMap
 
 internal class ServerCollectionImpl(
-    private val map: MutableMap<String, ServerImpl> = ConcurrentHashMap()
+  private val map: MutableMap<String, ServerImpl> = ConcurrentHashMap()
 ) : ServerCollection, Collection<Server> by map.values {
 
-  override fun get(name: String): Server? = this.map[name.toLowerCase()]
+  override fun get(name: String): Server? = map[name.lowercase()]
 
-  override fun register(serverInfo: ServerInfo): ServerImpl = register(serverInfo, silently = false)
+  override fun register(serverInfo: ServerInfo): ServerImpl =
+    register(serverInfo, silently = false)
 
   fun register(serverInfo: ServerInfo, silently: Boolean = false): ServerImpl {
-    val key = serverInfo.name.toLowerCase()
+    val key = serverInfo.name.lowercase()
     val version = serverInfo.protocolVersion
     val protocol = if (version != null) {
       val protocol = ProtocolRegistry[version]
@@ -38,7 +39,7 @@ internal class ServerCollectionImpl(
     } else null
     val server = ServerImpl(serverInfo, false, protocol)
     synchronized(server.registerLock) {
-      val previous = this.map.putIfAbsent(key, server)
+      val previous = map.putIfAbsent(key, server)
       check(previous == null) {
         "A server already exists with the name: ${serverInfo.name}" }
       server.init()
@@ -51,7 +52,7 @@ internal class ServerCollectionImpl(
   fun unregister(server: Server) {
     server as ServerImpl
     synchronized(server.registerLock) {
-      if (!this.map.remove(server.info.name.toLowerCase(), server))
+      if (!map.remove(server.info.name.lowercase(), server))
         return
       EventBus.postAndForget(ServerUnregisterEvent(server))
     }

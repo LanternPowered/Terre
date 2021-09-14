@@ -21,8 +21,9 @@ import java.util.regex.Matcher
 
 @ConverterKeys("loc")
 @Plugin(name = "LocationPatternConverter", category = PatternConverter.CATEGORY)
-internal class LocationPatternConverter private constructor(private val format: String) :
-  LogEventPatternConverter("Location", "location") {
+internal class LocationPatternConverter private constructor(
+  private val format: String
+) : LogEventPatternConverter("Location", "location") {
 
   // Packages that will be ignored
   private val ignoredPackages = arrayOf("java.", "kotlin.io.")
@@ -31,7 +32,7 @@ internal class LocationPatternConverter private constructor(private val format: 
     val element = calculateLocation(event.loggerFqcn)
     if (element != null) {
       // quoteReplacement is required for elements leading to inner class (containing a $ character)
-      builder.append(this.format.replace("%path".toRegex(),
+      builder.append(format.replace("%path".toRegex(),
         Matcher.quoteReplacement(element.toString())))
     }
   }
@@ -62,7 +63,11 @@ internal class LocationPatternConverter private constructor(private val format: 
   companion object {
 
     val RedirectFqcns = hashSetOf(
-      PrintStream::class.java.name, LoggerPrintStream::class.java.name, LoggerImpl::class.java.name)
+      PrintStream::class.java.name,
+      LoggerPrintStream::class.java.name,
+      LoggerImpl::class.java.name
+    )
+
     val IgnoreFqcns = hashSetOf<String>()
 
     @JvmStatic

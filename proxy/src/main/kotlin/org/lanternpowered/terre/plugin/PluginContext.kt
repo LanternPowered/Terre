@@ -42,7 +42,8 @@ inline fun <R> withActivePlugin(pluginContainer: PluginContainer?, block: () -> 
  * by the given [PluginContainer].
  */
 suspend fun <R> CoroutineScope.withActivePlugin(
-    pluginContainer: PluginContainer?, block: suspend CoroutineScope.() -> R): R {
+  pluginContainer: PluginContainer?, block: suspend CoroutineScope.() -> R
+): R {
   contract {
     callsInPlace(block, InvocationKind.EXACTLY_ONCE)
   }
@@ -59,7 +60,9 @@ fun PluginContainer?.asContextElement() = PluginContextElement(this)
 /**
  * Constructs a new [PluginContextElement].
  */
-fun PluginContextElement(pluginContainer: PluginContainer? = PluginContainer.Active): PluginContextElement {
+fun PluginContextElement(
+  pluginContainer: PluginContainer? = PluginContainer.Active
+): PluginContextElement {
   return PluginThreadLocalElement(pluginContainer)
 }
 

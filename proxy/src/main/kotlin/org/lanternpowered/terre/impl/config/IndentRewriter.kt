@@ -37,15 +37,15 @@ internal class IndentRewriter(
   }
 
   override fun toText(): String {
-    val text = this.original.toText()
-    if (this.indentSize == this.originalIndentSize) // Is the same as the original indent
+    val text = original.toText()
+    if (indentSize == originalIndentSize) // Is the same as the original indent
       return text
     return text.split("\n")
-        .asSequence()
-        .map { line ->
-          val whitespaces = line.takeWhile { char -> char == ' ' }.count()
-          " ".repeat((whitespaces / this.originalIndentSize) * this.indentSize) + line.substring(whitespaces)
-        }
-        .joinToString(separator = "\n")
+      .asSequence()
+      .map { line ->
+        val whitespaces = line.takeWhile { char -> char == ' ' }.count()
+        " ".repeat((whitespaces / originalIndentSize) * indentSize) + line.substring(whitespaces)
+      }
+      .joinToString(separator = "\n")
   }
 }

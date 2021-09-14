@@ -12,4 +12,5 @@ package org.lanternpowered.terre.impl
 /**
  * Represents the id of a projectile.
  */
-internal inline class ProjectileType(inline val value: Int)
+@JvmInline
+internal value class ProjectileType(inline val value: Int)

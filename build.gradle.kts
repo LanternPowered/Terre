@@ -1,7 +1,7 @@
 plugins {
-  kotlin("jvm") version "1.4.30"
-  kotlin("plugin.serialization") version "1.4.30"
-  id("org.cadixdev.licenser") version "0.6.0"
+  kotlin("jvm") version "1.5.30"
+  kotlin("plugin.serialization") version "1.5.30"
+  id("org.cadixdev.licenser") version "0.6.1"
 }
 
 allprojects {
@@ -17,7 +17,6 @@ allprojects {
   repositories {
     mavenCentral()
     maven("https://jitpack.io")
-    maven("https://kotlin.bintray.com/kotlinx")
     maven("https://oss.sonatype.org/content/groups/public")
   }
 }
@@ -64,8 +63,8 @@ subprojects {
 
       withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().forEach {
         it.kotlinOptions.apply {
-          jvmTarget = "1.8"
-          languageVersion = "1.4"
+          jvmTarget = "16"
+          languageVersion = "1.6"
 
           val args = mutableListOf<String>()
           args += "-Xjvm-default=enable"
@@ -89,6 +88,7 @@ subprojects {
           useExperimentalAnnotation("kotlin.experimental.ExperimentalTypeInference")
           useExperimentalAnnotation("kotlin.time.ExperimentalTime")
           useExperimentalAnnotation("kotlinx.serialization.UnstableDefault")
+          useExperimentalAnnotation("kotlinx.coroutines.InternalCoroutinesApi")
 
           freeCompilerArgs = args
         }

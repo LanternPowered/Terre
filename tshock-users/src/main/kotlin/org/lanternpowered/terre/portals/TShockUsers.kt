@@ -16,12 +16,11 @@ import org.lanternpowered.terre.event.proxy.ProxyShutdownEvent
 import org.lanternpowered.terre.plugin.Plugin
 
 /**
- * A plugin which hooks into a tShock user system. This provides permissions
- * for the proxy using a tShock database and automatically login users to their
- * backing tShock servers when switching between them.
+ * A plugin which hooks into a tShock user system. This provides permissions for the proxy using
+ * a tShock database and automatically login users to their backing tShock servers when switching
+ * between them.
  *
- * This plugin is a must if you are using the user and permission system provided
- * by tShock.
+ * This plugin is a must if you are using the user and permission system provided by tShock.
  */
 @Plugin(id = "tshock-users")
 object TShockUsers {

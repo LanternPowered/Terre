@@ -13,7 +13,6 @@ import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Delay
 import kotlinx.coroutines.DisposableHandle
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Runnable
 import org.lanternpowered.terre.impl.plugin.PluginThreadLocalElement
@@ -42,7 +41,6 @@ internal class PluginContextCoroutineDispatcher(
     backing.dispatch(populateContext(context), block)
   }
 
-  @ExperimentalCoroutinesApi
   override fun isDispatchNeeded(context: CoroutineContext) = backing.isDispatchNeeded(context)
 
   @InternalCoroutinesApi
@@ -52,7 +50,7 @@ internal class PluginContextCoroutineDispatcher(
 
   @InternalCoroutinesApi
   override fun releaseInterceptedContinuation(continuation: Continuation<*>) {
-    this.backing.releaseInterceptedContinuation(continuation)
+    backing.releaseInterceptedContinuation(continuation)
   }
 
   override fun scheduleResumeAfterDelay(
@@ -61,7 +59,6 @@ internal class PluginContextCoroutineDispatcher(
     delay.scheduleResumeAfterDelay(timeMillis, continuation)
   }
 
-  override fun invokeOnTimeout(timeMillis: Long, block: Runnable): DisposableHandle {
-    return delay.invokeOnTimeout(timeMillis, block)
-  }
+  override fun invokeOnTimeout(timeMillis: Long, block: Runnable): DisposableHandle =
+    delay.invokeOnTimeout(timeMillis, block)
 }

@@ -13,7 +13,6 @@ package org.lanternpowered.terre.impl.util
 
 import org.lanternpowered.terre.util.Color
 
-
 /**
  * Wraps the color into a [OptionalColor].
  */
@@ -29,30 +28,31 @@ internal inline fun Color?.optionalFromNullable(): OptionalColor =
 /**
  * Represents a color object that can be present or absent.
  */
-internal inline class OptionalColor(
+@JvmInline
+internal value class OptionalColor(
   private val packed: Int
 ) : Optional<Color> {
 
   override val isPresent: Boolean
-    get() = (this.packed.toLong() and 0x80_00_00_00) == 0L
+    get() = (packed.toLong() and 0x80_00_00_00) == 0L
 
   override val isEmpty: Boolean
-    get() = !this.isPresent
+    get() = !isPresent
 
   override val value: Color
     get() {
-      check(this.isPresent) { "No value is present." }
-      return Color(this.packed and 0x00_ff_ff_ff)
+      check(isPresent) { "No value is present." }
+      return Color(packed and 0x00_ff_ff_ff)
     }
 
-  override fun orNull(): Color?
-      = if (this.isPresent) this.value else null
+  override fun orNull(): Color? =
+    if (isPresent) value else null
 
-  override fun or(that: Color): Color
-      = if (this.isPresent) this.value else that
+  override fun or(that: Color): Color =
+    if (isPresent) value else that
 
-  override fun toString(): String
-      = if (this.isPresent) "Optional$value" else "OptionalColor.empty"
+  override fun toString(): String =
+    if (isPresent) "Optional$value" else "OptionalColor.empty"
 
   companion object {
 

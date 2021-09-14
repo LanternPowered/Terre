@@ -15,8 +15,9 @@ package org.lanternpowered.terre.impl.network.buffer
  * @property isRight Whether it's right
  * @property isLeft Whether it's left
  */
-internal inline class LeftOrRight(val isRight: Boolean) {
+@JvmInline
+internal value class LeftOrRight(val isRight: Boolean) {
 
   val isLeft: Boolean
-    get() = !this.isRight
+    get() = !isRight
 }

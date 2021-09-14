@@ -16,46 +16,44 @@ import org.lanternpowered.terre.util.collection.concurrentMapOf
 import org.lanternpowered.terre.util.collection.toImmutableMap
 
 class MutablePlayerCollection private constructor(
-    private val map: MutableMap<PlayerIdentifier, Player>
+  private val map: MutableMap<PlayerIdentifier, Player>
 ) : PlayerCollection, Collection<Player> by map.values {
 
-  override fun get(identifier: PlayerIdentifier) = this.map[identifier]
-  override fun contains(identifier: PlayerIdentifier) = this.map.containsKey(identifier)
+  override fun get(identifier: PlayerIdentifier) = map[identifier]
+  override fun contains(identifier: PlayerIdentifier) = map.containsKey(identifier)
 
   fun add(player: Player) {
-    this.map[player.identifier] = player
+    map[player.identifier] = player
   }
 
-  fun addIfAbsent(player: Player): Player? {
-    return this.map.putIfAbsent(player.identifier, player)
-  }
+  fun addIfAbsent(player: Player): Player? =
+    map.putIfAbsent(player.identifier, player)
 
-  fun remove(player: Player): Boolean {
-    return this.map.remove(player.identifier, player)
-  }
+  fun remove(player: Player): Boolean =
+    map.remove(player.identifier, player)
 
-  fun toImmutable() = ImmutablePlayerCollection.of(this.map)
+  fun toImmutable() = ImmutablePlayerCollection.of(map)
 
   companion object {
 
-    fun concurrentOf(): MutablePlayerCollection
-        = MutablePlayerCollection(concurrentMapOf())
+    fun concurrentOf(): MutablePlayerCollection =
+      MutablePlayerCollection(concurrentMapOf())
 
-    fun of(): MutablePlayerCollection
-        = MutablePlayerCollection(mutableMapOf())
+    fun of(): MutablePlayerCollection =
+      MutablePlayerCollection(mutableMapOf())
   }
 }
 
 class ImmutablePlayerCollection private constructor(
-    private val map: Map<PlayerIdentifier, Player>
+  private val map: Map<PlayerIdentifier, Player>
 ) : PlayerCollection, Collection<Player> by map.values {
 
-  override fun get(identifier: PlayerIdentifier) = this.map[identifier]
-  override fun contains(identifier: PlayerIdentifier) = this.map.containsKey(identifier)
+  override fun get(identifier: PlayerIdentifier) = map[identifier]
+  override fun contains(identifier: PlayerIdentifier) = map.containsKey(identifier)
 
   companion object {
 
     fun of(map: Map<PlayerIdentifier, Player>): ImmutablePlayerCollection =
-        ImmutablePlayerCollection(map.toImmutableMap())
+      ImmutablePlayerCollection(map.toImmutableMap())
   }
 }

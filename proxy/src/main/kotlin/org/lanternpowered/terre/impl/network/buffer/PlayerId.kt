@@ -12,7 +12,8 @@ package org.lanternpowered.terre.impl.network.buffer
 /**
  * Represents the id of a player.
  */
-internal inline class PlayerId(inline val value: Int) {
+@JvmInline
+internal value class PlayerId(inline val value: Int) {
 
   /**
    * Converts this [PlayerId] to a desktop player id. For mobile

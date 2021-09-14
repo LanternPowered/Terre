@@ -14,14 +14,14 @@ package org.lanternpowered.terre.math
 /**
  * A floating-point 2d vector.
  */
-@Suppress("NON_PUBLIC_PRIMARY_CONSTRUCTOR_OF_INLINE_CLASS")
-inline class Vec2f private constructor(private val packed: Long) {
+@JvmInline
+value class Vec2f private constructor(private val packed: Long) {
 
   /**
    * Constructs a new floating-point 2d vector with the given x and y values.
    */
   constructor(x: Float, y: Float) :
-      this((x.toRawBits().toUInt().toLong() shl 32) or y.toRawBits().toUInt().toLong())
+    this((x.toRawBits().toUInt().toLong() shl 32) or y.toRawBits().toUInt().toLong())
 
   /**
    * The x value of the vector.

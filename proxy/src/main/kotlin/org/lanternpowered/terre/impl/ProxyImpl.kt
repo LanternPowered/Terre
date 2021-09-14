@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import com.uchuhimo.konf.Config
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.InternalCoroutinesApi
 import org.lanternpowered.terre.Console
 import org.lanternpowered.terre.MaxPlayers
 import org.lanternpowered.terre.Proxy
@@ -40,6 +39,7 @@ import org.lanternpowered.terre.util.collection.toImmutableList
 import java.net.BindException
 import java.net.InetSocketAddress
 import java.nio.file.Paths
+import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.exitProcess
 import kotlin.time.seconds
@@ -85,7 +85,6 @@ internal object ProxyImpl : Proxy {
     }
   }
 
-  @InternalCoroutinesApi
   override val dispatcher: CoroutineDispatcher = EventExecutor.pluginAwareDispatcher
 
   val pluginManager = PluginManagerImpl()
@@ -119,7 +118,7 @@ internal object ProxyImpl : Proxy {
   private fun processCommand(command: String) {
     // TODO: Process commands
     EventExecutor.executor.execute {
-      if (command.trim().toLowerCase() == "shutdown") {
+      if (command.trim().lowercase() == "shutdown") {
         shutdown()
       } else {
         Console.sendMessage("Unknown command: $command")

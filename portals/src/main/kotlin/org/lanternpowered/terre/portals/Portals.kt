@@ -13,7 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.builtins.list
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import org.lanternpowered.terre.Proxy
 import org.lanternpowered.terre.Server
@@ -55,6 +55,8 @@ object Portals {
    */
   private val portals = mutableMapOf<String, Portal>()
 
+  private val listPortalDataSerializer = ListSerializer(PortalData.serializer())
+
   /**
    * Loads the portal data.
    */
@@ -64,7 +66,7 @@ object Portals {
       if (!Files.exists(portalsFile))
         return@withContext
       val content = Files.newBufferedReader(portalsFile).useLines { it.joinToString("") }
-      val newPortalData = Json.parse(PortalData.serializer().list, content)
+      val newPortalData = Json.decodeFromString(listPortalDataSerializer, content)
       // TODO: Use mutex.withLock {}
       //   when it actually compiles... here...
       mutex.lock()
@@ -91,7 +93,7 @@ object Portals {
       if (!Files.exists(parent))
         Files.createDirectories(parent)
       val portals = mutex.withLock { portalData.values.toList() }
-      val content = Json.stringify(PortalData.serializer().list, portals)
+      val content = Json.encodeToString(listPortalDataSerializer, portals)
       Files.newBufferedWriter(portalsFile).use { writer -> writer.append(content) }
     }
   }
