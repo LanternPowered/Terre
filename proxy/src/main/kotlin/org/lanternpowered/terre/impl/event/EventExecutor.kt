@@ -10,19 +10,32 @@
 package org.lanternpowered.terre.impl.event
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder
+import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.asCoroutineDispatcher
+import org.lanternpowered.terre.impl.dispatcher.PluginContextCoroutineDispatcher
 import org.lanternpowered.terre.impl.util.TerreThread
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 internal object EventExecutor {
 
-  val executor: ExecutorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
+  val executor: ExecutorService =
+    Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
       ThreadFactoryBuilder()
-          .setNameFormat("event-executor-#%d")
-          .setDaemon(true)
-          .setThreadFactory(::TerreThread)
-          .build())
+        .setNameFormat("event-executor-#%d")
+        .setDaemon(true)
+        .setThreadFactory(::TerreThread)
+        .build())
 
-  val dispatcher = this.executor.asCoroutineDispatcher()
+  /**
+   * The internal coroutine dispatcher.
+   */
+  val dispatcher = executor.asCoroutineDispatcher()
+
+  /**
+   * A coroutine dispatcher that makes sure that the context of the plugin that's submitting a
+   * task is known.
+   */
+  @InternalCoroutinesApi
+  val pluginAwareDispatcher = PluginContextCoroutineDispatcher(dispatcher)
 }

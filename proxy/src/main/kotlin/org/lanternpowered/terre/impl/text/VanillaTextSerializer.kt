@@ -130,28 +130,27 @@ private abstract class AbstractVanillaTextBuilder {
 
   fun appendSubstitution(text: Text, color: OptionalColor) {
     switchColor(color)
-    this.builder.append('{').append(this.substitutions.size).append('}')
-    this.substitutions += text
+    builder.append('{').append(substitutions.size).append('}')
+    substitutions += text
   }
 
   private fun resetColor() {
-    if (this.color.isPresent) {
+    if (color.isPresent)
       stopColor()
-    }
-    this.color = OptionalColor.empty()
+    color = OptionalColor.empty()
   }
 
   fun build(): FormattableText {
     resetColor()
-    val content = this.builder.toString()
-    return formattedTextOf(content, this.substitutions)
+    val content = builder.toString()
+    return formattedTextOf(content, substitutions)
   }
 }
 
 private class PlainVanillaTextBuilder : AbstractVanillaTextBuilder() {
 
   override fun appendLiteral(c: Char) {
-    this.builder.append(c)
+    builder.append(c)
   }
 
   override fun startColor(color: Color) {
@@ -161,54 +160,58 @@ private class PlainVanillaTextBuilder : AbstractVanillaTextBuilder() {
   }
 
   override fun appendText(text: GlyphText) {
-    this.builder.append(text.toPlain())
+    builder.append(text.toPlain())
   }
 
   override fun appendText(text: ItemText) {
-    this.builder.append(text.toPlain())
+    builder.append(text.toPlain())
   }
 
   override fun appendText(text: AchievementText) {
-    this.builder.append(text.toPlain())
+    builder.append(text.toPlain())
   }
 }
 
 private class TaggedVanillaTextBuilder : AbstractVanillaTextBuilder() {
 
   override fun appendLiteral(c: Char) {
-    this.builder.append("[l:").append(c).append(']')
+    builder.append("[l:").append(c).append(']')
   }
 
   override fun startColor(color: Color) {
     val hex = color.rgb.toString(16)
-    this.builder.append("[c/").append(hex).append(':') // Color tag start
+    builder.append("[c/").append(hex).append(':') // Color tag start
   }
 
   override fun stopColor() {
-    this.builder.append(']')
+    builder.append(']')
   }
 
   override fun appendText(text: GlyphText) {
     val glyph = text.glyph as GlyphImpl
-    this.builder.append("[g:").append(glyph.numericId).append(']')
+    builder.append("[g:").append(glyph.numericId).append(']')
   }
 
   override fun appendText(text: ItemText) {
     val itemStack = text.itemStack as ItemStackImpl
-    this.builder.append("[i")
+    builder.append("[i")
     val modifier = itemStack.modifier.numericId
-    if (modifier != 0) {
-      this.builder.append("/p").append(modifier)
-    }
+    if (modifier != 0)
+      builder.append("/p").append(modifier)
     if (itemStack.quantity > 1) {
-      this.builder.append("/s").append(itemStack.quantity)
+      if (modifier != 0) {
+        builder.append(',')
+      } else {
+        builder.append('/')
+      }
+      builder.append('s').append(itemStack.quantity)
     }
-    this.builder.append(':').append(itemStack.item.numericId)
-    this.builder.append(']')
+    builder.append(':').append(itemStack.item.numericId)
+    builder.append(']')
   }
 
   override fun appendText(text: AchievementText) {
-    this.builder.append("[a:").append(text.achievement.name.toUpperCase()).append(']')
+    builder.append("[a:").append(text.achievement.name.toUpperCase()).append(']')
   }
 }
 
@@ -216,28 +219,27 @@ private class TaggedVanillaTextBuilder : AbstractVanillaTextBuilder() {
  * Flattens the text component structure in a list of plain components.
  */
 private fun TextImpl.appendToBuilder(builder: AbstractVanillaTextBuilder, parentColor: OptionalColor) {
-  val color = if (this.optionalColor.isPresent) this.optionalColor else parentColor
+  val color = if (optionalColor.isPresent) optionalColor else parentColor
   when (this) {
-    is LiteralTextImpl -> builder.append(this.literal, color)
+    is LiteralTextImpl -> builder.append(literal, color)
     is LocalizedTextImpl -> builder.appendSubstitution(this, color)
     is AchievementTextImpl -> builder.append(this)
     is GlyphTextImpl -> builder.append(this)
     is ItemTextImpl -> builder.append(this)
     is GroupedTextImpl -> {
-      for (child in this.children) {
+      for (child in children)
         (child as TextImpl).appendToBuilder(builder, color)
-      }
     }
     is FormattableTextImpl -> {
-      val format = this.format
+      val format = format
       builder.ensureCapacity(format.length)
       var index = 0
       while (index < format.length) {
         val match = formatPattern.find(format, index)
         if (match != null) {
           val substitutionIndex = match.groupValues[1].toInt()
-          val substitution = if (substitutionIndex < this.substitutions.size)
-            this.substitutions[substitutionIndex] else null
+          val substitution = if (substitutionIndex < substitutions.size)
+            substitutions[substitutionIndex] else null
 
           val start = if (substitution == null) match.range.last + 1 else match.range.first
           if (start != index) {

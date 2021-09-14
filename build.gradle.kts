@@ -1,7 +1,7 @@
 plugins {
-  kotlin("jvm") version "1.3.72"
-  kotlin("plugin.serialization") version "1.3.72"
-  id("net.minecrell.licenser") version "0.4.1"
+  kotlin("jvm") version "1.4.30"
+  kotlin("plugin.serialization") version "1.4.30"
+  id("org.cadixdev.licenser") version "0.6.0"
 }
 
 allprojects {
@@ -24,7 +24,7 @@ allprojects {
 
 subprojects {
   afterEvaluate {
-    apply(plugin = "net.minecrell.licenser")
+    apply(plugin = "org.cadixdev.licenser")
 
     dependencies {
       implementation(kotlin("stdlib-jdk8"))
@@ -65,7 +65,7 @@ subprojects {
       withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().forEach {
         it.kotlinOptions.apply {
           jvmTarget = "1.8"
-          languageVersion = "1.3"
+          languageVersion = "1.4"
 
           val args = mutableListOf<String>()
           args += "-Xjvm-default=enable"
@@ -96,10 +96,10 @@ subprojects {
     }
 
     license {
-      header = rootProject.file("HEADER.txt")
-      newLine = false
-      ignoreFailures = false
-      sourceSets = project.sourceSets
+      header(rootProject.file("HEADER.txt"))
+      newLine(false)
+      ignoreFailures(false)
+      include("**/*.kt")
 
       include("**/*.java")
       include("**/*.kt")

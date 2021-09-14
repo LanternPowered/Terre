@@ -17,85 +17,83 @@ package org.lanternpowered.terre.math
 @Suppress("NON_PUBLIC_PRIMARY_CONSTRUCTOR_OF_INLINE_CLASS")
 inline class Vec2f private constructor(private val packed: Long) {
 
-  constructor(x: Float, y: Float) : this((x.toRawBits().toUInt().toLong() shl 32) or y.toRawBits().toUInt().toLong())
+  /**
+   * Constructs a new floating-point 2d vector with the given x and y values.
+   */
+  constructor(x: Float, y: Float) :
+      this((x.toRawBits().toUInt().toLong() shl 32) or y.toRawBits().toUInt().toLong())
 
   /**
    * The x value of the vector.
    */
   val x: Float
-    get() = Float.fromBits((this.packed ushr 32).toInt())
+    get() = Float.fromBits((packed ushr 32).toInt())
 
   /**
    * The y value of the vector.
    */
   val y: Float
-    get() = Float.fromBits((this.packed and 0xffffffffL).toInt())
+    get() = Float.fromBits((packed and 0xffffffffL).toInt())
 
-  operator fun plus(that: Vec2f): Vec2f
-      = Vec2f(this.x + that.x, this.y + that.y)
+  operator fun plus(that: Vec2f): Vec2f =
+    Vec2f(x + that.x, y + that.y)
 
-  operator fun plus(that: Vec2i): Vec2f
-      = Vec2f(this.x + that.x, this.y + that.y)
+  operator fun plus(that: Vec2i): Vec2f =
+    Vec2f(x + that.x, y + that.y)
 
-  operator fun plus(that: Float): Vec2f
-      = Vec2f(this.x + that, this.y + that)
+  operator fun plus(that: Float): Vec2f =
+    Vec2f(x + that, y + that)
 
-  operator fun minus(that: Vec2f): Vec2f
-      = Vec2f(this.x - that.x, this.y - that.y)
+  operator fun minus(that: Vec2f): Vec2f =
+    Vec2f(x - that.x, y - that.y)
 
-  operator fun minus(that: Vec2i): Vec2f
-      = Vec2f(this.x - that.x, this.y - that.y)
+  operator fun minus(that: Vec2i): Vec2f =
+    Vec2f(x - that.x, y - that.y)
 
-  operator fun minus(that: Float): Vec2f
-      = Vec2f(this.x - that, this.y - that)
+  operator fun minus(that: Float): Vec2f =
+    Vec2f(x - that, y - that)
 
-  operator fun unaryMinus(): Vec2f
-      = Vec2f(-this.x, -this.y)
+  operator fun unaryMinus(): Vec2f =
+    Vec2f(-x, -y)
 
-  operator fun unaryPlus(): Vec2f
-      = this
+  operator fun unaryPlus(): Vec2f = this
 
-  operator fun times(that: Vec2f): Vec2f
-      = Vec2f(this.x * that.x, this.y * that.y)
+  operator fun times(that: Vec2f): Vec2f =
+    Vec2f(x * that.x, y * that.y)
 
-  operator fun times(that: Vec2i): Vec2f
-      = Vec2f(this.x * that.x, this.y * that.y)
+  operator fun times(that: Vec2i): Vec2f =
+    Vec2f(x * that.x, y * that.y)
 
-  operator fun times(that: Float): Vec2f
-      = Vec2f(this.x * that, this.y * that)
+  operator fun times(that: Float): Vec2f =
+    Vec2f(x * that, y * that)
 
-  operator fun div(that: Vec2f): Vec2f
-      = Vec2f(this.x / that.x, this.y / that.y)
+  operator fun div(that: Vec2f): Vec2f =
+    Vec2f(x / that.x, y / that.y)
 
-  operator fun div(that: Vec2i): Vec2f
-      = Vec2f(this.x / that.x, this.y / that.y)
+  operator fun div(that: Vec2i): Vec2f =
+    Vec2f(x / that.x, y / that.y)
 
-  operator fun div(that: Float): Vec2f
-      = Vec2f(this.x / that, this.y / that)
+  operator fun div(that: Float): Vec2f =
+    Vec2f(x / that, y / that)
 
-  operator fun div(that: Int): Vec2f
-      = div(that.toFloat())
+  operator fun div(that: Int): Vec2f =
+    div(that.toFloat())
 
-  operator fun rem(that: Vec2f): Vec2f
-      = Vec2f(this.x % that.x, this.y % that.y)
+  operator fun rem(that: Vec2f): Vec2f =
+    Vec2f(x % that.x, y % that.y)
 
-  operator fun rem(that: Vec2i): Vec2f
-      = Vec2f(this.x % that.x, this.y % that.y)
+  operator fun rem(that: Vec2i): Vec2f =
+    Vec2f(x % that.x, y % that.y)
 
-  operator fun rem(that: Float): Vec2f
-      = Vec2f(this.x % that, this.y % that)
+  operator fun rem(that: Float): Vec2f =
+    Vec2f(x % that, y % that)
 
-  inline operator fun component1(): Float
-      = this.x
+  inline operator fun component1(): Float = x
+  inline operator fun component2(): Float = y
 
-  inline operator fun component2(): Float
-      = this.y
+  fun toInt(): Vec2i = Vec2i(x.toInt(), y.toInt())
 
-  fun toInt(): Vec2i
-      = Vec2i(this.x.toInt(), this.y.toInt())
-
-  override fun toString(): String
-      = "($x, $y)"
+  override fun toString(): String = "($x, $y)"
 
   companion object {
 

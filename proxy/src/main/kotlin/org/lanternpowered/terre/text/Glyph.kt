@@ -16,10 +16,9 @@ import org.lanternpowered.terre.impl.text.GlyphRegistryImpl
 /**
  * Represents a glyph that can be displayed in chat.
  */
-interface Glyph : NumericCatalogType {
+interface Glyph : NumericCatalogType, TextLike {
 
-  fun text(): GlyphText
-      = textOf(this)
+  override fun text(): GlyphText = textOf(this)
 }
 
 /**

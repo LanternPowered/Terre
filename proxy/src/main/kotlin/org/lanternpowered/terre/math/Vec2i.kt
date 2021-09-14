@@ -17,82 +17,80 @@ package org.lanternpowered.terre.math
 @Suppress("NON_PUBLIC_PRIMARY_CONSTRUCTOR_OF_INLINE_CLASS")
 inline class Vec2i private constructor(private val packed: Long) {
 
-  constructor(x: Int, y: Int) : this((x.toUInt().toLong() shl 32) or y.toUInt().toLong())
+  /**
+   * Constructs a new integer 2d vector with the given x and y values.
+   */
+  constructor(x: Int, y: Int) :
+    this((x.toUInt().toLong() shl 32) or y.toUInt().toLong())
 
   /**
    * The x value of the vector.
    */
   val x: Int
-    get() = (this.packed ushr 32).toInt()
+    get() = (packed ushr 32).toInt()
 
   /**
    * The y value of the vector.
    */
   val y: Int
-    get() = (this.packed and 0xffffffffL).toInt()
+    get() = (packed and 0xffffffffL).toInt()
 
-  operator fun plus(that: Vec2i): Vec2i
-      = Vec2i(this.x + that.x, this.y + that.y)
+  operator fun plus(that: Vec2i): Vec2i =
+    Vec2i(x + that.x, y + that.y)
 
-  operator fun plus(that: Vec2f): Vec2f
-      = Vec2f(this.x + that.x, this.y + that.y)
+  operator fun plus(that: Vec2f): Vec2f =
+    Vec2f(x + that.x, y + that.y)
 
-  operator fun plus(that: Int): Vec2i
-      = Vec2i(this.x + that, this.y + that)
+  operator fun plus(that: Int): Vec2i =
+    Vec2i(x + that, y + that)
 
-  operator fun minus(that: Vec2i): Vec2i
-      = Vec2i(this.x - that.x, this.y - that.y)
+  operator fun minus(that: Vec2i): Vec2i =
+    Vec2i(x - that.x, y - that.y)
 
-  operator fun minus(that: Vec2f): Vec2f
-      = Vec2f(this.x - that.x, this.y - that.y)
+  operator fun minus(that: Vec2f): Vec2f =
+    Vec2f(x - that.x, y - that.y)
 
-  operator fun minus(that: Int): Vec2i
-      = Vec2i(this.x - that, this.y - that)
+  operator fun minus(that: Int): Vec2i =
+    Vec2i(x - that, y - that)
 
-  operator fun unaryMinus(): Vec2i
-      = Vec2i(-this.x, -this.y)
+  operator fun unaryMinus(): Vec2i =
+    Vec2i(-x, -y)
 
-  operator fun unaryPlus(): Vec2i
-      = this
+  operator fun unaryPlus(): Vec2i = this
 
-  operator fun times(that: Vec2i): Vec2i
-      = Vec2i(this.x * that.x, this.y * that.y)
+  operator fun times(that: Vec2i): Vec2i =
+    Vec2i(x * that.x, y * that.y)
 
-  operator fun times(that: Vec2f): Vec2f
-      = Vec2f(this.x * that.x, this.y * that.y)
+  operator fun times(that: Vec2f): Vec2f =
+    Vec2f(x * that.x, y * that.y)
 
-  operator fun times(that: Int): Vec2i
-      = Vec2i(this.x * that, this.y * that)
+  operator fun times(that: Int): Vec2i =
+    Vec2i(x * that, y * that)
 
-  operator fun div(that: Vec2i): Vec2i
-      = Vec2i(this.x / that.x, this.y / that.y)
+  operator fun div(that: Vec2i): Vec2i =
+    Vec2i(x / that.x, y / that.y)
 
-  operator fun div(that: Vec2f): Vec2f
-      = Vec2f(this.x / that.x, this.y / that.y)
+  operator fun div(that: Vec2f): Vec2f =
+    Vec2f(x / that.x, y / that.y)
 
-  operator fun div(that: Int): Vec2i
-      = Vec2i(this.x / that, this.y / that)
+  operator fun div(that: Int): Vec2i =
+    Vec2i(x / that, y / that)
 
-  operator fun rem(that: Vec2i): Vec2i
-      = Vec2i(this.x % that.x, this.y % that.y)
+  operator fun rem(that: Vec2i): Vec2i =
+    Vec2i(x % that.x, y % that.y)
 
-  operator fun rem(that: Vec2f): Vec2f
-      = Vec2f(this.x % that.x, this.y % that.y)
+  operator fun rem(that: Vec2f): Vec2f =
+    Vec2f(x % that.x, y % that.y)
 
-  operator fun rem(that: Int): Vec2i
-      = Vec2i(this.x % that, this.y % that)
+  operator fun rem(that: Int): Vec2i =
+    Vec2i(x % that, y % that)
 
-  inline operator fun component1(): Int
-      = this.x
+  inline operator fun component1(): Int = x
+  inline operator fun component2(): Int = y
 
-  inline operator fun component2(): Int
-      = this.y
+  fun toFloat(): Vec2f = Vec2f(x.toFloat(), y.toFloat())
 
-  fun toFloat(): Vec2f
-      = Vec2f(this.x.toFloat(), this.y.toFloat())
-
-  override fun toString(): String
-      = "($x, $y)"
+  override fun toString(): String = "($x, $y)"
 
   companion object {
 

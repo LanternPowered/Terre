@@ -50,24 +50,24 @@ internal object TerreEventBus : EventBus {
   private val coroutineScope = CoroutineScope(EventExecutor.dispatcher)
 
   private val handlersByEvent = HashMultimap.create<Class<*>, RegisteredHandler>()
-  private val handlersCache: LoadingCache<Class<*>, List<RegisteredHandler>>
-      = Caffeine.newBuilder().initialCapacity(150).build(::bakeHandlers)
+  private val handlersCache: LoadingCache<Class<*>, List<RegisteredHandler>> =
+    Caffeine.newBuilder().initialCapacity(150).build(::bakeHandlers)
 
-  private val methodHandlers: LoadingCache<MethodInfo, UntargetedEventHandler>
-      = Caffeine.newBuilder().build(::buildMethodListener)
+  private val methodHandlers: LoadingCache<MethodInfo, UntargetedEventHandler> =
+    Caffeine.newBuilder().build(::buildMethodListener)
 
   private data class MethodInfo(
-      val method: Method,
-      val isSuspend: Boolean
+    val method: Method,
+    val isSuspend: Boolean
   )
 
   private fun bakeHandlers(eventType: Class<*>): List<RegisteredHandler> {
     val baked = mutableListOf<RegisteredHandler>()
     val types = eventType.eventTypes
 
-    this.lock.read {
+    lock.read {
       for (type in types) {
-        baked += this.handlersByEvent.get(type)
+        baked += handlersByEvent.get(type)
       }
     }
 
@@ -76,13 +76,13 @@ internal object TerreEventBus : EventBus {
   }
 
   private fun getHandlers(eventType: Class<*>) =
-      this.handlersCache.get(eventType) ?: error("Shouldn't be possible")
+    handlersCache.get(eventType) ?: error("Shouldn't be possible")
 
   private val Class<*>.eventTypes
     get() = TypeToken.of(this).types.rawTypes().filter { Event::class.java.isAssignableFrom(it) }
 
   override fun <T : Event> subscribe(
-      eventType: KClass<T>, order: Int, listener: suspend (event: T) -> Unit
+    eventType: KClass<T>, order: Int, listener: suspend (event: T) -> Unit
   ): EventSubscription {
     val handler = object : EventHandler {
       override suspend fun handle(event: Event) {
@@ -111,12 +111,13 @@ internal object TerreEventBus : EventBus {
         val declaring = if (info.method != null) info.method.declaringClass.name else {
           (info.function.instanceParameter?.type?.classifier as? KClass<*>)?.qualifiedName
         } ?: "unknown"
-        Terre.logger.warn("Invalid listener method ${info.function.name} in $declaring: $errors", info.function.name)
+        Terre.logger.warn("Invalid listener method ${info.function.name} in $declaring: $errors",
+          info.function.name)
         continue
       }
 
-      val untargetedHandler = this.methodHandlers
-          .get(MethodInfo(info.method!!, info.function.isSuspend)) ?: error("Shouldn't happen.")
+      val untargetedHandler = methodHandlers
+        .get(MethodInfo(info.method!!, info.function.isSuspend)) ?: error("Shouldn't happen.")
       val handler = object : EventHandler {
         override suspend fun handle(event: Event) {
           untargetedHandler.handle(listener, event)
@@ -141,7 +142,7 @@ internal object TerreEventBus : EventBus {
   private fun unregisterIf(fn: (RegisteredHandler) -> Boolean) {
     val removed = mutableListOf<RegisteredHandler>()
     this.lock.write {
-      val it = this.handlersByEvent.values().iterator()
+      val it = handlersByEvent.values().iterator()
       while (it.hasNext()) {
         val handler = it.next()
         if (fn(handler)) {
@@ -172,7 +173,9 @@ internal object TerreEventBus : EventBus {
         function.javaMethod
       } catch (error: Error) { // KotlinReflectionInternalError
         // Parameter is an inline class, that's currently not supported
-        if (error.stackTrace.any { element -> element.className.contains("InlineClassAwareCaller") }) {
+        if (error.stackTrace.any { element ->
+            element.className.contains("InlineClassAwareCaller")
+        }) {
           // https://youtrack.jetbrains.com/issue/KT-34024
           errors += "parameter isn't an event"
         } else {
@@ -185,8 +188,8 @@ internal object TerreEventBus : EventBus {
       if (javaMethod != null && Modifier.isStatic(javaMethod.modifiers))
         errors += "function must not be static"
       val suspend = if (function.isSuspend) "suspend " else ""
-      val key = suspend + function.name + function.parameters.joinToString(
-          separator = ",", prefix = "(", postfix = ")")
+      val key = suspend + function.name +
+        function.parameters.joinToString(separator = ",", prefix = "(", postfix = ")")
       if (key in map)
         continue
       var eventType: Class<*> = Event::class.java
@@ -221,22 +224,23 @@ internal object TerreEventBus : EventBus {
   private val methodHandlesLookup = MethodHandles.lookup()
 
   private fun buildMethodListener(methodInfo: MethodInfo): UntargetedEventHandler {
-    val methodHandle = this.methodHandlesLookup
-        .privateLookupIn(methodInfo.method.declaringClass).unreflect(methodInfo.method)
+    val methodHandle = methodHandlesLookup
+      .privateLookupIn(methodInfo.method.declaringClass).unreflect(methodInfo.method)
 
-    val handlerType
-        = if (methodInfo.isSuspend) this.untargetedEventHandlerType else this.untargetedEventHandlerNoSuspendType
+    val handlerType =
+      if (methodInfo.isSuspend) untargetedEventHandlerType
+      else untargetedEventHandlerNoSuspendType
     return methodHandle.createLambda(handlerType)
   }
 
   private fun register(listeners: List<RegisteredHandler>) {
-    this.lock.write {
+    lock.write {
       for (listener in listeners) {
-        this.handlersByEvent.put(listener.eventType, listener)
+        handlersByEvent.put(listener.eventType, listener)
       }
     }
     // Invalidate all the affected event subtypes
-    this.handlersCache.invalidateAll(listeners.flatMap { it.eventType.eventTypes }.distinct())
+    handlersCache.invalidateAll(listeners.flatMap { it.eventType.eventTypes }.distinct())
   }
 
   override suspend fun <T : Event> post(event: T) {
@@ -252,24 +256,24 @@ internal object TerreEventBus : EventBus {
 
   override fun <T : Event> postAsync(event: T): Deferred<T> {
     val deferred = CompletableDeferred<T>()
-    post(event, deferred::complete)
+    post(event) { deferred.complete(it); }
     return deferred
   }
 
   fun <T : Event> postAsyncWithFuture(event: T): CompletableFuture<T> {
     val future = CompletableFuture<T>()
-    post(event, future::complete)
+    post(event) { future.complete(it); }
     return future
   }
 
   private inline fun <T : Event> post(event: T, crossinline complete: (T) -> Unit) {
-    val listeners = this.getHandlers(event.javaClass)
+    val listeners = getHandlers(event.javaClass)
     // Only launch a coroutine if necessary
     if (listeners.isEmpty()) {
       complete(event)
       return
     }
-    this.coroutineScope.launch {
+    coroutineScope.launch {
       handleHandlers(event, listeners)
       complete(event)
     }
@@ -284,7 +288,7 @@ internal object TerreEventBus : EventBus {
         }
       } catch (ex: Throwable) {
         Terre.logger.info("Couldn't pass ${event::class.simpleName}" +
-            if (plugin == null) "" else " to ${plugin.id}", ex)
+          if (plugin == null) "" else " to ${plugin.id}", ex)
       }
     }
   }

@@ -14,8 +14,8 @@ import org.lanternpowered.terre.impl.text.AchievementTextImpl
 /**
  * Creates a new [AchievementText] from the given [Achievement].
  */
-fun textOf(achievement: Achievement): AchievementText
-    = AchievementTextImpl(achievement)
+fun textOf(achievement: Achievement): AchievementText =
+  AchievementTextImpl(achievement)
 
 /**
  * Represents a achievement text component.

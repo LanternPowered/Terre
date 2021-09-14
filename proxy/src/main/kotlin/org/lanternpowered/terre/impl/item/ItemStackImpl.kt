@@ -20,18 +20,15 @@ internal class ItemStackImpl(
     quantity: Int
 ) : ItemStack {
 
-  private var theQuantity = quantity
+  override val isEmpty get() = quantity <= 0
 
-  override val isEmpty get() = this.quantity <= 0
-
-  override var quantity: Int
-    get() = this.theQuantity
+  override var quantity: Int = quantity
     set(value) {
       check(value >= 0) { "quantity cannot be negative" }
-      this.theQuantity = max(value, 0)
+      field = max(value, 0)
     }
 
   override fun copy(): ItemStack {
-    return ItemStackImpl(this.item, this.modifier, this.quantity)
+    return ItemStackImpl(item, modifier, quantity)
   }
 }

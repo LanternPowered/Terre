@@ -15,7 +15,6 @@ import org.apache.logging.log4j.core.pattern.ConverterKeys
 import org.apache.logging.log4j.core.pattern.LogEventPatternConverter
 import org.apache.logging.log4j.core.pattern.PatternConverter
 import org.apache.logging.log4j.io.LoggerPrintStream
-import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.logger.LoggerImpl
 import java.io.PrintStream
 import java.util.regex.Matcher
@@ -23,7 +22,7 @@ import java.util.regex.Matcher
 @ConverterKeys("loc")
 @Plugin(name = "LocationPatternConverter", category = PatternConverter.CATEGORY)
 internal class LocationPatternConverter private constructor(private val format: String) :
-    LogEventPatternConverter("Location", "location") {
+  LogEventPatternConverter("Location", "location") {
 
   // Packages that will be ignored
   private val ignoredPackages = arrayOf("java.", "kotlin.io.")
@@ -33,7 +32,7 @@ internal class LocationPatternConverter private constructor(private val format: 
     if (element != null) {
       // quoteReplacement is required for elements leading to inner class (containing a $ character)
       builder.append(this.format.replace("%path".toRegex(),
-          Matcher.quoteReplacement(element.toString())))
+        Matcher.quoteReplacement(element.toString())))
     }
   }
 
@@ -63,11 +62,11 @@ internal class LocationPatternConverter private constructor(private val format: 
   companion object {
 
     val RedirectFqcns = hashSetOf(
-        PrintStream::class.java.name, LoggerPrintStream::class.java.name, LoggerImpl::class.java.name)
+      PrintStream::class.java.name, LoggerPrintStream::class.java.name, LoggerImpl::class.java.name)
     val IgnoreFqcns = hashSetOf<String>()
 
     @JvmStatic
     fun newInstance(options: Array<String>): LocationPatternConverter =
-        LocationPatternConverter(if (options.isNotEmpty()) options[0] else "%path")
+      LocationPatternConverter(if (options.isNotEmpty()) options[0] else "%path")
   }
 }

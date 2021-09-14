@@ -22,20 +22,19 @@ sealed class ProtocolVersion {
    * Represents a vanilla protocol version.
    */
   data class Vanilla(
-      val version: Version,
-      val protocol: Int
+    val version: Version,
+    val protocol: Int
   ) : ProtocolVersion(), Comparable<Vanilla> {
 
     constructor(version: String, protocol: Int) : this(Version(version), protocol)
 
-    override fun compareTo(other: Vanilla)
-        = this.protocol.compareTo(other.protocol)
+    override fun compareTo(other: Vanilla) =
+      protocol.compareTo(other.protocol)
 
-    override fun equals(other: Any?)
-        = other is Vanilla && other.protocol == this.protocol
+    override fun equals(other: Any?) =
+      other is Vanilla && other.protocol == protocol
 
-    override fun hashCode()
-        = this.protocol.hashCode()
+    override fun hashCode() = protocol.hashCode()
 
     companion object {
 
@@ -69,12 +68,12 @@ sealed class ProtocolVersion {
    * @property beta The beta build number, if applicable
    */
   data class TModLoader(
-      val version: Version,
-      val branch: String? = null,
-      val beta: Int? = null
+    val version: Version,
+    val branch: String? = null,
+    val beta: Int? = null
   ) : ProtocolVersion(), Comparable<TModLoader> {
 
-    override fun compareTo(other: TModLoader)
-        = compareValuesBy(this, other, { it.version }, { it.branch }, { it.beta })
+    override fun compareTo(other: TModLoader) =
+      compareValuesBy(this, other, { it.version }, { it.branch }, { it.beta })
   }
 }

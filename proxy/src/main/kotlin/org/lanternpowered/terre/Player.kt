@@ -59,7 +59,8 @@ interface Player : Named, MessageReceiver, MessageSender, PortalAware, InboundCo
   /**
    * Disconnects the player with the specified reason.
    */
-  suspend fun disconnect(reason: Text = DefaultDisconnectReason) = disconnectAsync(reason).join()
+  suspend fun disconnect(reason: Text = DefaultDisconnectReason) =
+    disconnectAsync(reason).join()
 
   /**
    * Disconnects the player with the specified reason.
@@ -67,24 +68,23 @@ interface Player : Named, MessageReceiver, MessageSender, PortalAware, InboundCo
   fun disconnectAsync(reason: Text = DefaultDisconnectReason): Job
 
   /**
-   * Attempts to connect to the given [Server]. This will switch from the current
-   * server if the player is already connected to one.
+   * Attempts to connect to the given [Server]. This will switch from the current server if the
+   * player is already connected to one.
    *
-   * This doesn't disconnect the player from the current server if the connection
-   * attempts failed.
+   * This doesn't disconnect the player from the current server if the connection attempts failed.
    *
    * @param server The server to connect to
    * @return The connection request result
    */
-  suspend fun connectTo(server: Server) = connectToAsync(server).await()
+  suspend fun connectTo(server: Server) =
+    connectToAsync(server).await()
 
   /**
-   * Attempts to connect to the given [Server] async. This will switch from the current
-   * server if the player is already connected to one. This doesn't disconnect the player
-   * from the current server if the connection attempts failed.
+   * Attempts to connect to the given [Server] async. This will switch from the current server if
+   * the player is already connected to one. This doesn't disconnect the player from the current
+   * server if the connection attempts failed.
    *
-   * This doesn't disconnect the player from the current server if the connection
-   * attempts failed.
+   * This doesn't disconnect the player from the current server if the connection attempts failed.
    *
    * @param server The server to connect to
    * @return The connection request result
@@ -94,19 +94,17 @@ interface Player : Named, MessageReceiver, MessageSender, PortalAware, InboundCo
   /**
    * Attempts to connect to one of the given [Server]s.
    *
-   * This doesn't disconnect the player from the current server if the
-   * connection attempts failed.
+   * This doesn't disconnect the player from the current server if the connection attempts failed.
    *
    * @return The server that a connection was made to, if successful
    */
-  fun connectToAnyAsync(first: Server, second: Server, vararg more: Server)
-      = connectToAnyAsync(listOf(first, second) + more.asList())
+  fun connectToAnyAsync(first: Server, second: Server, vararg more: Server) =
+    connectToAnyAsync(listOf(first, second) + more.asList())
 
   /**
    * Attempts to connect to one of the given [Server]s.
    *
-   * This doesn't disconnect the player from the current server if the
-   * connection attempts failed.
+   * This doesn't disconnect the player from the current server if the connection attempts failed.
    *
    * @return The server that a connection was made to, if successful
    */
@@ -115,24 +113,22 @@ interface Player : Named, MessageReceiver, MessageSender, PortalAware, InboundCo
   /**
    * Attempts to connect to one of the given [Server]s.
    *
-   * This doesn't disconnect the player from the current server if the
-   * connection attempts failed.
+   * This doesn't disconnect the player from the current server if the connection attempts failed.
    *
    * @return The server that a connection was made to, if successful
    */
-  suspend fun connectToAny(first: Server, second: Server, vararg more: Server)
-      = connectToAny(listOf(first, second) + more.asList())
+  suspend fun connectToAny(first: Server, second: Server, vararg more: Server) =
+    connectToAny(listOf(first, second) + more.asList())
 
   /**
    * Attempts to connect to one of the given [Server]s.
    *
-   * This doesn't disconnect the player from the current server if the
-   * connection attempts failed.
+   * This doesn't disconnect the player from the current server if the connection attempts failed.
    *
    * @return The server that a connection was made to, if successful
    */
-  suspend fun connectToAny(servers: Iterable<Server>)
-      = connectToAnyAsync(servers).await()
+  suspend fun connectToAny(servers: Iterable<Server>) =
+    connectToAnyAsync(servers).await()
 }
 
 /**

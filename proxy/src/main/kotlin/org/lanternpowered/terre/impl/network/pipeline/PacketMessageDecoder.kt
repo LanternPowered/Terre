@@ -15,10 +15,8 @@ import io.netty.handler.codec.CodecException
 import io.netty.handler.codec.DecoderException
 import io.netty.handler.codec.MessageToMessageDecoder
 import org.lanternpowered.terre.impl.Terre
-import org.lanternpowered.terre.impl.network.UnknownPacket
 import org.lanternpowered.terre.impl.network.PacketCodecContext
-import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
-import org.lanternpowered.terre.impl.network.packet.ProjectileUpdatePacket
+import org.lanternpowered.terre.impl.network.UnknownPacket
 
 internal class PacketMessageDecoder(
     private val context: PacketCodecContext

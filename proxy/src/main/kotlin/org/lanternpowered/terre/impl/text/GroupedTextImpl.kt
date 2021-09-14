@@ -23,28 +23,28 @@ internal class GroupedTextImpl(
     override val optionalColor: OptionalColor = OptionalColor.empty()
 ) : ColorableTextImpl(), GroupedText {
 
-  override fun toPlain() = StringBuilder().apply { children.forEach { append(it.toPlain()) } }.toString()
+  override fun toPlain() = StringBuilder()
+    .apply { children.forEach { append(it.toPlain()) } }.toString()
 
-  override val isEmpty get() = this.children.isEmpty()
+  override val isEmpty get() = children.isEmpty()
 
   override fun color(color: Color?): GroupedTextImpl {
     val optionalColor = color.optionalFromNullable()
-    return if (this.optionalColor == optionalColor) this else GroupedTextImpl(this.children, optionalColor)
+    return if (optionalColor == optionalColor) this else GroupedTextImpl(children, optionalColor)
   }
 
   override fun equals(other: Any?): Boolean {
-    if (other !is GroupedTextImpl) {
+    if (other !is GroupedTextImpl)
       return false
-    }
-    return this.children contentEquals other.children && this.optionalColor == other.optionalColor
+    return children contentEquals other.children && optionalColor == other.optionalColor
   }
 
   override fun hashCode(): Int {
-    return Objects.hash(this.children, this.optionalColor)
+    return Objects.hash(children, optionalColor)
   }
 
   override fun toString() = ToStringHelper(GroupedText::class).omitNullValues()
-      .add("children", this.children)
-      .add("color", this.color)
-      .toString()
+    .add("children", children)
+    .add("color", color)
+    .toString()
 }

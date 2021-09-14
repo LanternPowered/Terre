@@ -16,21 +16,22 @@ import org.lanternpowered.terre.util.Color
 import org.lanternpowered.terre.util.ToStringHelper
 
 internal data class LiteralTextImpl(
-    override val literal: String,
-    override val optionalColor: OptionalColor = OptionalColor.empty()
+  override val literal: String,
+  override val optionalColor: OptionalColor = OptionalColor.empty()
 ) : ColorableTextImpl(), LiteralText {
 
-  override fun toPlain() = this.literal
+  override fun toPlain() = literal
 
-  override val isEmpty get() = this.literal.isEmpty()
+  override val isEmpty get() = literal.isEmpty()
 
   override fun color(color: Color?): LiteralTextImpl = color(color.optionalFromNullable())
 
   fun color(optionalColor: OptionalColor): LiteralTextImpl =
-      if (this.optionalColor == optionalColor) this else LiteralTextImpl(this.literal, optionalColor)
+    if (optionalColor == optionalColor) this
+    else LiteralTextImpl(literal, optionalColor)
 
   override fun toString() = ToStringHelper(LiteralText::class).omitNullValues()
-      .add("literal", this.literal)
-      .add("color", this.color)
-      .toString()
+    .add("literal", literal)
+    .add("color", color)
+    .toString()
 }

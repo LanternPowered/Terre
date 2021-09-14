@@ -20,35 +20,40 @@ import java.text.MessageFormat
 import java.util.*
 
 internal class FormattableTextImpl(
-    override val format: String,
-    override val substitutions: List<Text>,
-    override val optionalColor: OptionalColor = OptionalColor.empty()
+  override val format: String,
+  override val substitutions: List<Text>,
+  override val optionalColor: OptionalColor = OptionalColor.empty()
 ) : ColorableTextImpl(), FormattableText {
 
-  override fun toPlain(): String = MessageFormat.format(this.format,
-      this.substitutions.stream().map { text -> text.toPlain() }.toArray())
+  override fun toPlain(): String = MessageFormat.format(format,
+    substitutions.stream().map { text -> text.toPlain() }.toArray())
 
-  override val isEmpty get() = this.format.isEmpty()
+  override val isEmpty get() = format.isEmpty()
 
   override fun color(color: Color?): FormattableTextImpl {
     val optionalColor = color.optionalFromNullable()
-    return if (this.optionalColor == optionalColor) this else FormattableTextImpl(this.format, this.substitutions, optionalColor)
+    return if (optionalColor == optionalColor) {
+      this
+    } else {
+      FormattableTextImpl(format, substitutions, optionalColor)
+    }
   }
 
   override fun equals(other: Any?): Boolean {
     if (other !is FormattableTextImpl) {
       return false
     }
-    return this.format == other.format && this.substitutions contentEquals other.substitutions && this.optionalColor == other.optionalColor
+    return format == other.format
+      && substitutions contentEquals other.substitutions
+      && optionalColor == other.optionalColor
   }
 
-  override fun hashCode(): Int {
-    return Objects.hash(this.format, this.substitutions, this.optionalColor)
-  }
+  override fun hashCode(): Int =
+    Objects.hash(format, substitutions, optionalColor)
 
   override fun toString() = ToStringHelper(FormattableText::class).omitNullValues()
-      .add("format", this.format)
-      .add("substitutions", this.substitutions)
-      .add("color", this.color)
-      .toString()
+    .add("format", format)
+    .add("substitutions", substitutions)
+    .add("color", color)
+    .toString()
 }

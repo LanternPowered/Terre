@@ -18,11 +18,11 @@ import com.google.common.collect.ImmutableMultimap
 import com.google.common.collect.Multimap
 import java.util.concurrent.ConcurrentHashMap
 
-inline fun <K, V> Map<K, V>.toImmutableMap(): ImmutableMap<K, V>
-    = ImmutableMap.copyOf(this)
+inline fun <K, V> Map<K, V>.toImmutableMap(): ImmutableMap<K, V> =
+  ImmutableMap.copyOf(this)
 
-fun <K, V> Multimap<K, V>.toImmutableMultimap(): ImmutableMultimap<K, V>
-    = this as? ImmutableMultimap<K, V> ?: ImmutableListMultimap.copyOf(this)
+fun <K, V> Multimap<K, V>.toImmutableMultimap(): ImmutableMultimap<K, V> =
+  this as? ImmutableMultimap<K, V> ?: ImmutableListMultimap.copyOf(this)
 
 @JvmName("toMultimapFromSequence")
 fun <K, V> Map<K, Sequence<V>>.toMultimap(): Multimap<K, V> {
@@ -69,11 +69,11 @@ private inline fun <K, V, I : Any> Map<K, I>.toImmutableMultimap(
   return builder.build()
 }
 
-inline fun <K, V> multimapOf(): Multimap<K, V>
-    = ImmutableMultimap.of()
+inline fun <K, V> multimapOf(): Multimap<K, V> =
+  ImmutableMultimap.of()
 
-inline fun <K, V> multimapOf(pair: Pair<K, V>): Multimap<K, V>
-    = ImmutableMultimap.of(pair.first, pair.second)
+inline fun <K, V> multimapOf(pair: Pair<K, V>): Multimap<K, V> =
+  ImmutableMultimap.of(pair.first, pair.second)
 
 fun <K, V> multimapOf(vararg pairs: Pair<K, V>): Multimap<K, V> {
   if (pairs.isEmpty()) {
@@ -86,11 +86,6 @@ fun <K, V> multimapOf(vararg pairs: Pair<K, V>): Multimap<K, V> {
   return builder.build()
 }
 
-inline fun <K, V> mutableMultimapOf(): Multimap<K, V>
-    = HashMultimap.create()
-
-inline fun <K, V> concurrentHashMapOf(): ConcurrentHashMap<K, V>
-    = ConcurrentHashMap()
-
-inline fun <K, V> concurrentMapOf(): MutableMap<K, V>
-    = ConcurrentHashMap()
+inline fun <K, V> mutableMultimapOf(): Multimap<K, V> = HashMultimap.create()
+inline fun <K, V> concurrentHashMapOf(): ConcurrentHashMap<K, V> = ConcurrentHashMap()
+inline fun <K, V> concurrentMapOf(): MutableMap<K, V> = ConcurrentHashMap()

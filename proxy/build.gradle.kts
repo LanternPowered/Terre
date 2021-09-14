@@ -37,7 +37,7 @@ dependencies {
   implementation(group = "com.github.ben-manes.caffeine", name = "caffeine", version = "2.8.1")
 
   // Lambda generation
-  implementation(group = "org.lanternpowered", name = "lmbda", version = "2.0.0-SNAPSHOT")
+  implementation(group = "org.lanternpowered", name = "lmbda", version = "2.0.0")
 
   // Logging
   val log4jVersion = "2.12.1"

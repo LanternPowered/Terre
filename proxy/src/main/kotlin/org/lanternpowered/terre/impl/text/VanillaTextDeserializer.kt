@@ -16,6 +16,10 @@ import org.lanternpowered.terre.text.textOf
 import org.lanternpowered.terre.util.Color
 import org.lanternpowered.terre.util.collection.toImmutableList
 import org.lanternpowered.terre.impl.util.optional
+import org.lanternpowered.terre.item.ItemModifier
+import org.lanternpowered.terre.item.ItemModifierRegistry
+import org.lanternpowered.terre.item.ItemRegistry
+import org.lanternpowered.terre.item.itemStackOf
 import org.lanternpowered.terre.text.GlyphRegistry
 import java.util.*
 
@@ -26,19 +30,18 @@ internal fun TextImpl.fromTaggedVanillaText(): Text {
   return when (this) {
     is GroupedTextImpl -> {
       val builder = TextBuilder()
-      for (child in this.children) {
+      for (child in children)
         builder.append((child as TextImpl).fromTaggedVanillaText())
-      }
       builder.build()
     }
     is LiteralTextImpl -> {
       val builder = TextBuilder()
-      fromTaggedVanillaFormat(this.literal, builder)
+      fromTaggedVanillaFormat(literal, builder)
       builder.build()
     }
     is FormattableTextImpl -> {
-      val builder = TextBuilder(this.substitutions)
-      fromTaggedVanillaFormat(this.format, builder)
+      val builder = TextBuilder(substitutions)
+      fromTaggedVanillaFormat(format, builder)
       builder.build()
     }
     else -> this
@@ -60,9 +63,8 @@ private fun fromTaggedVanillaFormat(format: String, builder: TextBuilder) {
     val options = match.groupValues[2]
     val value = match.groupValues[3]
 
-    if (last < start) {
+    if (last < start)
       builder.append(format.substring(last, start), OptionalColor.empty())
-    }
 
     when (type) {
       "a" -> {
@@ -88,10 +90,27 @@ private fun fromTaggedVanillaFormat(format: String, builder: TextBuilder) {
         }
       }
       "i" -> {
-        TODO("Implement item text")
-        // builder.append(ItemTextImpl(itemStack))
+        val internalId = value.toIntOrNull()
+        val item = if (internalId != null) ItemRegistry[internalId] else null
+        val optionList = options.split(",")
+          .filter { it.isNotEmpty() }
+        val quantity = optionList.firstOrNull { it[0] == 's' || it[0] == 'x' }
+          ?.substring(1)?.toIntOrNull() ?: 1
+        if (item == null) {
+          builder.append("[$value")
+          if (quantity > 1)
+            builder.append(" ($quantity)")
+          builder.append("]")
+        } else {
+          val modifierId = optionList.firstOrNull { it[0] == 'p' }
+            ?.toIntOrNull()?.coerceIn(0..10000) ?: 0
+          val modifier = ItemModifierRegistry[modifierId] ?: ItemModifier.Default
+          builder.append(ItemTextImpl(itemStackOf(item, modifier, quantity)))
+        }
       }
-      "n" -> builder.append('<' + value.replace("\\[", "[").replace("\\]", "]") + '>')
+      "n" -> builder.append('<' + value
+        .replace("\\[", "[")
+        .replace("\\]", "]") + '>')
       else -> builder.append(value)
     }
 
@@ -112,29 +131,27 @@ private class TextBuilder(val substitutions: List<Text> = listOf()) {
   private val currentSubstitutions = mutableListOf<Text>()
 
   private fun addRemaining() {
-    if (this.currentBuilder.isEmpty()) {
+    if (currentBuilder.isEmpty())
       return
-    }
-    val content = this.currentBuilder.toString()
-    if (this.currentSubstitutions.isNotEmpty()) {
-      this.parts += FormattableTextImpl(content, this.currentSubstitutions.toImmutableList(), this.currentColor)
+    val content = currentBuilder.toString()
+    if (currentSubstitutions.isNotEmpty()) {
+      parts += FormattableTextImpl(content, currentSubstitutions.toImmutableList(), currentColor)
     } else {
-      this.parts += LiteralTextImpl(content, this.currentColor)
+      parts += LiteralTextImpl(content, currentColor)
     }
-    this.currentBuilder.setLength(0)
-    this.currentColor = OptionalColor.empty()
-    this.currentSubstitutions.clear()
+    currentBuilder.setLength(0)
+    currentColor = OptionalColor.empty()
+    currentSubstitutions.clear()
   }
 
   fun append(text: String, color: OptionalColor = OptionalColor.empty()) {
-    if (this.currentColor != color) {
+    if (currentColor != color)
       addRemaining()
-    }
     val matches = formatPattern.findAll(text).iterator()
-    this.currentColor = color
+    currentColor = color
     if (!matches.hasNext()) {
       // No matches, just append the text
-      this.currentBuilder.append(text)
+      currentBuilder.append(text)
     } else {
       var last = 0
 
@@ -144,39 +161,37 @@ private class TextBuilder(val substitutions: List<Text> = listOf()) {
         val end = match.range.last + 1
 
         val index = match.groupValues[1].toInt()
-        val substitution = if (index < this.substitutions.size) this.substitutions[index] else null
+        val substitution = if (index < substitutions.size) substitutions[index] else null
 
-        if (last < start) {
-          this.currentBuilder.append(text, last, start)
-        }
+        if (last < start)
+          currentBuilder.append(text, last, start)
 
         if (substitution == null) {
-          this.currentBuilder.append(match.value)
+          currentBuilder.append(match.value)
         } else {
-          this.currentBuilder.append('{').append(this.currentSubstitutions.size).append('}')
-          this.currentSubstitutions += substitution
+          currentBuilder.append('{').append(currentSubstitutions.size).append('}')
+          currentSubstitutions += substitution
         }
 
         last = end
       }
 
-      if (last < text.length) {
-        this.currentBuilder.append(text, last, text.length)
-      }
+      if (last < text.length)
+        currentBuilder.append(text, last, text.length)
     }
   }
 
   fun append(text: Text) {
     addRemaining()
-    this.parts += text
+    parts += text
   }
 
   fun build(): Text {
     addRemaining()
     return when {
-      this.parts.isEmpty() -> textOf()
-      this.parts.size == 1 -> this.parts[0]
-      else -> GroupedTextImpl(this.parts.toImmutableList())
+      parts.isEmpty() -> textOf()
+      parts.size == 1 -> parts[0]
+      else -> GroupedTextImpl(parts.toImmutableList())
     }
   }
 }

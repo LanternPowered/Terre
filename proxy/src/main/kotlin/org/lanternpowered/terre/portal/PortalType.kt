@@ -30,6 +30,7 @@ object PortalTypes {
   val Fireball: PortalType = PortalTypeImpl.Fireball
   val Shadowball: PortalType = PortalTypeImpl.Shadowball
   val Void: PortalType = PortalTypeImpl.Void
+  val Invisible: PortalType = PortalTypeImpl.Invisible
 }
 
 object PortalTypeRegistry : NamedCatalogTypeRegistry<PortalType> by PortalTypeRegistryImpl

@@ -30,9 +30,9 @@ import org.lanternpowered.terre.text.Text
 import java.util.concurrent.ConcurrentHashMap
 
 internal class ServerImpl(
-    override val info: ServerInfo,
-    override var allowAutoJoin: Boolean = false,
-    val versionedProtocol: VersionedProtocol? = null
+  override val info: ServerInfo,
+  override var allowAutoJoin: Boolean = false,
+  val versionedProtocol: VersionedProtocol? = null
 ) : Server {
 
   var unregistered = false
@@ -111,7 +111,7 @@ internal class ServerImpl(
   }
 
   override fun unregister() {
-    this.unregistered = true
+    unregistered = true
     ProxyImpl.servers.unregister(this)
     cleanup()
   }
@@ -148,16 +148,22 @@ internal class ServerImpl(
 
   fun openPortalFor(portal: PortalImpl, players: Iterable<Player>) {
     val packet = portal.createUpdatePacket()
-    for (player in players)
-      (player as PlayerImpl).clientConnection.send(packet)
+    if (packet != null) {
+      for (player in players)
+        (player as PlayerImpl).clientConnection.send(packet)
+    }
   }
 
   fun openPortalFor(portal: PortalImpl, player: Player) {
-    (player as PlayerImpl).clientConnection.send(portal.createUpdatePacket())
+    val packet = portal.createUpdatePacket()
+    if (packet != null)
+      (player as PlayerImpl).clientConnection.send(packet)
   }
 
   fun closePortalFor(portal: PortalImpl, player: Player) {
-    (player as PlayerImpl).clientConnection.send(portal.createDestroyPacket())
+    val packet = portal.createDestroyPacket()
+    if (packet != null)
+      (player as PlayerImpl).clientConnection.send(packet)
   }
 
   fun closePortal(portal: PortalImpl) {

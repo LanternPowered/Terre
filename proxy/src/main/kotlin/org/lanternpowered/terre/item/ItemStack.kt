@@ -11,19 +11,24 @@ package org.lanternpowered.terre.item
 
 import org.lanternpowered.terre.impl.item.ItemStackImpl
 import org.lanternpowered.terre.text.ItemText
+import org.lanternpowered.terre.text.TextLike
 import org.lanternpowered.terre.text.textOf
 
 /**
  * Constructs a new [ItemStack].
  */
-fun itemStackOf(item: Item, modifier: ItemModifier = ItemModifier.Default, quantity: Int = 1): ItemStack {
+fun itemStackOf(
+  item: Item,
+  modifier: ItemModifier = ItemModifier.Default,
+  quantity: Int = 1
+): ItemStack {
   return ItemStackImpl(item, modifier, quantity)
 }
 
 /**
  * Represents a stack of items.
  */
-interface ItemStack {
+interface ItemStack : TextLike {
 
   /**
    * Whether this stack is empty.
@@ -53,6 +58,5 @@ interface ItemStack {
   /**
    * Converts this stack into a text component.
    */
-  fun text(): ItemText
-      = textOf(this)
+  override fun text(): ItemText = textOf(this)
 }

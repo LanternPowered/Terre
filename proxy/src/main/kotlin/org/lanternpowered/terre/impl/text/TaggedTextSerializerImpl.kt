@@ -15,11 +15,9 @@ import org.lanternpowered.terre.text.text
 
 object TaggedTextSerializerImpl : TextSerializer {
 
-  override fun serialize(text: Text): String {
-    return (text as TextImpl).toTaggedVanillaText().toPlain()
-  }
+  override fun serialize(text: Text): String =
+    (text as TextImpl).toTaggedVanillaText().toPlain()
 
-  override fun deserialize(string: String): Text {
-    return (string.text() as TextImpl).fromTaggedVanillaText()
-  }
+  override fun deserialize(string: String): Text =
+    (string.text() as TextImpl).fromTaggedVanillaText()
 }

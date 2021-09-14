@@ -39,7 +39,7 @@ import java.time.Duration
 import java.util.concurrent.TimeUnit
 
 internal class ClientPlayConnectionHandler(
-    private val playerImpl: PlayerImpl
+  private val playerImpl: PlayerImpl
 ) : ConnectionHandler {
 
   companion object {
@@ -61,7 +61,7 @@ internal class ClientPlayConnectionHandler(
 
   override fun disconnect() {
     cleanupKeepAliveTask()
-    this.playerImpl.cleanup()
+    playerImpl.cleanup()
     Terre.logger.debug { "[${playerImpl.clientConnection.remoteAddress}] Disconnected" }
   }
 
@@ -69,25 +69,25 @@ internal class ClientPlayConnectionHandler(
   }
 
   private fun initializeKeepAliveTask() {
-    val connection = this.playerImpl.clientConnection
-    this.keepAliveTask = connection.eventLoop.scheduleAtFixedRate({
-      if (this.keepAliveTime == -1L) {
-        this.keepAliveTime = System.currentTimeMillis()
+    val connection = playerImpl.clientConnection
+    keepAliveTask = connection.eventLoop.scheduleAtFixedRate({
+      if (keepAliveTime == -1L) {
+        keepAliveTime = System.currentTimeMillis()
         connection.send(KeepAlivePacket)
-      } else if (System.currentTimeMillis() - this.keepAliveTime > keepAliveTimeout) {
+      } else if (System.currentTimeMillis() - keepAliveTime > keepAliveTimeout) {
         connection.close(textOf("Timed out"))
       }
     }, 0, 750, TimeUnit.MILLISECONDS)
   }
 
   private fun cleanupKeepAliveTask() {
-    this.keepAliveTask?.cancel(true)
-    this.keepAliveTask = null
+    keepAliveTask?.cancel(true)
+    keepAliveTask = null
   }
 
   override fun handle(packet: KeepAlivePacket): Boolean {
-    this.playerImpl.latency = (System.currentTimeMillis() - this.keepAliveTime).toInt()
-    this.keepAliveTime = -1L
+    playerImpl.latency = (System.currentTimeMillis() - keepAliveTime).toInt()
+    keepAliveTime = -1L
     return true
   }
 
@@ -109,7 +109,7 @@ internal class ClientPlayConnectionHandler(
   private fun handleConnectCommand(args: List<String>) {
     var name = args.getOrNull(0)
     fun send(text: Text) {
-      this.playerImpl.sendMessage(Terre.message(text))
+      playerImpl.sendMessage(Terre.message(text))
     }
     if (name == null) {
       send("Please specify a target server.".text())
@@ -150,27 +150,26 @@ internal class ClientPlayConnectionHandler(
     if (packet.commandId == "Say") {
       val command = packet.arguments
       if (command.startsWith("/")) {
-        if (handleCommand(command.substring(1))) {
+        if (handleCommand(command.substring(1)))
           return true
-        }
       }
     }
     return false // Forward
   }
 
   override fun handle(packet: ClientUniqueIdPacket): Boolean {
-    check(packet.uniqueId == this.playerImpl.uniqueId)
+    check(packet.uniqueId == playerImpl.uniqueId)
     return false // Forward
   }
 
   override fun handle(packet: PlayerSpawnPacket): Boolean {
-    this.playerImpl.serverConnection?.isWorldInitialized = true
-    this.playerImpl.position = packet.position.toFloat()
+    playerImpl.serverConnection?.isWorldInitialized = true
+    playerImpl.position = packet.position.toFloat()
     return false // Forward
   }
 
   override fun handle(packet: PlayerUpdatePacket): Boolean {
-    this.playerImpl.position = packet.position
+    playerImpl.position = packet.position
     return false // Forward
   }
 
@@ -180,17 +179,17 @@ internal class ClientPlayConnectionHandler(
 
   private fun isWorldInitPacket(packet: Packet): Boolean {
     return packet is PlayerInfoPacket ||
-        packet is PlayerSpawnPacket ||
-        packet is PlayerManaPacket ||
-        packet is PlayerHealthPacket ||
-        packet is PlayerBuffsPacket ||
-        packet is PlayerInventorySlotPacket ||
-        packet is WorldInfoRequestPacket ||
-        packet is ClientUniqueIdPacket
+      packet is PlayerSpawnPacket ||
+      packet is PlayerManaPacket ||
+      packet is PlayerHealthPacket ||
+      packet is PlayerBuffsPacket ||
+      packet is PlayerInventorySlotPacket ||
+      packet is WorldInfoRequestPacket ||
+      packet is ClientUniqueIdPacket
   }
 
   override fun handleGeneric(packet: Packet) {
-    val serverConnection = this.playerImpl.serverConnection ?: return
+    val serverConnection = playerImpl.serverConnection ?: return
     // During this state, not all packets are allowed to pass through
     if (!serverConnection.isWorldInitialized && !isWorldInitPacket(packet))
       return
@@ -199,7 +198,7 @@ internal class ClientPlayConnectionHandler(
   }
 
   override fun handleUnknown(packet: ByteBuf) {
-    val serverConnection = this.playerImpl.serverConnection ?: return
+    val serverConnection = playerImpl.serverConnection ?: return
     // During this state, not all packets are allowed to pass through
     if (!serverConnection.isWorldInitialized)
       return

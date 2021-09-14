@@ -25,8 +25,7 @@ private val Empty = textOf("")
 /**
  * Converts the string into a literal text.
  */
-inline fun String.text(): LiteralText
-    = textOf(this)
+inline fun String.text(): LiteralText = textOf(this)
 
 /**
  * Gets empty text.
@@ -36,27 +35,27 @@ fun textOf(): LiteralText = Empty
 /**
  * Converts the string into a literal text.
  */
-fun textOf(literal: String): LiteralText
-    = LiteralTextImpl(literal)
+fun textOf(literal: String): LiteralText =
+  LiteralTextImpl(literal)
 
 /**
  * Converts the string into a literal text.
  */
-fun textOf(literal: String, color: Color): LiteralText
-    = LiteralTextImpl(literal, color.optional())
+fun textOf(literal: String, color: Color): LiteralText =
+  LiteralTextImpl(literal, color.optional())
 
 /**
  * Converts the string into a literal text.
  */
-fun textOf(literal: String, color: Color?): LiteralText
-    = LiteralTextImpl(literal, color.optionalFromNullable())
+fun textOf(literal: String, color: Color?): LiteralText =
+  LiteralTextImpl(literal, color.optionalFromNullable())
 
 /**
  * Merges the array of text components
  * into a single one.
  */
-fun textOf(array: Array<Text>): Text
-    = textOf(array.toImmutableList())
+fun textOf(array: Array<Text>): Text =
+  textOf(array.toImmutableList())
 
 /**
  * Merges the array of text components
@@ -64,9 +63,8 @@ fun textOf(array: Array<Text>): Text
  */
 fun textOf(first: Text, second: Text, vararg more: Text): Text {
   val moreList = more.asList()
-  if (moreList.isEmpty()) {
-    return GroupedTextImpl(immutableListOf(first, second));
-  }
+  if (moreList.isEmpty())
+    return GroupedTextImpl(immutableListOf(first, second))
   val builder = immutableListBuilderOf<Text>(expectedSize = 2 + more.size)
   builder.add(first)
   builder.add(second)
@@ -80,13 +78,11 @@ fun textOf(first: Text, second: Text, vararg more: Text): Text {
  */
 fun textOf(sequence: Sequence<Text>): Text {
   val it = sequence.iterator()
-  if (!it.hasNext()) {
+  if (!it.hasNext())
     return textOf()
-  }
   val first = it.next()
-  if (!it.hasNext()) {
+  if (!it.hasNext())
     return first
-  }
   val builder = immutableListBuilderOf<Text>()
   builder.add(first)
   it.forEachRemaining { text ->
@@ -101,19 +97,20 @@ fun textOf(sequence: Sequence<Text>): Text {
  */
 fun textOf(iterable: Iterable<Text>): Text {
   val collection = iterable as? Collection ?: iterable.toImmutableList()
-  if (collection.isEmpty()) {
+  if (collection.isEmpty())
     return textOf()
-  }
-  if (collection.size == 1) {
+  if (collection.size == 1)
     return collection.iterator().next()
-  }
   return GroupedTextImpl(collection.toImmutableList())
 }
 
 /**
  * Represents a text component.
  */
-interface Text {
+interface Text : TextLike {
+
+  @Deprecated(message = "Redundant call.", replaceWith = ReplaceWith(""))
+  override fun text(): Text = this
 
   /**
    * Whether this text component is empty.

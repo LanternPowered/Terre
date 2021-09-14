@@ -24,8 +24,10 @@ internal abstract class TextImpl : Text {
     if (that.isEmpty) return this
     if (this.isEmpty) return that
     // Merge if possible to reduce complexity
-    if (this.optionalColor.isEmpty && (that as TextImpl).optionalColor.isEmpty
-        && (this is GroupedText || that is GroupedText)) {
+    if (this.optionalColor.isEmpty
+      && (that as TextImpl).optionalColor.isEmpty
+      && (this is GroupedText || that is GroupedText)
+    ) {
       val children = immutableListBuilderOf<Text>()
       if (this is GroupedText) {
         children.addAll(this.children)

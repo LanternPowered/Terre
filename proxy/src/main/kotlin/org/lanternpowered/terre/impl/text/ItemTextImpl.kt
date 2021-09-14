@@ -14,16 +14,16 @@ import org.lanternpowered.terre.text.ItemText
 import org.lanternpowered.terre.util.ToStringHelper
 
 internal data class ItemTextImpl(
-    override val itemStack: ItemStack
+  override val itemStack: ItemStack
 ) : TextImpl(), ItemText {
 
   override val isEmpty: Boolean
     get() = this.itemStack.isEmpty
 
-  override fun toPlain(): String
-      = "[Item: Type=${this.itemStack.item.numericId} Modifier=${this.itemStack.modifier.numericId}]"
+  override fun toPlain(): String =
+    "[Item: Type=${itemStack.item.numericId} Modifier=${itemStack.modifier.numericId}]"
 
   override fun toString() = ToStringHelper(ItemText::class)
-      .add("itemStack", this.itemStack)
-      .toString()
+    .add("itemStack", itemStack)
+    .toString()
 }

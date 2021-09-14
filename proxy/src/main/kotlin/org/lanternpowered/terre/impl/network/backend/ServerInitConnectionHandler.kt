@@ -45,39 +45,39 @@ internal sealed class ServerInitConnectionResult {
  * @property protocol The protocol to use
  */
 internal class ServerInitConnectionHandler(
-    private val connection: Connection,
-    private val clientConnection: Connection,
-    private val future: CompletableFuture<ServerInitConnectionResult>,
-    private val version: ProtocolVersion,
-    private val protocol: MultistateProtocol,
-    private val password: String
+  private val connection: Connection,
+  private val clientConnection: Connection,
+  private val future: CompletableFuture<ServerInitConnectionResult>,
+  private val version: ProtocolVersion,
+  private val protocol: MultistateProtocol,
+  private val password: String
 ) : ConnectionHandler {
 
   override fun initialize() {
-    this.connection.protocol = ServerInitProtocol
-    this.connection.send(ConnectionRequestPacket(this.version))
+    connection.protocol = ServerInitProtocol
+    connection.send(ConnectionRequestPacket(version))
     debug { "Send server connection request to ${connection.remoteAddress} with $version" }
   }
 
   override fun disconnect() {
-    this.future.complete(ServerInitConnectionResult.Disconnected(null))
+    future.complete(ServerInitConnectionResult.Disconnected(null))
   }
 
   override fun exception(throwable: Throwable) {
-    this.future.completeExceptionally(throwable)
-    this.connection.close()
+    future.completeExceptionally(throwable)
+    connection.close()
   }
 
   override fun handle(packet: DisconnectPacket): Boolean {
-    this.future.complete(ServerInitConnectionResult.Disconnected(packet.reason))
+    future.complete(ServerInitConnectionResult.Disconnected(packet.reason))
     // Make sure that the connection gets closed
-    this.connection.close()
+    connection.close()
     debug { "Disconnect: ${packet.reason}" }
     return true
   }
 
   override fun handle(packet: PasswordRequestPacket): Boolean {
-    this.connection.send(PasswordResponsePacket(this.password))
+    connection.send(PasswordResponsePacket(this.password))
     debug { "Password request -> response: $password" }
     return true
   }
@@ -86,11 +86,11 @@ internal class ServerInitConnectionHandler(
     val playerId = packet.playerId
     debug { "Connection approved: $playerId" }
     // Connection was approved so the client version was accepted
-    this.connection.protocol = this.protocol[MultistateProtocol.State.Play]
-    this.future.complete(ServerInitConnectionResult.Success(playerId))
+    connection.protocol = protocol[MultistateProtocol.State.Play]
+    future.complete(ServerInitConnectionResult.Success(playerId))
     // Sending this packet triggers the client to request all the information
     // from the server once again, this allows it to request and load a new world.
-    this.clientConnection.send(packet)
+    clientConnection.send(packet)
     return true
   }
 

@@ -55,6 +55,7 @@ internal val Protocol230 = multistateProtocol {
     bind(0x1D, ProjectileDestroyEncoder, ProjectileDestroyDecoder)
     bind(0x27, KeepAliveEncoder, PacketDirection.ServerToClient)
     bind(0x2A, PlayerManaEncoder, PlayerManaDecoder)
+    bind(0x2D, PlayerTeamEncoder, PlayerTeamDecoder, PacketDirection.ServerToClient)
     bind(0x31, CompleteConnectionEncoder, CompleteConnectionDecoder, PacketDirection.ServerToClient)
     bind(0x32, PlayerBuffsEncoder, PlayerBuffsDecoder)
     bind(0x37, AddPlayerBuffEncoder, AddPlayerBuffDecoder)

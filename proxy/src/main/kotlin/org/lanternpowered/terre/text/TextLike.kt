@@ -9,21 +9,13 @@
  */
 package org.lanternpowered.terre.text
 
-import org.lanternpowered.terre.impl.text.GlyphTextImpl
-
 /**
- * Creates a new [GlyphText] from the given [Glyph].
+ * Something that can be represented as [Text].
  */
-fun textOf(glyph: Glyph): GlyphText =
-  GlyphTextImpl(glyph)
-
-/**
- * Represents a glyph text component.
- */
-interface GlyphText : Text {
+interface TextLike {
 
   /**
-   * The glyph of the text component.
+   * Converts this text like to [Text].
    */
-  val glyph: Glyph
+  fun text(): Text
 }

@@ -13,7 +13,7 @@ import org.lanternpowered.terre.impl.buildNumericCatalogTypeRegistryOf
 import org.lanternpowered.terre.item.Item
 
 internal class ItemImpl(
-    override val numericId: Int
+  override val numericId: Int
 ) : Item
 
 internal val ItemRegistryImpl = buildNumericCatalogTypeRegistryOf<Item>(::ItemImpl)

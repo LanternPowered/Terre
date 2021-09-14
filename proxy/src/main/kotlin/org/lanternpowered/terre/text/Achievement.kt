@@ -13,10 +13,9 @@ import org.lanternpowered.terre.catalog.NamedCatalogType
 import org.lanternpowered.terre.catalog.NamedCatalogTypeRegistry
 import org.lanternpowered.terre.impl.AchievementRegistryImpl
 
-interface Achievement : NamedCatalogType {
+interface Achievement : NamedCatalogType, TextLike {
 
-  fun text(): AchievementText
-      = textOf(this)
+  override fun text(): AchievementText = textOf(this)
 }
 
 object AchievementRegistry : NamedCatalogTypeRegistry<Achievement> by AchievementRegistryImpl

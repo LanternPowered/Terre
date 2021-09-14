@@ -15,8 +15,8 @@ import org.lanternpowered.terre.util.collection.toImmutableList
 /**
  * Constructs a formatted text component with the given substitutions.
  */
-fun formattedTextOf(format: String, vararg substitutions: Any): FormattableText
-    = formattedTextOf(format, substitutions.asList())
+fun formattedTextOf(format: String, vararg substitutions: Any): FormattableText =
+  formattedTextOf(format, substitutions.asList())
 
 /**
  * Constructs a formatted text component with the given substitutions.

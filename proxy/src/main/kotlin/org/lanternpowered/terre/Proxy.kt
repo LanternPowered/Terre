@@ -10,6 +10,7 @@
 package org.lanternpowered.terre
 
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import org.lanternpowered.terre.impl.ProxyImpl
 import org.lanternpowered.terre.text.MessageReceiver
 import org.lanternpowered.terre.text.Text
@@ -21,7 +22,9 @@ import java.net.InetSocketAddress
 interface Proxy : MessageReceiver {
 
   /**
-   * The coroutine dispatcher.
+   * The coroutine dispatcher that should be used by plugins.
+   *
+   * Alternatively it's also possible to use [Dispatchers.Main].
    */
   val dispatcher: CoroutineDispatcher
 

@@ -25,6 +25,7 @@ import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
 import org.lanternpowered.terre.impl.network.packet.EssentialTilesRequestPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerSpawnPacket
+import org.lanternpowered.terre.impl.network.packet.PlayerTeamPacket
 import org.lanternpowered.terre.impl.network.packet.UpdateNpcNamePacket
 import org.lanternpowered.terre.impl.network.packet.UpdateNpcPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoPacket
@@ -35,8 +36,8 @@ import org.lanternpowered.terre.impl.util.resolve
 import org.lanternpowered.terre.math.Vec2i
 
 internal open class ServerPlayConnectionHandler(
-    private val serverConnection: ServerConnectionImpl,
-    private val player: PlayerImpl
+  private val serverConnection: ServerConnectionImpl,
+  private val player: PlayerImpl,
 ) : ConnectionHandler {
 
   /**
@@ -45,18 +46,18 @@ internal open class ServerPlayConnectionHandler(
   private val clientConnection
     get() = this.player.clientConnection
 
-  private val wasPreviouslyConnectedToServer = this.player.wasPreviouslyConnectedToServer
+  private val wasPreviouslyConnectedToServer = player.wasPreviouslyConnectedToServer
 
   private var deathSourceInfoCache: DeathSourceInfoCache? = null
   private var sendRequestEssentialTiles = false
 
   override fun initialize() {
     initializeDeathSourceCache()
-    this.player.wasPreviouslyConnectedToServer = true
+    player.wasPreviouslyConnectedToServer = true
   }
 
   override fun disconnect() {
-    this.player.disconnectedFromServer(this.serverConnection)
+    player.disconnectedFromServer(serverConnection)
   }
 
   override fun handle(packet: DisconnectPacket): Boolean {
@@ -69,23 +70,23 @@ internal open class ServerPlayConnectionHandler(
 
   private fun initializeDeathSourceCache() {
     val legacyServerProtocol = Protocol155[MultistateProtocol.State.Play]
-    val connection = this.serverConnection.ensureConnected()
+    val connection = serverConnection.ensureConnected()
     // For the legacy protocol we need to keep track of some things to
     // translate death reasons from the new protocol to the old one.
-    if (this.clientConnection.protocol != legacyServerProtocol
+    if (clientConnection.protocol != legacyServerProtocol
         && connection.protocol == legacyServerProtocol) {
       // Initialize every time a new connection is made, so
       // the cache gets cleared.
-      this.deathSourceInfoCache = DeathSourceInfoCache(this.player.name)
-      this.clientConnection.attr(DeathSourceInfoCache.Attribute).set(this.deathSourceInfoCache)
-      connection.attr(DeathSourceInfoCache.Attribute).set(this.deathSourceInfoCache)
+      deathSourceInfoCache = DeathSourceInfoCache(player.name)
+      clientConnection.attr(DeathSourceInfoCache.Attribute).set(deathSourceInfoCache)
+      connection.attr(DeathSourceInfoCache.Attribute).set(deathSourceInfoCache)
     }
   }
 
   private inline fun updateDeathSourceCache(crossinline fn: DeathSourceInfoCache.() -> Unit) {
-    val cache = this.deathSourceInfoCache
+    val cache = deathSourceInfoCache
     if (cache != null) {
-      this.player.clientConnection.eventLoop.execute {
+      player.clientConnection.eventLoop.execute {
         cache.fn()
       }
     }
@@ -95,13 +96,12 @@ internal open class ServerPlayConnectionHandler(
     updateDeathSourceCache {
       worldName = packet.name
     }
-    if (!this.sendRequestEssentialTiles) {
-      this.sendRequestEssentialTiles = true
+    if (!sendRequestEssentialTiles) {
+      sendRequestEssentialTiles = true
       // The client sends this the first time it connects to a server,
       // this time we need to fake it.
-      if (this.wasPreviouslyConnectedToServer) {
-        this.serverConnection.ensureConnected().send(EssentialTilesRequestPacket(Vec2i(-1, -1)))
-      }
+      if (wasPreviouslyConnectedToServer)
+        serverConnection.ensureConnected().send(EssentialTilesRequestPacket(Vec2i(-1, -1)))
     }
     return false // Forward
   }
@@ -129,27 +129,30 @@ internal open class ServerPlayConnectionHandler(
         npc.name = null
         npc.active = true
       }
-      if (packet.life ?: 0 < 0) {
+      if ((packet.life ?: 0) < 0) {
         npc.active = false
       }
     }
     return false // Forward
   }
 
+  override fun handle(packet: PlayerTeamPacket): Boolean {
+    player.team = packet.team
+    return false // Forward
+  }
+
   override fun handle(packet: CompleteConnectionPacket): Boolean {
     val playerId = this.serverConnection.playerId ?: error("Player id isn't known.")
 
-    if (this.wasPreviouslyConnectedToServer) {
-      // Sending this packet makes sure that the player spawns, even if the client
-      // was previously connected to another world. This will trigger the client
-      // to find a new spawn location.
-      this.player.clientConnection.send(PlayerSpawnPacket(
-          playerId, Vec2i.Zero, 0, PlayerSpawnPacket.Context.SpawningIntoWorld))
+    if (wasPreviouslyConnectedToServer) {
+      // Sending this packet makes sure that the player spawns, even if the client was previously
+      // connected to another world. This will trigger the client to find a new spawn location.
+      player.clientConnection.send(PlayerSpawnPacket(playerId,
+        Vec2i.Zero, 0, PlayerSpawnPacket.Context.SpawningIntoWorld))
     } else {
-      // Notify the client that the connection is complete, this will attempt
-      // to spawn the player in the world, only affects the first time the client
-      // connects to a server.
-      this.player.clientConnection.send(packet)
+      // Notify the client that the connection is complete, this will attempt to spawn the player
+      // in the world, only affects the first time the client connects to a server.
+      player.clientConnection.send(packet)
     }
 
     Terre.logger.debug { "P <- S(${serverConnection.server.info.name}) [${player.name}] Connection complete." }
@@ -157,8 +160,7 @@ internal open class ServerPlayConnectionHandler(
   }
 
   /**
-   * Implement "dimensions" compatible server switching which can be
-   * requested by backing servers.
+   * Implement "dimensions" compatible server switching which can be requested by backing servers.
    */
   override fun handle(packet: CustomPayloadPacket): Boolean {
     val buf = packet.content
@@ -191,7 +193,7 @@ internal open class ServerPlayConnectionHandler(
       null to false
     }
     if (server != null)
-      this.player.connectToWithFuture(server)
+      player.connectToWithFuture(server)
 
     if (success)
       return true
@@ -201,10 +203,10 @@ internal open class ServerPlayConnectionHandler(
   }
 
   override fun handleGeneric(packet: Packet) {
-    this.player.clientConnection.send(packet)
+    player.clientConnection.send(packet)
   }
 
   override fun handleUnknown(packet: ByteBuf) {
-    this.player.clientConnection.send(packet)
+    player.clientConnection.send(packet)
   }
 }

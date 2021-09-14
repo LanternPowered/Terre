@@ -9,7 +9,10 @@
  */
 package org.lanternpowered.terre.impl.dispatcher
 
+import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Delay
+import kotlinx.coroutines.DisposableHandle
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Runnable
@@ -19,32 +22,46 @@ import kotlin.coroutines.Continuation
 import kotlin.coroutines.CoroutineContext
 
 /**
- * A [CoroutineDispatcher] that makes sure that the
- * [PluginThreadLocalElement] is attached to
- * the context.
+ * A [CoroutineDispatcher] that makes sure that the [PluginThreadLocalElement] is attached to the
+ * context.
  */
+@InternalCoroutinesApi
 internal class PluginContextCoroutineDispatcher(
-    private val backing: CoroutineDispatcher
-) : CoroutineDispatcher() {
+  private val backing: CoroutineDispatcher
+) : CoroutineDispatcher(), Delay {
+
+  private val delay = backing as Delay
 
   private fun populateContext(context: CoroutineContext): CoroutineContext {
-    return if (context[PluginContextElement.Key] == null) context + PluginContextElement() else context
+    return if (context[PluginContextElement.Key] == null) {
+      context + PluginContextElement()
+    } else context
   }
 
   override fun dispatch(context: CoroutineContext, block: Runnable) {
-    this.backing.dispatch(populateContext(context), block)
+    backing.dispatch(populateContext(context), block)
   }
 
   @ExperimentalCoroutinesApi
-  override fun isDispatchNeeded(context: CoroutineContext) = this.backing.isDispatchNeeded(context)
+  override fun isDispatchNeeded(context: CoroutineContext) = backing.isDispatchNeeded(context)
 
   @InternalCoroutinesApi
   override fun dispatchYield(context: CoroutineContext, block: Runnable) {
-    this.backing.dispatchYield(populateContext(context), block)
+    backing.dispatchYield(populateContext(context), block)
   }
 
   @InternalCoroutinesApi
   override fun releaseInterceptedContinuation(continuation: Continuation<*>) {
     this.backing.releaseInterceptedContinuation(continuation)
+  }
+
+  override fun scheduleResumeAfterDelay(
+    timeMillis: Long, continuation: CancellableContinuation<Unit>
+  ) {
+    delay.scheduleResumeAfterDelay(timeMillis, continuation)
+  }
+
+  override fun invokeOnTimeout(timeMillis: Long, block: Runnable): DisposableHandle {
+    return delay.invokeOnTimeout(timeMillis, block)
   }
 }

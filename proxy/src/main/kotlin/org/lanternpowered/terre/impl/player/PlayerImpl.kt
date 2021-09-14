@@ -43,13 +43,13 @@ import java.util.UUID
 import java.util.concurrent.CompletableFuture
 
 internal class PlayerImpl(
-    val clientConnection: Connection,
-    override val protocolVersion: ProtocolVersion,
-    val protocol: MultistateProtocol,
-    override val name: String,
-    override val identifier: PlayerIdentifier,
-    override val isMobile: Boolean,
-    val uniqueId: UUID
+  val clientConnection: Connection,
+  override val protocolVersion: ProtocolVersion,
+  val protocol: MultistateProtocol,
+  override val name: String,
+  override val identifier: PlayerIdentifier,
+  override val isMobile: Boolean,
+  val uniqueId: UUID
 ) : Player, MessageReceiverImpl {
 
   @Volatile override var latency = 0
@@ -58,7 +58,12 @@ internal class PlayerImpl(
     private set
 
   override val remoteAddress: SocketAddress
-    get() = this.clientConnection.remoteAddress
+    get() = clientConnection.remoteAddress
+
+  /**
+   * The team this player is currently part of, or white if none.
+   */
+  var team = Team.White
 
   @Volatile override var position: Vec2f = Vec2f.Zero
 
@@ -72,12 +77,12 @@ internal class PlayerImpl(
 
   // Duplicate client UUIDs aren't allowed, however duplicate names are.
   private fun disconnectByDuplicateId() {
-    this.clientConnection.close(textOf(
-        "There's already a player connected with the identifier: $identifier"))
+    clientConnection.close(textOf(
+      "There's already a player connected with the identifier: $identifier"))
   }
 
   fun checkDuplicateIdentifier(): Boolean {
-    if (ProxyImpl.mutablePlayers.contains(this.identifier)) {
+    if (ProxyImpl.mutablePlayers.contains(identifier)) {
       disconnectByDuplicateId()
       return true
     }
@@ -88,11 +93,11 @@ internal class PlayerImpl(
    * Initializes the player and adds it to the proxy.
    */
   fun finishLogin(originalResult: ClientLoginEvent.Result) {
-    this.clientConnection.protocol = this.protocol[MultistateProtocol.State.Play]
+    clientConnection.protocol = protocol[MultistateProtocol.State.Play]
     if (checkDuplicateIdentifier())
       return
 
-    this.clientConnection.setConnectionHandler(ClientPlayConnectionHandler(this))
+    clientConnection.setConnectionHandler(ClientPlayConnectionHandler(this))
 
     var result = originalResult
     if (result is ClientLoginEvent.Result.Allowed) {
@@ -103,28 +108,28 @@ internal class PlayerImpl(
     }
 
     TerreEventBus.postAsyncWithFuture(ClientLoginEvent(this, result))
-        .thenAcceptAsync({ event ->
-          if (this.clientConnection.isClosed)
-            return@thenAcceptAsync
-          if (ProxyImpl.mutablePlayers.addIfAbsent(this) != null) {
-            disconnectByDuplicateId()
-            return@thenAcceptAsync
-          }
-          val eventResult = event.result
-          if (eventResult is ClientLoginEvent.Result.Denied) {
-            this.clientConnection.close(eventResult.reason)
-          } else {
-            TerreEventBus.postAsyncWithFuture(ClientPostLoginEvent(this))
-                .thenAccept { afterLogin() }
-          }
-        }, this.clientConnection.eventLoop)
+      .thenAcceptAsync({ event ->
+        if (clientConnection.isClosed)
+          return@thenAcceptAsync
+        if (ProxyImpl.mutablePlayers.addIfAbsent(this) != null) {
+          disconnectByDuplicateId()
+          return@thenAcceptAsync
+        }
+        val eventResult = event.result
+        if (eventResult is ClientLoginEvent.Result.Denied) {
+          clientConnection.close(eventResult.reason)
+        } else {
+          TerreEventBus.postAsyncWithFuture(ClientPostLoginEvent(this))
+              .thenAccept { afterLogin() }
+        }
+      }, clientConnection.eventLoop)
   }
 
   private fun afterLogin() {
     // Try to connect to one of the servers
     val possibleServers = ProxyImpl.servers.asSequence()
-        .filter { it.allowAutoJoin }
-        .toList()
+      .filter { it.allowAutoJoin }
+      .toList()
     connectToAnyWithFuture(possibleServers).whenComplete { connected, _ ->
       if (connected == null) {
         disconnectAndForget(textOf("Failed to connect to a server."))
@@ -163,15 +168,15 @@ internal class PlayerImpl(
    * to the backing server.
    */
   fun disconnectedFromServer(connection: ServerConnectionImpl) {
-    if (this.serverConnection != connection)
+    if (serverConnection != connection)
       return
-    this.serverConnection = null
+    serverConnection = null
 
     val server = connection.server
     // Evacuate the player to another server
     val possibleServers = ProxyImpl.servers.asSequence()
-        .filter { it.allowAutoJoin && it != server }
-        .toList()
+      .filter { it.allowAutoJoin && it != server }
+      .toList()
     connectToAnyWithFuture(possibleServers).whenComplete { connected, _ ->
       if (connected == null) {
         disconnectAndForget(textOf("Failed to connect to a server."))
@@ -183,11 +188,11 @@ internal class PlayerImpl(
 
   fun cleanup() {
     ProxyImpl.mutablePlayers.remove(this)
-    this.serverConnection?.connection?.close()
+    serverConnection?.connection?.close()
   }
 
   override fun sendMessage(message: Text) {
-    this.clientConnection.send(ChatMessagePacket(message))
+    clientConnection.send(ChatMessagePacket(message))
   }
 
   override fun sendMessageAs(message: Text, sender: MessageSender) {
@@ -195,15 +200,15 @@ internal class PlayerImpl(
     // send as a player chat message, this will show the text message above the head of the sender.
     if (sender is PlayerImpl) {
       val serverConnection = sender.serverConnection
-      if (serverConnection != null && this.serverConnection?.server == serverConnection.server) {
+      if (serverConnection != null && serverConnection.server == serverConnection.server) {
         val playerId = serverConnection.playerId
         if (playerId != null) {
-          this.clientConnection.send(PlayerChatMessagePacket(playerId, message))
+          clientConnection.send(PlayerChatMessagePacket(playerId, message))
           return
         }
       }
     }
-    super.sendMessageAs(message, sender)
+    super<MessageReceiverImpl>.sendMessageAs(message, sender)
   }
 
   override fun openPortal(type: PortalType, position: Vec2f, fn: PortalBuilder.() -> Unit): Portal {
@@ -226,14 +231,14 @@ internal class PlayerImpl(
       if (throwable != null) {
         Terre.logger.debug("Failed to establish connection to backend server: ${server.info}", throwable)
       } else if (result is ServerConnectionRequestResult.Success) {
-        val old = this.serverConnection?.connection
+        val old = serverConnection?.connection
         if (old != null) {
           old.setConnectionHandler(null)
           old.close()
         }
-        this.serverConnection?.server?.removePlayer(this)
+        serverConnection?.server?.removePlayer(this)
         // Replace it with the successfully established one
-        this.serverConnection = connection
+        serverConnection = connection
         connection.server.initPlayer(this)
         Terre.logger.debug("Successfully established connection to backend server: ${server.info}")
       }

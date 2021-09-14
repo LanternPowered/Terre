@@ -33,7 +33,7 @@ interface PlayerCollection : Collection<Player> {
 /**
  * Disconnects all the [Player]s in the [PlayerCollection].
  */
-suspend fun PlayerCollection.disconnectAll(reason: Text = DefaultDisconnectReason) {
+suspend fun Collection<Player>.disconnectAll(reason: Text = DefaultDisconnectReason) {
   this.toList().asSequence()
       .map { it.disconnectAsync(reason) }
       .forEach { it.join() }
@@ -42,7 +42,7 @@ suspend fun PlayerCollection.disconnectAll(reason: Text = DefaultDisconnectReaso
 /**
  * Disconnects all the [Player]s in the [PlayerCollection].
  */
-fun PlayerCollection.disconnectAllAsync(reason: Text = DefaultDisconnectReason): Job {
+fun Collection<Player>.disconnectAllAsync(reason: Text = DefaultDisconnectReason): Job {
   return launchAsync {
     disconnectAll(reason)
   }

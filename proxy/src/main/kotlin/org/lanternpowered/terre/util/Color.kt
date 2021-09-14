@@ -12,37 +12,39 @@
 package org.lanternpowered.terre.util
 
 /**
- * Constructs a new color from the rgb values.
- */
-fun Color(red: Byte, green: Byte, blue: Byte) = Color(red.toInt(), green.toInt(), blue.toInt())
-
-/**
- * Constructs a new color from the rgb values. Each component with range 0 - 255
- */
-fun Color(red: Int, green: Int, blue: Int) = Color((red shl 16) or (green shl 8) or blue)
-
-/**
  * Represents a color.
  */
 inline class Color(val rgb: Int) {
 
   /**
+   * Constructs a new color from the rgb values.
+   */
+  constructor(red: Byte, green: Byte, blue: Byte) :
+    this(red.toInt(), green.toInt(), blue.toInt())
+
+  /**
+   * Constructs a new color from the rgb values. Each component with range 0 - 255.
+   */
+  constructor(red: Int, green: Int, blue: Int) :
+    this((red shl 16) or (green shl 8) or blue)
+
+  /**
    * The red component. 0 - 255
    */
   val red: Int
-    get() = (this.rgb ushr 16) and 0xff
+    get() = (rgb ushr 16) and 0xff
 
   /**
    * The green component. 0 - 255
    */
   val green: Int
-    get() = (this.rgb ushr 8) and 0xff
+    get() = (rgb ushr 8) and 0xff
 
   /**
    * The blue component. 0 - 255
    */
   val blue: Int
-    get() = this.rgb and 0xff
+    get() = rgb and 0xff
 
   override fun toString(): String = "Color(red=$red, green=$green, blue=$blue)"
 }

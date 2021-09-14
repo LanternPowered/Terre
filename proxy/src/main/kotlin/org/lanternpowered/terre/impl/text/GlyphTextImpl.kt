@@ -18,10 +18,9 @@ internal data class GlyphTextImpl(override val glyph: Glyph) : TextImpl(), Glyph
   override val isEmpty: Boolean
     get() = false
 
-  override fun toPlain(): String
-      = "[Glyph: " + this.glyph.numericId + ']'
+  override fun toPlain(): String = "[Glyph: ${glyph.numericId}]"
 
   override fun toString() = ToStringHelper(GlyphText::class)
-      .add("glyph", this.glyph)
-      .toString()
+    .add("glyph", glyph)
+    .toString()
 }

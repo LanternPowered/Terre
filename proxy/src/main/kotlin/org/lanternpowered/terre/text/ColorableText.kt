@@ -17,8 +17,8 @@ import org.lanternpowered.terre.util.Color
  * Gets a copy of this text object but with the given
  * color, if coloring is supported.
  */
-fun <T : Text> T.color(color: Color?): T
-    = if (this is ColorableText) this.color(color) as T else this
+fun <T : Text> T.color(color: Color?): T =
+  if (this is ColorableText) color(color) as T else this
 
 /**
  * Represents a text component that can be colored. Doesn't

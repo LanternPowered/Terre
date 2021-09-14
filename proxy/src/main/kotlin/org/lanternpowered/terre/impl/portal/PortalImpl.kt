@@ -23,9 +23,9 @@ import org.lanternpowered.terre.util.AABB
 import java.util.UUID
 
 internal class PortalBuilderImpl(
-    val server: ServerImpl,
-    val type: PortalType,
-    val position: Vec2f
+  val server: ServerImpl,
+  val type: PortalType,
+  val position: Vec2f
 ) : PortalBuilder {
 
   private var onStartCollide: suspend Portal.(player: Player) -> Unit = {}
@@ -51,13 +51,13 @@ internal class PortalBuilderImpl(
  * @property projectileId The projectile id
  */
 internal class PortalImpl(
-    override val id: UUID,
-    override val type: PortalTypeImpl,
-    val projectileId: ProjectileId,
-    override val server: ServerImpl,
-    override val position: Vec2f,
-    val onStartCollide: suspend Portal.(player: Player) -> Unit,
-    val onStopCollide: suspend Portal.(player: Player) -> Unit
+  override val id: UUID,
+  override val type: PortalTypeImpl,
+  val projectileId: ProjectileId,
+  override val server: ServerImpl,
+  override val position: Vec2f,
+  val onStartCollide: suspend Portal.(player: Player) -> Unit,
+  val onStopCollide: suspend Portal.(player: Player) -> Unit
 ) : Portal {
 
   val colliding = mutableSetOf<Player>()
@@ -68,12 +68,16 @@ internal class PortalImpl(
     server.closePortal(this)
   }
 
-  fun createUpdatePacket(): ProjectileUpdatePacket {
+  fun createUpdatePacket(): ProjectileUpdatePacket? {
+    if (type.projectileType == null)
+      return null
     return ProjectileUpdatePacket(projectileId, position, Vec2f.Zero, null,
-        null, null, PlayerId.None, type.projectileType, null, null, null)
+      null, null, PlayerId.None, type.projectileType, null, null, null)
   }
 
-  fun createDestroyPacket(): ProjectileDestroyPacket {
+  fun createDestroyPacket(): ProjectileDestroyPacket? {
+    if (type.projectileType == null)
+      return null
     return ProjectileDestroyPacket(projectileId, PlayerId.None)
   }
 }

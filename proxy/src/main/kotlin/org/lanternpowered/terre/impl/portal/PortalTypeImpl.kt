@@ -20,11 +20,11 @@ import org.lanternpowered.terre.portal.PortalType
  * @property fallback In case the portal type isn't supported by the latest version
  */
 internal data class PortalTypeImpl(
-    override val name: String,
-    val projectileType: ProjectileType,
-    val size: Vec2f,
-    val lifetime: Int,
-    val fallback: PortalType? = null
+  override val name: String,
+  val projectileType: ProjectileType?,
+  val size: Vec2f,
+  val lifetime: Int,
+  val fallback: PortalType? = null
 ) : NamedCatalogType, PortalType {
 
   companion object {
@@ -35,6 +35,7 @@ internal data class PortalTypeImpl(
     val Fireball = PortalTypeImpl("fireball", ProjectileTypes.Fireball, Vec2f(40f, 40f), 3600)
     val Shadowball = PortalTypeImpl("shadowball", ProjectileTypes.ShadowFireball, Vec2f(40f, 40f), 3600)
     val Void = PortalTypeImpl("void", ProjectileTypes.VoidBag, Vec2f(30f, 70f), 3600, Shadowball) // TODO: Check these
+    val Invisible = PortalTypeImpl("invisible", null, Vec2f(30f, 70f), -1)
   }
 }
 

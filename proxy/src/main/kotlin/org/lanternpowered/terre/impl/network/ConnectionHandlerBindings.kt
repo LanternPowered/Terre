@@ -32,6 +32,7 @@ import org.lanternpowered.terre.impl.network.packet.PlayerDeathPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerHurtPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerSpawnPacket
+import org.lanternpowered.terre.impl.network.packet.PlayerTeamPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerTeleportThroughPortalPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.SpeechBubblePacket
@@ -78,17 +79,24 @@ internal object ConnectionHandlerBindings {
     bind<PlayerTeleportThroughPortalPacket>(ConnectionHandler::handle)
     bind<ProjectileDestroyPacket>(ConnectionHandler::handle)
     bind<PlayerUpdatePacket>(ConnectionHandler::handle)
+    bind<PlayerTeamPacket>(ConnectionHandler::handle)
   }
 
-  internal fun <P : Packet> getHandler(packetType: Class<P>): (ConnectionHandler.(packet: P) -> Boolean)?
-      = this.handlersByPacketType[packetType]
+  internal fun <P : Packet> getHandler(
+    packetType: Class<P>
+  ): (ConnectionHandler.(packet: P) -> Boolean)? {
+    return handlersByPacketType[packetType]
+  }
 
   private inline fun <reified P : Packet> bind(
-      noinline handler: ConnectionHandler.(packet: P) -> Boolean) {
+      noinline handler: ConnectionHandler.(packet: P) -> Boolean
+  ) {
     bind(P::class, handler)
   }
 
-  private fun <P : Packet> bind(type: KClass<P>, handler: ConnectionHandler.(packet: P) -> Boolean) {
-    this.handlersByPacketType[type.java] = handler as ConnectionHandler.(packet: Packet) -> Boolean
+  private fun <P : Packet> bind(
+    type: KClass<P>, handler: ConnectionHandler.(packet: P) -> Boolean
+  ) {
+    handlersByPacketType[type.java] = handler as ConnectionHandler.(packet: Packet) -> Boolean
   }
 }

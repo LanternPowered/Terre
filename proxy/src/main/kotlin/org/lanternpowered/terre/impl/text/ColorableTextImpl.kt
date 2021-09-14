@@ -15,5 +15,5 @@ import org.lanternpowered.terre.util.Color
 internal abstract class ColorableTextImpl : TextImpl(), ColorableText {
 
   final override val color: Color?
-    get() = this.optionalColor.orNull()
+    get() = optionalColor.orNull()
 }

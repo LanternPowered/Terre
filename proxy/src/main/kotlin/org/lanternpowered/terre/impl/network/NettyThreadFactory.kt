@@ -17,6 +17,6 @@ internal class NettyThreadFactory(private val group: String) : ThreadFactory {
 
   private val counter = AtomicInteger()
 
-  override fun newThread(r: Runnable): Thread
-      = TerreThread(r, "netty-$group-${this.counter.incrementAndGet()}")
+  override fun newThread(r: Runnable): Thread =
+    TerreThread(r, "netty-$group-${counter.incrementAndGet()}")
 }

@@ -20,10 +20,10 @@ internal data class AchievementTextImpl(
   override val isEmpty: Boolean
     get() = false
 
-  override fun toPlain(): String
-      = '[' + this.achievement.name + ']'
+  override fun toPlain(): String =
+    '[' + achievement.name + ']'
 
   override fun toString() = ToStringHelper(AchievementText::class)
-      .add("achievement", this.achievement)
-      .toString()
+    .add("achievement", achievement)
+    .toString()
 }

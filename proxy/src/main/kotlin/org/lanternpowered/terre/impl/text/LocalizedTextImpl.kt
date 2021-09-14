@@ -19,35 +19,38 @@ import org.lanternpowered.terre.util.collection.contentEquals
 import java.util.*
 
 internal class LocalizedTextImpl(
-    override val key: String,
-    override val substitutions: List<Text>,
-    override val optionalColor: OptionalColor = OptionalColor.empty()
+  override val key: String,
+  override val substitutions: List<Text>,
+  override val optionalColor: OptionalColor = OptionalColor.empty()
 ) : ColorableTextImpl(), LocalizedText {
 
-  override fun toPlain(): String = this.key
+  override fun toPlain(): String = key
 
-  override val isEmpty get() = this.key.isEmpty()
+  override val isEmpty get() = key.isEmpty()
 
-  override fun color(color: Color?): LocalizedTextImpl = color(color.optionalFromNullable())
+  override fun color(color: Color?): LocalizedTextImpl =
+    color(color.optionalFromNullable())
 
   fun color(optionalColor: OptionalColor): LocalizedTextImpl =
-      if (this.optionalColor == optionalColor) this else LocalizedTextImpl(this.key, this.substitutions, optionalColor)
+    if (optionalColor == optionalColor) this
+    else LocalizedTextImpl(key, substitutions, optionalColor)
 
   override fun equals(other: Any?): Boolean {
     if (other !is LocalizedTextImpl) {
       return false
     }
-    return this.key == other.key && this.substitutions contentEquals other.substitutions &&
-        this.optionalColor == other.optionalColor
+    return key == other.key
+      && substitutions contentEquals other.substitutions
+      && optionalColor == other.optionalColor
   }
 
-  override fun hashCode(): Int {
-    return Objects.hash(this.key, this.substitutions, this.optionalColor)
-  }
+  override fun hashCode(): Int =
+    Objects.hash(key, substitutions, optionalColor)
 
-  override fun toString() = ToStringHelper(LocalizedText::class).omitNullValues()
-      .add("key", this.key)
-      .add("substitutions", this.substitutions.joinToString { "," })
-      .add("color", this.color)
-      .toString()
+  override fun toString() = ToStringHelper(LocalizedText::class)
+    .omitNullValues()
+    .add("key", key)
+    .add("substitutions", substitutions.joinToString { "," })
+    .add("color", color)
+    .toString()
 }

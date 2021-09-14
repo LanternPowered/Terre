@@ -13,14 +13,14 @@ import org.lanternpowered.terre.catalog.NumericCatalogType
 import org.lanternpowered.terre.catalog.NumericCatalogTypeRegistry
 import org.lanternpowered.terre.impl.item.ItemRegistryImpl
 import org.lanternpowered.terre.text.ItemText
+import org.lanternpowered.terre.text.TextLike
 
 /**
- * Represents the type of an item.
+ * Represents the type of item.
  */
-interface Item : NumericCatalogType {
+interface Item : NumericCatalogType, TextLike {
 
-  fun text(): ItemText
-      = itemStackOf(this).text()
+  override fun text(): ItemText = itemStackOf(this).text()
 }
 
 /**

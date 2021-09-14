@@ -16,16 +16,16 @@ import org.lanternpowered.terre.util.collection.toImmutableList
 /**
  * Constructs a localized text component with the given substitutions.
  */
-fun localizedTextOf(key: String, vararg substitutions: Any): LocalizedText
-    = localizedTextOf(key, substitutions.asList())
+fun localizedTextOf(key: String, vararg substitutions: Any): LocalizedText =
+  localizedTextOf(key, substitutions.asList())
 
 /**
  * Constructs a localized text component with the given substitutions.
  */
 fun localizedTextOf(key: String, substitutions: Iterable<Any>): LocalizedText {
   val textSubstitutions = substitutions.asSequence()
-      .map { it as? Text ?: it.toString().text() }
-      .toImmutableList()
+    .map { it as? Text ?: it.toString().text() }
+    .toImmutableList()
   return LocalizedTextImpl(key, textSubstitutions)
 }
 

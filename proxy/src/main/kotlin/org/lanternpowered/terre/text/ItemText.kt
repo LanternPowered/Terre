@@ -15,8 +15,8 @@ import org.lanternpowered.terre.item.ItemStack
 /**
  * Creates a new [ItemText] from the given stack.
  */
-fun textOf(itemStack: ItemStack): ItemText
-    = ItemTextImpl(itemStack)
+fun textOf(itemStack: ItemStack): ItemText =
+  ItemTextImpl(itemStack)
 
 /**
  * A text component that represents an item.

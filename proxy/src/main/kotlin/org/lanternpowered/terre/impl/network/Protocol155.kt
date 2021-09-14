@@ -11,8 +11,6 @@ package org.lanternpowered.terre.impl.network
 
 import org.lanternpowered.terre.impl.network.packet.*
 import org.lanternpowered.terre.impl.network.packet.v155.*
-import org.lanternpowered.terre.impl.network.packet.v194.PlayerUpdate194Decoder
-import org.lanternpowered.terre.impl.network.packet.v194.PlayerUpdate194Encoder
 
 internal val Protocol155 = multistateProtocol {
   // Packets used in both the init and play states
@@ -50,6 +48,7 @@ internal val Protocol155 = multistateProtocol {
     bind(0x27, KeepAliveEncoder, PacketDirection.ServerToClient)
     bind(0x2A, PlayerManaEncoder, PlayerManaDecoder)
     bind(0x2C, PlayerDeath155Encoder, PlayerDeath155Decoder)
+    bind(0x2D, PlayerTeamEncoder, PlayerTeamDecoder, PacketDirection.ServerToClient)
     bind(0x31, CompleteConnectionEncoder, CompleteConnectionDecoder, PacketDirection.ServerToClient)
     bind(0x32, PlayerBuffsEncoder, PlayerBuffsDecoder)
     bind(0x37, AddPlayerBuff155Encoder, AddPlayerBuff155Decoder)

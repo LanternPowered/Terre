@@ -13,12 +13,11 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import com.uchuhimo.konf.Config
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.InternalCoroutinesApi
 import org.lanternpowered.terre.Console
 import org.lanternpowered.terre.MaxPlayers
-import org.lanternpowered.terre.text.MessageSender
 import org.lanternpowered.terre.Proxy
 import org.lanternpowered.terre.coroutines.delay
-import org.lanternpowered.terre.dispatcher.joinBlocking
 import org.lanternpowered.terre.dispatcher.launchAsync
 import org.lanternpowered.terre.event.proxy.ProxyInitializeEvent
 import org.lanternpowered.terre.event.proxy.ProxyShutdownEvent
@@ -26,7 +25,6 @@ import org.lanternpowered.terre.impl.config.ProxyConfigSpec
 import org.lanternpowered.terre.impl.config.RootConfigDirectoryImpl
 import org.lanternpowered.terre.impl.console.ConsoleImpl
 import org.lanternpowered.terre.impl.coroutines.tryWithTimeout
-import org.lanternpowered.terre.impl.dispatcher.PluginContextCoroutineDispatcher
 import org.lanternpowered.terre.impl.event.EventExecutor
 import org.lanternpowered.terre.impl.event.TerreEventBus
 import org.lanternpowered.terre.impl.network.NetworkManager
@@ -34,6 +32,8 @@ import org.lanternpowered.terre.impl.network.ProxyBroadcastTask
 import org.lanternpowered.terre.impl.plugin.PluginManagerImpl
 import org.lanternpowered.terre.impl.text.TextJsonDeserializer
 import org.lanternpowered.terre.impl.text.TextJsonSerializer
+import org.lanternpowered.terre.impl.util.dispatcher.joinBlocking
+import org.lanternpowered.terre.text.MessageSender
 import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.text.textOf
 import org.lanternpowered.terre.util.collection.toImmutableList
@@ -85,8 +85,8 @@ internal object ProxyImpl : Proxy {
     }
   }
 
-  override val dispatcher: CoroutineDispatcher
-      = PluginContextCoroutineDispatcher(EventExecutor.dispatcher) // Expose a safely wrapped dispatcher
+  @InternalCoroutinesApi
+  override val dispatcher: CoroutineDispatcher = EventExecutor.pluginAwareDispatcher
 
   val pluginManager = PluginManagerImpl()
 

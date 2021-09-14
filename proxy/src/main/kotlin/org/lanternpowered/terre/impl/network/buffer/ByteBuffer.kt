@@ -96,14 +96,13 @@ internal fun ByteBuf.writeColor(color: Color) = apply {
 /**
  * Reads a plain text object.
  */
-internal fun ByteBuf.readPlainText(): Text
-    = readRawText()
+internal fun ByteBuf.readPlainText(): Text = readRawText()
 
 /**
  * Reads a tagged text object.
  */
-internal fun ByteBuf.readTaggedText(): Text
-    = (readRawText() as TextImpl).fromTaggedVanillaText()
+internal fun ByteBuf.readTaggedText(): Text =
+  (readRawText() as TextImpl).fromTaggedVanillaText()
 
 /**
  * Reads a raw text object.
@@ -205,32 +204,38 @@ private fun ByteBuf.readRawTextList(): List<Text> {
 /**
  * Reads a player id.
  */
-internal inline fun ByteBuf.readPlayerId() = PlayerId(readUnsignedByte().toInt())
+internal inline fun ByteBuf.readPlayerId(): PlayerId =
+  PlayerId(readUnsignedByte().toInt())
 
 /**
  * Writes a player id.
  */
-internal inline fun ByteBuf.writePlayerId(playerId: PlayerId): ByteBuf = writeByte(playerId.value)
+internal inline fun ByteBuf.writePlayerId(playerId: PlayerId): ByteBuf =
+  writeByte(playerId.value)
 
 /**
  * Reads a npc id.
  */
-internal inline fun ByteBuf.readNpcId() = NpcId(readUnsignedShortLE())
+internal inline fun ByteBuf.readNpcId(): NpcId =
+  NpcId(readUnsignedShortLE())
 
 /**
  * Writes a npc id.
  */
-internal inline fun ByteBuf.writeNpcId(npcId: NpcId): ByteBuf = writeShortLE(npcId.value)
+internal inline fun ByteBuf.writeNpcId(npcId: NpcId): ByteBuf =
+  writeShortLE(npcId.value)
 
 /**
  * Reads a projectile id.
  */
-internal inline fun ByteBuf.readProjectileId() = ProjectileId(readUnsignedShortLE())
+internal inline fun ByteBuf.readProjectileId(): ProjectileId =
+  ProjectileId(readUnsignedShortLE())
 
 /**
  * Writes a projectile id.
  */
-internal inline fun ByteBuf.writeProjectileId(projectileId: ProjectileId): ByteBuf = writeShortLE(projectileId.value)
+internal inline fun ByteBuf.writeProjectileId(projectileId: ProjectileId): ByteBuf =
+  writeShortLE(projectileId.value)
 
 /**
  * Reads a position where x and y are encoded as short.

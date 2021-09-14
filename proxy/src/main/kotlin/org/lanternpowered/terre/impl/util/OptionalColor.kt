@@ -17,20 +17,20 @@ import org.lanternpowered.terre.util.Color
 /**
  * Wraps the color into a [OptionalColor].
  */
-internal inline fun Color.optional(): OptionalColor
-    = OptionalColor.of(this)
+internal inline fun Color.optional(): OptionalColor =
+  OptionalColor.of(this)
 
 /**
  * Wraps the nullable color into a [OptionalColor].
  */
-internal inline fun Color?.optionalFromNullable(): OptionalColor
-    = OptionalColor.ofNullable(this)
+internal inline fun Color?.optionalFromNullable(): OptionalColor =
+  OptionalColor.ofNullable(this)
 
 /**
  * Represents a color object that can be present or absent.
  */
-internal inline class OptionalColor @Deprecated(message = "Do not use directly", level = DeprecationLevel.WARNING) constructor(
-    private val packed: Int
+internal inline class OptionalColor(
+  private val packed: Int
 ) : Optional<Color> {
 
   override val isPresent: Boolean
@@ -59,19 +59,19 @@ internal inline class OptionalColor @Deprecated(message = "Do not use directly",
     /**
      * An empty [OptionalColor].
      */
-    fun empty(): OptionalColor
-        = OptionalColor(0x80_00_00_00.toInt())
+    fun empty(): OptionalColor =
+      OptionalColor(0x80_00_00_00.toInt())
 
     /**
      * Wraps the color into a [OptionalColor].
      */
-    fun of(color: Color): OptionalColor
-        = OptionalColor(color.rgb)
+    fun of(color: Color): OptionalColor =
+      OptionalColor(color.rgb)
 
     /**
      * Wraps the nullable color into a [OptionalColor].
      */
-    fun ofNullable(color: Color?): OptionalColor
-        = if (color == null) empty() else of(color)
+    fun ofNullable(color: Color?): OptionalColor =
+      if (color == null) empty() else of(color)
   }
 }

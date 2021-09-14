@@ -31,6 +31,7 @@ import org.lanternpowered.terre.impl.network.packet.PlayerDeathPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerHurtPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerSpawnPacket
+import org.lanternpowered.terre.impl.network.packet.PlayerTeamPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerTeleportThroughPortalPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
@@ -178,6 +179,10 @@ internal interface ConnectionHandler {
   }
 
   fun handle(packet: ProjectileDestroyPacket): Boolean {
+    return false
+  }
+
+  fun handle(packet: PlayerTeamPacket): Boolean {
     return false
   }
 
