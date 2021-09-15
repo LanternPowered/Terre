@@ -39,8 +39,8 @@ import java.util.concurrent.CompletableFuture
 import kotlin.time.DurationUnit
 
 internal class ServerConnectionImpl(
-    override val server: ServerImpl,
-    override val player: PlayerImpl
+  override val server: ServerImpl,
+  override val player: PlayerImpl
 ) : ServerConnection {
 
   /**
@@ -58,30 +58,30 @@ internal class ServerConnectionImpl(
   var isWorldInitialized: Boolean = false
 
   init {
-    if (!this.player.wasPreviouslyConnectedToServer)
-      this.isWorldInitialized = true
+    if (!player.wasPreviouslyConnectedToServer)
+      isWorldInitialized = true
   }
 
   fun connect(): CompletableFuture<ServerConnectionRequestResult> {
     val future = CompletableFuture<ServerConnectionRequestResult>()
 
     // Unregistered servers shouldn't be connected to anymore
-    if (this.server.unregistered) {
+    if (server.unregistered) {
       future.completeExceptionally(IllegalArgumentException("The server \"$server\" is unregistered."))
       return future
     }
 
     // No need to reconnect to the same server
-    val connected = this.player.serverConnection
-    if (connected != null && connected.server == this.server) {
-      future.complete(ServerConnectionRequestResult.AlreadyConnected(this.server))
+    val connected = player.serverConnection
+    if (connected != null && connected.server == server) {
+      future.complete(ServerConnectionRequestResult.AlreadyConnected(server))
       return future
     }
 
-    val clientProtocol = this.player.protocol
+    val clientProtocol = player.protocol
     // Check if there's a fixed version that should be used,
     // otherwise try every possible protocol version.
-    val versionedProtocol = this.server.versionedProtocol
+    val versionedProtocol = server.versionedProtocol
     val versionsToAttempt = if (versionedProtocol != null) {
       mutableListOf(versionedProtocol)
     } else {
@@ -90,7 +90,7 @@ internal class ServerConnectionImpl(
           .flatMap { translation -> ProtocolRegistry.all.asSequence().filter { it.protocol == translation.to } }
           .let {
             // Prioritize the last known entry, for faster connections
-            val lastKnownVersion = this.server.lastKnownVersion
+            val lastKnownVersion = server.lastKnownVersion
             if (lastKnownVersion != null) {
               it.sortedWith { o1, _ ->
                 if (o1.version == lastKnownVersion) -1 else 0
@@ -103,20 +103,20 @@ internal class ServerConnectionImpl(
     var firstThrowable: Throwable? = null
 
     fun tryConnectNext() {
-      if (this.player.clientConnection.isClosed) {
+      if (player.clientConnection.isClosed) {
         future.complete(ServerConnectionRequestResult.Disconnected(
-            this.server, textOf("Client already disconnected.")))
+            server, textOf("Client already disconnected.")))
         return
       }
       val (version, protocol) = versionsToAttempt.removeAt(0)
       connect(protocol, version).whenComplete { result, throwable ->
         if (throwable == null) {
           if (result is ServerInitConnectionResult.Success) {
-            future.complete(ServerConnectionRequestResult.Success(this.server))
+            future.complete(ServerConnectionRequestResult.Success(server))
           } else {
             result as ServerInitConnectionResult.Disconnected
             if (versionsToAttempt.isEmpty()) {
-              future.complete(ServerConnectionRequestResult.Disconnected(this.server, result.reason))
+              future.complete(ServerConnectionRequestResult.Disconnected(server, result.reason))
             } else {
               tryConnectNext()
             }
@@ -141,12 +141,12 @@ internal class ServerConnectionImpl(
       protocol: MultistateProtocol, version: ProtocolVersion): CompletableFuture<ServerInitConnectionResult> {
     val result = CompletableFuture<ServerInitConnectionResult>()
     ProxyImpl.networkManager
-        .createClientBootstrap(this.player.clientConnection.eventLoop)
+        .createClientBootstrap(player.clientConnection.eventLoop)
         // There must be a handler, otherwise connect just freezes
         .handler(object : ChannelInitializer<Channel>() {
           override fun initChannel(channel: Channel) {}
         })
-        .connect(this.server.info.address)
+        .connect(server.info.address)
         .addChannelFutureListener { future ->
           if (future.isSuccess) {
             future.channel().init(protocol, version, result)

@@ -15,6 +15,7 @@ import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.buffer.ProjectileId
 import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
 import org.lanternpowered.terre.impl.network.packet.ProjectileUpdatePacket
+import org.lanternpowered.terre.impl.player.PlayerImpl
 import org.lanternpowered.terre.math.Vec2f
 import org.lanternpowered.terre.portal.Portal
 import org.lanternpowered.terre.portal.PortalBuilder
@@ -23,6 +24,7 @@ import org.lanternpowered.terre.util.AABB
 import java.util.UUID
 
 internal class PortalBuilderImpl(
+  val idAllocator: () -> ProjectileId,
   val server: ServerImpl,
   val type: PortalType,
   val position: Vec2f
@@ -42,7 +44,7 @@ internal class PortalBuilderImpl(
   fun build(): PortalImpl {
     type as PortalTypeImpl
     val id = UUID.randomUUID()
-    val projectileId = server.projectileIdAllocator.allocate()
+    val projectileId = idAllocator()
     return PortalImpl(id, type, projectileId, server, position, onStartCollide, onStopCollide)
   }
 }
@@ -59,6 +61,11 @@ internal class PortalImpl(
   val onStartCollide: suspend Portal.(player: Player) -> Unit,
   val onStopCollide: suspend Portal.(player: Player) -> Unit
 ) : Portal {
+
+  /**
+   * The player this portal was created for, if created through [Player.openPortal].
+   */
+  var player: PlayerImpl? = null
 
   val colliding = mutableSetOf<Player>()
 

@@ -4,5 +4,5 @@ plugins {
 }
 
 dependencies {
-  implementation(project(":terre-proxy"))
+  api(project(":terre-proxy"))
 }

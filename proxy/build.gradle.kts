@@ -8,52 +8,56 @@ dependencies {
   api(kotlin("stdlib-jdk8"))
   api(kotlin("reflect"))
 
-  val coroutinesVersion = "1.3.7"
+  val coroutinesVersion = "1.5.2"
   api(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = coroutinesVersion)
   api(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-jdk8", version = coroutinesVersion)
   api(group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json-jvm", version = "1.3.0-RC")
 
   // General utilities
-  api(group = "com.google.guava", name = "guava", version = "28.0-jre")
+  api(group = "com.google.guava", name = "guava", version = "30.1.1-jre")
 
   // Json
-  implementation(group = "com.google.code.gson", name = "gson", version = "2.8.6")
+  implementation(group = "com.google.code.gson", name = "gson", version = "2.8.8")
 
   // Primitive collections
-  implementation(group = "it.unimi.dsi", name = "fastutil", version = "8.3.0")
+  implementation(group = "it.unimi.dsi", name = "fastutil", version = "8.5.4")
 
   // Configuration
-  // TODO: Fix the toml impl. The output toml was invalid syntax and a mess.
-  // implementation(group = "com.uchuhimo", name = "konf-toml", version = "0.22.1")
   implementation(group = "com.uchuhimo", name = "konf-hocon", version = "0.22.1")
 
   // Launch Options
   implementation(group = "net.sf.jopt-simple", name = "jopt-simple", version = "5.0.4")
 
   // Networking
-  implementation(group = "io.netty", name = "netty-all", version = "4.1.38.Final")
+  implementation(group = "io.netty", name = "netty-all", version = "4.1.67.Final")
 
   // Cache
-  implementation(group = "com.github.ben-manes.caffeine", name = "caffeine", version = "2.8.1")
+  implementation(group = "com.github.ben-manes.caffeine", name = "caffeine", version = "3.0.3")
 
   // Lambda generation
   implementation(group = "org.lanternpowered", name = "lmbda", version = "2.0.0")
 
+  // ASM
+  implementation(group = "org.ow2.asm", name = "asm", version = "9.2")
+
+  // Plugins
+  implementation(group = "org.spongepowered", name = "plugin-spi", version = "0.3.0")
+
   // Logging
-  val log4jVersion = "2.12.1"
+  val log4jVersion = "2.14.1"
   implementation(group = "org.apache.logging.log4j", name = "log4j-core", version = log4jVersion)
   implementation(group = "org.apache.logging.log4j", name = "log4j-jul", version = log4jVersion)
   api(group = "org.apache.logging.log4j", name = "log4j-api", version = log4jVersion)
   implementation(group = "org.apache.logging.log4j", name = "log4j-iostreams", version = log4jVersion)
-  implementation(group = "com.lmax", name = "disruptor", version = "3.4.2")
+  implementation(group = "com.lmax", name = "disruptor", version = "3.4.4")
 
   // Console
-  implementation(group = "net.minecrell", name = "terminalconsoleappender", version = "1.2.0")
-  implementation(group = "org.jline", name = "jline-terminal-jansi", version = "3.12.1")
+  implementation(group = "net.minecrell", name = "terminalconsoleappender", version = "1.3.0")
+  implementation(group = "org.jline", name = "jline-terminal-jansi", version = "3.20.0")
 
   // Testing
-  testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = "5.2.0")
-  testImplementation(kotlin(module = "test", version = "1.3.41"))
+  testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = "5.7.2")
+  testImplementation(kotlin(module = "test", version = "1.5.21"))
 }
 
 tasks {

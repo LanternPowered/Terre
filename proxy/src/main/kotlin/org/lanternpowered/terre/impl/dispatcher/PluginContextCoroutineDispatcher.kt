@@ -48,17 +48,14 @@ internal class PluginContextCoroutineDispatcher(
     backing.dispatchYield(populateContext(context), block)
   }
 
-  @InternalCoroutinesApi
-  override fun releaseInterceptedContinuation(continuation: Continuation<*>) {
-    backing.releaseInterceptedContinuation(continuation)
-  }
-
   override fun scheduleResumeAfterDelay(
     timeMillis: Long, continuation: CancellableContinuation<Unit>
   ) {
     delay.scheduleResumeAfterDelay(timeMillis, continuation)
   }
 
-  override fun invokeOnTimeout(timeMillis: Long, block: Runnable): DisposableHandle =
-    delay.invokeOnTimeout(timeMillis, block)
+  override fun invokeOnTimeout(
+    timeMillis: Long, block: Runnable, context: CoroutineContext
+  ): DisposableHandle =
+    delay.invokeOnTimeout(timeMillis, block, context)
 }

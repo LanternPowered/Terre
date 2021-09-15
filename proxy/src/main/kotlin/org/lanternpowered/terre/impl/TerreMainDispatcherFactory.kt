@@ -18,7 +18,6 @@ import kotlinx.coroutines.MainCoroutineDispatcher
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.internal.MainDispatcherFactory
 import org.lanternpowered.terre.impl.event.EventExecutor
-import kotlin.coroutines.Continuation
 import kotlin.coroutines.CoroutineContext
 
 @InternalCoroutinesApi
@@ -49,9 +48,6 @@ private class TerreMainCoroutineDispatcher(
   override fun dispatchYield(context: CoroutineContext, block: Runnable) =
     dispatcher.dispatchYield(context, block)
 
-  override fun releaseInterceptedContinuation(continuation: Continuation<*>) =
-    dispatcher.releaseInterceptedContinuation(continuation)
-
   override fun dispatch(context: CoroutineContext, block: Runnable) =
     dispatcher.dispatch(context, block)
 
@@ -62,6 +58,8 @@ private class TerreMainCoroutineDispatcher(
     timeMillis: Long, continuation: CancellableContinuation<Unit>
   ) = delay.scheduleResumeAfterDelay(timeMillis, continuation)
 
-  override fun invokeOnTimeout(timeMillis: Long, block: Runnable): DisposableHandle =
-    delay.invokeOnTimeout(timeMillis, block)
+  override fun invokeOnTimeout(
+    timeMillis: Long, block: Runnable, context: CoroutineContext
+  ): DisposableHandle =
+    delay.invokeOnTimeout(timeMillis, block, context)
 }

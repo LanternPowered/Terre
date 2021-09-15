@@ -211,25 +211,25 @@ internal class PlayerImpl(
     super<MessageReceiverImpl>.sendMessageAs(message, sender)
   }
 
-  override fun openPortal(type: PortalType, position: Vec2f, fn: PortalBuilder.() -> Unit): Portal {
-    TODO("Not yet implemented")
-  }
+  override fun openPortal(
+    type: PortalType, position: Vec2f, builder: PortalBuilder.() -> Unit
+  ): Portal = serverConnection!!.server.openPortalFor(type, position, builder, this)
 
   private fun disconnectAndForget(reason: Text) {
-    this.clientConnection.close(reason)
-    this.serverConnection?.connection?.close()
+    clientConnection.close(reason)
+    serverConnection?.connection?.close()
   }
 
-  override fun disconnectAsync(reason: Text): Job {
-    return this.clientConnection.close(reason).toDeferred()
-  }
+  override fun disconnectAsync(reason: Text): Job =
+    clientConnection.close(reason).toDeferred()
 
   fun connectToWithFuture(server: Server): CompletableFuture<ServerConnectionRequestResult> {
     server as ServerImpl
     val connection = ServerConnectionImpl(server, this)
     return connection.connect().whenComplete { result, throwable ->
       if (throwable != null) {
-        Terre.logger.debug("Failed to establish connection to backend server: ${server.info}", throwable)
+        Terre.logger.debug(
+          "Failed to establish connection to backend server: ${server.info}", throwable)
       } else if (result is ServerConnectionRequestResult.Success) {
         val old = serverConnection?.connection
         if (old != null) {

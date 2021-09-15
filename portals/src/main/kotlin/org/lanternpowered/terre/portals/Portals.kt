@@ -32,9 +32,8 @@ import org.lanternpowered.terre.portal.PortalType
 import java.nio.file.Files
 
 /**
- * A plugin which can be used to open portals in your servers
- * to teleport between them. Portals will persist between server
- * startup/shutdown, but only if the same world was loaded.
+ * A plugin which can be used to open portals in your servers to teleport between them. Portals
+ * will persist between server startup/shutdown, but only if the same world was loaded.
  */
 @Plugin(id = "portals")
 object Portals {
@@ -67,18 +66,13 @@ object Portals {
         return@withContext
       val content = Files.newBufferedReader(portalsFile).useLines { it.joinToString("") }
       val newPortalData = Json.decodeFromString(listPortalDataSerializer, content)
-      // TODO: Use mutex.withLock {}
-      //   when it actually compiles... here...
-      mutex.lock()
-      try {
+      mutex.withLock {
         portalData.clear()
         for (portal in newPortalData)
           portalData[portal.name] = portal
         for (portal in portals.values)
           portal.close()
         portals.clear()
-      } finally {
-        mutex.unlock()
       }
     }
   }
@@ -102,7 +96,7 @@ object Portals {
    * Creates a new portal with the given parameters.
    */
   private suspend fun createPortal(
-      name: String, origin: String, destination: String, type: PortalType, position: Vec2f
+    name: String, origin: String, destination: String, type: PortalType, position: Vec2f
   ): PortalData {
     val data = PortalData(name, type, position, origin, destination)
     mutex.withLock {
@@ -163,8 +157,7 @@ object Portals {
     val portal = server.openPortal(data.type, data.position) {
       onStartCollide { player ->
         val destination = Proxy.servers[data.destination]
-        // Do nothing if the server doesn't exist, otherwise teleport
-        // the player to the other server
+        // Do nothing if the server doesn't exist, otherwise teleport the player to the other server
         if (destination != null)
           player.connectTo(destination)
       }

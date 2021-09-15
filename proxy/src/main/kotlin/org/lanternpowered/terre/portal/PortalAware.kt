@@ -17,8 +17,8 @@ import org.lanternpowered.terre.math.Vec2f
 interface PortalAware {
 
   /**
-   * Opens a new portal at the given position. When the portal is no
-   * longer desired, it must be cleaned up through [Portal.close].
+   * Opens a new portal at the given position. When the portal is no longer desired, it must be
+   * cleaned up through [Portal.close].
    */
-  fun openPortal(type: PortalType, position: Vec2f, fn: PortalBuilder.() -> Unit = {}): Portal
+  fun openPortal(type: PortalType, position: Vec2f, builder: PortalBuilder.() -> Unit = {}): Portal
 }

@@ -43,14 +43,14 @@ class AABB(min: Vec2f, max: Vec2f) {
    * Gets whether the given position is within the bounding box.
    */
   operator fun contains(position: Vec2f): Boolean =
-      contains(position.x, position.y)
+    contains(position.x, position.y)
 
   /**
    * Gets whether the given position is within the bounding box.
    */
   fun contains(x: Float, y: Float): Boolean {
     return x >= min.x && y >= min.y &&
-        x <= max.x && y <= max.y
+      x <= max.x && y <= max.y
   }
 
   /**
@@ -58,26 +58,26 @@ class AABB(min: Vec2f, max: Vec2f) {
    */
   fun intersects(other: AABB): Boolean {
     return max.x >= other.min.x && other.max.x >= min.x &&
-        max.y >= other.min.y && other.max.y >= min.y
+      max.y >= other.min.y && other.max.y >= min.y
   }
 
   /**
    * Gets a new bounding box with the given offset.
    */
   fun offset(offset: Vec2f): AABB =
-      AABB(min + offset, max + offset)
+    AABB(min + offset, max + offset)
 
   /**
    * Gets a new bounding box with the given offset.
    */
   fun offset(x: Float, y: Float): AABB =
-      offset(Vec2f(x, y))
+    offset(Vec2f(x, y))
 
   /**
    * Gets a new bounding box with the given offset.
    */
   fun expand(amount: Vec2f): AABB =
-      expand(amount.x, amount.y)
+    expand(amount.x, amount.y)
 
   /**
    * Expands this bounding box by the given amount.
@@ -88,7 +88,7 @@ class AABB(min: Vec2f, max: Vec2f) {
   }
 
   override fun equals(other: Any?): Boolean =
-      other is AABB && min == other.min && max == other.max
+    other is AABB && min == other.min && max == other.max
 
   override fun hashCode(): Int {
     if (hashCode == 0)
@@ -97,9 +97,9 @@ class AABB(min: Vec2f, max: Vec2f) {
   }
 
   override fun toString(): String = ToStringHelper(this)
-      .add("min", min)
-      .add("max", max)
-      .toString()
+    .add("min", min)
+    .add("max", max)
+    .toString()
 
   companion object {
 

@@ -18,7 +18,7 @@ import java.io.IOException
 import java.io.InputStream
 import java.net.URI
 import java.net.URISyntaxException
-import java.net.URLClassLoader
+import java.net.URL
 import java.nio.file.DirectoryStream
 import java.nio.file.FileVisitOption
 import java.nio.file.FileVisitResult
@@ -45,10 +45,9 @@ internal class PluginScanner {
   val plugins: Collection<PluginCandidate>
     get() = mutablePlugins.values
 
-  fun scanClassPath(loader: URLClassLoader) {
+  fun scanClassPath(urls: Iterable<URL>) {
     val sources = mutableSetOf<URI>()
-    for (url in loader.urLs) {
-      //println(url)
+    for (url in urls) {
       if (url.protocol != "file") {
         Terre.logger.warn("Skipping unsupported classpath source: $url")
         continue
@@ -67,7 +66,6 @@ internal class PluginScanner {
         val path = Paths.get(source)
         if (Files.exists(path)) {
           if (Files.isDirectory(path)) {
-            // println(path)
             scanClasspathDirectory(path)
           } else if (JAR_FILE.matches(path)) {
             scanJar(path, true)
@@ -136,8 +134,7 @@ internal class PluginScanner {
       for (candidate in candidates)
         success = success or addCandidate(candidate)
     } else if (!classpath) {
-      Terre.logger.error("No valid plugins found in $path. Is the file actually a plugin JAR? Please keep in"
-          + "mind that Lantern can only load Sponge plugins.")
+      Terre.logger.error("No valid plugins found in $path. Is the file actually a plugin JAR?")
     }
   }
 
@@ -177,8 +174,8 @@ internal class PluginScanner {
   companion object {
 
     private val ID_REGEX = "^[a-z][a-z0-9-_]{1,63}$".toRegex()
-    private const val ID_WARNING = "Plugin IDs should be lowercase, and only contain characters from " +
-        "a-z, dashes or underscores, start with a lowercase letter, and not exceed 64 characters."
+    private const val ID_WARNING = "Plugin IDs should be lowercase, and only contain characters " +
+      "from a-z, dashes or underscores, start with a lowercase letter, and not exceed 64 characters."
 
     private const val CLASS_EXTENSION = ".class"
     private const val JAR_EXTENSION = ".jar"

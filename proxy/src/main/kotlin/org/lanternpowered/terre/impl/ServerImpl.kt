@@ -9,6 +9,7 @@
  */
 package org.lanternpowered.terre.impl
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import kotlinx.coroutines.Job
 import org.lanternpowered.terre.Player
 import org.lanternpowered.terre.ProtocolVersion
@@ -18,6 +19,7 @@ import org.lanternpowered.terre.coroutines.delay
 import org.lanternpowered.terre.dispatcher.launchAsync
 import org.lanternpowered.terre.impl.event.EventExecutor
 import org.lanternpowered.terre.impl.network.VersionedProtocol
+import org.lanternpowered.terre.impl.network.buffer.ProjectileId
 import org.lanternpowered.terre.impl.player.PlayerImpl
 import org.lanternpowered.terre.impl.portal.PortalBuilderImpl
 import org.lanternpowered.terre.impl.portal.PortalImpl
@@ -27,6 +29,8 @@ import org.lanternpowered.terre.portal.PortalBuilder
 import org.lanternpowered.terre.portal.PortalType
 import org.lanternpowered.terre.text.MessageSender
 import org.lanternpowered.terre.text.Text
+import java.util.Collections
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
 internal class ServerImpl(
@@ -42,15 +46,45 @@ internal class ServerImpl(
 
   private val mutablePlayers = MutablePlayerCollection.concurrentOf()
 
-  val portalsByProjectileId = ConcurrentHashMap<Int, PortalImpl>()
-  val projectileIdAllocator = ProjectileIdAllocator()
+  private val projectileIdAllocator = ProjectileIdAllocator()
+  private val portalsByProjectileId = ConcurrentHashMap<Int, PortalImpl>()
+  private val perPlayerProjectileIdAllocator = PerPlayerProjectileIdAllocator()
+  private val portals: MutableSet<PortalImpl> = Collections.newSetFromMap(ConcurrentHashMap())
+
+  private inner class PerPlayerProjectileIdAllocator {
+
+    private val ids = Int2ObjectOpenHashMap<MutableSet<UUID>>()
+
+    fun allocate(player: PlayerImpl): ProjectileId {
+      for ((id, uniqueIds) in ids) {
+        if (uniqueIds.add(player.uniqueId))
+          return ProjectileId(id)
+      }
+      val id = projectileIdAllocator.allocate()
+      val uniqueIds = HashSet<UUID>()
+      uniqueIds += player.uniqueId
+      ids[id.value] = uniqueIds
+      return id
+    }
+
+    fun release(player: PlayerImpl, id: ProjectileId) {
+      val uniqueIds = ids.get(id.value)
+      if (uniqueIds != null
+        && uniqueIds.remove(player.uniqueId)
+        && uniqueIds.isEmpty()
+      ) {
+        ids.remove(id.value)
+        projectileIdAllocator.release(id)
+      }
+    }
+  }
 
   private var portalUpdateJob: Job? = null
   private var portalCollisionJob: Job? = null
 
   /**
-   * The last server version that was noticed by connecting clients. Is
-   * used to speed up connection when multiple versions are possible.
+   * The last server version that was noticed by connecting clients. Is used to speed up
+   * connection when multiple versions are possible.
    */
   @Volatile var lastKnownVersion: ProtocolVersion? = null
 
@@ -63,7 +97,7 @@ internal class ServerImpl(
     // Send all the portals
     player as PlayerImpl
     for (portal in portalsByProjectileId.values)
-      openPortalFor(portal, player)
+      sendOpenPortalTo(portal, player)
   }
 
   fun removePlayer(player: Player) {
@@ -72,15 +106,21 @@ internal class ServerImpl(
     // Destroy all the portals
     player as PlayerImpl
     for (portal in portalsByProjectileId.values)
-      closePortalFor(portal, player)
+      sendClosePortalTo(portal, player)
+
+    for (portal in portals.toList()) {
+      if (portal.player == player)
+        portal.close()
+    }
   }
 
   fun init() {
     portalCollisionJob = launchAsync(EventExecutor.dispatcher) {
       while (true) {
-        val players = mutablePlayers.toList()
+        val allPlayers = mutablePlayers.toList()
         // Update all portals, so the projectiles don't expire
-        for (portal in portalsByProjectileId.values) {
+        for (portal in portals) {
+          val players = if (portal.player != null) listOf(portal.player!!) else allPlayers
           for (player in players) {
             val intersects = player.boundingBox.intersects(portal.boundingBox)
             if (intersects && portal.colliding.add(player)) {
@@ -95,9 +135,12 @@ internal class ServerImpl(
     }
     portalUpdateJob = launchAsync(EventExecutor.dispatcher) {
       while (true) {
+        val allPlayers = mutablePlayers.toList()
         // Update all portals, so the projectiles don't expire
-        for (portal in portalsByProjectileId.values)
-          openPortalFor(portal, mutablePlayers)
+        for (portal in portals) {
+          val players = if (portal.player != null) listOf(portal.player!!) else allPlayers
+          sendOpenPortalTo(portal, players)
+        }
         delay(1000)
       }
     }
@@ -136,17 +179,33 @@ internal class ServerImpl(
     mutablePlayers.forEach { it.sendMessageAs(message, sender) }
   }
 
-  override fun openPortal(type: PortalType, position: Vec2f, fn: PortalBuilder.() -> Unit): Portal {
-    val builder = PortalBuilderImpl(this, type, position)
-    builder.fn()
-    val portal = builder.build()
+  override fun openPortal(
+    type: PortalType, position: Vec2f, builder: PortalBuilder.() -> Unit
+  ): Portal {
+    val builderImpl = PortalBuilderImpl(projectileIdAllocator::allocate, this, type, position)
+    builderImpl.builder()
+    val portal = builderImpl.build()
     portalsByProjectileId[portal.projectileId.value] = portal
+    portals += portal
     // Open for all the players that are currently connected
-    openPortalFor(portal, mutablePlayers)
+    sendOpenPortalTo(portal, mutablePlayers)
     return portal
   }
 
-  fun openPortalFor(portal: PortalImpl, players: Iterable<Player>) {
+  fun openPortalFor(
+    type: PortalType, position: Vec2f, builder: PortalBuilder.() -> Unit, player: PlayerImpl
+  ): Portal {
+    val idAllocator = { perPlayerProjectileIdAllocator.allocate(player) }
+    val builderImpl = PortalBuilderImpl(idAllocator, this, type, position)
+    builderImpl.builder()
+    val portal = builderImpl.build()
+    portal.player = player
+    portals += portal
+    sendOpenPortalTo(portal, player)
+    return portal
+  }
+
+  private fun sendOpenPortalTo(portal: PortalImpl, players: Iterable<Player>) {
     val packet = portal.createUpdatePacket()
     if (packet != null) {
       for (player in players)
@@ -154,23 +213,37 @@ internal class ServerImpl(
     }
   }
 
-  fun openPortalFor(portal: PortalImpl, player: Player) {
+  private fun sendOpenPortalTo(portal: PortalImpl, player: Player) {
     val packet = portal.createUpdatePacket()
     if (packet != null)
       (player as PlayerImpl).clientConnection.send(packet)
   }
 
-  fun closePortalFor(portal: PortalImpl, player: Player) {
+  private fun sendClosePortalTo(portal: PortalImpl, players: Iterable<Player>) {
+    val packet = portal.createDestroyPacket()
+    if (packet != null) {
+      for (player in players)
+        (player as PlayerImpl).clientConnection.send(packet)
+    }
+  }
+
+  private fun sendClosePortalTo(portal: PortalImpl, player: Player) {
     val packet = portal.createDestroyPacket()
     if (packet != null)
       (player as PlayerImpl).clientConnection.send(packet)
   }
 
   fun closePortal(portal: PortalImpl) {
-    if (portalsByProjectileId.remove(portal.projectileId.value) == null)
+    if (!portals.remove(portal))
       return
+    val player = portal.player
+    if (player != null) {
+      portal.player = null
+      perPlayerProjectileIdAllocator.release(player, portal.projectileId)
+      return
+    }
+    portalsByProjectileId.remove(portal.projectileId.value)
     projectileIdAllocator.release(portal.projectileId)
-    for (player in mutablePlayers)
-      closePortalFor(portal, player)
+    sendClosePortalTo(portal, mutablePlayers)
   }
 }

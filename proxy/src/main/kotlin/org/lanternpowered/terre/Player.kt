@@ -12,7 +12,10 @@ package org.lanternpowered.terre
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import org.lanternpowered.terre.math.Vec2f
+import org.lanternpowered.terre.portal.Portal
 import org.lanternpowered.terre.portal.PortalAware
+import org.lanternpowered.terre.portal.PortalBuilder
+import org.lanternpowered.terre.portal.PortalType
 import org.lanternpowered.terre.text.MessageReceiver
 import org.lanternpowered.terre.text.MessageSender
 import org.lanternpowered.terre.text.Text
@@ -129,6 +132,17 @@ interface Player : Named, MessageReceiver, MessageSender, PortalAware, InboundCo
    */
   suspend fun connectToAny(servers: Iterable<Server>) =
     connectToAnyAsync(servers).await()
+
+  /**
+   * Opens a new portal at the given position. When the portal is no longer desired, it must be
+   * cleaned up through [Portal.close].
+   *
+   * Connecting the player to a different server will automatically close all the active portals
+   * created through this function.
+   */
+  override fun openPortal(
+    type: PortalType, position: Vec2f, builder: PortalBuilder.() -> Unit
+  ): Portal
 }
 
 /**

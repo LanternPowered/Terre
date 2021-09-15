@@ -11,7 +11,6 @@ package org.lanternpowered.terre.portal
 
 import org.lanternpowered.terre.Player
 import org.lanternpowered.terre.Server
-import org.lanternpowered.terre.impl.ProjectileType
 import org.lanternpowered.terre.math.Vec2f
 import org.lanternpowered.terre.util.AABB
 import java.util.UUID
@@ -22,25 +21,21 @@ import java.util.UUID
 interface PortalBuilder {
 
   /**
-   * When a player starts colliding with the portal, this
-   * function will be called.
+   * When a player starts colliding with the portal, this function will be called.
    */
   fun onStartCollide(block: suspend Portal.(player: Player) -> Unit)
 
   /**
-   * When a player stop colliding with the portal, this
-   * function will be called. [onStartCollide] will always be
-   * called before this.
+   * When a player stop colliding with the portal, this function will be called. [onStartCollide]
+   * will always be called before this.
    */
   fun onStopCollide(block: suspend Portal.(player: Player) -> Unit)
 }
 
 /**
- * Represents a portal. A portal can be spawned into a [Server]
- * or to a [Player].
+ * Represents a portal. A portal can be spawned into a [Server] or to a [Player].
  *
- * Portals will be cleaned up automatically if a server
- * is unregistered. They do not persist.
+ * Portals will be cleaned up automatically if a server is unregistered. They do not persist.
  */
 interface Portal {
 

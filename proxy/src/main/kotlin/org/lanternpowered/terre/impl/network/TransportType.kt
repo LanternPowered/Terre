@@ -25,22 +25,21 @@ import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioDatagramChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.channel.socket.nio.NioSocketChannel
-import java.util.*
 import java.util.concurrent.ThreadFactory
 
 internal sealed class TransportType(
-    val serverSocketChannelSupplier: () -> ServerSocketChannel,
-    val socketChannelSupplier: () -> SocketChannel,
-    val datagramChannelSupplier: () -> DatagramChannel,
-    val eventLoopGroupSupplier: (threads: Int, threadFactory: ThreadFactory) -> EventLoopGroup
+  val serverSocketChannelSupplier: () -> ServerSocketChannel,
+  val socketChannelSupplier: () -> SocketChannel,
+  val datagramChannelSupplier: () -> DatagramChannel,
+  val eventLoopGroupSupplier: (threads: Int, threadFactory: ThreadFactory) -> EventLoopGroup
 ) {
 
   object Nio : TransportType(
-      ::NioServerSocketChannel, ::NioSocketChannel, ::NioDatagramChannel, ::NioEventLoopGroup)
+    ::NioServerSocketChannel, ::NioSocketChannel, ::NioDatagramChannel, ::NioEventLoopGroup)
   object KQueue : TransportType(
-      ::KQueueServerSocketChannel, ::KQueueSocketChannel, ::KQueueDatagramChannel, ::KQueueEventLoopGroup)
+    ::KQueueServerSocketChannel, ::KQueueSocketChannel, ::KQueueDatagramChannel, ::KQueueEventLoopGroup)
   object Epoll : TransportType(
-      ::EpollServerSocketChannel, ::EpollSocketChannel, ::EpollDatagramChannel, ::EpollEventLoopGroup)
+    ::EpollServerSocketChannel, ::EpollSocketChannel, ::EpollDatagramChannel, ::EpollEventLoopGroup)
 
   companion object {
 
@@ -49,12 +48,10 @@ internal sealed class TransportType(
      */
     fun findBestType(): TransportType {
       if (System.getProperty("terre.disable-native-transport")?.lowercase() != "true") {
-        if (io.netty.channel.kqueue.KQueue.isAvailable()) {
+        if (io.netty.channel.kqueue.KQueue.isAvailable())
           return KQueue
-        }
-        if (io.netty.channel.epoll.Epoll.isAvailable()) {
+        if (io.netty.channel.epoll.Epoll.isAvailable())
           return Epoll
-        }
       }
       return Nio
     }

@@ -43,13 +43,11 @@ internal class PluginManagerImpl : PluginManager {
     val pluginScanner = PluginScanner()
     if (scanClasspath) {
       Terre.logger.info("Scanning classpath for plugins...")
-      val loader = this::class.java.classLoader
-      if (loader is URLClassLoader) {
-        pluginScanner.scanClassPath(loader)
-      } else {
-        Terre.logger.error("Cannot search for plugins on classpath: Unsupported class loader: {}",
-            loader.javaClass.name)
-      }
+      val classpath = System.getProperty("java.class.path")
+      val separator = System.getProperty("path.separator")
+      val paths = classpath.split(separator)
+        .map { entry -> Paths.get(entry) }
+      pluginScanner.scanClassPath(paths.map { it.toUri().toURL() })
     }
 
     if (Files.exists(pluginsFolder)) {
