@@ -31,11 +31,11 @@ private class PacketLengthBuilderImpl : PacketLengthBuilder {
   var length = 0
 
   override fun int() {
-    this.length += Int.SIZE_BYTES
+    length += Int.SIZE_BYTES
   }
 
   override fun byte() {
-    this.length += Byte.SIZE_BYTES
+    length += Byte.SIZE_BYTES
   }
 
   override fun playerId() {
@@ -43,11 +43,11 @@ private class PacketLengthBuilderImpl : PacketLengthBuilder {
   }
 
   override fun short() {
-    this.length += Short.SIZE_BYTES
+    length += Short.SIZE_BYTES
   }
 
   override fun long() {
-    this.length += Long.SIZE_BYTES
+    length += Long.SIZE_BYTES
   }
 
   override fun double() {

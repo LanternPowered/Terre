@@ -25,24 +25,24 @@ import org.lanternpowered.terre.impl.network.buffer.readVec2f
 import org.lanternpowered.terre.impl.network.buffer.writeNpcId
 import org.lanternpowered.terre.impl.network.buffer.writePlayerId
 import org.lanternpowered.terre.impl.network.buffer.writeVec2f
-import org.lanternpowered.terre.impl.network.packetDecoderOf
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 
 internal data class UpdateNpcPacket(
-    val npcId: NpcId,
-    val npcType: NpcType,
-    val position: Vec2f,
-    val velocity: Vec2f,
-    val target: PlayerId?,
-    val ai: NpcAI,
-    val direction: LeftOrRight,
-    val directionY: UpOrDown,
-    val spriteDirection: LeftOrRight,
-    val life: Int?,
-    val releaseOwner: PlayerId?,
-    val playerCountForMultiplayerDifficultyOverride: Int?,
-    val spawnedFromStatue: Boolean,
-    val strengthMultiplier: Float?
+  val npcId: NpcId,
+  val npcType: NpcType,
+  val position: Vec2f,
+  val velocity: Vec2f,
+  val target: PlayerId?,
+  val ai: NpcAI,
+  val direction: LeftOrRight,
+  val directionY: UpOrDown,
+  val spriteDirection: LeftOrRight,
+  val life: Int?,
+  val releaseOwner: PlayerId?,
+  val playerCountForMultiplayerDifficultyOverride: Int?,
+  val spawnedFromStatue: Boolean,
+  val strengthMultiplier: Float?
 ) : Packet
 
 internal data class NpcAI(
@@ -52,7 +52,7 @@ internal data class NpcAI(
     val ai4: Float
 )
 
-internal fun UpdateNpcEncoder(protocol: Int) = packetEncoderOf<UpdateNpcPacket> { buf, packet ->
+internal fun UpdateNpcEncoder(protocol: Int) = PacketEncoder<UpdateNpcPacket> { buf, packet ->
   buf.writeNpcId(packet.npcId)
   buf.writeVec2f(packet.position)
   buf.writeVec2f(packet.velocity)
@@ -122,7 +122,7 @@ internal fun UpdateNpcEncoder(protocol: Int) = packetEncoderOf<UpdateNpcPacket> 
     buf.writePlayerId(releaseOwner.to(this.isMobile))
 }
 
-internal fun UpdateNpcDecoder(protocol: Int) = packetDecoderOf { buf ->
+internal fun UpdateNpcDecoder(protocol: Int) = PacketDecoder { buf ->
   val npcId = buf.readNpcId()
   val position = buf.readVec2f()
   val velocity = buf.readVec2f()

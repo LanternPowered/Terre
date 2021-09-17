@@ -20,6 +20,6 @@ internal class InitialInboundConnection(
 ) : InboundConnection {
 
   override fun toString() = ToStringHelper()
-      .add("remoteAddress", this.remoteAddress)
-      .toString()
+    .add("remoteAddress", remoteAddress)
+    .toString()
 }

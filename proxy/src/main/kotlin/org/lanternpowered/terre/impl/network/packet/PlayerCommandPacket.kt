@@ -12,20 +12,20 @@ package org.lanternpowered.terre.impl.network.packet
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.readString
 import org.lanternpowered.terre.impl.network.buffer.writeString
-import org.lanternpowered.terre.impl.network.packetDecoderOf
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 
 internal data class PlayerCommandPacket(
-    val commandId: String,
-    val arguments: String
+  val commandId: String,
+  val arguments: String
 ) : Packet
 
-internal val PlayerCommandEncoder = packetEncoderOf<PlayerCommandPacket> { buf, packet ->
+internal val PlayerCommandEncoder = PacketEncoder<PlayerCommandPacket> { buf, packet ->
   buf.writeString(packet.commandId)
   buf.writeString(packet.arguments)
 }
 
-internal val PlayerCommandDecoder = packetDecoderOf { buf ->
+internal val PlayerCommandDecoder = PacketDecoder { buf ->
   val commandId = buf.readString()
   val arguments = buf.readString()
   PlayerCommandPacket(commandId, arguments)

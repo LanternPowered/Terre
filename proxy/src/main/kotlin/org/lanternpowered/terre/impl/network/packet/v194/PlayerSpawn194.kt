@@ -14,15 +14,15 @@ import org.lanternpowered.terre.impl.network.buffer.readShortVec2i
 import org.lanternpowered.terre.impl.network.buffer.writePlayerId
 import org.lanternpowered.terre.impl.network.buffer.writeShortVec2i
 import org.lanternpowered.terre.impl.network.packet.PlayerSpawnPacket
-import org.lanternpowered.terre.impl.network.packetDecoderOf
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 
-internal val PlayerSpawn194Encoder = packetEncoderOf<PlayerSpawnPacket> { buf, packet ->
+internal val PlayerSpawn194Encoder = PacketEncoder<PlayerSpawnPacket> { buf, packet ->
   buf.writePlayerId(packet.playerId)
   buf.writeShortVec2i(packet.position)
 }
 
-internal val PlayerSpawn194Decoder = packetDecoderOf { buf ->
+internal val PlayerSpawn194Decoder = PacketDecoder { buf ->
   val playerId = buf.readPlayerId()
   val position = buf.readShortVec2i()
   PlayerSpawnPacket(playerId, position, 0, PlayerSpawnPacket.Context.SpawningIntoWorld)

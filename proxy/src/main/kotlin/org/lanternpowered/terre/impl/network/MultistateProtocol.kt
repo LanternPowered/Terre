@@ -21,26 +21,40 @@ internal class MultistateProtocol : ProtocolBase() {
 
   private val array = Array(State.values().size) { Protocol() }
 
-  operator fun get(state: State): Protocol = this.array[state.ordinal]
+  operator fun get(state: State): Protocol = array[state.ordinal]
 
   override fun <P : Packet> bind(
-      opcode: Int, type: KClass<P>, encoder: PacketEncoder<in P>) {
+    opcode: Int,
+    type: KClass<P>,
+    encoder: PacketEncoder<in P>
+  ) {
     this.array.forEach { it.bind(opcode, type, encoder) }
   }
 
   override fun <P : Packet> bind(
-      opcode: Int, type: KClass<P>, encoder: PacketEncoder<in P>, direction: PacketDirection) {
-    this.array.forEach { it.bind(opcode, type, encoder, direction) }
+    opcode: Int,
+    type: KClass<P>,
+    encoder: PacketEncoder<in P>,
+    direction: PacketDirection
+  ) {
+    array.forEach { it.bind(opcode, type, encoder, direction) }
   }
 
   override fun <P : Packet> bind(
-      opcode: Int, type: KClass<P>, decoder: PacketDecoder<out P>) {
-    this.array.forEach { it.bind(opcode, type, decoder) }
+    opcode: Int,
+    type: KClass<P>,
+    decoder: PacketDecoder<out P>
+  ) {
+    array.forEach { it.bind(opcode, type, decoder) }
   }
 
   override fun <P : Packet> bind(
-      opcode: Int, type: KClass<P>, decoder: PacketDecoder<out P>, direction: PacketDirection) {
-    this.array.forEach { it.bind(opcode, type, decoder, direction) }
+    opcode: Int,
+    type: KClass<P>,
+    decoder: PacketDecoder<out P>,
+    direction: PacketDirection
+  ) {
+    array.forEach { it.bind(opcode, type, decoder, direction) }
   }
 
   fun init(fn: Protocol.() -> Unit) {

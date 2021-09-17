@@ -12,10 +12,8 @@ package org.lanternpowered.terre.impl
 import org.lanternpowered.terre.catalog.CatalogTypeRegistryBuilder
 import org.lanternpowered.terre.catalog.NamedCatalogType
 import org.lanternpowered.terre.catalog.NamedCatalogTypeRegistry
-import org.lanternpowered.terre.catalog.NumericCatalogType
 import org.lanternpowered.terre.util.collection.toImmutableCollection
 import org.lanternpowered.terre.util.collection.toImmutableMap
-import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 
@@ -35,14 +33,16 @@ internal inline fun <reified T : NamedCatalogType> buildNamedCatalogTypeRegistry
 internal fun <T : NamedCatalogType> buildNamedCatalogTypeRegistryOf(
   type: KClass<T>,
   autoRegisterFunction: (String) -> T?,
-  fn: CatalogTypeRegistryBuilder<T>.() -> Unit
+  builder: CatalogTypeRegistryBuilder<T>.() -> Unit
 ): NamedCatalogTypeRegistryImpl<T> {
-  val builder = NamedCatalogTypeRegistryBuilderImpl<T>()
-  fn(builder)
-  return NamedCatalogTypeRegistryImpl(type, ConcurrentHashMap(builder.byName), autoRegisterFunction)
+  val builderImpl = NamedCatalogTypeRegistryBuilderImpl<T>()
+  builder(builderImpl)
+  return NamedCatalogTypeRegistryImpl(type,
+    ConcurrentHashMap(builderImpl.byName), autoRegisterFunction)
 }
 
-internal open class NamedCatalogTypeRegistryBuilderImpl<T : NamedCatalogType> : CatalogTypeRegistryBuilder<T> {
+internal open class NamedCatalogTypeRegistryBuilderImpl<T : NamedCatalogType> :
+  CatalogTypeRegistryBuilder<T> {
 
   val byName = hashMapOf<String, T>()
 
@@ -60,20 +60,19 @@ internal class NamedCatalogTypeRegistryImpl<T : NamedCatalogType>(
 ) : NamedCatalogTypeRegistry<T> {
 
   override val all: Collection<T>
-    get() = this.byName.values.toImmutableCollection()
+    get() = byName.values.toImmutableCollection()
 
   override fun get(name: String): T? {
     val key = name.lowercase()
-    var catalogType = this.byName[key]
-    val autoRegisterFunction = this.autoRegisterFunction
-    if (catalogType != null || autoRegisterFunction == null) {
+    var catalogType = byName[key]
+    val autoRegisterFunction = autoRegisterFunction
+    if (catalogType != null || autoRegisterFunction == null)
       return catalogType
-    }
     catalogType = autoRegisterFunction(name) ?: return null
-    this.byName[key] = catalogType
+    byName[key] = catalogType
     return catalogType
   }
 
-  override fun require(name: String): T =
-      this[name] ?: throw IllegalArgumentException("${type.simpleName} with name '$name' doesn't exist.")
+  override fun require(name: String): T = this[name]
+    ?: throw IllegalArgumentException("${type.simpleName} with name '$name' doesn't exist.")
 }

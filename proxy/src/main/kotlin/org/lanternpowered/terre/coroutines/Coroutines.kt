@@ -19,12 +19,15 @@ import org.lanternpowered.terre.dispatcher.dispatch
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-suspend inline fun <T> withTimeout(timeMillis: Long, noinline block: suspend CoroutineScope.() -> T): T {
+suspend inline fun <T> withTimeout(
+  timeMillis: Long,
+  noinline block: suspend CoroutineScope.() -> T
+): T {
   return withTimeout(timeMillis, block)
 }
 
 suspend fun <T> withTimeout(duration: Duration, block: suspend CoroutineScope.() -> T): T {
-  return withTimeout(duration.toLongMilliseconds(), block)
+  return withTimeout(duration.inWholeMilliseconds, block)
 }
 
 suspend inline fun delay(timeMillis: Long) {
@@ -32,7 +35,7 @@ suspend inline fun delay(timeMillis: Long) {
 }
 
 suspend fun delay(duration: Duration) {
-  delay(duration.toLongMilliseconds())
+  delay(duration.inWholeMilliseconds)
 }
 
 /**

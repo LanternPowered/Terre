@@ -28,72 +28,80 @@ internal class Protocol : ProtocolBase() {
   companion object {
 
     private val bothDirectionsSet =
-        immutableSetOf(PacketDirection.ServerToClient, PacketDirection.ClientToServer)
+      immutableSetOf(PacketDirection.ServerToClient, PacketDirection.ClientToServer)
     private val toServerDirectionSet =
-        immutableSetOf(PacketDirection.ClientToServer)
+      immutableSetOf(PacketDirection.ClientToServer)
     private val toClientDirectionSet =
-        immutableSetOf(PacketDirection.ServerToClient)
+      immutableSetOf(PacketDirection.ServerToClient)
 
     fun directionSetOf(packetDirection: PacketDirection) =
-        if (packetDirection == PacketDirection.ClientToServer) this.toServerDirectionSet else this.toClientDirectionSet
+      when (packetDirection) {
+        PacketDirection.ClientToServer -> toServerDirectionSet
+        PacketDirection.ServerToClient -> toClientDirectionSet
+      }
   }
 
-  private val decodersByOpcode
-      = Array<Int2ObjectMap<PacketDecoderRegistration<*>>>(bothDirectionsSet.size) { Int2ObjectOpenHashMap() }
-  private val encodersByPacketType
-      = Array<MutableMap<Class<*>, PacketEncoderRegistration<*>>>(bothDirectionsSet.size) { mutableMapOf() }
+  private val decodersByOpcode =
+    Array<Int2ObjectMap<PacketDecoderRegistration<*>>>(bothDirectionsSet.size) { Int2ObjectOpenHashMap() }
+  private val encodersByPacketType =
+    Array<MutableMap<Class<*>, PacketEncoderRegistration<*>>>(bothDirectionsSet.size) { HashMap() }
 
-  fun getDecoder(packetDirection: PacketDirection, opcode: Int): PacketDecoderRegistration<*>?
-      = this.decodersByOpcode[packetDirection.ordinal][opcode]
+  fun getDecoder(packetDirection: PacketDirection, opcode: Int): PacketDecoderRegistration<*>? =
+    decodersByOpcode[packetDirection.ordinal][opcode]
 
-  fun <T : Packet> getEncoder(packetDirection: PacketDirection, packetType: Class<T>): PacketEncoderRegistration<T>?
-      = this.encodersByPacketType[packetDirection.ordinal][packetType] as (PacketEncoderRegistration<T>?)
+  fun <T : Packet> getEncoder(
+    packetDirection: PacketDirection, packetType: Class<T>
+  ): PacketEncoderRegistration<T>? =
+    encodersByPacketType[packetDirection.ordinal][packetType] as (PacketEncoderRegistration<T>?)
 
   override fun <P : Packet> bind(
-      opcode: Int, type: KClass<P>, encoder: PacketEncoder<in P>) {
+    opcode: Int, type: KClass<P>, encoder: PacketEncoder<in P>
+  ) {
     bind0(opcode, type, encoder)
   }
 
   override fun <P : Packet> bind(
-      opcode: Int, type: KClass<P>, encoder: PacketEncoder<in P>, direction: PacketDirection) {
+    opcode: Int, type: KClass<P>, encoder: PacketEncoder<in P>, direction: PacketDirection
+  ) {
     bind0(opcode, type, encoder, direction)
   }
 
   override fun <P : Packet> bind(
-      opcode: Int, type: KClass<P>, decoder: PacketDecoder<out P>) {
+    opcode: Int, type: KClass<P>, decoder: PacketDecoder<out P>
+  ) {
     bind0(opcode, type, decoder, null)
   }
 
   override fun <P : Packet> bind(
-      opcode: Int, type: KClass<P>, decoder: PacketDecoder<out P>, direction: PacketDirection) {
+    opcode: Int, type: KClass<P>, decoder: PacketDecoder<out P>, direction: PacketDirection
+  ) {
     bind0(opcode, type, decoder, direction)
   }
 
   private fun <P : Packet> bind0(
-      opcode: Int, type: KClass<P>, encoder: PacketEncoder<in P>, direction: PacketDirection? = null) {
+    opcode: Int, type: KClass<P>, encoder: PacketEncoder<in P>, direction: PacketDirection? = null
+  ) {
     val directionsSet = if (direction != null) directionSetOf(direction) else bothDirectionsSet
     var registration = PacketEncoderRegistrationImpl(type.java, opcode, encoder, directionsSet)
     if (direction != null) {
       this.encodersByPacketType[direction.ordinal][type.java] = registration
     } else {
-      for (map in this.encodersByPacketType) {
+      for (map in encodersByPacketType) {
         map[type.java] = registration
       }
     }
     if (type.isSealed) {
       for (subclass in type.sealedSubclasses) {
         registration = PacketEncoderRegistrationImpl(
-            type.java, opcode, encoder, directionsSet)
+          type.java, opcode, encoder, directionsSet)
         if (direction != null) {
-          val map = this.encodersByPacketType[direction.ordinal]
-          if (!map.containsKey(subclass.java)) {
+          val map = encodersByPacketType[direction.ordinal]
+          if (!map.containsKey(subclass.java))
             map[subclass.java] = registration
-          }
         } else {
-          for (map in this.encodersByPacketType) {
-            if (!map.containsKey(subclass.java)) {
+          for (map in encodersByPacketType) {
+            if (!map.containsKey(subclass.java))
               map[subclass.java] = registration
-            }
           }
         }
       }
@@ -101,15 +109,15 @@ internal class Protocol : ProtocolBase() {
   }
 
   private fun <P : Packet> bind0(
-      opcode: Int, type: KClass<P>, decoder: PacketDecoder<out P>, direction: PacketDirection?) {
+    opcode: Int, type: KClass<P>, decoder: PacketDecoder<out P>, direction: PacketDirection?
+  ) {
     val directionsSet = if (direction != null) directionSetOf(direction) else bothDirectionsSet
     val registration = PacketDecoderRegistrationImpl(type.java, opcode, decoder, directionsSet)
     if (direction != null) {
-      this.decodersByOpcode[direction.ordinal][opcode] = registration
+      decodersByOpcode[direction.ordinal][opcode] = registration
     } else {
-      for (map in this.decodersByOpcode) {
+      for (map in decodersByOpcode)
         map[opcode] = registration
-      }
     }
   }
 }

@@ -14,8 +14,8 @@ import org.lanternpowered.terre.impl.network.buffer.readColor
 import org.lanternpowered.terre.impl.network.buffer.readTaggedText
 import org.lanternpowered.terre.impl.network.buffer.writeColor
 import org.lanternpowered.terre.impl.network.buffer.writeTaggedText
-import org.lanternpowered.terre.impl.network.packetDecoderOf
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 import org.lanternpowered.terre.text.ColorableText
 import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.text.color
@@ -23,18 +23,18 @@ import org.lanternpowered.terre.util.Color
 import org.lanternpowered.terre.util.Colors
 
 internal data class ChatMessagePacket(
-    val text: Text,
-    val maxWidth: Int = -1
+  val text: Text,
+  val maxWidth: Int = -1
 ) : Packet
 
-internal val ChatMessageEncoder = packetEncoderOf<ChatMessagePacket> { buf, packet ->
+internal val ChatMessageEncoder = PacketEncoder<ChatMessagePacket> { buf, packet ->
   val (text, color) = ChatMessageHelper.splitTextAndColor(packet.text)
   buf.writeColor(color)
   buf.writeTaggedText(text)
   buf.writeShortLE(packet.maxWidth)
 }
 
-internal val ChatMessageDecoder = packetDecoderOf { buf ->
+internal val ChatMessageDecoder = PacketDecoder { buf ->
   val color = buf.readColor()
   val text = buf.readTaggedText().color(color)
   val maxWidth = buf.readUnsignedShortLE()
@@ -47,9 +47,8 @@ internal object ChatMessageHelper {
     var color = defaultColor
     if (text is ColorableText) {
       color = text.color ?: defaultColor
-      if (text.color != null) {
+      if (text.color != null)
         return text.color(null) to color
-      }
     }
     return text to color
   }

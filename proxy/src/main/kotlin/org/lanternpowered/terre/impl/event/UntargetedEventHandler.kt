@@ -17,8 +17,7 @@ interface UntargetedEventHandler {
 
   interface NoSuspend : UntargetedEventHandler {
 
-    @JvmDefault // Must be JvmDefault for Lmbda
-    override suspend fun handle(target: Any, event: Event) = this.handleDirect(target, event)
+    override suspend fun handle(target: Any, event: Event) = handleDirect(target, event)
 
     fun handleDirect(target: Any, event: Event)
   }

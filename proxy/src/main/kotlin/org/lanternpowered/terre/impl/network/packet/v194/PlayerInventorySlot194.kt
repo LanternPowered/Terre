@@ -12,17 +12,17 @@ package org.lanternpowered.terre.impl.network.packet.v194
 import org.lanternpowered.terre.impl.network.buffer.readPlayerId
 import org.lanternpowered.terre.impl.network.buffer.writePlayerId
 import org.lanternpowered.terre.impl.network.packet.PlayerInventorySlotPacket
-import org.lanternpowered.terre.impl.network.packetDecoderOf
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 
-internal val PlayerInventorySlot194Encoder = packetEncoderOf<PlayerInventorySlotPacket> { buf, packet ->
+internal val PlayerInventorySlot194Encoder = PacketEncoder<PlayerInventorySlotPacket> { buf, packet ->
   buf.writePlayerId(packet.playerId)
   buf.writeByte(packet.slot)
   val data = packet.data
   buf.writeBytes(data, 0, data.readableBytes())
 }
 
-internal val PlayerInventorySlot194Decoder = packetDecoderOf { buf ->
+internal val PlayerInventorySlot194Decoder = PacketDecoder { buf ->
   val playerId = buf.readPlayerId()
   val slot = buf.readUnsignedByte().toInt()
   val content = buf.readBytes(buf.readableBytes())

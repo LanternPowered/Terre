@@ -44,7 +44,7 @@ import kotlin.streams.toList
  * between the client and the proxy server.
  */
 internal class ClientInitConnectionHandler(
-    private val connection: Connection
+  private val connection: Connection
 ) : ConnectionHandler {
 
   private enum class State {
@@ -85,7 +85,7 @@ internal class ClientInitConnectionHandler(
   private var state: State = State.Init
 
   private fun checkState(expected: State) {
-    check(this.state == expected) {
+    check(state == expected) {
       "Expected the state $expected, but the connection is currently on $state" }
   }
 
@@ -102,11 +102,11 @@ internal class ClientInitConnectionHandler(
   override fun handle(packet: ConnectionRequestPacket): Boolean {
     checkState(State.Init)
     Terre.logger.debug { "P <- C [${connection.remoteAddress}] Connection request: ${packet.version}" }
-    this.state = State.Handshake
+    state = State.Handshake
     val protocolVersion = packet.version
     if (protocolVersion !is ProtocolVersion.Vanilla) {
       // TODO: Modded support
-      this.connection.close(textOf("Only vanilla clients are supported."))
+      connection.close(textOf("Only vanilla clients are supported."))
       return true
     }
     val protocol = ProtocolRegistry[protocolVersion]
@@ -119,83 +119,79 @@ internal class ClientInitConnectionHandler(
               is ProtocolVersion.TModLoader -> "tModLoader ${it.version}"
             }
           }
-      this.connection.close(textOf(
-          "The client isn't supported. Expected version of $expected, but the client is $protocolVersion."))
+      connection.close(textOf(
+        "The client isn't supported. Expected version of $expected, but the client is $protocolVersion."))
       return true
     }
     this.protocol = protocol
-    this.connection.protocol = protocol[MultistateProtocol.State.ClientInit]
     this.protocolVersion = protocolVersion
-    val inboundConnection = InitialInboundConnection(
-        this.connection.remoteAddress, protocolVersion)
+    connection.protocol = protocol[MultistateProtocol.State.ClientInit]
+    val inboundConnection = InitialInboundConnection(connection.remoteAddress, protocolVersion)
     TerreEventBus.postAsyncWithFuture(ClientConnectEvent(inboundConnection))
-        .thenAcceptAsync({ event ->
-          if (this.connection.isClosed)
-            return@thenAcceptAsync
-          val result = event.result
-          if (result is ClientConnectEvent.Result.Denied) {
-            this.connection.close(result.reason)
-          } else {
-            startLogin()
-          }
-        }, this.connection.eventLoop)
+      .thenAcceptAsync({ event ->
+        if (connection.isClosed)
+          return@thenAcceptAsync
+        val result = event.result
+        if (result is ClientConnectEvent.Result.Denied) {
+          connection.close(result.reason)
+        } else {
+          startLogin()
+        }
+      }, connection.eventLoop)
     return true
   }
 
   private fun startLogin() {
     checkState(State.Handshake)
-    this.state = State.RequestClientInfo
-    // Send the approved packet, we just do this with a fixed
-    // id for now to receive information from the client. When
-    // switching to the play mode the client will receive a new
-    // one.
-    this.connection.send(ConnectionApprovedPacket(PlayerId(1)))
+    state = State.RequestClientInfo
+    // Send the approved packet, we just do this with a fixed id for now to receive information
+    // from the client. When switching to the play mode the client will receive a new one.
+    connection.send(ConnectionApprovedPacket(PlayerId(1)))
     Terre.logger.debug { "P -> C [${connection.remoteAddress}] Start login by collecting client info" }
   }
 
   private fun continueLogin(isMobile: Boolean) {
-    // Generate a identifier that matches the tShock player identifiers.
+    // Generate an identifier that matches the tShock player identifiers.
     val digest = MessageDigest.getInstance("SHA-512")
     digest.reset()
-    digest.update(this.uniqueId.toString().toByteArray(Charsets.UTF_8))
+    digest.update(uniqueId.toString().toByteArray(Charsets.UTF_8))
     val identifier = PlayerIdentifier(digest.digest())
 
-    this.connection.isMobile = isMobile
-    this.player = PlayerImpl(this.connection, this.protocolVersion,
-        this.protocol, this.name, identifier, isMobile, this.uniqueId)
+    connection.isMobile = isMobile
+    player = PlayerImpl(connection, protocolVersion, protocol, name, identifier, isMobile, uniqueId)
     if (this.player.checkDuplicateIdentifier())
       return
 
-    TerreEventBus.postAsyncWithFuture(ClientPreLoginEvent(this.player))
-        .thenAcceptAsync({ event ->
-          if (this.connection.isClosed)
-            return@thenAcceptAsync
-          val result = event.result
-          if (result is ClientPreLoginEvent.Result.Denied) {
-            this.state = State.Done
-            this.connection.close(result.reason)
-          } else if (result is ClientPreLoginEvent.Result.RequestPassword && result.password.isNotEmpty()) {
-            this.state = State.RequestPassword
-            this.expectedPassword = result.password
-            this.connection.send(PasswordRequestPacket)
-            Terre.logger.debug { "P -> C [${connection.remoteAddress},$name] Password request" }
-          } else {
-            this.state = State.Done
-            this.player.finishLogin(ClientLoginEvent.Result.Allowed)
-          }
-        }, this.connection.eventLoop)
+    TerreEventBus.postAsyncWithFuture(ClientPreLoginEvent(player))
+      .thenAcceptAsync({ event ->
+        if (connection.isClosed)
+          return@thenAcceptAsync
+        val result = event.result
+        if (result is ClientPreLoginEvent.Result.Denied) {
+          state = State.Done
+          connection.close(result.reason)
+        } else if (result is ClientPreLoginEvent.Result.RequestPassword && result.password.isNotEmpty()) {
+          state = State.RequestPassword
+          expectedPassword = result.password
+          connection.send(PasswordRequestPacket)
+          Terre.logger.debug { "P -> C [${connection.remoteAddress},$name] Password request" }
+        } else {
+          state = State.Done
+          player.finishLogin(ClientLoginEvent.Result.Allowed)
+        }
+      }, connection.eventLoop)
   }
 
   override fun handle(packet: PasswordResponsePacket): Boolean {
     Terre.logger.debug { "P <- C [${connection.remoteAddress},$name] Password response" }
     checkState(State.RequestPassword)
-    val result = if (packet.password != this.expectedPassword) {
+    val result = if (packet.password != expectedPassword) {
       ClientLoginEvent.Result.Denied(textOf("Invalid password."))
     } else {
       ClientLoginEvent.Result.Allowed
     }
-    this.state = State.Done
-    this.player.finishLogin(result)
+    state = State.Done
+    player.finishLogin(result)
     return true
   }
 
@@ -208,14 +204,14 @@ internal class ClientInitConnectionHandler(
 
   override fun handle(packet: ClientUniqueIdPacket): Boolean {
     checkState(State.RequestClientInfo)
-    this.uniqueId = packet.uniqueId
+    uniqueId = packet.uniqueId
     return true
   }
 
   override fun handle(packet: WorldInfoRequestPacket): Boolean {
     checkState(State.RequestClientInfo)
-    this.state = State.DetectMobile
-    this.connection.send(IsMobileRequestPacket)
+    state = State.DetectMobile
+    connection.send(IsMobileRequestPacket)
     Terre.logger.debug { "P <- C [${connection.remoteAddress}, $name] Start detecting mobile" }
     return true
   }
@@ -230,9 +226,8 @@ internal class ClientInitConnectionHandler(
     }
     Terre.logger.debug { "P <- C [${connection.remoteAddress}, $name] Client info sending done" }
 
-    // By now we should have received all information from the
-    // client so we can initialize the play phase. And the client
-    // can actually start connecting to backing servers.
+    // By now we should have received all information from the client, so we can initialize the
+    // play phase. And the client can actually start connecting to backing servers.
     continueLogin(isMobile)
     return true
   }

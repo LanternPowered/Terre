@@ -14,7 +14,8 @@ package org.lanternpowered.terre.util
 /**
  * Represents a color.
  */
-inline class Color(val rgb: Int) {
+@JvmInline
+value class Color(val rgb: Int) {
 
   /**
    * Constructs a new color from the rgb values.

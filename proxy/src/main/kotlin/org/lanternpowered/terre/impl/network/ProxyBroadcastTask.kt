@@ -30,13 +30,13 @@ internal class ProxyBroadcastTask(private val proxy: Proxy) {
 
   fun init() {
     try {
-      this.socket = DatagramSocket()
+      socket = DatagramSocket()
     } catch (ex: IOException) {
       Terre.logger.error("Failed to open socket, the LAN broadcast will NOT work.", ex)
       return
     }
 
-    val thread = Thread(this::broadcast, "lan-broadcast")
+    val thread = Thread(::broadcast, "lan-broadcast")
     thread.isDaemon = true
     thread.start()
 
@@ -44,7 +44,7 @@ internal class ProxyBroadcastTask(private val proxy: Proxy) {
   }
 
   fun stop() {
-    this.socket.close()
+    socket.close()
   }
 
   private fun broadcast() {
@@ -53,12 +53,12 @@ internal class ProxyBroadcastTask(private val proxy: Proxy) {
 
     var errorLogged = false
 
-    while (!this.socket.isClosed) {
+    while (!socket.isClosed) {
       val buf = Unpooled.buffer()
       buf.writeBroadcastData()
       val array = buf.array()
       try {
-        this.socket.send(DatagramPacket(array, array.size, targetAddress, targetPort))
+        socket.send(DatagramPacket(array, array.size, targetAddress, targetPort))
         errorLogged = false
       } catch (ex: IOException) {
         if (!errorLogged) {

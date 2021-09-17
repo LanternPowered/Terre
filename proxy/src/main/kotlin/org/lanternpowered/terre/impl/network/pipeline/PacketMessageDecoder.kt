@@ -35,17 +35,15 @@ internal class PacketMessageDecoder(
   override fun decode(ctx: ChannelHandlerContext, input: ByteBuf, output: MutableList<Any>) {
     val index = input.readerIndex()
     var opcode = input.readUnsignedByte().toInt()
-    // A net module packet, but we consider everything
-    // a normal packet for simplicity, just with an id
-    // offset.
+    // A net module packet, but we consider everything a normal packet for simplicity, just with
+    // an id offset.
     if (opcode == ModulePacketId) {
       opcode = input.readUnsignedShortLE() // Module id
       opcode = (opcode shl ModuleIdOffset) or ModuleIdMask
     }
-    val registration = this.context.protocol.getDecoder(this.context.direction, opcode)
+    val registration = context.protocol.getDecoder(context.direction, opcode)
 
-    // No registration is available, so just process
-    // as an unknown packet.
+    // No registration is available, so just process as an unknown packet.
     if (registration == null) {
       if (DebugUnknownPackets) {
         val packet = UnknownPacket(opcode, input.retainedSlice())
@@ -63,7 +61,7 @@ internal class PacketMessageDecoder(
     val content = input.retainedSlice()
     val length = content.readableBytes()
     val packet = try {
-      registration.decoder.decode(this.context, content)
+      registration.decoder.decode(context, content)
     } catch (ex: CodecException) {
       throw ex
     } catch (ex: Exception) {

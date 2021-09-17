@@ -24,8 +24,8 @@ import org.lanternpowered.terre.impl.network.buffer.writeNpcId
 import org.lanternpowered.terre.impl.network.buffer.writePlayerId
 import org.lanternpowered.terre.impl.network.buffer.writeProjectileId
 import org.lanternpowered.terre.impl.network.buffer.writeString
-import org.lanternpowered.terre.impl.network.packetDecoderOf
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 import org.lanternpowered.terre.item.ItemModifierRegistry
 import org.lanternpowered.terre.item.ItemRegistry
 import org.lanternpowered.terre.item.ItemStack
@@ -35,16 +35,16 @@ import org.lanternpowered.terre.item.itemStackOf
  * A packet when a player gets hurt.
  */
 internal data class PlayerHurtPacket(
-    val playerId: PlayerId,
-    val damage: Int,
-    val hitDirection: Int,
-    val critical: Boolean,
-    val pvp: Boolean,
-    val cooldownCounter: Int,
-    val reason: PlayerDamageReason
+  val playerId: PlayerId,
+  val damage: Int,
+  val hitDirection: Int,
+  val critical: Boolean,
+  val pvp: Boolean,
+  val cooldownCounter: Int,
+  val reason: PlayerDamageReason
 ) : Packet
 
-internal val PlayerHurtEncoder = packetEncoderOf<PlayerHurtPacket> { buf, packet ->
+internal val PlayerHurtEncoder = PacketEncoder<PlayerHurtPacket> { buf, packet ->
   buf.writePlayerId(packet.playerId)
   buf.writeDamageReason(packet.reason)
   buf.writeShortLE(packet.damage)
@@ -57,7 +57,7 @@ internal val PlayerHurtEncoder = packetEncoderOf<PlayerHurtPacket> { buf, packet
   buf.writeByte(packet.cooldownCounter)
 }
 
-internal val PlayerHurtDecoder = packetDecoderOf { buf ->
+internal val PlayerHurtDecoder = PacketDecoder { buf ->
   val playerId = buf.readPlayerId()
   val reason = buf.readDamageReason()
   val damage = buf.readUnsignedShortLE()
@@ -70,12 +70,12 @@ internal val PlayerHurtDecoder = packetDecoderOf { buf ->
 }
 
 internal data class PlayerDamageReason(
-    val playerId: PlayerId? = null,
-    val npcId: NpcId? = null,
-    val projectile: Projectile? = null,
-    val other: Other? = null,
-    val item: ItemStack? = null,
-    val custom: String? = null
+  val playerId: PlayerId? = null,
+  val npcId: NpcId? = null,
+  val projectile: Projectile? = null,
+  val other: Other? = null,
+  val item: ItemStack? = null,
+  val custom: String? = null
 ) {
 
   enum class Other {

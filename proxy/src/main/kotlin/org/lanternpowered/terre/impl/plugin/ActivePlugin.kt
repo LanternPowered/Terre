@@ -45,7 +45,7 @@ internal var Thread.activePlugin: PluginContainer?
   }
 
 internal class PluginThreadLocalElement(
-    override val plugin: PluginContainer? = activePlugin
+  override val plugin: PluginContainer? = activePlugin
 ) : ThreadContextElement<PluginContainer?>, PluginContextElement {
 
   override fun updateThreadContext(context: CoroutineContext): PluginContainer? {

@@ -15,8 +15,8 @@ import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.ProtocolVersions
 import org.lanternpowered.terre.impl.network.buffer.readString
 import org.lanternpowered.terre.impl.network.buffer.writeString
-import org.lanternpowered.terre.impl.network.packetDecoderOf
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 import org.lanternpowered.terre.util.Version
 
 internal data class ConnectionRequestPacket(val version: ProtocolVersion) : Packet
@@ -25,9 +25,9 @@ private const val vanillaVersionPrefix = "Terraria"
 
 private const val tModLoaderVersionPrefix = "tModLoader"
 private val tModLoaderVersionRegex =
-    "^$tModLoaderVersionPrefix v([0-9.]*)(?: ([^\\s]*))?(?: Beta ([0-9]*))?\$".toRegex()
+  "^$tModLoaderVersionPrefix v([0-9.]*)(?: ([^\\s]*))?(?: Beta ([0-9]*))?\$".toRegex()
 
-internal val ConnectionRequestDecoder = packetDecoderOf { buf ->
+internal val ConnectionRequestDecoder = PacketDecoder { buf ->
   val value = buf.readString()
 
   val clientVersion = run {
@@ -50,7 +50,7 @@ internal val ConnectionRequestDecoder = packetDecoderOf { buf ->
   ConnectionRequestPacket(clientVersion)
 }
 
-internal val ConnectionRequestEncoder = packetEncoderOf<ConnectionRequestPacket> { buf, packet ->
+internal val ConnectionRequestEncoder = PacketEncoder<ConnectionRequestPacket> { buf, packet ->
   val value = when (val version = packet.version) {
     is ProtocolVersion.Vanilla -> "$vanillaVersionPrefix${version.protocol}"
     is ProtocolVersion.TModLoader -> {

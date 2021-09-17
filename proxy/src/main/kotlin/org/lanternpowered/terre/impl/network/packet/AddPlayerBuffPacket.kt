@@ -15,22 +15,22 @@ import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.buffer.readPlayerId
 import org.lanternpowered.terre.impl.network.buffer.writePlayerId
-import org.lanternpowered.terre.impl.network.packetDecoderOf
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 
 internal data class AddPlayerBuffPacket(
-    val playerId: PlayerId,
-    val buff: Int,
-    val time: Int
+  val playerId: PlayerId,
+  val buff: Int,
+  val time: Int
 ) : Packet
 
-internal val AddPlayerBuffEncoder = packetEncoderOf<AddPlayerBuffPacket> { buf, packet ->
+internal val AddPlayerBuffEncoder = PacketEncoder<AddPlayerBuffPacket> { buf, packet ->
   buf.writePlayerId(packet.playerId)
   buf.writeShortLE(packet.buff)
   buf.writeIntLE(packet.time)
 }
 
-internal val AddPlayerBuffDecoder = packetDecoderOf { buf ->
+internal val AddPlayerBuffDecoder = PacketDecoder { buf ->
   val playerId = buf.readPlayerId()
   val buff = buf.readUnsignedShortLE()
   val time = buf.readIntLE()

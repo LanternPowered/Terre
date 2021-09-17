@@ -13,7 +13,8 @@ import org.apache.logging.log4j.spi.ExtendedLogger
 import org.apache.logging.log4j.Logger as Log4jLogger
 import org.lanternpowered.terre.logger.Logger
 
-class LoggerImpl(logger: Log4jLogger) : Logger, ExtendedLogger by (logger as ExtendedLogger) {
+internal class LoggerImpl(logger: Log4jLogger) :
+  Logger, ExtendedLogger by (logger as ExtendedLogger) {
 
   override fun info(fn: () -> String) {
     if (isInfoEnabled)

@@ -13,30 +13,30 @@ import com.google.common.io.BaseEncoding
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.readString
 import org.lanternpowered.terre.impl.network.buffer.writeString
-import org.lanternpowered.terre.impl.network.packetDecoderOf
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 
-data class SyncModsPacket(
-    val allowVanillaClients: Boolean,
-    val mods: List<Mod>
+internal data class SyncModsPacket(
+  val allowVanillaClients: Boolean,
+  val mods: List<Mod>
 ) : Packet {
 
   data class Mod(
-      val name: String,
-      val version: String,
-      val fileHash: String,
-      val fileValidModBrowserSignature: Boolean,
-      val configs: List<Config>
+    val name: String,
+    val version: String,
+    val fileHash: String,
+    val fileValidModBrowserSignature: Boolean,
+    val configs: List<Config>
   ) {
 
     data class Config(
-        val name: String,
-        val content: String
+      val name: String,
+      val content: String
     )
   }
 }
 
-internal val SyncModsEncoder = packetEncoderOf<SyncModsPacket> { buf, packet ->
+internal val SyncModsEncoder = PacketEncoder<SyncModsPacket> { buf, packet ->
   buf.writeBoolean(packet.allowVanillaClients)
   val mods = packet.mods
   buf.writeIntLE(mods.size)
@@ -54,7 +54,7 @@ internal val SyncModsEncoder = packetEncoderOf<SyncModsPacket> { buf, packet ->
   }
 }
 
-internal val SyncModsDecoder = packetDecoderOf { buf ->
+internal val SyncModsDecoder = PacketDecoder { buf ->
   val allowVanillaClients = buf.readBoolean()
   val modCount = buf.readIntLE()
   val mods = mutableListOf<SyncModsPacket.Mod>()

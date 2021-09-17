@@ -184,7 +184,8 @@ internal class PlayerImpl(
     }
   }
 
-  override fun connectToAnyAsync(servers: Iterable<Server>) = connectToAnyWithFuture(servers).asDeferred()
+  override fun connectToAnyAsync(servers: Iterable<Server>) =
+    connectToAnyWithFuture(servers).asDeferred()
 
   fun cleanup() {
     ProxyImpl.mutablePlayers.remove(this)

@@ -46,7 +46,7 @@ import kotlin.reflect.KClass
 
 internal object ConnectionHandlerBindings {
 
-  private val handlersByPacketType = mutableMapOf<Class<*>, ConnectionHandler.(Packet) -> Boolean>()
+  private val handlersByPacketType = mutableMapOf<Class<*>, Binding<Packet>>()
 
   init {
     bind<ChatMessagePacket>(ConnectionHandler::handle)
@@ -61,7 +61,7 @@ internal object ConnectionHandlerBindings {
     bind<PasswordResponsePacket>(ConnectionHandler::handle)
     bind<PlayerActivePacket>(ConnectionHandler::handle)
     bind<PlayerChatMessagePacket>(ConnectionHandler::handle)
-    bind<PlayerCommandPacket>(ConnectionHandler::handle)
+    bindSuspend<PlayerCommandPacket>(ConnectionHandler::handle)
     bind<PlayerDeathPacket>(ConnectionHandler::handle)
     bind<PlayerHurtPacket>(ConnectionHandler::handle)
     bind<PlayerInfoPacket>(ConnectionHandler::handle)
@@ -82,21 +82,39 @@ internal object ConnectionHandlerBindings {
     bind<PlayerTeamPacket>(ConnectionHandler::handle)
   }
 
-  internal fun <P : Packet> getHandler(
+  internal fun <P : Packet> getBinding(
     packetType: Class<P>
-  ): (ConnectionHandler.(packet: P) -> Boolean)? {
-    return handlersByPacketType[packetType]
-  }
+  ): Binding<P>? = handlersByPacketType[packetType] as Binding<P>?
 
   private inline fun <reified P : Packet> bind(
-      noinline handler: ConnectionHandler.(packet: P) -> Boolean
+    noinline handler: ConnectionHandler.(packet: P) -> Boolean
   ) {
-    bind(P::class, handler)
+    bind(P::class, SimpleBinding { connectionHandler, packet ->
+      connectionHandler.handler(packet)
+    })
   }
 
-  private fun <P : Packet> bind(
-    type: KClass<P>, handler: ConnectionHandler.(packet: P) -> Boolean
+  private inline fun <reified P : Packet> bindSuspend(
+    noinline handler: suspend ConnectionHandler.(packet: P) -> Boolean
   ) {
-    handlersByPacketType[type.java] = handler as ConnectionHandler.(packet: Packet) -> Boolean
+    bind(P::class, SuspendBinding { connectionHandler, packet ->
+      connectionHandler.handler(packet)
+    })
+  }
+
+  private fun <P : Packet> bind(type: KClass<P>, handler: Binding<P>) {
+    handlersByPacketType[type.java] = handler as Binding<Packet>
+  }
+
+  interface Binding<P : Packet>
+
+  fun interface SuspendBinding<P : Packet> : Binding<P> {
+
+    suspend fun handle(connectionHandler: ConnectionHandler, packet: P): Boolean
+  }
+
+  fun interface SimpleBinding<P : Packet> : Binding<P> {
+
+    fun handle(connectionHandler: ConnectionHandler, packet: P): Boolean
   }
 }

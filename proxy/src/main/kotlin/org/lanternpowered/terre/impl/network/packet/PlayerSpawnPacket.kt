@@ -16,14 +16,14 @@ import org.lanternpowered.terre.impl.network.buffer.readPlayerId
 import org.lanternpowered.terre.impl.network.buffer.readShortVec2i
 import org.lanternpowered.terre.impl.network.buffer.writePlayerId
 import org.lanternpowered.terre.impl.network.buffer.writeShortVec2i
-import org.lanternpowered.terre.impl.network.packetDecoderOf
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 
 internal data class PlayerSpawnPacket(
-    val playerId: PlayerId,
-    val position: Vec2i,
-    val respawnTimeRemaining: Int,
-    val respawnContext: Context
+  val playerId: PlayerId,
+  val position: Vec2i,
+  val respawnTimeRemaining: Int,
+  val respawnContext: Context
 ) : Packet {
 
   enum class Context {
@@ -35,14 +35,14 @@ internal data class PlayerSpawnPacket(
 
 private val contextById = PlayerSpawnPacket.Context.values()
 
-internal val PlayerSpawnEncoder = packetEncoderOf<PlayerSpawnPacket> { buf, packet ->
+internal val PlayerSpawnEncoder = PacketEncoder<PlayerSpawnPacket> { buf, packet ->
   buf.writePlayerId(packet.playerId)
   buf.writeShortVec2i(packet.position)
   buf.writeIntLE(packet.respawnTimeRemaining)
   buf.writeByte(packet.respawnContext.ordinal)
 }
 
-internal val PlayerSpawnDecoder = packetDecoderOf { buf ->
+internal val PlayerSpawnDecoder = PacketDecoder { buf ->
   val playerId = buf.readPlayerId()
   val position = buf.readShortVec2i()
   val respawnTimeRemaining = buf.readIntLE()

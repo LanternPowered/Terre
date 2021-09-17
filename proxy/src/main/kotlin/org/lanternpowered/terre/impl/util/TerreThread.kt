@@ -18,7 +18,7 @@ import org.lanternpowered.terre.plugin.PluginContainer
  * Storing thread local values as fields instead of using
  * ThreadLocal objects has better performance.
  */
-class TerreThread : FastThreadLocalThread {
+internal class TerreThread : FastThreadLocalThread {
 
   /**
    * The plugin that's currently active.

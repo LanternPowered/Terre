@@ -13,20 +13,20 @@ import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.buffer.readPlayerId
 import org.lanternpowered.terre.impl.network.buffer.writePlayerId
-import org.lanternpowered.terre.impl.network.packetDecoderOf
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 
 internal data class PlayerActivePacket(
-    val playerId: PlayerId,
-    val active: Boolean
+  val playerId: PlayerId,
+  val active: Boolean
 ) : Packet
 
-internal val PlayerActiveEncoder = packetEncoderOf<PlayerActivePacket> { buf, packet ->
+internal val PlayerActiveEncoder = PacketEncoder<PlayerActivePacket> { buf, packet ->
   buf.writePlayerId(packet.playerId)
   buf.writeBoolean(packet.active)
 }
 
-internal val PlayerActiveDecoder = packetDecoderOf { buf ->
+internal val PlayerActiveDecoder = PacketDecoder { buf ->
   val playerId = buf.readPlayerId()
   val active = buf.readBoolean()
   PlayerActivePacket(playerId, active)

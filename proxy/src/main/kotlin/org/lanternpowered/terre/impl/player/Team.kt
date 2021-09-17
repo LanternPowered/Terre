@@ -14,9 +14,9 @@ import org.lanternpowered.terre.impl.buildNumericCatalogTypeRegistryOf
 import org.lanternpowered.terre.util.Color
 import org.lanternpowered.terre.util.Colors
 
-data class Team(
-    override val numericId: Int,
-    val color: Color
+internal data class Team(
+  override val numericId: Int,
+  val color: Color
 ) : NumericCatalogType {
 
   companion object {

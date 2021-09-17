@@ -114,7 +114,7 @@ internal interface ConnectionHandler {
     return false
   }
 
-  fun handle(packet: PlayerCommandPacket): Boolean {
+  suspend fun handle(packet: PlayerCommandPacket): Boolean {
     return false
   }
 

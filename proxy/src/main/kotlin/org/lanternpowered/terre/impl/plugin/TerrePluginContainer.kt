@@ -17,14 +17,14 @@ import org.lanternpowered.terre.impl.logger.LoggerImpl
 import org.lanternpowered.terre.plugin.PluginContainer
 import org.lanternpowered.terre.util.toString
 
-class TerrePluginContainer(
-    override val id: String,
-    override val name: String = id,
-    override val version: String? = null,
-    override val description: String? = null,
-    override val authors: List<String> = listOf(),
-    override val url: String? = null,
-    override val instance: Any
+internal class TerrePluginContainer(
+  override val id: String,
+  override val name: String = id,
+  override val version: String? = null,
+  override val description: String? = null,
+  override val authors: List<String> = listOf(),
+  override val url: String? = null,
+  override val instance: Any
 ) : PluginContainer {
 
   val logger: Logger = LoggerImpl(LogManager.getLogger(this.id))

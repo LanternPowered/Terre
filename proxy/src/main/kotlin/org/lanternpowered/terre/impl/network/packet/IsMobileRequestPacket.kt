@@ -10,16 +10,15 @@
 package org.lanternpowered.terre.impl.network.packet
 
 import org.lanternpowered.terre.impl.network.Packet
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketEncoder
 
 internal object IsMobileRequestPacket : Packet
 
 /**
- * The item id used to check whether the client
- * is a mobile client.
+ * The item id used to check whether the client is a mobile client.
  */
 internal const val IsMobileItemId = 400
 
-internal val IsMobileRequestEncoder = packetEncoderOf<IsMobileRequestPacket> { buf, _ ->
+internal val IsMobileRequestEncoder = PacketEncoder<IsMobileRequestPacket> { buf, _ ->
   buf.writeShortLE(IsMobileItemId)
 }

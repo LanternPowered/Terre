@@ -141,7 +141,7 @@ internal object TerreEventBus : EventBus {
 
   private fun unregisterIf(fn: (RegisteredHandler) -> Boolean) {
     val removed = mutableListOf<RegisteredHandler>()
-    this.lock.write {
+    lock.write {
       val it = handlersByEvent.values().iterator()
       while (it.hasNext()) {
         val handler = it.next()
@@ -153,7 +153,7 @@ internal object TerreEventBus : EventBus {
     }
 
     // Invalidate the affected event types
-    this.handlersCache.invalidateAll(removed.flatMap { it.eventType.eventTypes }.distinct())
+    handlersCache.invalidateAll(removed.flatMap { it.eventType.eventTypes }.distinct())
   }
 
   private class MethodListenerInfo(
@@ -169,20 +169,7 @@ internal object TerreEventBus : EventBus {
     for (function in type.kotlin.declaredFunctions) {
       val annotation = function.findAnnotation<Subscribe>() ?: continue
       val errors = mutableSetOf<String>()
-      val javaMethod = try {
-        function.javaMethod
-      } catch (error: Error) { // KotlinReflectionInternalError
-        // Parameter is an inline class, that's currently not supported
-        if (error.stackTrace.any { element ->
-            element.className.contains("InlineClassAwareCaller")
-        }) {
-          // https://youtrack.jetbrains.com/issue/KT-34024
-          errors += "parameter isn't an event"
-        } else {
-          throw error
-        }
-        null
-      }
+      val javaMethod = function.javaMethod
       if (!function.isSuspend && javaMethod?.isSynthetic == true)
         continue
       if (javaMethod != null && Modifier.isStatic(javaMethod.modifiers))

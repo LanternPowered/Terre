@@ -23,7 +23,7 @@ import java.util.*
  * @property password The password, if any
  * @property `allow-auto-join` Whether players are allowed to automatically connect to the server
  */
-data class RawServerInfo(
+internal data class RawServerInfo(
   val name: String,
   val address: String,
   val password: String = "",
@@ -33,26 +33,27 @@ data class RawServerInfo(
 
   fun toServerInfo(): ServerInfo {
     val address = parseInetAddress(
-        if (':' in this.address) this.address else "$address:7777")
-    val name = if (this.name.isBlank()) UUID.randomUUID().toString().take(8) else this.name
-    val version = if (this.protocol.isBlank()) null else {
-      val number = this.protocol.toIntOrNull()
+      if (':' in address) address else "$address:7777")
+    val name = name.ifBlank { UUID.randomUUID().toString().take(8) }
+    val version = if (protocol.isBlank()) null else {
+      val number = protocol.toIntOrNull()
       val version = if (number != null) {
         ProtocolVersions[number]
       } else {
         try {
-          ProtocolVersions[this.protocol]
+          ProtocolVersions[protocol]
         } catch (ex: IllegalArgumentException) {
           null
         }
       }
       // TODO: Modded
       if (version == null) {
-        Terre.logger.error("Found invalid vanilla protocol version \"$protocol\" while parsing server \"$name\".")
+        Terre.logger.error(
+          "Found invalid vanilla protocol version \"$protocol\" while parsing server \"$name\".")
       }
       version
     }
-    return ServerInfo(name, address, this.password, version)
+    return ServerInfo(name, address, password, version)
   }
 
   companion object {

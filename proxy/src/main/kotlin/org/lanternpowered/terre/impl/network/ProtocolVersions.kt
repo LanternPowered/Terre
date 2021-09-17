@@ -19,23 +19,22 @@ object ProtocolVersions {
    * paired to their version name.
    */
   private val knownVanillaVersions = listOf(
-      ProtocolVersion.Vanilla.`1․3․0․7`,
-      ProtocolVersion.Vanilla.`1․3․0․8`,
-      ProtocolVersion.Vanilla.`1․3․5․3`,
-      ProtocolVersion.Vanilla.`1․4․0․5`
+    ProtocolVersion.Vanilla.`1․3․0․7`,
+    ProtocolVersion.Vanilla.`1․3․0․8`,
+    ProtocolVersion.Vanilla.`1․3․5․3`,
+    ProtocolVersion.Vanilla.`1․4․0․5`
   ).associateBy { it.protocol }
 
   /**
    * Gets the vanilla [ProtocolVersion] for the given protocol version number.
    */
-  operator fun get(protocol: Int)
-      = this.knownVanillaVersions[protocol]
+  operator fun get(protocol: Int) = knownVanillaVersions[protocol]
 
   /**
    * Gets the vanilla [ProtocolVersion] for the given protocol version number.
    */
   operator fun get(version: String): ProtocolVersion.Vanilla? {
     val v = Version(version)
-    return this.knownVanillaVersions.asSequence().firstOrNull { v == it.value.version }?.value
+    return knownVanillaVersions.asSequence().firstOrNull { v == it.value.version }?.value
   }
 }

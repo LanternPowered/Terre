@@ -18,7 +18,7 @@ import org.lanternpowered.terre.dispatcher.launchAsync
 import java.nio.file.Files
 import java.nio.file.Path
 
-class ReloadableConfigImpl(
+internal class ReloadableConfigImpl(
   private val backing: Config,
   override val path: Path,
   override val format: ConfigFormat

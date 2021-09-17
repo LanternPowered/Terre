@@ -67,7 +67,7 @@ subprojects {
           languageVersion = "1.6"
 
           val args = mutableListOf<String>()
-          args += "-Xjvm-default=enable"
+          args += "-Xjvm-default=all"
           args += "-Xallow-result-return-type"
 
           fun useExperimentalAnnotation(name: String) {

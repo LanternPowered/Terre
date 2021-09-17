@@ -12,16 +12,16 @@ package org.lanternpowered.terre.impl.network.packet.v155
 import org.lanternpowered.terre.impl.network.buffer.readPlayerId
 import org.lanternpowered.terre.impl.network.buffer.writePlayerId
 import org.lanternpowered.terre.impl.network.packet.AddPlayerBuffPacket
-import org.lanternpowered.terre.impl.network.packetDecoderOf
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 
-internal val AddPlayerBuff155Encoder = packetEncoderOf<AddPlayerBuffPacket> { buf, packet ->
+internal val AddPlayerBuff155Encoder = PacketEncoder<AddPlayerBuffPacket> { buf, packet ->
   buf.writePlayerId(packet.playerId)
   buf.writeByte(packet.buff)
   buf.writeShortLE(packet.time)
 }
 
-internal val AddPlayerBuff155Decoder = packetDecoderOf { buf ->
+internal val AddPlayerBuff155Decoder = PacketDecoder { buf ->
   val playerId = buf.readPlayerId()
   val buff = buf.readByte().toInt()
   val time = buf.readShortLE().toInt()

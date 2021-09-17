@@ -10,24 +10,21 @@
 package org.lanternpowered.terre.impl.network.packet
 
 import org.lanternpowered.terre.impl.network.Packet
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketEncoder
 
 /**
- * A packet send between the client and
- * server to keep the connection alive.
+ * A packet send between the client and server to keep the connection alive.
  */
 internal object KeepAlivePacket : Packet
 
 /**
  * The item id used for the keep alive packet.
  *
- * This is not an official packet available
- * in the protocol, but reuses other packet
- * types in specific conditions that don't
- * affect their regular usage.
+ * This is not an official packet available in the protocol, but reuses other packet types in
+ * specific conditions that don't affect their regular usage.
  */
 internal const val KeepAliveItemId = 400
 
-internal val KeepAliveEncoder = packetEncoderOf<KeepAlivePacket> { buf, _ ->
+internal val KeepAliveEncoder = PacketEncoder<KeepAlivePacket> { buf, _ ->
   buf.writeShortLE(KeepAliveItemId)
 }

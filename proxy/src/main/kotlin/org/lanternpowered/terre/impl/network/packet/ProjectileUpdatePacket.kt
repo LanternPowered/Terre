@@ -20,24 +20,24 @@ import org.lanternpowered.terre.impl.network.buffer.readVec2f
 import org.lanternpowered.terre.impl.network.buffer.writePlayerId
 import org.lanternpowered.terre.impl.network.buffer.writeProjectileId
 import org.lanternpowered.terre.impl.network.buffer.writeVec2f
-import org.lanternpowered.terre.impl.network.packetDecoderOf
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 
 internal data class ProjectileUpdatePacket(
-    val projectileId: ProjectileId,
-    val position: Vec2f,
-    val velocity: Vec2f,
-    val knockback: Float?,
-    val damage: Int?,
-    val originalDamage: Int?,
-    val owner: PlayerId,
-    val type: ProjectileType,
-    val ai0: Float?,
-    val ai1: Float?,
-    val uniqueId: Int?
+  val projectileId: ProjectileId,
+  val position: Vec2f,
+  val velocity: Vec2f,
+  val knockback: Float?,
+  val damage: Int?,
+  val originalDamage: Int?,
+  val owner: PlayerId,
+  val type: ProjectileType,
+  val ai0: Float?,
+  val ai1: Float?,
+  val uniqueId: Int?
 ) : Packet
 
-internal val ProjectileUpdateEncoder = packetEncoderOf<ProjectileUpdatePacket> { buf, packet ->
+internal val ProjectileUpdateEncoder = PacketEncoder<ProjectileUpdatePacket> { buf, packet ->
   buf.writeProjectileId(packet.projectileId)
   buf.writeVec2f(packet.position)
   buf.writeVec2f(packet.velocity)
@@ -71,7 +71,7 @@ internal val ProjectileUpdateEncoder = packetEncoderOf<ProjectileUpdatePacket> {
     buf.writeShortLE(packet.uniqueId)
 }
 
-internal val ProjectileUpdateDecoder = packetDecoderOf { buf ->
+internal val ProjectileUpdateDecoder = PacketDecoder { buf ->
   val projectileId = buf.readProjectileId()
   val position = buf.readVec2f()
   val velocity = buf.readVec2f()
@@ -85,5 +85,5 @@ internal val ProjectileUpdateDecoder = packetDecoderOf { buf ->
   val originalDamage = if ((flags and 0x40) != 0) buf.readShortLE().toInt() else null
   val uniqueId = if ((flags and 0x80) != 0) buf.readShortLE().toInt() else null
   ProjectileUpdatePacket(projectileId, position, velocity, knockback, damage,
-      originalDamage, owner, projectileType, ai0, ai1, uniqueId)
+    originalDamage, owner, projectileType, ai0, ai1, uniqueId)
 }

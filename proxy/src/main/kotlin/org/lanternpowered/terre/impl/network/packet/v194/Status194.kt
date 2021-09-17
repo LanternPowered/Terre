@@ -12,15 +12,15 @@ package org.lanternpowered.terre.impl.network.packet.v194
 import org.lanternpowered.terre.impl.network.buffer.readPlainText
 import org.lanternpowered.terre.impl.network.buffer.writePlainText
 import org.lanternpowered.terre.impl.network.packet.StatusPacket
-import org.lanternpowered.terre.impl.network.packetDecoderOf
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 
-internal val Status194Encoder = packetEncoderOf<StatusPacket> { buf, packet ->
+internal val Status194Encoder = PacketEncoder<StatusPacket> { buf, packet ->
   buf.writeIntLE(packet.statusMax)
   buf.writePlainText(packet.statusText)
 }
 
-internal val Status194Decoder = packetDecoderOf { buf ->
+internal val Status194Decoder = PacketDecoder { buf ->
   val statusMax = buf.readIntLE()
   val statusText = buf.readPlainText()
   StatusPacket(statusMax, statusText, 0)

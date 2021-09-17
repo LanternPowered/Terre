@@ -14,10 +14,10 @@ import org.lanternpowered.terre.impl.network.buffer.readVec2f
 import org.lanternpowered.terre.impl.network.buffer.writePlayerId
 import org.lanternpowered.terre.impl.network.buffer.writeVec2f
 import org.lanternpowered.terre.impl.network.packet.PlayerUpdatePacket
-import org.lanternpowered.terre.impl.network.packetDecoderOf
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 
-internal val PlayerUpdate194Encoder = packetEncoderOf<PlayerUpdatePacket> { buf, packet ->
+internal val PlayerUpdate194Encoder = PacketEncoder<PlayerUpdatePacket> { buf, packet ->
   buf.writePlayerId(packet.playerId)
   var flags = packet.flags
   buf.writeByte(flags)
@@ -34,7 +34,7 @@ internal val PlayerUpdate194Encoder = packetEncoderOf<PlayerUpdatePacket> { buf,
     buf.writeVec2f(packet.velocity)
 }
 
-internal val PlayerUpdate194Decoder = packetDecoderOf { buf ->
+internal val PlayerUpdate194Decoder = PacketDecoder { buf ->
   val playerId = buf.readPlayerId()
   var flags = buf.readUnsignedByte().toInt()
   val flags2 = buf.readUnsignedByte().toInt()

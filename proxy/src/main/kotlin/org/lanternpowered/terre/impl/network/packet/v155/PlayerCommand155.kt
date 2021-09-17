@@ -17,11 +17,11 @@ import org.lanternpowered.terre.impl.network.buffer.writeColor
 import org.lanternpowered.terre.impl.network.buffer.writePlayerId
 import org.lanternpowered.terre.impl.network.buffer.writeString
 import org.lanternpowered.terre.impl.network.packet.PlayerCommandPacket
-import org.lanternpowered.terre.impl.network.packetDecoderOf
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 import org.lanternpowered.terre.util.Colors
 
-internal val PlayerCommand155Encoder = packetEncoderOf<PlayerCommandPacket> { buf, packet ->
+internal val PlayerCommand155Encoder = PacketEncoder<PlayerCommandPacket> { buf, packet ->
   buf.writePlayerId(PlayerId(0))
   buf.writeColor(Colors.White)
   buf.writeString(if (packet.commandId == "Say") {
@@ -39,7 +39,7 @@ internal val PlayerCommand155Encoder = packetEncoderOf<PlayerCommandPacket> { bu
   })
 }
 
-internal val PlayerCommand155Decoder = packetDecoderOf { buf ->
+internal val PlayerCommand155Decoder = PacketDecoder { buf ->
   buf.readPlayerId()
   buf.readColor()
   var message = buf.readString()
@@ -49,7 +49,7 @@ internal val PlayerCommand155Decoder = packetDecoderOf { buf ->
     var commandId = if (index == -1) message else message.substring(0, index)
     commandId = when (commandId) {
       "playing", "players", "Spieler", "spielt", "joueurs", "en train de jouer",
-          "gioca", "giocatori", "gracze", "gra" -> "Playing"
+      "gioca", "giocatori", "gracze", "gra" -> "Playing"
       "roll", "rollen", "lance les dés", "numero", "rzuć" -> "Roll"
       "me", "ich", "moi", "io", "ja" -> "Emote"
       "p", "s", "d" -> "Party"

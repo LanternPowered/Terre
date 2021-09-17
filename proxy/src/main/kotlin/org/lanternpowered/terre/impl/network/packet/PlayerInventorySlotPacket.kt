@@ -15,23 +15,23 @@ import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.buffer.readPlayerId
 import org.lanternpowered.terre.impl.network.buffer.writePlayerId
-import org.lanternpowered.terre.impl.network.packetDecoderOf
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 
 internal data class PlayerInventorySlotPacket(
-    val playerId: PlayerId,
-    val slot: Int,
-    val data: ByteBuf
+  val playerId: PlayerId,
+  val slot: Int,
+  val data: ByteBuf
 ) : Packet, ForwardingReferenceCounted(data)
 
-internal val PlayerInventorySlotEncoder = packetEncoderOf<PlayerInventorySlotPacket> { buf, packet ->
+internal val PlayerInventorySlotEncoder = PacketEncoder<PlayerInventorySlotPacket> { buf, packet ->
   buf.writePlayerId(packet.playerId)
   buf.writeShortLE(packet.slot)
   val data = packet.data
   buf.writeBytes(data, 0, data.readableBytes())
 }
 
-internal val PlayerInventorySlotDecoder = packetDecoderOf { buf ->
+internal val PlayerInventorySlotDecoder = PacketDecoder { buf ->
   val playerId = buf.readPlayerId()
   val slot = buf.readUnsignedShortLE()
   val content = buf.readBytes(buf.readableBytes())

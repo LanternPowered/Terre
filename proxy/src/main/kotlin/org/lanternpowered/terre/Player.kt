@@ -11,6 +11,7 @@ package org.lanternpowered.terre
 
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
+import org.lanternpowered.terre.command.CommandSource
 import org.lanternpowered.terre.math.Vec2f
 import org.lanternpowered.terre.portal.Portal
 import org.lanternpowered.terre.portal.PortalAware
@@ -25,7 +26,8 @@ import org.lanternpowered.terre.util.AABB
 /**
  * Represents a player.
  */
-interface Player : Named, MessageReceiver, MessageSender, PortalAware, InboundConnection {
+interface Player : Named, MessageReceiver, MessageSender, PortalAware, InboundConnection,
+  CommandSource {
 
   /**
    * Whether this player connected using a mobile client.

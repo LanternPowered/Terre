@@ -11,11 +11,11 @@ package org.lanternpowered.terre.impl.plugin.asm
 
 import org.lanternpowered.terre.plugin.InvalidPluginException
 import org.objectweb.asm.AnnotationVisitor
-import org.objectweb.asm.Opcodes.ASM7
+import org.objectweb.asm.Opcodes.ASM9
 
 internal class PluginAnnotationVisitor(
-    private val classVisitor: PluginClassVisitor, className: String
-) : WarningAnnotationVisitor(ASM7, className) {
+  private val classVisitor: PluginClassVisitor, className: String
+) : WarningAnnotationVisitor(ASM9, className) {
 
   override val annotation: String get() = "@Plugin"
 

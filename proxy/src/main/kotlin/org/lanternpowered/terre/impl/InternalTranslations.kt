@@ -24,7 +24,7 @@ internal object InternalTranslations {
 
   fun loadIndexedTranslations(type: String): Int2ObjectMap<String> {
     val input = InternalTranslations::class.java.getResourceAsStream(
-        "/internal/translations/$type/en_us.json")
+        "/internal/translations/$type/en_us.json")!!
     val array = InputStreamReader(input).use {
       gson.fromJson(it, JsonArray::class.java)
     }
@@ -38,7 +38,7 @@ internal object InternalTranslations {
 
   fun loadNamedTranslations(type: String): Object2ObjectMap<String, String> {
     val input = InternalTranslations::class.java.getResourceAsStream(
-        "/internal/translations/$type/en_us.json")
+        "/internal/translations/$type/en_us.json")!!
     val json = InputStreamReader(input).use {
       gson.fromJson(it, JsonObject::class.java)
     }

@@ -12,14 +12,14 @@ package org.lanternpowered.terre.impl.network.packet.v155
 import org.lanternpowered.terre.impl.network.buffer.readString
 import org.lanternpowered.terre.impl.network.buffer.writeString
 import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
-import org.lanternpowered.terre.impl.network.packetDecoderOf
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 import org.lanternpowered.terre.text.text
 
-internal val Disconnect155Encoder = packetEncoderOf<DisconnectPacket> { buf, packet ->
+internal val Disconnect155Encoder = PacketEncoder<DisconnectPacket> { buf, packet ->
   buf.writeString(packet.reason.toPlain())
 }
 
-internal val Disconnect155Decoder = packetDecoderOf { buf ->
+internal val Disconnect155Decoder = PacketDecoder { buf ->
   DisconnectPacket(buf.readString().text())
 }

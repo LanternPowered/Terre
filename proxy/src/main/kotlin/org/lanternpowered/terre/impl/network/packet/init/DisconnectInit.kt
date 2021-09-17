@@ -11,13 +11,13 @@ package org.lanternpowered.terre.impl.network.packet.init
 
 import org.lanternpowered.terre.impl.network.packet.DisconnectDecoder
 import org.lanternpowered.terre.impl.network.packet.v155.Disconnect155Decoder
-import org.lanternpowered.terre.impl.network.packetDecoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
 
-internal val DisconnectInitDecoder = packetDecoderOf { buf ->
+internal val DisconnectInitDecoder = PacketDecoder { buf ->
   try {
     val packet = DisconnectDecoder.decode(this, buf)
     if (buf.readableBytes() == 0)
-      return@packetDecoderOf packet
+      return@PacketDecoder packet
   } catch (ex: Exception) {
   }
   // Try again, but with the legacy protocol

@@ -29,23 +29,24 @@ import org.lanternpowered.terre.impl.network.pipeline.FrameEncoder
 import org.lanternpowered.terre.impl.network.pipeline.PacketMessageDecoder
 import org.lanternpowered.terre.impl.network.pipeline.PacketMessageEncoder
 import java.net.SocketAddress
+import kotlin.time.Duration
 import kotlin.time.DurationUnit
-import kotlin.time.seconds
 
-internal val ReadTimeout = 20.seconds
-internal val ConnectTimeout = 5.seconds
+internal val ReadTimeout = Duration.seconds(20)
+internal val ConnectTimeout = Duration.seconds(5)
 
 internal class NetworkManager {
 
   private val transportType = TransportType.findBestType()
 
-  val bossGroup = this.transportType.eventLoopGroupSupplier(0, NettyThreadFactory("boss"))
-  val workerGroup = this.transportType.eventLoopGroupSupplier(0, NettyThreadFactory("worker"))
+  val bossGroup = transportType.eventLoopGroupSupplier(0, NettyThreadFactory("boss"))
+  val workerGroup = transportType.eventLoopGroupSupplier(0, NettyThreadFactory("worker"))
 
-  private val resolverGroup = DnsAddressResolverGroup(DnsNameResolverBuilder()
-          .channelFactory(transportType.datagramChannelSupplier)
-          .negativeTtl(15)
-          .ndots(1))
+  private val resolverGroup = DnsAddressResolverGroup(
+    DnsNameResolverBuilder()
+      .channelFactory(transportType.datagramChannelSupplier)
+      .negativeTtl(15)
+      .ndots(1))
 
   private var endpoint: Channel? = null
 
@@ -71,24 +72,26 @@ internal class NetworkManager {
     connection.setConnectionHandler(ClientInitConnectionHandler(connection))
     val pipeline = channel.pipeline()
     pipeline.apply {
-      addLast(ReadTimeoutHandler(ReadTimeout.toLongMilliseconds(), DurationUnit.MILLISECONDS))
+      addLast(ReadTimeoutHandler(ReadTimeout.inWholeMilliseconds, DurationUnit.MILLISECONDS))
       addLast(FrameDecoder())
       addLast(FrameEncoder())
-      addLast(PacketMessageDecoder(PacketCodecContextImpl(connection, PacketDirection.ClientToServer)))
-      addLast(PacketMessageEncoder(PacketCodecContextImpl(connection, PacketDirection.ServerToClient)))
+      addLast(PacketMessageDecoder(
+        PacketCodecContextImpl(connection, PacketDirection.ClientToServer)))
+      addLast(PacketMessageEncoder(
+        PacketCodecContextImpl(connection, PacketDirection.ServerToClient)))
       addLast(connection)
     }
   }
 
   fun shutdown() {
     // Close the endpoint to prevent any new connections
-    this.endpoint?.close()?.sync()
+    endpoint?.close()?.sync()
   }
 
   /**
    * Creates a client bootstrap.
    */
-  fun createClientBootstrap(group: EventLoopGroup = this.workerGroup): Bootstrap {
+  fun createClientBootstrap(group: EventLoopGroup = workerGroup): Bootstrap {
     return Bootstrap().apply {
       channelFactory(ChannelFactory(transportType.socketChannelSupplier))
       group(group)

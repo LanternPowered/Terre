@@ -12,16 +12,16 @@ package org.lanternpowered.terre.impl.network.packet
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.readString
 import org.lanternpowered.terre.impl.network.buffer.writeString
-import org.lanternpowered.terre.impl.network.packetDecoderOf
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 
 internal data class PasswordResponsePacket(val password: String) : Packet
 
-internal val PasswordResponseEncoder = packetEncoderOf<PasswordResponsePacket> { buf, packet ->
+internal val PasswordResponseEncoder = PacketEncoder<PasswordResponsePacket> { buf, packet ->
   buf.writeString(packet.password)
 }
 
-internal val PasswordResponseDecoder = packetDecoderOf { buf ->
+internal val PasswordResponseDecoder = PacketDecoder { buf ->
   PasswordResponsePacket(buf.readString())
 }
 

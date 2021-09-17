@@ -29,9 +29,10 @@ class PlayerIdentifier {
   /**
    * Constructs a new [PlayerIdentifier] from the given [ByteArray].
    */
+  @Suppress("UNUSED_PARAMETER")
   private constructor(bytes: ByteArray, unit: Unit) {
-    this.backing = bytes
-    this.hashCode = this.backing.contentHashCode()
+    backing = bytes
+    hashCode = backing.contentHashCode()
   }
 
   /**
@@ -39,23 +40,24 @@ class PlayerIdentifier {
    */
   private val toString by lazy(::convertToString)
 
-  private fun convertToString() = this.backing.joinToString(separator = "") { it.toUByte().toString(radix = 16) }
+  private fun convertToString() =
+    backing.joinToString(separator = "") { it.toUByte().toString(radix = 16) }
 
   /**
    * Gets the backing bytes of the identifier.
    */
   val bytes: ByteArray
-    get() = this.backing.clone()
+    get() = backing.clone()
 
   /**
    * Gets the string representation of the identifier.
    */
-  override fun toString() = this.toString
+  override fun toString() = toString
 
-  override fun equals(other: Any?)
-      = other is PlayerIdentifier && other.backing contentEquals this.backing
+  override fun equals(other: Any?) =
+    other is PlayerIdentifier && other.backing contentEquals backing
 
-  override fun hashCode() = this.hashCode
+  override fun hashCode() = hashCode
 
   companion object {
 

@@ -16,12 +16,12 @@ import org.lanternpowered.terre.util.toString
  * A packet mainly used for debugging purposes.
  */
 internal class UnknownPacket(
-    val opcode: Int,
-    val data: ByteBuf
+  val opcode: Int,
+  val data: ByteBuf
 ) : Packet, ForwardingReferenceCounted(data) {
 
   val length: Int
-    get() = this.data.readableBytes()
+    get() = data.readableBytes()
 
   override fun toString() = toString {
     "opcode" to opcode

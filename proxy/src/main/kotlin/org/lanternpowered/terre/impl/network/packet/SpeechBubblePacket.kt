@@ -7,6 +7,8 @@
  * This work is licensed under the terms of the MIT License (MIT). For
  * a copy, see 'LICENSE.txt' or <https://opensource.org/licenses/MIT>.
  */
+@file:Suppress("FunctionName")
+
 package org.lanternpowered.terre.impl.network.packet
 
 import org.lanternpowered.terre.impl.network.*
@@ -22,11 +24,11 @@ internal sealed class SpeechBubblePacket : Packet {
    * Updates or creates a emote bubble.
    */
   data class Update(
-      override val id: Int,
-      val emote: Int,
-      val emoteMetadata: Int,
-      val lifetime: Int,
-      val anchor: Anchor
+    override val id: Int,
+    val emote: Int,
+    val emoteMetadata: Int,
+    val lifetime: Int,
+    val anchor: Anchor
   ) : SpeechBubblePacket()
 
   /**
@@ -46,7 +48,7 @@ internal sealed class SpeechBubblePacket : Packet {
 
 internal val SpeechBubbleEncoder = SpeechBubbleEncoder(Integer.MAX_VALUE)
 
-internal fun SpeechBubbleEncoder(version: Int) = packetEncoderOf<SpeechBubblePacket> { buf, packet ->
+internal fun SpeechBubbleEncoder(version: Int) = PacketEncoder<SpeechBubblePacket> { buf, packet ->
   buf.writeIntLE(packet.id)
   if (packet is SpeechBubblePacket.Remove) {
     buf.writeByte(255)

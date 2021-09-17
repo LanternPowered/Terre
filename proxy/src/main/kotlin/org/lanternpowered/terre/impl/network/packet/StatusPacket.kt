@@ -12,23 +12,23 @@ package org.lanternpowered.terre.impl.network.packet
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.readPlainText
 import org.lanternpowered.terre.impl.network.buffer.writePlainText
-import org.lanternpowered.terre.impl.network.packetDecoderOf
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 import org.lanternpowered.terre.text.Text
 
 internal data class StatusPacket(
-    val statusMax: Int,
-    val statusText: Text,
-    val flags: Int // TODO: What flags?
+  val statusMax: Int,
+  val statusText: Text,
+  val flags: Int // TODO: What flags?
 ) : Packet
 
-internal val StatusEncoder = packetEncoderOf<StatusPacket> { buf, packet ->
+internal val StatusEncoder = PacketEncoder<StatusPacket> { buf, packet ->
   buf.writeIntLE(packet.statusMax)
   buf.writePlainText(packet.statusText)
   buf.writeByte(packet.flags)
 }
 
-internal val StatusDecoder = packetDecoderOf { buf ->
+internal val StatusDecoder = PacketDecoder { buf ->
   val statusMax = buf.readIntLE()
   val statusText = buf.readPlainText()
   val flags = buf.readUnsignedByte().toInt()

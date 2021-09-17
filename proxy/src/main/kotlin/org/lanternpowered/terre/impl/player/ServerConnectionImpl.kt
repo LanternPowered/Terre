@@ -86,18 +86,20 @@ internal class ServerConnectionImpl(
       mutableListOf(versionedProtocol)
     } else {
       ProtocolRegistry.allowedTranslations.asSequence()
-          .filter { translation -> translation.from == clientProtocol }
-          .flatMap { translation -> ProtocolRegistry.all.asSequence().filter { it.protocol == translation.to } }
-          .let {
-            // Prioritize the last known entry, for faster connections
-            val lastKnownVersion = server.lastKnownVersion
-            if (lastKnownVersion != null) {
-              it.sortedWith { o1, _ ->
-                if (o1.version == lastKnownVersion) -1 else 0
-              }
-            } else it
-          }
-          .toMutableList()
+        .filter { translation -> translation.from == clientProtocol }
+        .flatMap { translation ->
+          ProtocolRegistry.all.asSequence().filter { it.protocol == translation.to }
+        }
+        .let {
+          // Prioritize the last known entry, for faster connections
+          val lastKnownVersion = server.lastKnownVersion
+          if (lastKnownVersion != null) {
+            it.sortedWith { o1, _ ->
+              if (o1.version == lastKnownVersion) -1 else 0
+            }
+          } else it
+        }
+        .toMutableList()
     }
 
     var firstThrowable: Throwable? = null
@@ -138,7 +140,8 @@ internal class ServerConnectionImpl(
   }
 
   private fun connect(
-      protocol: MultistateProtocol, version: ProtocolVersion): CompletableFuture<ServerInitConnectionResult> {
+    protocol: MultistateProtocol, version: ProtocolVersion
+  ): CompletableFuture<ServerInitConnectionResult> {
     val result = CompletableFuture<ServerInitConnectionResult>()
     ProxyImpl.networkManager
         .createClientBootstrap(player.clientConnection.eventLoop)
@@ -158,10 +161,13 @@ internal class ServerConnectionImpl(
   }
 
   private fun Channel.init(
-      protocol: MultistateProtocol, version: ProtocolVersion, future: CompletableFuture<ServerInitConnectionResult>) {
+    protocol: MultistateProtocol,
+    version: ProtocolVersion,
+    future: CompletableFuture<ServerInitConnectionResult>
+  ) {
     val connection = Connection(this)
     pipeline().apply {
-      addLast(ReadTimeoutHandler(ReadTimeout.toLongMilliseconds(), DurationUnit.MILLISECONDS))
+      addLast(ReadTimeoutHandler(ReadTimeout.inWholeMilliseconds, DurationUnit.MILLISECONDS))
       addLast(FrameDecoder())
       addLast(FrameEncoder())
       addLast(PacketMessageDecoder(PacketCodecContextImpl(connection, PacketDirection.ServerToClient)))

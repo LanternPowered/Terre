@@ -11,10 +11,10 @@ package org.lanternpowered.terre.impl.event
 
 import org.lanternpowered.terre.plugin.PluginContainer
 
-class RegisteredHandler(
-    val plugin: PluginContainer?,
-    val order: Int,
-    val eventType: Class<*>,
-    val instance: Any,
-    val handler: EventHandler
+internal class RegisteredHandler(
+  val plugin: PluginContainer?,
+  val order: Int,
+  val eventType: Class<*>,
+  val instance: Any,
+  val handler: EventHandler
 )

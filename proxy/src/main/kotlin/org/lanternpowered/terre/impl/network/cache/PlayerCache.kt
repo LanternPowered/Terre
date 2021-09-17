@@ -21,7 +21,8 @@ internal class PlayerCache {
   }
 }
 
-internal inline class PlayerNames(private val array: Array<String?>) {
+@JvmInline
+internal value class PlayerNames(private val array: Array<String?>) {
 
   operator fun get(playerId: PlayerId) = this.array[playerId.value]
 

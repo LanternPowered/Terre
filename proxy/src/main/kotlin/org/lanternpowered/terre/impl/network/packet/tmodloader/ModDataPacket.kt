@@ -12,17 +12,17 @@ package org.lanternpowered.terre.impl.network.packet.tmodloader
 import io.netty.buffer.ByteBuf
 import org.lanternpowered.terre.impl.network.ForwardingReferenceCounted
 import org.lanternpowered.terre.impl.network.Packet
-import org.lanternpowered.terre.impl.network.packetDecoderOf
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 
-data class ModDataPacket(val data: ByteBuf) : Packet, ForwardingReferenceCounted(data)
+internal data class ModDataPacket(val data: ByteBuf) : Packet, ForwardingReferenceCounted(data)
 
-internal val ModDataEncoder = packetEncoderOf<ModDataPacket> { buf, packet ->
+internal val ModDataEncoder = PacketEncoder<ModDataPacket> { buf, packet ->
   val data = packet.data
   buf.writeBytes(data, data.readerIndex(), data.readableBytes())
 }
 
-internal val ModDataDecoder = packetDecoderOf { buf ->
+internal val ModDataDecoder = PacketDecoder { buf ->
   val data = buf.readBytes(buf.readableBytes())
   ModDataPacket(data)
 }

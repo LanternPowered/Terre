@@ -17,10 +17,10 @@ import org.lanternpowered.terre.impl.network.buffer.writePlayerId
 import org.lanternpowered.terre.impl.network.buffer.writeProjectileId
 import org.lanternpowered.terre.impl.network.buffer.writeVec2f
 import org.lanternpowered.terre.impl.network.packet.ProjectileUpdatePacket
-import org.lanternpowered.terre.impl.network.packetDecoderOf
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 
-internal val ProjectileUpdate194Encoder = packetEncoderOf<ProjectileUpdatePacket> { buf, packet ->
+internal val ProjectileUpdate194Encoder = PacketEncoder<ProjectileUpdatePacket> { buf, packet ->
   buf.writeProjectileId(packet.projectileId)
   buf.writeVec2f(packet.position)
   buf.writeVec2f(packet.velocity)
@@ -44,7 +44,7 @@ internal val ProjectileUpdate194Encoder = packetEncoderOf<ProjectileUpdatePacket
     buf.writeShortLE(packet.uniqueId)
 }
 
-internal val ProjectileUpdate194Decoder = packetDecoderOf { buf ->
+internal val ProjectileUpdate194Decoder = PacketDecoder { buf ->
   val projectileId = buf.readProjectileId()
   val position = buf.readVec2f()
   val velocity = buf.readVec2f()
@@ -57,5 +57,5 @@ internal val ProjectileUpdate194Decoder = packetDecoderOf { buf ->
   val ai1 = if ((flags and 0x02) != 0) buf.readFloatLE() else null
   val uniqueId = if ((flags and 0x04) != 0) buf.readShortLE().toInt() else null
   ProjectileUpdatePacket(projectileId, position, velocity, knockback, damage, damage,
-      owner, projectileType, ai0, ai1, uniqueId)
+    owner, projectileType, ai0, ai1, uniqueId)
 }

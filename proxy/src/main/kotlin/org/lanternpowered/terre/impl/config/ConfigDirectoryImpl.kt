@@ -17,7 +17,7 @@ import org.lanternpowered.terre.config.ReloadableConfig
 import org.lanternpowered.terre.config.RootConfigDirectory
 import java.nio.file.Path
 
-open class ConfigDirectoryBaseImpl(override val path: Path) : ConfigDirectoryBase {
+internal open class ConfigDirectoryBaseImpl(override val path: Path) : ConfigDirectoryBase {
 
   override fun config(
     name: String, format: ConfigFormat, extension: String, fn: Config.() -> Unit
@@ -28,6 +28,8 @@ open class ConfigDirectoryBaseImpl(override val path: Path) : ConfigDirectoryBas
   }
 }
 
-class RootConfigDirectoryImpl(path: Path) : ConfigDirectoryBaseImpl(path), RootConfigDirectory
+internal class RootConfigDirectoryImpl(path: Path) :
+  ConfigDirectoryBaseImpl(path), RootConfigDirectory
 
-class ConfigDirectoryImpl(path: Path) : ConfigDirectoryBaseImpl(path), ConfigDirectory
+internal class ConfigDirectoryImpl(path: Path) :
+  ConfigDirectoryBaseImpl(path), ConfigDirectory

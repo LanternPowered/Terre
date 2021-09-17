@@ -9,13 +9,14 @@
  */
 package org.lanternpowered.terre
 
+import org.lanternpowered.terre.command.CommandSource
 import org.lanternpowered.terre.impl.ProxyImpl
 import org.lanternpowered.terre.text.MessageReceiver
 
 /**
  * Represents the console.
  */
-interface Console : MessageReceiver {
+interface Console : MessageReceiver, CommandSource {
 
   /**
    * The singleton instance of the console.

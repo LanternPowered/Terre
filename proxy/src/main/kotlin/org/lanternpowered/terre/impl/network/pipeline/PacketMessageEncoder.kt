@@ -18,7 +18,9 @@ import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.PacketCodecContext
 import org.lanternpowered.terre.impl.network.UnknownPacket
 
-internal class PacketMessageEncoder(private val context: PacketCodecContext) : MessageToByteEncoder<Packet>() {
+internal class PacketMessageEncoder(
+  private val context: PacketCodecContext
+) : MessageToByteEncoder<Packet>() {
 
   override fun encode(ctx: ChannelHandlerContext, input: Packet, output: ByteBuf) {
     val result: ByteBuf
@@ -27,13 +29,13 @@ internal class PacketMessageEncoder(private val context: PacketCodecContext) : M
       result = input.data.retain()
       opcode = input.opcode
     } else {
-      val registration = this.context.protocol.getEncoder(this.context.direction, input.javaClass)
-          ?: throw EncoderException("No encoder is registered for packet type ${input::class.simpleName} " +
-              "with direction ${context.direction} for protocol ${context.protocol}.")
+      val registration = context.protocol.getEncoder(context.direction, input.javaClass)
+        ?: throw EncoderException("No encoder is registered for packet type ${input::class.simpleName} " +
+          "with direction ${context.direction} for protocol ${context.protocol}.")
 
       opcode = registration.opcode
       result = try {
-        registration.encoder.encode(this.context, input)
+        registration.encoder.encode(context, input)
       } catch (ex: CodecException) {
         throw ex
       } catch (ex: Exception) {

@@ -13,8 +13,8 @@ import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.buffer.readPlayerId
 import org.lanternpowered.terre.impl.network.buffer.writePlayerId
-import org.lanternpowered.terre.impl.network.packetDecoderOf
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 import org.lanternpowered.terre.impl.player.Team
 import org.lanternpowered.terre.impl.player.TeamRegistry
 
@@ -23,12 +23,12 @@ internal data class PlayerTeamPacket(
   val team: Team
 ) : Packet
 
-internal val PlayerTeamEncoder = packetEncoderOf<PlayerTeamPacket> { buf, packet ->
+internal val PlayerTeamEncoder = PacketEncoder<PlayerTeamPacket> { buf, packet ->
   buf.writePlayerId(packet.playerId)
   buf.writeByte(packet.team.numericId)
 }
 
-internal val PlayerTeamDecoder = packetDecoderOf { buf ->
+internal val PlayerTeamDecoder = PacketDecoder { buf ->
   val playerId = buf.readPlayerId()
   val team = TeamRegistry.require(buf.readByte().toInt())
   PlayerTeamPacket(playerId, team)

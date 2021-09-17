@@ -36,14 +36,14 @@ internal object Terre {
   /**
    * The prefix used in from of terre messages.
    */
-  private val messagePrefix = "[$name] ".text().color(this.color)
+  private val messagePrefix = "[$name] ".text().color(color)
 
-  fun message(text: Text) = this.messagePrefix + text
+  fun message(text: Text) = messagePrefix + text
 
   fun message(text: String) = message(text.text())
 
   /**
    * The logger of the platform.
    */
-  val logger: Logger = LoggerImpl(LogManager.getLogger(this.name))
+  val logger: Logger = LoggerImpl(LogManager.getLogger(name))
 }

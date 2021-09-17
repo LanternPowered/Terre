@@ -12,10 +12,9 @@ package org.lanternpowered.terre.impl.network
 import org.lanternpowered.terre.ProtocolVersion
 
 /**
- * Represents a [multistateProtocol] bound
- * to a specific [ProtocolVersion].
+ * Represents a [MultistateProtocol] bound to a specific [ProtocolVersion].
  */
 internal data class VersionedProtocol(
-    val version: ProtocolVersion,
-    val protocol: MultistateProtocol
+  val version: ProtocolVersion,
+  val protocol: MultistateProtocol
 )

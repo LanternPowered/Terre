@@ -12,12 +12,12 @@ package org.lanternpowered.terre.impl.network.packet
 import org.lanternpowered.terre.math.Vec2i
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.writeVec2i
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketEncoder
 
 internal data class EssentialTilesRequestPacket(
-    val position: Vec2i
+  val position: Vec2i
 ) : Packet
 
-internal val EssentialTilesRequestEncoder = packetEncoderOf<EssentialTilesRequestPacket> { buf, packet ->
+internal val EssentialTilesRequestEncoder = PacketEncoder<EssentialTilesRequestPacket> { buf, packet ->
   buf.writeVec2i(packet.position)
 }

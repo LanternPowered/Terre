@@ -13,13 +13,13 @@ import io.netty.handler.codec.DecoderException
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.buffer.readPlayerId
-import org.lanternpowered.terre.impl.network.packetDecoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
 
 internal data class IsMobileResponsePacket(
-    val isMobile: Boolean
+  val isMobile: Boolean
 ) : Packet
 
-internal val IsMobileResponseDecoder = packetDecoderOf { buf ->
+internal val IsMobileResponseDecoder = PacketDecoder { buf ->
   val itemId = buf.readUnsignedShortLE()
   val playerId = buf.readPlayerId()
 

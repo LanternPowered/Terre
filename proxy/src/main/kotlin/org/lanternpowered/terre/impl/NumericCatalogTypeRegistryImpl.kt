@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 
 internal fun <T : NumericCatalogType> buildNumericCatalogTypeRegistryOf(
-    type: KClass<T>, fn: CatalogTypeRegistryBuilder<T>.() -> Unit
+  type: KClass<T>, fn: CatalogTypeRegistryBuilder<T>.() -> Unit
 ): NumericCatalogTypeRegistryImpl<T> {
   val builder = NumericCatalogTypeRegistryBuilderImpl<T>()
   fn(builder)
@@ -26,45 +26,48 @@ internal fun <T : NumericCatalogType> buildNumericCatalogTypeRegistryOf(
 }
 
 internal inline fun <reified T : NumericCatalogType> buildNumericCatalogTypeRegistryOf(
-    noinline autoRegisterFunction: (Int) -> T?, noinline fn: CatalogTypeRegistryBuilder<T>.() -> Unit = {}
+  noinline autoRegisterFunction: (Int) -> T?,
+  noinline fn: CatalogTypeRegistryBuilder<T>.() -> Unit = {}
 ) = buildNumericCatalogTypeRegistryOf(T::class, autoRegisterFunction, fn)
 
 internal fun <T : NumericCatalogType> buildNumericCatalogTypeRegistryOf(
-    type: KClass<T>, autoRegisterFunction: (Int) -> T?, fn: CatalogTypeRegistryBuilder<T>.() -> Unit = {}
+  type: KClass<T>, autoRegisterFunction: (Int) -> T?,
+  builder: CatalogTypeRegistryBuilder<T>.() -> Unit = {}
 ): NumericCatalogTypeRegistryImpl<T> {
-  val builder = NumericCatalogTypeRegistryBuilderImpl<T>()
-  fn(builder)
-  return NumericCatalogTypeRegistryImpl(type, ConcurrentHashMap(builder.byNumericId), autoRegisterFunction)
+  val builderImpl = NumericCatalogTypeRegistryBuilderImpl<T>()
+  builder(builderImpl)
+  return NumericCatalogTypeRegistryImpl(type,
+    ConcurrentHashMap(builderImpl.byNumericId), autoRegisterFunction)
 }
 
-internal open class NumericCatalogTypeRegistryBuilderImpl<T : NumericCatalogType> : CatalogTypeRegistryBuilder<T> {
+internal open class NumericCatalogTypeRegistryBuilderImpl<T : NumericCatalogType> :
+  CatalogTypeRegistryBuilder<T> {
 
   val byNumericId = hashMapOf<Int, T>()
 
   override fun register(catalogType: T) {
-    check(!this.byNumericId.containsKey(catalogType.numericId)) {
+    check(!byNumericId.containsKey(catalogType.numericId)) {
       "The numeric id '${catalogType.numericId}' is already in use." }
-    this.byNumericId[catalogType.numericId] = catalogType
+    byNumericId[catalogType.numericId] = catalogType
   }
 }
 
 internal class NumericCatalogTypeRegistryImpl<T : NumericCatalogType>(
-    private val type: KClass<T>,
-    private val byNumericId: MutableMap<Int, T>,
-    private val autoRegisterFunction: ((Int) -> T?)? = null
+  private val type: KClass<T>,
+  private val byNumericId: MutableMap<Int, T>,
+  private val autoRegisterFunction: ((Int) -> T?)? = null
 ) : NumericCatalogTypeRegistry<T> {
 
   override val all: Collection<T>
-    get() = this.byNumericId.values.toImmutableCollection()
+    get() = byNumericId.values.toImmutableCollection()
 
   override fun get(numericId: Int): T? {
-    var catalogType = this.byNumericId[numericId]
-    val autoRegisterFunction = this.autoRegisterFunction
-    if (catalogType != null || autoRegisterFunction == null) {
+    var catalogType = byNumericId[numericId]
+    val autoRegisterFunction = autoRegisterFunction
+    if (catalogType != null || autoRegisterFunction == null)
       return catalogType
-    }
     catalogType = autoRegisterFunction(numericId) ?: return null
-    this.byNumericId[numericId] = catalogType
+    byNumericId[numericId] = catalogType
     return catalogType
   }
 

@@ -12,10 +12,10 @@ package org.lanternpowered.terre.impl.plugin.asm
 import org.lanternpowered.terre.plugin.Plugin
 import org.objectweb.asm.AnnotationVisitor
 import org.objectweb.asm.ClassVisitor
-import org.objectweb.asm.Opcodes.ASM7
+import org.objectweb.asm.Opcodes.ASM9
 import org.objectweb.asm.Type
 
-internal class PluginClassVisitor : ClassVisitor(ASM7) {
+internal class PluginClassVisitor : ClassVisitor(ASM9) {
 
   lateinit var className: String
     private set
@@ -23,12 +23,20 @@ internal class PluginClassVisitor : ClassVisitor(ASM7) {
   var pluginId: String? = null
 
   override fun visit(
-      version: Int, access: Int, name: String, signature: String?, superName: String?, interfaces: Array<String>?) {
-    this.className = name
+    version: Int,
+    access: Int,
+    name: String,
+    signature: String?,
+    superName: String?,
+    interfaces: Array<String>?
+  ) {
+    className = name
   }
 
   override fun visitAnnotation(desc: String, visible: Boolean): AnnotationVisitor? =
-      if (visible && desc == pluginDescriptor) PluginAnnotationVisitor(this, this.className) else null
+    if (visible && desc == pluginDescriptor) {
+      PluginAnnotationVisitor(this, className)
+    } else null
 
   companion object {
 

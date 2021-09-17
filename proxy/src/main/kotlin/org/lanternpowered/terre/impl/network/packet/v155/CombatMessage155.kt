@@ -17,18 +17,18 @@ import org.lanternpowered.terre.impl.network.buffer.writeString
 import org.lanternpowered.terre.impl.network.buffer.writeVec2f
 import org.lanternpowered.terre.impl.network.packet.ChatMessageHelper
 import org.lanternpowered.terre.impl.network.packet.CombatMessagePacket
-import org.lanternpowered.terre.impl.network.packetDecoderOf
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 import org.lanternpowered.terre.text.text
 
-internal val CombatMessage155Encoder = packetEncoderOf<CombatMessagePacket> { buf, packet ->
+internal val CombatMessage155Encoder = PacketEncoder<CombatMessagePacket> { buf, packet ->
   val (text, color) = ChatMessageHelper.splitTextAndColor(packet.text)
   buf.writeVec2f(packet.position)
   buf.writeColor(color)
   buf.writeString(text.toPlain())
 }
 
-internal val CombatMessage155Decoder = packetDecoderOf { buf ->
+internal val CombatMessage155Decoder = PacketDecoder { buf ->
   val position = buf.readVec2f()
   val color = buf.readColor()
   val text = buf.readString().text().color(color)

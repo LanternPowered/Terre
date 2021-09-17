@@ -15,10 +15,10 @@ import org.lanternpowered.terre.impl.network.buffer.writePlayerId
 import org.lanternpowered.terre.impl.network.buffer.writeString
 import org.lanternpowered.terre.impl.network.packet.PlayerDamageReason
 import org.lanternpowered.terre.impl.network.packet.PlayerDeathPacket
-import org.lanternpowered.terre.impl.network.packetDecoderOf
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 
-internal val PlayerDeath155Encoder = packetEncoderOf<PlayerDeathPacket> { buf, packet ->
+internal val PlayerDeath155Encoder = PacketEncoder<PlayerDeathPacket> { buf, packet ->
   buf.writePlayerId(packet.playerId)
   buf.writeByte(packet.hitDirection)
   buf.writeShortLE(packet.damage)
@@ -26,7 +26,7 @@ internal val PlayerDeath155Encoder = packetEncoderOf<PlayerDeathPacket> { buf, p
   buf.writeString(packet.reason.toDeathMessage(this))
 }
 
-internal val PlayerDeath155Decoder = packetDecoderOf { buf ->
+internal val PlayerDeath155Decoder = PacketDecoder { buf ->
   val playerId = buf.readPlayerId()
   val hitDirection = buf.readByte().toInt()
   val damage = buf.readUnsignedShortLE()

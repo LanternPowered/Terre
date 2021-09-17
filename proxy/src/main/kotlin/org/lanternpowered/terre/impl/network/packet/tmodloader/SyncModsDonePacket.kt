@@ -10,11 +10,11 @@
 package org.lanternpowered.terre.impl.network.packet.tmodloader
 
 import org.lanternpowered.terre.impl.network.Packet
-import org.lanternpowered.terre.impl.network.packetDecoderOf
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 
 object SyncModsDonePacket : Packet
 
-internal val SyncModsDoneEncoder = packetEncoderOf<SyncModsDonePacket> { _, _ -> }
+internal val SyncModsDoneEncoder = PacketEncoder<SyncModsDonePacket> { _, _ -> }
 
-internal val SyncModsDoneDecoder = packetDecoderOf { SyncModsDonePacket }
+internal val SyncModsDoneDecoder = PacketDecoder { SyncModsDonePacket }

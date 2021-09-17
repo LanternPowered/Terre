@@ -13,15 +13,15 @@ import io.netty.handler.codec.DecoderException
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.readString
 import org.lanternpowered.terre.impl.network.buffer.writeString
-import org.lanternpowered.terre.impl.network.packetDecoderOf
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 import java.util.*
 
 internal data class ClientUniqueIdPacket(
-    val uniqueId: UUID
+  val uniqueId: UUID
 ) : Packet
 
-internal val ClientUniqueIdDecoder = packetDecoderOf { buf ->
+internal val ClientUniqueIdDecoder = PacketDecoder { buf ->
   val uniqueId = try {
     UUID.fromString(buf.readString())
   } catch (ex: IllegalArgumentException) {
@@ -30,6 +30,6 @@ internal val ClientUniqueIdDecoder = packetDecoderOf { buf ->
   ClientUniqueIdPacket(uniqueId)
 }
 
-internal val ClientUniqueIdEncoder = packetEncoderOf<ClientUniqueIdPacket> { buf, packet ->
+internal val ClientUniqueIdEncoder = PacketEncoder<ClientUniqueIdPacket> { buf, packet ->
   buf.writeString(packet.uniqueId.toString())
 }

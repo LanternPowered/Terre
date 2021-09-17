@@ -17,14 +17,14 @@ import io.netty.handler.codec.DecoderException
 internal class FrameDecoder : ByteToMessageDecoder() {
 
   override fun decode(ctx: ChannelHandlerContext, input: ByteBuf, output: MutableList<Any>) {
-    if (!input.isReadable || input.readableBytes() < Short.SIZE_BYTES) return
+    if (!input.isReadable || input.readableBytes() < Short.SIZE_BYTES)
+      return
 
     val index = input.readerIndex()
     val length = input.readUnsignedShortLE() - Short.SIZE_BYTES // Includes the header length
 
-    if (length < 0) {
+    if (length < 0)
       throw DecoderException("Invalid packet length: $length")
-    }
 
     // Check if all the bytes of the packet are available
     if (input.readableBytes() < length) {

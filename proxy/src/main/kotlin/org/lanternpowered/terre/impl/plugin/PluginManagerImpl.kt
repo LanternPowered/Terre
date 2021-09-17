@@ -15,7 +15,6 @@ import org.lanternpowered.terre.plugin.Plugin
 import org.lanternpowered.terre.plugin.PluginContainer
 import org.lanternpowered.terre.plugin.PluginManager
 import org.lanternpowered.terre.util.collection.toImmutableList
-import java.net.URLClassLoader
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.concurrent.ConcurrentHashMap

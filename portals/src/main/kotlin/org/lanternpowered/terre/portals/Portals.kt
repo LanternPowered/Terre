@@ -15,8 +15,11 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
+import org.lanternpowered.terre.Player
 import org.lanternpowered.terre.Proxy
 import org.lanternpowered.terre.Server
+import org.lanternpowered.terre.command.CommandManager
+import org.lanternpowered.terre.command.SimpleCommandExecutor
 import org.lanternpowered.terre.config.ConfigDirectory
 import org.lanternpowered.terre.event.Subscribe
 import org.lanternpowered.terre.event.proxy.ProxyInitializeEvent
@@ -29,6 +32,11 @@ import org.lanternpowered.terre.plugin.Plugin
 import org.lanternpowered.terre.plugin.inject
 import org.lanternpowered.terre.portal.Portal
 import org.lanternpowered.terre.portal.PortalType
+import org.lanternpowered.terre.portal.PortalTypeRegistry
+import org.lanternpowered.terre.portal.PortalTypes
+import org.lanternpowered.terre.text.Text
+import org.lanternpowered.terre.text.text
+import org.lanternpowered.terre.util.Color
 import java.nio.file.Files
 
 /**
@@ -123,6 +131,89 @@ object Portals {
     return false
   }
 
+  private val messagePrefix = "[Portals] ".text().color(Color(137, 0, 235))
+
+  private val portalCommandExecutor = SimpleCommandExecutor { source, _, args ->
+    val player = source as? Player
+      ?: return@SimpleCommandExecutor
+    fun send(text: Text) {
+      player.sendMessage(messagePrefix + text)
+    }
+    // TODO: Use Kommando
+    if (args.isEmpty()) {
+      send("Usage: portal create|delete".text())
+    } else {
+      when (args[0]) {
+        "create" -> {
+          val name = if (args.size > 1) {
+            args[1]
+          } else {
+            send("Usage: portal create <name> <destination> [--type <type>] [--pos <x> <y>]".text())
+            return@SimpleCommandExecutor
+          }
+          val origin = player.serverConnection!!.server.info.name
+          val destination = if (args.size > 2) {
+            args[2]
+          } else {
+            send("Please specify the destination of the portal".text())
+            return@SimpleCommandExecutor
+          }
+          var position: Vec2f = player.position
+          var type = PortalTypes.Invisible
+          var index = 3
+          while (index < args.size) {
+            var option = args[index++]
+            if (!option.startsWith("--")) {
+              send("Unexpected value: $option".text())
+              return@SimpleCommandExecutor
+            }
+            option = option.substring(2)
+            when (option) {
+              "type" -> {
+                val typeName = args.getOrNull(index++)
+                if (typeName == null) {
+                  send("No portal type specified".text())
+                  return@SimpleCommandExecutor
+                }
+                type = PortalTypeRegistry[typeName] ?: run {
+                  send("Invalid portal type specified: $typeName".text())
+                  return@SimpleCommandExecutor
+                }
+              }
+              "pos" -> {
+                val x = args.getOrNull(index++)
+                val y = args.getOrNull(index++)
+                if (x == null || y == null) {
+                  send("No position specified".text())
+                  return@SimpleCommandExecutor
+                }
+                if (x.toFloatOrNull() == null || y.toFloatOrNull() == null) {
+                  send("Invalid position specified: $x $y".text())
+                  return@SimpleCommandExecutor
+                }
+                position = Vec2f(x.toFloat(), y.toFloat())
+              }
+            }
+          }
+          createPortal(name, origin, destination, type, position)
+        }
+        "delete" -> {
+          val name = if (args.size > 1) {
+            args[1]
+          } else {
+            send("Usage: portal delete <name>".text())
+            return@SimpleCommandExecutor
+          }
+          if (args.size > 2) {
+            send("Unexpected argument: ${args[2]}".text())
+            return@SimpleCommandExecutor
+          }
+          removePortal(name)
+        }
+      }
+    }
+  }
+
   @Subscribe
   private suspend fun onInit(event: ProxyInitializeEvent) {
     logger.info { "Initializing Portals plugin!" }
@@ -131,7 +222,7 @@ object Portals {
     for (server in Proxy.servers)
       loadPortals(server)
 
-    // TODO: Register commands
+    CommandManager.register("portal", portalCommandExecutor)
   }
 
   @Subscribe

@@ -21,7 +21,7 @@ internal object ProtocolRegistry {
    * All the allowed protocol translations.
    */
   val allowedTranslations: List<ProtocolTranslation>
-    get() = this.mutableTranslations
+    get() = mutableTranslations
 
   init {
     register(ProtocolVersion.Vanilla.`1․3․0․7`, Protocol155)
@@ -35,9 +35,9 @@ internal object ProtocolRegistry {
     allowTranslation(Protocol194 to Protocol155)
   }
 
-  val all: Collection<VersionedProtocol> get() = this.byId.values
+  val all: Collection<VersionedProtocol> get() = byId.values
 
-  operator fun get(id: Int): MultistateProtocol? = this.byId[id]?.protocol
+  operator fun get(id: Int): MultistateProtocol? = byId[id]?.protocol
 
   /**
    * Attempts to get the [protocol] instance for the
@@ -58,14 +58,14 @@ internal object ProtocolRegistry {
     check(version is ProtocolVersion.Vanilla) // TODO: Modded
     check(version.protocol !in this.byId) {
       "Protocol version ${version.protocol} is already in use." }
-    this.byId[version.protocol] = VersionedProtocol(version, protocol)
-    this.mutableTranslations += ProtocolTranslation(protocol, protocol)
+    byId[version.protocol] = VersionedProtocol(version, protocol)
+    mutableTranslations += ProtocolTranslation(protocol, protocol)
   }
 
   /**
    * Allows packets from one version to be translated to another one.
    */
   private fun allowTranslation(pair: Pair<MultistateProtocol, MultistateProtocol>) {
-    this.mutableTranslations += ProtocolTranslation(pair.first, pair.second)
+    mutableTranslations += ProtocolTranslation(pair.first, pair.second)
   }
 }

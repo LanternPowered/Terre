@@ -11,15 +11,15 @@ package org.lanternpowered.terre.impl.network
 
 import io.netty.util.ReferenceCounted
 
-abstract class ForwardingReferenceCounted(
-    private val referenceCounted: ReferenceCounted
+internal abstract class ForwardingReferenceCounted(
+  private val referenceCounted: ReferenceCounted
 ) : ReferenceCounted {
 
-  override fun refCnt() = this.referenceCounted.refCnt()
-  override fun release() = this.referenceCounted.release()
-  override fun release(decrement: Int) = this.referenceCounted.release(decrement)
-  override fun retain() = apply { this.referenceCounted.retain() }
-  override fun retain(increment: Int) = apply { this.referenceCounted.retain(increment) }
-  override fun touch() = apply { this.referenceCounted.touch() }
-  override fun touch(hint: Any?) = apply { this.referenceCounted.touch(hint) }
+  override fun refCnt() = referenceCounted.refCnt()
+  override fun release() = referenceCounted.release()
+  override fun release(decrement: Int) = referenceCounted.release(decrement)
+  override fun retain() = apply { referenceCounted.retain() }
+  override fun retain(increment: Int) = apply { referenceCounted.retain(increment) }
+  override fun touch() = apply { referenceCounted.touch() }
+  override fun touch(hint: Any?) = apply { referenceCounted.touch(hint) }
 }

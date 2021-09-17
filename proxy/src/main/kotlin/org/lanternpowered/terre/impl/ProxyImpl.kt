@@ -39,9 +39,9 @@ import org.lanternpowered.terre.util.collection.toImmutableList
 import java.net.BindException
 import java.net.InetSocketAddress
 import java.nio.file.Paths
-import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.exitProcess
+import kotlin.time.Duration
 import kotlin.time.seconds
 
 internal object ProxyImpl : Proxy {
@@ -60,19 +60,23 @@ internal object ProxyImpl : Proxy {
   val configDirectory = RootConfigDirectoryImpl(Paths.get("config"))
   private val config: Config = loadConfig()
 
-  override var name by this.config.property(ProxyConfigSpec.name)
+  override var name by config.property(ProxyConfigSpec.name)
+
   override var maxPlayers: MaxPlayers
     get() {
-      val value = this.config[ProxyConfigSpec.maxPlayers]
-      return if (value == -1) MaxPlayers.Unlimited else MaxPlayers.Limited(value.coerceAtLeast(0))
+      return when (val value = config[ProxyConfigSpec.maxPlayers]) {
+        -1 -> MaxPlayers.Unlimited
+        else -> MaxPlayers.Limited(value.coerceAtLeast(0))
+      }
     }
     set(value) {
-      this.config[ProxyConfigSpec.maxPlayers] = when (value) {
+      config[ProxyConfigSpec.maxPlayers] = when (value) {
         is MaxPlayers.Limited -> value.amount
         MaxPlayers.Unlimited -> -1
       }
     }
-  override var password by this.config.property(ProxyConfigSpec.password)
+
+  override var password by config.property(ProxyConfigSpec.password)
 
   override val address: InetSocketAddress by lazy {
     val ip = this.config[ProxyConfigSpec.host]
@@ -100,16 +104,15 @@ internal object ProxyImpl : Proxy {
     initServers()
 
     // Instantiate all the plugins
-    this.pluginManager.load(true)
+    pluginManager.load(true)
 
     // Post the proxy init event and wait for it to finish before continuing
     TerreEventBus.postAsyncWithFuture(ProxyInitializeEvent()).join()
 
     // Start the console, reading commands starts now
-    this.console.start()
+    console.start()
 
-    // Start broadcasting the server information
-    // to the LAN network, used by mobile
+    // Start broadcasting the server information to the LAN network, used by mobile
     // TODO: Make this configurable
     val broadcastTask = ProxyBroadcastTask(this)
     broadcastTask.init()
@@ -133,9 +136,8 @@ internal object ProxyImpl : Proxy {
   private val shuttingDown = AtomicBoolean()
 
   override fun shutdown(reason: Text) {
-    if (!this.shuttingDown.compareAndSet(false, true)) {
+    if (!shuttingDown.compareAndSet(false, true))
       return
-    }
 
     // Disconnect all players and wait for them, with a timeout of 10 seconds
     launchAsync(Dispatchers.Default) {
@@ -146,7 +148,7 @@ internal object ProxyImpl : Proxy {
 
       var timeout = false
 
-      timeout = tryWithTimeout(10.seconds) {
+      timeout = tryWithTimeout(Duration.seconds(10)) {
         players.toImmutableList()
             .map { it.disconnectAsync(reason) }
             .forEach { it.join() }
@@ -156,17 +158,17 @@ internal object ProxyImpl : Proxy {
       console.stop()
 
       // Post the proxy shutdown event and wait for it to finish before continuing
-      timeout = tryWithTimeout(10.seconds) {
+      timeout = tryWithTimeout(Duration.seconds(10)) {
         TerreEventBus.post(ProxyShutdownEvent())
       }.isFailure || timeout
 
       val executor = EventExecutor.executor
-      val executorShutdownTimeout = 10.seconds
+      val executorShutdownTimeout = Duration.seconds(10)
       // Shutdown the executor, give 10 seconds to finish remaining tasks
       executor.shutdown()
 
       var times = 100
-      val delay = executorShutdownTimeout.toLongMilliseconds() / times
+      val delay = executorShutdownTimeout.inWholeMilliseconds / times
       while (!executor.isShutdown && times-- > 0) {
         delay(delay)
       }
@@ -183,7 +185,7 @@ internal object ProxyImpl : Proxy {
   }
 
   private fun bindNetworkManager() {
-    val future = this.networkManager.bind(this.address)
+    val future = networkManager.bind(address)
     future.awaitUninterruptibly()
     if (!future.isSuccess) {
       val cause = future.cause()
@@ -197,11 +199,11 @@ internal object ProxyImpl : Proxy {
   }
 
   private fun initServers() {
-    for (rawServer in this.config[ProxyConfigSpec.servers]) {
+    for (rawServer in config[ProxyConfigSpec.servers]) {
       val info = rawServer.toServerInfo()
       val allowAutoJoin = rawServer.`allow-auto-join`
 
-      val server = this.servers.register(info, silently = true)
+      val server = servers.register(info, silently = true)
       val passwordInfo = if (info.password.isNotEmpty()) ", password: ${info.password}" else ""
       val protocolInfo = if (info.protocolVersion != null) ", protocol: ${info.protocolVersion}" else ""
       Terre.logger.info("Registering server -> ${info.name} -> address: ${rawServer.address}$passwordInfo$protocolInfo")
@@ -216,8 +218,8 @@ internal object ProxyImpl : Proxy {
       addDeserializer(Text::class.java, TextJsonDeserializer())
       addSerializer(TextJsonSerializer())
     }
-    val config = this.configDirectory.config("config") {
-      this.mapper.registerModule(module)
+    val config = configDirectory.config("config") {
+      mapper.registerModule(module)
       addSpec(ProxyConfigSpec)
     }
     try {
@@ -237,18 +239,18 @@ internal object ProxyImpl : Proxy {
   }
 
   override fun sendMessage(message: String) {
-    this.mutablePlayers.forEach { it.sendMessage(message) }
+    mutablePlayers.forEach { it.sendMessage(message) }
   }
 
   override fun sendMessage(message: Text) {
-    this.mutablePlayers.forEach { it.sendMessage(message) }
+    mutablePlayers.forEach { it.sendMessage(message) }
   }
 
   override fun sendMessageAs(message: Text, sender: MessageSender) {
-    this.mutablePlayers.forEach { it.sendMessageAs(message, sender) }
+    mutablePlayers.forEach { it.sendMessageAs(message, sender) }
   }
 
   override fun sendMessageAs(message: String, sender: MessageSender) {
-    this.mutablePlayers.forEach { it.sendMessageAs(message, sender) }
+    mutablePlayers.forEach { it.sendMessageAs(message, sender) }
   }
 }

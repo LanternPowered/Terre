@@ -17,24 +17,24 @@ import org.lanternpowered.terre.impl.network.buffer.readTaggedText
 import org.lanternpowered.terre.impl.network.buffer.writeColor
 import org.lanternpowered.terre.impl.network.buffer.writePlayerId
 import org.lanternpowered.terre.impl.network.buffer.writeTaggedText
-import org.lanternpowered.terre.impl.network.packetDecoderOf
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.text.color
 
 internal data class PlayerChatMessagePacket(
-    val authorId: PlayerId,
-    val text: Text
+  val authorId: PlayerId,
+  val text: Text
 ) : Packet
 
-internal val PlayerChatMessageEncoder = packetEncoderOf<PlayerChatMessagePacket> { buf, packet ->
+internal val PlayerChatMessageEncoder = PacketEncoder<PlayerChatMessagePacket> { buf, packet ->
   val (text, color) = ChatMessageHelper.splitTextAndColor(packet.text)
   buf.writePlayerId(packet.authorId)
   buf.writeTaggedText(text)
   buf.writeColor(color)
 }
 
-internal val PlayerChatMessageDecoder = packetDecoderOf { buf ->
+internal val PlayerChatMessageDecoder = PacketDecoder { buf ->
   val authorId = buf.readPlayerId()
   val text = buf.readTaggedText()
   val color = buf.readColor()

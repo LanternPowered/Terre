@@ -13,21 +13,21 @@ import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.buffer.readPlayerId
 import org.lanternpowered.terre.impl.network.buffer.writePlayerId
-import org.lanternpowered.terre.impl.network.packetDecoderOf
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 
 /**
  * A packet when a player dies.
  */
 internal data class PlayerDeathPacket(
-    val playerId: PlayerId,
-    val damage: Int,
-    val hitDirection: Int,
-    val pvp: Boolean,
-    val reason: PlayerDamageReason
+  val playerId: PlayerId,
+  val damage: Int,
+  val hitDirection: Int,
+  val pvp: Boolean,
+  val reason: PlayerDamageReason
 ) : Packet
 
-internal val PlayerDeathEncoder = packetEncoderOf<PlayerDeathPacket> { buf, packet ->
+internal val PlayerDeathEncoder = PacketEncoder<PlayerDeathPacket> { buf, packet ->
   buf.writePlayerId(packet.playerId)
   buf.writeDamageReason(packet.reason)
   buf.writeShortLE(packet.damage)
@@ -35,7 +35,7 @@ internal val PlayerDeathEncoder = packetEncoderOf<PlayerDeathPacket> { buf, pack
   buf.writeBoolean(packet.pvp)
 }
 
-internal val PlayerDeathDecoder = packetDecoderOf { buf ->
+internal val PlayerDeathDecoder = PacketDecoder { buf ->
   val playerId = buf.readPlayerId()
   val reason = buf.readDamageReason()
   val damage = buf.readUnsignedShortLE()

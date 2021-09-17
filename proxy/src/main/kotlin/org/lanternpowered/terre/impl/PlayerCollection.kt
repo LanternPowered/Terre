@@ -15,7 +15,7 @@ import org.lanternpowered.terre.PlayerIdentifier
 import org.lanternpowered.terre.util.collection.concurrentMapOf
 import org.lanternpowered.terre.util.collection.toImmutableMap
 
-class MutablePlayerCollection private constructor(
+internal class MutablePlayerCollection private constructor(
   private val map: MutableMap<PlayerIdentifier, Player>
 ) : PlayerCollection, Collection<Player> by map.values {
 
@@ -44,7 +44,7 @@ class MutablePlayerCollection private constructor(
   }
 }
 
-class ImmutablePlayerCollection private constructor(
+internal class ImmutablePlayerCollection private constructor(
   private val map: Map<PlayerIdentifier, Player>
 ) : PlayerCollection, Collection<Player> by map.values {
 

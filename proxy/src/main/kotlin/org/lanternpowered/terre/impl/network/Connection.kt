@@ -27,16 +27,17 @@ import io.netty.util.AttributeKey
 import io.netty.util.ReferenceCountUtil
 import kotlinx.coroutines.asCoroutineDispatcher
 import org.lanternpowered.terre.impl.Terre
-import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
 import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
-import org.lanternpowered.terre.impl.network.packet.ProjectileUpdatePacket
 import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.text.textOf
 import java.io.IOException
 import java.net.SocketAddress
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.coroutines.startCoroutine
 
 internal class Connection(
-    private val channel: Channel
+  private val channel: Channel
 ) : ChannelInboundHandlerAdapter() {
 
   private var disconnectReason: Text? = null
@@ -59,43 +60,42 @@ internal class Connection(
    * The event loop of the connection.
    */
   val eventLoop: EventLoop
-    get() = this.channel.eventLoop()
+    get() = channel.eventLoop()
 
   /**
    * The coroutine dispatcher.
    */
-  val coroutineDispatcher
-      = this.channel.eventLoop().asCoroutineDispatcher()
+  val coroutineDispatcher = channel.eventLoop().asCoroutineDispatcher()
 
   /**
    * The byte buf allocator of the connection.
    */
   val byteBufAlloc: ByteBufAllocator
-    get() = this.channel.alloc()
+    get() = channel.alloc()
 
   /**
    * The remote address this connection is connected to.
    */
   val remoteAddress: SocketAddress
-      get() = this.channel.remoteAddress()
+      get() = channel.remoteAddress()
 
   /**
    * The local address of this connection.
    */
   val localAddress: SocketAddress
-    get() = this.channel.localAddress()
+    get() = channel.localAddress()
 
   /**
    * Whether the connection is open.
    */
   val isOpen: Boolean
-    get() = this.channel.isOpen
+    get() = channel.isOpen
 
   /**
    * Whether the connection is closed.
    */
   val isClosed: Boolean
-    get() = !this.channel.isOpen
+    get() = !channel.isOpen
 
   /**
    * Whether this connection uses mobile.
@@ -106,7 +106,7 @@ internal class Connection(
    * Closes the connection.
    */
   fun close(): ChannelFuture {
-    return this.channel.close()
+    return channel.close()
   }
 
   /**
@@ -115,35 +115,63 @@ internal class Connection(
    * @param reason The reason
    */
   fun close(reason: Text): ChannelFuture {
-    if (this.disconnectReason != null) {
-      return this.channel.newSucceededFuture()
-    }
-    val promise = this.channel.newPromise()
-    this.channel.eventLoop().execute {
+    if (disconnectReason != null)
+      return channel.newSucceededFuture()
+    val promise = channel.newPromise()
+    channel.eventLoop().execute {
       // Is already disconnected
-      if (this.disconnectReason != null) {
+      if (disconnectReason != null) {
         promise.setSuccess()
         return@execute
       }
-      this.disconnectReason = reason
+      disconnectReason = reason
       sendWithFuture(DisconnectPacket(reason), promise)
-          .addListener(ChannelFutureListener.CLOSE)
+        .addListener(ChannelFutureListener.CLOSE)
     }
     return promise
   }
 
   override fun channelRead(ctx: ChannelHandlerContext, packet: Any) {
-    val connectionHandler = this.connectionHandler
+    val connectionHandler = connectionHandler
     if (connectionHandler == null) {
       ReferenceCountUtil.release(packet)
       return
     }
+    var release = true
     try {
       if (packet is Packet) {
-        val handler = ConnectionHandlerBindings.getHandler(packet.javaClass)
-        if (handler != null) {
-          if (!handler(connectionHandler, packet)) {
-            connectionHandler.handleGeneric(packet)
+        val binding = ConnectionHandlerBindings.getBinding(packet.javaClass)
+        if (binding != null) {
+          if (binding is ConnectionHandlerBindings.SimpleBinding<Packet>) {
+            if (!binding.handle(connectionHandler, packet))
+              connectionHandler.handleGeneric(packet)
+          } else {
+            binding as ConnectionHandlerBindings.SuspendBinding<Packet>
+            val function = suspend {
+              binding.handle(connectionHandler, packet)
+            }
+            release = false
+            function.startCoroutine(Continuation(EmptyCoroutineContext) { result ->
+              if (result.getOrNull() == false) {
+                val task = Runnable {
+                  try {
+                    connectionHandler.handleGeneric(packet)
+                  } finally {
+                    ReferenceCountUtil.release(packet)
+                  }
+                }
+                if (eventLoop.inEventLoop()) {
+                  task.run()
+                } else {
+                  eventLoop.execute(task)
+                }
+              } else {
+                ReferenceCountUtil.release(packet)
+                val exception = result.exceptionOrNull()
+                if (exception != null)
+                  ctx.fireExceptionCaught(exception)
+              }
+            })
           }
         } else {
           connectionHandler.handleGeneric(packet)
@@ -152,7 +180,8 @@ internal class Connection(
         connectionHandler.handleUnknown(packet)
       }
     } finally {
-      ReferenceCountUtil.release(packet)
+      if (release)
+        ReferenceCountUtil.release(packet)
     }
   }
 
@@ -160,13 +189,13 @@ internal class Connection(
   }
 
   override fun channelInactive(ctx: ChannelHandlerContext) {
-    this.connectionHandler?.disconnect()
+    connectionHandler?.disconnect()
     // The player probably just left the server
-    if (this.disconnectReason == null) {
-      if (this.channel.isOpen) {
-        this.disconnectReason = textOf("End of stream")
+    if (disconnectReason == null) {
+      disconnectReason = if (channel.isOpen) {
+        textOf("End of stream")
       } else {
-        this.disconnectReason = textOf("Disconnected")
+        textOf("Disconnected")
       }
     }
   }
@@ -180,7 +209,7 @@ internal class Connection(
       if (cause is IOException) {
         val stack = cause.getStackTrace()
         if (stack.isNotEmpty() && stack[0].toString().startsWith(
-                "sun.nio.ch.SocketDispatcher.read0")) {
+            "sun.nio.ch.SocketDispatcher.read0")) {
           return
         }
       }
@@ -204,8 +233,8 @@ internal class Connection(
    * @param reason The reason
    */
   private fun closeChannel(reason: Text) {
-    this.disconnectReason = reason
-    this.channel.close()
+    disconnectReason = reason
+    channel.close()
   }
 
   fun sendWithFuture(packet: ByteBuf): ChannelFuture {
@@ -229,13 +258,12 @@ internal class Connection(
   }
 
   private fun sendWithFuture(packet: Any, promise: ChannelPromise): ChannelFuture {
-    if (!this.channel.isActive) {
+    if (!channel.isActive)
       return promise
-    }
     ReferenceCountUtil.retain(packet)
     // Write the packet and add a exception handler
-    return this.channel.writeAndFlush(packet, promise)
-        .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
+    return channel.writeAndFlush(packet, promise)
+      .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
   }
 
   fun sendWithFuture(packets: Array<out ByteBuf>): ChannelFuture {
@@ -247,18 +275,17 @@ internal class Connection(
   }
 
   private fun sendWithFuture(packets: Array<*>): ChannelFuture {
-    val promise = this.channel.newPromise()
-    if (!this.channel.isActive) {
+    val promise = channel.newPromise()
+    if (!channel.isActive)
       return promise
-    }
-    val eventLoop = this.channel.eventLoop()
+    val eventLoop = channel.eventLoop()
     if (eventLoop.inEventLoop()) {
-      this.channel.writeArrayAndFlushWithFuture(packets, promise)
+      channel.writeArrayAndFlushWithFuture(packets, promise)
     } else {
       // Create a copy to avoid unsafe modifications
       val copy = packets.clone()
       eventLoop.execute {
-        this.channel.writeArrayAndFlushWithFuture(copy, promise)
+        channel.writeArrayAndFlushWithFuture(copy, promise)
       }
     }
     return promise
@@ -273,10 +300,10 @@ internal class Connection(
   }
 
   private fun send(packet: Any) {
-    if (!this.channel.isActive)
+    if (!channel.isActive)
       return
     ReferenceCountUtil.retain(packet)
-    this.channel.writeAndFlush(packet, this.channel.voidPromise())
+    channel.writeAndFlush(packet, channel.voidPromise())
   }
 
   fun send(packets: Array<out ByteBuf>) {
@@ -288,37 +315,37 @@ internal class Connection(
   }
 
   private fun send(packets: Array<*>) {
-    if (!this.channel.isActive)
+    if (!channel.isActive)
       return
-    val eventLoop = this.channel.eventLoop()
+    val eventLoop = channel.eventLoop()
     if (eventLoop.inEventLoop()) {
-      this.channel.writeArrayAndFlush(packets)
+      channel.writeArrayAndFlush(packets)
     } else {
       // Create a copy to avoid unsafe modifications
       val copy = packets.clone()
       eventLoop.execute {
-        this.channel.writeArrayAndFlush(copy)
+        channel.writeArrayAndFlush(copy)
       }
     }
   }
 
   private inline fun Channel.writeArrayAndFlushWithFuture(
-      packets: Array<*>, promise: ChannelPromise) {
+    packets: Array<*>, promise: ChannelPromise
+  ) {
     val voidPromise = voidPromise()
     for (i in packets.indices) {
       val packet = packets[i]
       ReferenceCountUtil.retain(packet)
       if (i == packets.size - 1) {
         writeAndFlush(packet, promise)
-            .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
+          .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
       } else {
         write(packet, voidPromise)
       }
     }
   }
 
-  private inline fun Channel.writeArrayAndFlush(
-      packets: Array<*>) {
+  private inline fun Channel.writeArrayAndFlush(packets: Array<*>) {
     val voidPromise = voidPromise()
     for (packet in packets) {
       ReferenceCountUtil.retain(packet)
@@ -327,5 +354,5 @@ internal class Connection(
     flush()
   }
 
-  fun <T> attr(key: AttributeKey<T>): Attribute<T> = this.channel.attr(key)
+  fun <T> attr(key: AttributeKey<T>): Attribute<T> = channel.attr(key)
 }

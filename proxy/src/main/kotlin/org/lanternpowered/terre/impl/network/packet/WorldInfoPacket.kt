@@ -20,18 +20,18 @@ import org.lanternpowered.terre.impl.network.buffer.readUUID
 import org.lanternpowered.terre.impl.network.buffer.writeString
 import org.lanternpowered.terre.impl.network.buffer.writeUUID
 import org.lanternpowered.terre.impl.network.calculateLength
-import org.lanternpowered.terre.impl.network.packetDecoderOf
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 import org.lanternpowered.terre.util.toString
 import java.util.UUID
 
 internal class WorldInfoPacket(
-    val id: Int,
-    val uniqueId: UUID,
-    val name: String,
-    val generatorVersion: Long,
-    val gameMode: Int,
-    val data: ByteBuf
+  val id: Int,
+  val uniqueId: UUID,
+  val name: String,
+  val generatorVersion: Long,
+  val gameMode: Int,
+  val data: ByteBuf
 ) : Packet, ForwardingReferenceCounted(data) {
 
   override fun toString() = toString {
@@ -55,7 +55,7 @@ private val idOffset = calculateLength {
 
 internal val WorldInfoEncoder = WorldInfoEncoder(Int.MAX_VALUE)
 
-internal inline fun WorldInfoEncoder(protocol: Int) = packetEncoderOf<WorldInfoPacket> { buf, packet ->
+internal inline fun WorldInfoEncoder(protocol: Int) = PacketEncoder<WorldInfoPacket> { buf, packet ->
   val data = packet.data
   buf.writeBytes(data, 0, idOffset)
   buf.writeIntLE(packet.id)
@@ -72,7 +72,7 @@ internal inline fun WorldInfoEncoder(protocol: Int) = packetEncoderOf<WorldInfoP
 
 internal val WorldInfoDecoder = WorldInfoDecoder(Int.MAX_VALUE)
 
-internal inline fun WorldInfoDecoder(protocol: Int) = packetDecoderOf { buf ->
+internal inline fun WorldInfoDecoder(protocol: Int) = PacketDecoder { buf ->
   buf.skipBytes(idOffset)
 
   val id = buf.readIntLE()

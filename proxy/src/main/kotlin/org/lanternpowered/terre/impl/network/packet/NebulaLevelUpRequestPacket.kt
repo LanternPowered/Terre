@@ -14,15 +14,15 @@ import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.buffer.writePlayerId
 import org.lanternpowered.terre.impl.network.buffer.writeVec2f
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketEncoder
 
 internal data class NebulaLevelUpRequestPacket(
-    val playerId: PlayerId,
-    val type: Int,
-    val origin: Vec2f
+  val playerId: PlayerId,
+  val type: Int,
+  val origin: Vec2f
 ) : Packet
 
-internal val NebulaLevelUpRequestEncoder = packetEncoderOf<NebulaLevelUpRequestPacket> { buf, packet ->
+internal val NebulaLevelUpRequestEncoder = PacketEncoder<NebulaLevelUpRequestPacket> { buf, packet ->
   buf.writePlayerId(packet.playerId)
   buf.writeByte(packet.type)
   buf.writeVec2f(packet.origin)

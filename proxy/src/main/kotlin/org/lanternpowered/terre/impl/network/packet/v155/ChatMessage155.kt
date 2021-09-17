@@ -18,15 +18,15 @@ import org.lanternpowered.terre.impl.network.buffer.writePlayerId
 import org.lanternpowered.terre.impl.network.buffer.writeString
 import org.lanternpowered.terre.impl.network.packet.ChatMessageHelper
 import org.lanternpowered.terre.impl.network.packet.ChatMessagePacket
-import org.lanternpowered.terre.impl.network.packetDecoderOf
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 import org.lanternpowered.terre.impl.text.TextImpl
 import org.lanternpowered.terre.impl.text.fromTaggedVanillaText
 import org.lanternpowered.terre.impl.text.toTaggedVanillaText
 import org.lanternpowered.terre.text.color
 import org.lanternpowered.terre.text.text
 
-internal val ChatMessage155Encoder = packetEncoderOf<ChatMessagePacket> { buf, packet ->
+internal val ChatMessage155Encoder = PacketEncoder<ChatMessagePacket> { buf, packet ->
   val (text, color) = ChatMessageHelper.splitTextAndColor(packet.text)
   buf.writePlayerId(PlayerId.None)
   buf.writeColor(color)
@@ -34,7 +34,7 @@ internal val ChatMessage155Encoder = packetEncoderOf<ChatMessagePacket> { buf, p
   buf.writeShortLE(packet.maxWidth)
 }
 
-internal val ChatMessage155Decoder = packetDecoderOf { buf ->
+internal val ChatMessage155Decoder = PacketDecoder { buf ->
   buf.readPlayerId()
   val color = buf.readColor()
   val raw = buf.readString().text() as TextImpl

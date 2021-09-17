@@ -13,14 +13,12 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import org.lanternpowered.terre.impl.math.distanceSquared
 
 /**
- * The mobile player tracker is an object that tracks server side
- * players for a mobile client. The mobile client has a limited set
- * of available player slots, 16 compared to 255 on desktop. In order
- * to allow more than 16 players, 15 slots needs to be shared by 254
- * players that aren't the tracking player.
+ * The mobile player tracker is an object that tracks server side players for a mobile client.
+ * The mobile client has a limited set of available player slots, 16 compared to 255 on desktop.
+ * In order to allow more than 16 players, 15 slots needs to be shared by 254 players that aren't
+ * the tracking player.
  *
- * Player id 1 will always be the connecting
- * client. 2-15 will be other players.
+ * Player id 1 will always be the connecting client. 2-15 will be other players.
  *
  * @property clientPlayer The player that is tracking the other players
  */
@@ -33,7 +31,7 @@ internal class MobilePlayerTracker {
 
   fun initClientPlayer(clientPlayer: TrackedMobilePlayer) {
     this.clientPlayer = clientPlayer
-    this.byServerId[clientPlayer.playerId.value] = clientPlayer
+    byServerId[clientPlayer.playerId.value] = clientPlayer
     assignMobileId(0, clientPlayer)
   }
 
@@ -41,17 +39,17 @@ internal class MobilePlayerTracker {
    * Updates the players that should be visible on mobile.
    */
   fun updateVisible() {
-    if (!this::clientPlayer.isInitialized)
+    if (!::clientPlayer.isInitialized)
       return
 
-    val clientPos = this.clientPlayer.position
+    val clientPos = clientPlayer.position
 
     // Find the 16 closest players, they should be prioritized to be visible,
     // this includes the client player itself
-    val players = this.byServerId.values.asSequence()
-        .sortedBy { distanceSquared(clientPos, it.position) }
-        .take(this.byMobileId.size)
-        .toList()
+    val players = byServerId.values.asSequence()
+      .sortedBy { distanceSquared(clientPos, it.position) }
+      .take(byMobileId.size)
+      .toList()
 
     // The tracked mobile player entries that got replaced by another one,
     // all packets should be send for the replacement players to update the
@@ -62,7 +60,7 @@ internal class MobilePlayerTracker {
     val toAdd = mutableListOf<TrackedMobilePlayer>()
     val toRemove = mutableListOf<TrackedMobilePlayer>()
 
-    for ((_, player) in this.byServerId.int2ObjectEntrySet()) {
+    for ((_, player) in byServerId.int2ObjectEntrySet()) {
       val mobileId = player.mobileId
 
       // Check if the player should be visible
@@ -80,8 +78,8 @@ internal class MobilePlayerTracker {
     var freeCheckOffset = 1 // Skip 0, is allocated for the client player
     // Finds the next available mobile id.
     fun nextFreeMobileId(): Int {
-      for (i in freeCheckOffset until this.byMobileId.size) {
-        if (this.byMobileId[i] == null) {
+      for (i in freeCheckOffset until byMobileId.size) {
+        if (byMobileId[i] == null) {
           // Increase the offset to reduce checking next time
           freeCheckOffset = i + 1
           return i
@@ -103,12 +101,11 @@ internal class MobilePlayerTracker {
   }
 
   private fun assignMobileId(id: Int, player: TrackedMobilePlayer) {
-    check(id in this.byMobileId.indices)
+    check(id in byMobileId.indices)
     // Reset the old player id
-    this.byMobileId[id]?.mobileId = -1
+    byMobileId[id]?.mobileId = -1
     // Update the new one and assign the id
     player.mobileId = id
-    this.byMobileId[id] = player
+    byMobileId[id] = player
   }
 }
-

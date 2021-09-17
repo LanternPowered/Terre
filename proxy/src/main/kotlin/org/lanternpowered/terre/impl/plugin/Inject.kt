@@ -12,6 +12,8 @@ package org.lanternpowered.terre.impl.plugin
 import kotlinx.coroutines.CoroutineDispatcher
 import org.lanternpowered.terre.Console
 import org.lanternpowered.terre.Proxy
+import org.lanternpowered.terre.command.CommandManager
+import org.lanternpowered.terre.command.CommandSource
 import org.lanternpowered.terre.config.ConfigDirectory
 import org.lanternpowered.terre.config.RootConfigDirectory
 import org.lanternpowered.terre.event.EventBus
@@ -35,6 +37,7 @@ internal fun Any?.inject(type: KType): Any? {
     Proxy::class -> Proxy
     PluginManager::class -> PluginManager
     Console::class -> Console
+    CommandManager::class -> CommandManager
     CoroutineDispatcher::class -> Proxy.dispatcher
     else -> {
       val pluginContainer = if (this != null) {

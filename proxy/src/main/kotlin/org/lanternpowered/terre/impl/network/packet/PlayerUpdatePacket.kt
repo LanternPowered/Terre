@@ -16,26 +16,26 @@ import org.lanternpowered.terre.impl.network.buffer.readPlayerId
 import org.lanternpowered.terre.impl.network.buffer.readVec2f
 import org.lanternpowered.terre.impl.network.buffer.writePlayerId
 import org.lanternpowered.terre.impl.network.buffer.writeVec2f
-import org.lanternpowered.terre.impl.network.packetDecoderOf
-import org.lanternpowered.terre.impl.network.packetEncoderOf
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 
 internal data class PlayerUpdatePacket(
-    val playerId: PlayerId,
-    val position: Vec2f,
-    val velocity: Vec2f?,
-    val selectedItem: Int,
-    val flags: Int,
-    val isSleeping: Boolean,
-    val potionOfReturnData: PotionOfReturnData?
+  val playerId: PlayerId,
+  val position: Vec2f,
+  val velocity: Vec2f?,
+  val selectedItem: Int,
+  val flags: Int,
+  val isSleeping: Boolean,
+  val potionOfReturnData: PotionOfReturnData?
 ) : Packet {
 
   data class PotionOfReturnData(
-      val originalPosition: Vec2f,
-      val homePosition: Vec2f
+    val originalPosition: Vec2f,
+    val homePosition: Vec2f
   )
 }
 
-internal val PlayerUpdateEncoder = packetEncoderOf<PlayerUpdatePacket> { buf, packet ->
+internal val PlayerUpdateEncoder = PacketEncoder<PlayerUpdatePacket> { buf, packet ->
   buf.writePlayerId(packet.playerId)
 
   var flags = packet.flags
@@ -71,7 +71,7 @@ internal val PlayerUpdateEncoder = packetEncoderOf<PlayerUpdatePacket> { buf, pa
   }
 }
 
-internal val PlayerUpdateDecoder = packetDecoderOf { buf ->
+internal val PlayerUpdateDecoder = PacketDecoder { buf ->
   val playerId = buf.readPlayerId()
   var flags = buf.readUnsignedByte().toInt()
   val flags2 = buf.readUnsignedByte().toInt()

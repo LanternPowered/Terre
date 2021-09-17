@@ -11,9 +11,8 @@ package org.lanternpowered.terre.impl.network.client
 
 import io.netty.buffer.ByteBuf
 import io.netty.util.concurrent.ScheduledFuture
-import org.lanternpowered.terre.Proxy
-import org.lanternpowered.terre.ServerConnectionRequestResult
 import org.lanternpowered.terre.impl.Terre
+import org.lanternpowered.terre.impl.command.CommandManagerImpl
 import org.lanternpowered.terre.impl.network.ConnectionHandler
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
@@ -31,9 +30,6 @@ import org.lanternpowered.terre.impl.network.packet.PlayerUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
 import org.lanternpowered.terre.impl.player.PlayerImpl
-import org.lanternpowered.terre.portal.PortalTypes
-import org.lanternpowered.terre.text.Text
-import org.lanternpowered.terre.text.text
 import org.lanternpowered.terre.text.textOf
 import java.time.Duration
 import java.util.concurrent.TimeUnit
@@ -91,66 +87,11 @@ internal class ClientPlayConnectionHandler(
     return true
   }
 
-  private fun handleCommand(command: String): Boolean {
-    val split = command.split(" ").filter { it.isNotEmpty() }
-    if (split.isEmpty())
-      return false
-
-    val id = split[0]
-    val args = split.subList(1, split.size)
-
-    if (id == "connect") {
-      handleConnectCommand(args)
-      return true
-    }
-    return false
-  }
-
-  private fun handleConnectCommand(args: List<String>) {
-    var name = args.getOrNull(0)
-    fun send(text: Text) {
-      playerImpl.sendMessage(Terre.message(text))
-    }
-    if (name == null) {
-      send("Please specify a target server.".text())
-      return
-    }
-    // TODO: Use command framework
-    val server = Proxy.servers[name]
-    if (server != null) {
-      name = server.info.name
-      send(textOf("Attempting to connect to $name."))
-      this.playerImpl.connectToWithFuture(server)
-          .whenComplete { result, _ ->
-            val message = if (result != null) {
-              when (result) {
-                is ServerConnectionRequestResult.Success -> {
-                  textOf("Successfully connected to $name.")
-                }
-                is ServerConnectionRequestResult.Disconnected -> {
-                  textOf("Failed to connect to $name") +
-                      (result.reason?.also { ": ".text() + it } ?: textOf())
-                }
-                is ServerConnectionRequestResult.AlreadyConnected -> {
-                  textOf("You're already connected to $name.")
-                }
-                is ServerConnectionRequestResult.ConnectionInProgress -> {
-                  textOf("You're already connecting to another server.")
-                }
-              }
-            } else textOf("Failed to connect to $name.")
-            send(message)
-          }
-    } else {
-      send(textOf("The server $name doesn't exist."))
-    }
-  }
-
-  override fun handle(packet: PlayerCommandPacket): Boolean {
+  override suspend fun handle(packet: PlayerCommandPacket): Boolean {
     if (packet.commandId == "Say") {
       val command = packet.arguments
       if (command.startsWith("/")) {
-        if (handleCommand(command.substring(1)))
+        if (CommandManagerImpl.execute(playerImpl, command.substring(1)))
           return true
       }
     }
