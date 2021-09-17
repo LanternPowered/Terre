@@ -15,14 +15,16 @@ import kotlin.reflect.KClass
 /**
  * Constructs a new [CatalogTypeRegistry].
  */
-inline fun <reified T : NamedCatalogType> namedCatalogTypeRegistry(noinline fn: CatalogTypeRegistryBuilder<T>.() -> Unit):
-    NamedCatalogTypeRegistry<T> = namedCatalogTypeRegistry(T::class, fn)
+inline fun <reified T : NamedCatalogType> namedCatalogTypeRegistry(
+  noinline fn: CatalogTypeRegistryBuilder<T>.() -> Unit
+): NamedCatalogTypeRegistry<T> = namedCatalogTypeRegistry(T::class, fn)
 
 /**
  * Constructs a new [CatalogTypeRegistry].
  */
-fun <T : NamedCatalogType> namedCatalogTypeRegistry(type: KClass<T>, fn: CatalogTypeRegistryBuilder<T>.() -> Unit):
-    NamedCatalogTypeRegistry<T> = buildNamedCatalogTypeRegistryOf(type, fn)
+fun <T : NamedCatalogType> namedCatalogTypeRegistry(
+  type: KClass<T>, fn: CatalogTypeRegistryBuilder<T>.() -> Unit
+): NamedCatalogTypeRegistry<T> = buildNamedCatalogTypeRegistryOf(type, fn)
 
 /**
  * Represents a registry for named catalog types.

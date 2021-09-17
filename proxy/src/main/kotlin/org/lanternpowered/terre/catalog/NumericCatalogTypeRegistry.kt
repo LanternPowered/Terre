@@ -15,14 +15,16 @@ import kotlin.reflect.KClass
 /**
  * Constructs a new [CatalogTypeRegistry].
  */
-inline fun <reified T : NumericCatalogType> numericCatalogTypeRegistry(noinline fn: CatalogTypeRegistryBuilder<T>.() -> Unit):
-    NumericCatalogTypeRegistry<T> = numericCatalogTypeRegistry(T::class, fn)
+inline fun <reified T : NumericCatalogType> numericCatalogTypeRegistry(
+  noinline fn: CatalogTypeRegistryBuilder<T>.() -> Unit
+): NumericCatalogTypeRegistry<T> = numericCatalogTypeRegistry(T::class, fn)
 
 /**
  * Constructs a new [CatalogTypeRegistry].
  */
-fun <T : NumericCatalogType> numericCatalogTypeRegistry(type: KClass<T>, fn: CatalogTypeRegistryBuilder<T>.() -> Unit):
-    NumericCatalogTypeRegistry<T> = buildNumericCatalogTypeRegistryOf(type, fn)
+fun <T : NumericCatalogType> numericCatalogTypeRegistry(
+  type: KClass<T>, fn: CatalogTypeRegistryBuilder<T>.() -> Unit
+): NumericCatalogTypeRegistry<T> = buildNumericCatalogTypeRegistryOf(type, fn)
 
 interface NumericCatalogTypeRegistry<T : NumericCatalogType> : CatalogTypeRegistry<T> {
 

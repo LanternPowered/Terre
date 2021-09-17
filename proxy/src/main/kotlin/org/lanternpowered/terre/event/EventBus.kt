@@ -17,7 +17,8 @@ import kotlin.reflect.KClass
  * Subscribes to events with the given event type.
  */
 inline fun <reified T : Event> EventBus.subscribe(
-    order: Int = Order.Normal, noinline listener: suspend (event: T) -> Unit): EventSubscription {
+  order: Int = Order.Normal, noinline listener: suspend (event: T) -> Unit
+): EventSubscription {
   return subscribe(T::class, order, listener)
 }
 
@@ -30,7 +31,8 @@ interface EventBus {
    * Subscribes to events with the given event type.
    */
   fun <T : Event> subscribe(
-      eventType: KClass<T>, order: Int = Order.Normal, listener: suspend (event: T) -> Unit) : EventSubscription
+    eventType: KClass<T>, order: Int = Order.Normal, listener: suspend (event: T) -> Unit
+  ) : EventSubscription
 
   /**
    * Subscribes to events of annotated methods within the listener class.

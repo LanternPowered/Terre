@@ -14,19 +14,18 @@ import org.lanternpowered.terre.event.Event
 import org.lanternpowered.terre.text.Text
 
 /**
- * An event that's thrown when a player has been authenticated
- * but before they connect to a server through a proxy.
+ * An event that's thrown when a player has been authenticated, but before they connect to a
+ * server through a proxy.
  *
- * A [ClientLoginEvent] can have a result [Result.Denied] if
- * the player failed to provide a valid password as result of
- * [ClientPreLoginEvent.Result.RequestPassword].
+ * A [ClientLoginEvent] can have a result [Result.Denied] if the player failed to provide a valid
+ * password as result of [ClientPreLoginEvent.Result.RequestPassword].
  *
- * @property player The player that's attempting to login
+ * @property player The player that is attempting to log in
  * @property result The result of the login
  */
 data class ClientLoginEvent(
-    val player: Player,
-    var result: Result = Result.Allowed
+  val player: Player,
+  var result: Result = Result.Allowed
 ) : Event {
 
   /**

@@ -21,9 +21,10 @@ import kotlin.reflect.KClass
  * Creates a new string.
  */
 fun Any.toString(
-    brackets: ToStringHelper.Brackets = ToStringHelper.Brackets.ROUND,
-    omitNullValues: Boolean = false,
-    fn: ToStringHelper.() -> Unit): String {
+  brackets: ToStringHelper.Brackets = ToStringHelper.Brackets.ROUND,
+  omitNullValues: Boolean = false,
+  fn: ToStringHelper.() -> Unit
+): String {
   contract {
     callsInPlace(fn, InvocationKind.EXACTLY_ONCE)
   }
@@ -34,10 +35,10 @@ fun Any.toString(
  * Creates a new string.
  */
 fun toString(
-    name: String,
-    brackets: ToStringHelper.Brackets = ToStringHelper.Brackets.ROUND,
-    omitNullValues: Boolean = false,
-    fn: ToStringHelper.() -> Unit
+  name: String,
+  brackets: ToStringHelper.Brackets = ToStringHelper.Brackets.ROUND,
+  omitNullValues: Boolean = false,
+  fn: ToStringHelper.() -> Unit
 ): String {
   contract {
     callsInPlace(fn, InvocationKind.EXACTLY_ONCE)
@@ -49,11 +50,11 @@ fun toString(
  * Gets the default name used for a class.
  */
 private fun KClass<*>.getDefaultName(): String {
-  val enclosing = this.nestedClasses.javaClass.enclosingClass
+  val enclosing = nestedClasses.javaClass.enclosingClass
   return if (enclosing == null) {
-    this.simpleName ?: this.java.simpleName
+    simpleName ?: java.simpleName
   } else {
-    enclosing.kotlin.getDefaultName() + '.' + this.simpleName
+    enclosing.kotlin.getDefaultName() + '.' + simpleName
   }
 }
 
@@ -68,11 +69,11 @@ private fun KClass<*>.getDefaultName(): String {
  * @param entrySeparator The separator that is used to join multiple key-value pairs
  */
 class ToStringHelper(
-    private val className: String = "",
-    private var brackets: Brackets = Brackets.ROUND,
-    private var omitNullValues: Boolean = false,
-    private var nameValueSeparator: String = "=",
-    private var entrySeparator: String = ", "
+  private val className: String = "",
+  private var brackets: Brackets = Brackets.ROUND,
+  private var omitNullValues: Boolean = false,
+  private var nameValueSeparator: String = "=",
+  private var entrySeparator: String = ", "
 ) {
 
   private var first: Entry? = null
@@ -154,7 +155,9 @@ class ToStringHelper(
    *
    * @return This helper, for chaining
    */
-  fun omitNullValues() = apply { this.omitNullValues = true }
+  fun omitNullValues() = apply {
+    this.omitNullValues = true
+  }
 
   /**
    * Sets the brackets that should be added around the joined entries.
@@ -162,7 +165,9 @@ class ToStringHelper(
    * @param brackets The brackets
    * @return This helper, for chaining
    */
-  fun brackets(brackets: Brackets) = apply { this.brackets = brackets }
+  fun brackets(brackets: Brackets) = apply {
+    this.brackets = brackets
+  }
 
   /**
    * Sets the separator that is used to join multiple key-value pairs
@@ -170,7 +175,9 @@ class ToStringHelper(
    * @param entrySeparator The entry separator
    * @return This helper, for chaining
    */
-  fun entrySeparator(entrySeparator: String) = apply { this.entrySeparator = entrySeparator }
+  fun entrySeparator(entrySeparator: String) = apply {
+    this.entrySeparator = entrySeparator
+  }
 
   /**
    * Sets the separator that is used to join a key with its value.
@@ -178,35 +185,36 @@ class ToStringHelper(
    * @param nameValueSeparator The name-value separator
    * @return This helper, for chaining
    */
-  fun nameValueSeparator(nameValueSeparator: String) = apply { this.nameValueSeparator = nameValueSeparator }
+  fun nameValueSeparator(nameValueSeparator: String) = apply {
+    this.nameValueSeparator = nameValueSeparator
+  }
 
   private fun addFirstEntry(key: String?, value: Any?) = apply {
     val entry = createEntry(key, value)
-    if (this.first == null) {
-      this.first = entry
-      this.last = entry
+    if (first == null) {
+      first = entry
+      last = entry
     } else {
-      entry.next = this.first
-      this.first = entry
+      entry.next = first
+      first = entry
     }
   }
 
   private fun addEntry(key: String?, value: Any?) = apply {
     val entry = createEntry(key, value)
-    if (this.first == null) {
-      this.first = entry
-      this.last = entry
+    if (first == null) {
+      first = entry
+      last = entry
     } else {
-      this.last!!.next = entry
-      this.last = entry
+      last!!.next = entry
+      last = entry
     }
   }
 
   private fun createEntry(key: String?, value: Any?): Entry {
     var value1 = value
-    if (value1 is Iterable<*>) {
+    if (value1 is Iterable<*>)
       value1 = Iterables.toString(value1)
-    }
     return Entry(key, value1)
   }
 
@@ -216,33 +224,33 @@ class ToStringHelper(
    * @return The built string
    */
   override fun toString(): String {
-    val builder = StringBuilder(this.className).append(this.brackets.open)
-    var entry = this.first
+    val builder = StringBuilder(className).append(brackets.open)
+    var entry = first
     while (entry != null) {
       if (hasValue(entry)) {
-        if (entry != this.first)
-          builder.append(this.entrySeparator)
+        if (entry != first)
+          builder.append(entrySeparator)
         if (entry.key != null)
-          builder.append(entry.key).append(this.nameValueSeparator)
+          builder.append(entry.key).append(nameValueSeparator)
         var value = entry.value.toString()
-        if (value.indexOfAny(quotedChars) != -1) {
+        if (value.indexOfAny(quotedChars) != -1)
           value = "'$value'"
-        }
         builder.append(value)
       }
       entry = entry.next
     }
-    return builder.append(this.brackets.close).toString()
+    return builder.append(brackets.close).toString()
   }
 
-  private fun hasValue(entry: Entry?): Boolean = entry != null && (!this.omitNullValues || entry.value != null)
+  private fun hasValue(entry: Entry?): Boolean =
+    entry != null && (!omitNullValues || entry.value != null)
 
   /**
    * The different kind of brackets.
    */
   enum class Brackets(
-      internal val open: Char,
-      internal val close: Char
+    internal val open: Char,
+    internal val close: Char
   ) {
     ROUND   ('(', ')'),
     CURLY   ('{', '}'),

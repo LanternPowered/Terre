@@ -15,18 +15,17 @@ package org.lanternpowered.terre
 interface ServerCollection : Collection<Server> {
 
   /**
-   * Attempts to get a [Server] from the given [name]. Retrieving by name
-   * is case insensitive.
+   * Attempts to get a [Server] from the given [name]. Retrieving by name is case-insensitive.
    */
   operator fun get(name: String): Server?
 
   /**
-   * Attempts to register a new [Server] with the given [ServerInfo]. If a
-   * server with the same name is already registered (case insensitive), this
-   * will result in an [IllegalArgumentException].
+   * Attempts to register a new [Server] with the given [ServerInfo]. If a server with the same
+   * name is already registered (case-insensitive), this will result in an
+   * [IllegalArgumentException].
    *
-   * If a [ProtocolVersion] is provided and it's not supported by the proxy,
-   * a [IllegalArgumentException] is expected.
+   * If a [ProtocolVersion] is provided, and it is not supported by the proxy, an
+   * [IllegalArgumentException] is expected.
    */
   fun register(serverInfo: ServerInfo): Server
 }

@@ -34,10 +34,10 @@ class Version : Comparable<Version> {
   constructor(version: String) {
     check(version.isNotBlank()) { "Version string cannot be blank." }
     val parts = version.split(".")
-    this.backing = IntArray(parts.size)
+    backing = IntArray(parts.size)
     parts.forEachIndexed { index, s ->
       try {
-        this.backing[index] = s.toInt()
+        backing[index] = s.toInt()
       } catch (ex: NumberFormatException) {
         throw IllegalArgumentException("Invalid version string: $version, $s isn't an int.")
       }
@@ -48,50 +48,50 @@ class Version : Comparable<Version> {
    * Constructs a new version.
    */
   constructor(first: Int) {
-    this.backing = IntArray(1)
-    this.backing[0] = first
+    backing = IntArray(1)
+    backing[0] = first
   }
 
   /**
    * Constructs a new version.
    */
   constructor(first: Int, second: Int) {
-    this.backing = IntArray(2)
-    this.backing[0] = first
-    this.backing[1] = second
+    backing = IntArray(2)
+    backing[0] = first
+    backing[1] = second
   }
 
   /**
    * Constructs a new version.
    */
   constructor(first: Int, second: Int, third: Int) {
-    this.backing = IntArray(3)
-    this.backing[0] = first
-    this.backing[1] = second
-    this.backing[2] = third
+    backing = IntArray(3)
+    backing[0] = first
+    backing[1] = second
+    backing[2] = third
   }
 
   /**
    * Constructs a new version.
    */
   constructor(first: Int, second: Int, third: Int, fourth: Int) {
-    this.backing = IntArray(4)
-    this.backing[0] = first
-    this.backing[1] = second
-    this.backing[2] = third
-    this.backing[3] = fourth
+    backing = IntArray(4)
+    backing[0] = first
+    backing[1] = second
+    backing[2] = third
+    backing[3] = fourth
   }
 
   /**
    * Constructs a new version.
    */
   constructor(first: Int, second: Int, third: Int, fourth: Int, vararg more: Int) {
-    this.backing = IntArray(more.size + 4)
-    this.backing[0] = first
-    this.backing[1] = second
-    this.backing[2] = third
-    this.backing[3] = fourth
-    more.copyInto(destination = this.backing, destinationOffset = 4)
+    backing = IntArray(more.size + 4)
+    backing[0] = first
+    backing[1] = second
+    backing[2] = third
+    backing[3] = fourth
+    more.copyInto(destination = backing, destinationOffset = 4)
   }
 
   /**
@@ -99,27 +99,27 @@ class Version : Comparable<Version> {
    */
   constructor(values: IntArray) {
     check(values.isNotEmpty()) { "At least one value must be present in the array." }
-    this.backing = values.clone()
+    backing = values.clone()
   }
 
-  private fun getBacking() = this.backing
+  private fun getBacking() = backing
   private val toString by lazy { getBacking().joinToString(".") }
 
   /**
    * Compares this version to the other one.
    */
   override fun compareTo(other: Version): Int {
-    val s1 = this.values.size
+    val s1 = values.size
     val s2 = other.values.size
 
     val common = min(s1, s2)
     for (i in 0 until common) {
-      val v = this.values[i].compareTo(other.values[i])
+      val v = values[i].compareTo(other.values[i])
       if (v != 0)
         return v
     }
     for (i in common until max(s1, s2)) {
-      val c1 = if (s1 > s2) this.values[i] else 0
+      val c1 = if (s1 > s2) values[i] else 0
       val c2 = if (s2 > s1) other.values[i] else 0
 
       val v = c1.compareTo(c2)
@@ -129,9 +129,10 @@ class Version : Comparable<Version> {
     return 0
   }
 
-  override fun equals(other: Any?) = other === this || (other is Version && this.compareTo(other) == 0)
+  override fun equals(other: Any?) =
+    other === this || (other is Version && compareTo(other) == 0)
 
-  override fun hashCode() = this.values.contentHashCode()
+  override fun hashCode() = values.contentHashCode()
 
-  override fun toString() = this.toString
+  override fun toString() = toString
 }

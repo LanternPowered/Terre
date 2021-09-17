@@ -10,8 +10,7 @@
 package org.lanternpowered.terre
 
 /**
- * Represents a connection between the proxy
- * and a server for a specific [Player].
+ * Represents a connection between the proxy and a server for a specific [Player].
  */
 interface ServerConnection {
 

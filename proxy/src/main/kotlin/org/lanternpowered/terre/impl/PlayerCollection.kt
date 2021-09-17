@@ -12,8 +12,8 @@ package org.lanternpowered.terre.impl
 import org.lanternpowered.terre.Player
 import org.lanternpowered.terre.PlayerCollection
 import org.lanternpowered.terre.PlayerIdentifier
-import org.lanternpowered.terre.util.collection.concurrentMapOf
 import org.lanternpowered.terre.util.collection.toImmutableMap
+import java.util.concurrent.ConcurrentHashMap
 
 internal class MutablePlayerCollection private constructor(
   private val map: MutableMap<PlayerIdentifier, Player>
@@ -37,10 +37,10 @@ internal class MutablePlayerCollection private constructor(
   companion object {
 
     fun concurrentOf(): MutablePlayerCollection =
-      MutablePlayerCollection(concurrentMapOf())
+      MutablePlayerCollection(ConcurrentHashMap())
 
     fun of(): MutablePlayerCollection =
-      MutablePlayerCollection(mutableMapOf())
+      MutablePlayerCollection(HashMap())
   }
 }
 

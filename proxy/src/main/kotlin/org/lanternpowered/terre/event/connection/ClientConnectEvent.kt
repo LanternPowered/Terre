@@ -21,8 +21,8 @@ import org.lanternpowered.terre.text.Text
  * @property result The result of the event
  */
 data class ClientConnectEvent(
-    val inboundConnection: InboundConnection,
-    var result: Result = Result.Allowed
+  val inboundConnection: InboundConnection,
+  var result: Result = Result.Allowed
 ) : Event {
 
   /**

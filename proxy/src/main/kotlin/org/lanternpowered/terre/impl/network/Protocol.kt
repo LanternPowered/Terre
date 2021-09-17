@@ -13,7 +13,6 @@ package org.lanternpowered.terre.impl.network
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
-import org.lanternpowered.terre.util.collection.immutableSetOf
 import kotlin.reflect.KClass
 
 internal fun protocol(fn: Protocol.() -> Unit): Protocol {
@@ -28,11 +27,11 @@ internal class Protocol : ProtocolBase() {
   companion object {
 
     private val bothDirectionsSet =
-      immutableSetOf(PacketDirection.ServerToClient, PacketDirection.ClientToServer)
+      setOf(PacketDirection.ServerToClient, PacketDirection.ClientToServer)
     private val toServerDirectionSet =
-      immutableSetOf(PacketDirection.ClientToServer)
+      setOf(PacketDirection.ClientToServer)
     private val toClientDirectionSet =
-      immutableSetOf(PacketDirection.ServerToClient)
+      setOf(PacketDirection.ServerToClient)
 
     fun directionSetOf(packetDirection: PacketDirection) =
       when (packetDirection) {

@@ -12,10 +12,8 @@
 package org.lanternpowered.terre.util
 
 /**
- * A class that can be used as a vararg to
- * force the next arguments to be named.
+ * A class that can be used as a vararg to force the next arguments to be named.
  *
- * An enum class is used so that the type can
- * be used in annotation classes.
+ * An enum class is used so that the type can be used in annotation classes.
  */
 enum class `use named arguments`

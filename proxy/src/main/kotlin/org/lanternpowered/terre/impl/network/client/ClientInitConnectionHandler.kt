@@ -30,14 +30,12 @@ import org.lanternpowered.terre.impl.network.packet.IsMobileRequestPacket
 import org.lanternpowered.terre.impl.network.packet.IsMobileResponsePacket
 import org.lanternpowered.terre.impl.network.packet.PasswordRequestPacket
 import org.lanternpowered.terre.impl.network.packet.PasswordResponsePacket
-import org.lanternpowered.terre.impl.network.packet.PlayerActivePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
 import org.lanternpowered.terre.impl.player.PlayerImpl
 import org.lanternpowered.terre.text.textOf
 import java.security.MessageDigest
-import java.util.*
-import kotlin.streams.toList
+import java.util.UUID
 
 /**
  * The connection handler that is used initially to establish a connection
@@ -112,13 +110,13 @@ internal class ClientInitConnectionHandler(
     val protocol = ProtocolRegistry[protocolVersion]
     if (protocol == null) {
       val expected = ProtocolRegistry.all.stream()
-          .map { it.version }.toList()
-          .joinToString(separator = ", ", prefix = "[", postfix = "]") {
-            when (it) {
-              is ProtocolVersion.Vanilla -> it.version.toString()
-              is ProtocolVersion.TModLoader -> "tModLoader ${it.version}"
-            }
+        .map { it.version }.toList()
+        .joinToString(separator = ", ", prefix = "[", postfix = "]") {
+          when (it) {
+            is ProtocolVersion.Vanilla -> it.version.toString()
+            is ProtocolVersion.TModLoader -> "tModLoader ${it.version}"
           }
+        }
       connection.close(textOf(
         "The client isn't supported. Expected version of $expected, but the client is $protocolVersion."))
       return true
@@ -159,7 +157,7 @@ internal class ClientInitConnectionHandler(
 
     connection.isMobile = isMobile
     player = PlayerImpl(connection, protocolVersion, protocol, name, identifier, isMobile, uniqueId)
-    if (this.player.checkDuplicateIdentifier())
+    if (player.checkDuplicateIdentifier())
       return
 
     TerreEventBus.postAsyncWithFuture(ClientPreLoginEvent(player))
@@ -197,7 +195,7 @@ internal class ClientInitConnectionHandler(
 
   override fun handle(packet: PlayerInfoPacket): Boolean {
     checkState(State.RequestClientInfo)
-    this.name = packet.playerName
+    name = packet.playerName
     Terre.logger.debug { "P <- C [${connection.remoteAddress}] Client player name: $name" }
     return true
   }

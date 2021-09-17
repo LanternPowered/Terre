@@ -16,9 +16,10 @@ import org.lanternpowered.terre.util.`use named arguments`
  *
  * @property id The id, can only contain a-z, 0-9, - and _
  */
+@Suppress("unused")
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class Plugin(
-    vararg val `use named arguments`: `use named arguments`,
-    val id: String
+  vararg val `use named arguments`: `use named arguments`,
+  val id: String
 )

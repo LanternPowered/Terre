@@ -15,15 +15,14 @@ import org.lanternpowered.terre.event.Event
 import org.lanternpowered.terre.text.Text
 
 /**
- * Represents the pre login event. This event is thrown after all
- * most important information about the player is retrieved. This
- * event is thrown before requesting a password from the player.
+ * Represents the pre login event. This event is thrown after all most important information
+ * about the player is retrieved. This event is thrown before requesting a password from the player.
  *
  * This event is followed by a [ClientLoginEvent].
  */
 data class ClientPreLoginEvent(
-    val player: Player,
-    var result: Result = Result.RequestPassword
+  val player: Player,
+  var result: Result = Result.RequestPassword
 ) : Event {
 
   /**

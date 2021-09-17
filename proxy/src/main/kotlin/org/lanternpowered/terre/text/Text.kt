@@ -51,15 +51,13 @@ fun textOf(literal: String, color: Color?): LiteralText =
   LiteralTextImpl(literal, color.optionalFromNullable())
 
 /**
- * Merges the array of text components
- * into a single one.
+ * Merges the array of text components into a single one.
  */
 fun textOf(array: Array<Text>): Text =
   textOf(array.toImmutableList())
 
 /**
- * Merges the array of text components
- * into a single one.
+ * Merges the array of text components into a single one.
  */
 fun textOf(first: Text, second: Text, vararg more: Text): Text {
   val moreList = more.asList()
@@ -73,8 +71,7 @@ fun textOf(first: Text, second: Text, vararg more: Text): Text {
 }
 
 /**
- * Merges the iterable of text components
- * into a single one.
+ * Merges the iterable of text components into a single one.
  */
 fun textOf(sequence: Sequence<Text>): Text {
   val it = sequence.iterator()
@@ -92,8 +89,7 @@ fun textOf(sequence: Sequence<Text>): Text {
 }
 
 /**
- * Merges the iterable of text components
- * into a single one.
+ * Merges the iterable of text components into a single one.
  */
 fun textOf(iterable: Iterable<Text>): Text {
   val collection = iterable as? Collection ?: iterable.toImmutableList()
@@ -118,8 +114,7 @@ interface Text : TextLike {
   val isEmpty: Boolean
 
   /**
-   * Converts the text into a plain string,
-   * without any coloring or formatting.
+   * Converts the text into a plain string, without any coloring or formatting.
    */
   fun toPlain(): String
 

@@ -12,11 +12,10 @@ package org.lanternpowered.terre.text
 import org.lanternpowered.terre.impl.text.TaggedTextSerializerImpl
 
 /**
- * Represents the [TextSerializer] who converts between
- * tagged strings and text objects.
+ * Represents the [TextSerializer] who converts between tagged strings and text objects.
  *
- * Tagged strings are strings where the tags are used to define
- * items, glyphs, achievements, colors, etc.
+ * Tagged strings are strings where the tags are used to define items, glyphs, achievements,
+ * colors, etc.
  *
  * See [Terraria Chat Tags](https://terraria.gamepedia.com/Chat#Tags)
  */

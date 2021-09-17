@@ -44,12 +44,10 @@ interface Proxy : MessageReceiver {
   var name: String
 
   /**
-   * The maximum amount of players that are allowed
-   * to join the server.
+   * The maximum amount of players that are allowed to join the server.
    *
-   * Setting a lower value doesn't kick any players,
-   * but if they disconnect and try to reconnect they
-   * won't be able to join.
+   * Setting a lower value doesn't kick any players, but if they disconnect and try to reconnect
+   * they won't be able to join.
    */
   var maxPlayers: MaxPlayers
 

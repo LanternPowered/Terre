@@ -32,14 +32,15 @@ import kotlin.coroutines.EmptyCoroutineContext
 inline fun CoroutineDispatcher.dispatch(
   context: CoroutineContext = EmptyCoroutineContext, crossinline block: () -> Unit
 ) {
-  dispatch(context, Runnable { block() })
+  dispatch(context) { block() }
 }
 
 /**
  * Submits a task on the [CoroutineDispatcher].
  */
 fun <T> CoroutineDispatcher.submit(
-    context: CoroutineContext = EmptyCoroutineContext, block: () -> T): Deferred<T> {
+  context: CoroutineContext = EmptyCoroutineContext, block: () -> T
+): Deferred<T> {
   val deferred = CompletableDeferred<T>()
   dispatch(context) {
     try {
@@ -108,9 +109,9 @@ fun <T> T.alsoAsync(
 }
 
 fun <T, R> withAsync(
-    context: CoroutineContext = EmptyCoroutineContext,
-    receiver: T,
-    block: suspend T.() -> R
+  context: CoroutineContext = EmptyCoroutineContext,
+  receiver: T,
+  block: suspend T.() -> R
 ): Deferred<R> {
   return newCoroutineScope().async(context) {
     block(receiver)

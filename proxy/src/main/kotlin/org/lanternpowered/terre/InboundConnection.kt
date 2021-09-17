@@ -12,20 +12,17 @@ package org.lanternpowered.terre
 import java.net.SocketAddress
 
 /**
- * Represents the inbound connection of a [Player]
- * from the client to the proxy server.
+ * Represents the inbound connection of a [Player] from the client to the proxy server.
  */
 interface InboundConnection {
 
   /**
-   * The remote address that was used
-   * to connect with the proxy server.
+   * The remote address that was used to connect with the proxy server.
    */
   val remoteAddress: SocketAddress
 
   /**
-   * The protocol version used by the
-   * inbound connection.
+   * The protocol version used by the inbound connection.
    */
   val protocolVersion: ProtocolVersion
 }

@@ -34,7 +34,6 @@ import org.lanternpowered.terre.impl.network.pipeline.FrameEncoder
 import org.lanternpowered.terre.impl.network.pipeline.PacketMessageDecoder
 import org.lanternpowered.terre.impl.network.pipeline.PacketMessageEncoder
 import org.lanternpowered.terre.text.textOf
-import org.lanternpowered.terre.util.collection.sortedWith
 import java.util.concurrent.CompletableFuture
 import kotlin.time.DurationUnit
 

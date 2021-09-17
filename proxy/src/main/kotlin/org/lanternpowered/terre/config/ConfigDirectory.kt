@@ -21,11 +21,11 @@ interface ConfigDirectory : ConfigDirectoryBase {
    *
    * @param format The format used to write and read the file
    * @param extension The extension of the file, defaults to the extension of the config format
-   * @param fn Function to initialize the config
+   * @param initializer Function to initialize the config
    */
   fun config(
-      format: ConfigFormat = ConfigFormats.Hocon,
-      extension: String = format.extension,
-      fn: Config.() -> Unit
-  ) = config("config", format, extension, fn)
+    format: ConfigFormat = ConfigFormats.Hocon,
+    extension: String = format.extension,
+    initializer: Config.() -> Unit
+  ) = config("config", format, extension, initializer)
 }

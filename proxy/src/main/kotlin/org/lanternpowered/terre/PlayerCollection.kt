@@ -24,8 +24,7 @@ interface PlayerCollection : Collection<Player> {
   operator fun get(identifier: PlayerIdentifier): Player?
 
   /**
-   * Gets whether a player with the given [PlayerIdentifier]
-   * exists in this collection.
+   * Gets whether a player with the given [PlayerIdentifier] exists in this collection.
    */
   operator fun contains(identifier: PlayerIdentifier): Boolean
 }
@@ -34,9 +33,9 @@ interface PlayerCollection : Collection<Player> {
  * Disconnects all the [Player]s in the [PlayerCollection].
  */
 suspend fun Collection<Player>.disconnectAll(reason: Text = DefaultDisconnectReason) {
-  this.toList().asSequence()
-      .map { it.disconnectAsync(reason) }
-      .forEach { it.join() }
+  toList().asSequence()
+    .map { it.disconnectAsync(reason) }
+    .forEach { it.join() }
 }
 
 /**
