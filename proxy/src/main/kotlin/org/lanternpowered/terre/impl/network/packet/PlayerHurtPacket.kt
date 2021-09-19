@@ -112,7 +112,7 @@ internal fun ByteBuf.readDamageReason(): PlayerDamageReason {
   val itemId = if ((flags and 0x20) != 0) readShortLE().toInt() else null
   val itemModifier = if ((flags and 0x40) != 0) readByte().toInt() else null
   val itemStack = if (itemId != null) itemStackOf(
-      ItemRegistry.require(itemId), ItemModifierRegistry.require(itemModifier ?: 0)) else null
+    ItemRegistry.require(itemId), ItemModifierRegistry.require(itemModifier ?: 0)) else null
   val custom = if ((flags and 0x80) != 0) readString() else null
   return PlayerDamageReason(playerId, npcId, projectile, other, itemStack, custom)
 }

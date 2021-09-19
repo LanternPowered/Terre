@@ -12,8 +12,7 @@ package org.lanternpowered.terre.text
 import org.lanternpowered.terre.util.Color
 
 /**
- * Represents a text component that is a combination
- * of multiple child text components.
+ * Represents a text component that is a combination of multiple child text components.
  */
 interface GroupedText : ColorableText {
 

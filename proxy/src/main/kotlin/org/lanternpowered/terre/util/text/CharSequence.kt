@@ -11,7 +11,7 @@ package org.lanternpowered.terre.util.text
 
 /**
  * Returns the index within this string of the first occurrence of the specified character, starting
- * from the specified [startIndex] and ending at the the specified [endIndex].
+ * from the specified [startIndex] and ending at the specified [endIndex].
  *
  * @param ignoreCase `true` to ignore character case when matching a character. By default, `false`.
  * @return An index of the first occurrence of [char] or -1 if none is found.

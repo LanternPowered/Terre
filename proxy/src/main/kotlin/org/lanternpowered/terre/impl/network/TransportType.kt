@@ -35,11 +35,25 @@ internal sealed class TransportType(
 ) {
 
   object Nio : TransportType(
-    ::NioServerSocketChannel, ::NioSocketChannel, ::NioDatagramChannel, ::NioEventLoopGroup)
+    ::NioServerSocketChannel,
+    ::NioSocketChannel,
+    ::NioDatagramChannel,
+    ::NioEventLoopGroup
+  )
+
   object KQueue : TransportType(
-    ::KQueueServerSocketChannel, ::KQueueSocketChannel, ::KQueueDatagramChannel, ::KQueueEventLoopGroup)
+    ::KQueueServerSocketChannel,
+    ::KQueueSocketChannel,
+    ::KQueueDatagramChannel,
+    ::KQueueEventLoopGroup
+  )
+
   object Epoll : TransportType(
-    ::EpollServerSocketChannel, ::EpollSocketChannel, ::EpollDatagramChannel, ::EpollEventLoopGroup)
+    ::EpollServerSocketChannel,
+    ::EpollSocketChannel,
+    ::EpollDatagramChannel,
+    ::EpollEventLoopGroup
+  )
 
   companion object {
 

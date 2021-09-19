@@ -26,8 +26,8 @@ import kotlin.coroutines.EmptyCoroutineContext
 /**
  * Dispatches execution of a runnable [block] onto another thread in the given [context].
  *
- * This method should be generally exception-safe, an exception thrown from this method
- * may leave the coroutines that use this dispatcher in the inconsistent and hard to debug state.
+ * This method should be generally exception-safe, an exception thrown from this method may leave
+ * the coroutines that use this dispatcher in the inconsistent and hard to debug state.
  */
 inline fun CoroutineDispatcher.dispatch(
   context: CoroutineContext = EmptyCoroutineContext, crossinline block: () -> Unit

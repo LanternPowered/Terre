@@ -43,9 +43,8 @@ internal object InternalTranslations {
       gson.fromJson(it, JsonObject::class.java)
     }
     val mappings = Object2ObjectOpenHashMap<String, String>()
-    for (entry in json.entrySet()) {
+    for (entry in json.entrySet())
       mappings[entry.key] = entry.value.asString
-    }
     return mappings
   }
 }

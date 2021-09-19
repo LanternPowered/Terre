@@ -142,7 +142,7 @@ internal open class ServerPlayConnectionHandler(
   }
 
   override fun handle(packet: CompleteConnectionPacket): Boolean {
-    val playerId = this.serverConnection.playerId ?: error("Player id isn't known.")
+    val playerId = serverConnection.playerId ?: error("Player id isn't known.")
 
     if (wasPreviouslyConnectedToServer) {
       // Sending this packet makes sure that the player spawns, even if the client was previously

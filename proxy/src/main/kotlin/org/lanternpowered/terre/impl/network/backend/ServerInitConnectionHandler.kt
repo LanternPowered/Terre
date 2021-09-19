@@ -77,7 +77,7 @@ internal class ServerInitConnectionHandler(
   }
 
   override fun handle(packet: PasswordRequestPacket): Boolean {
-    connection.send(PasswordResponsePacket(this.password))
+    connection.send(PasswordResponsePacket(password))
     debug { "Password request -> response: $password" }
     return true
   }

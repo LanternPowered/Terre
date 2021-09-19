@@ -68,20 +68,17 @@ interface Proxy : MessageReceiver {
   fun shutdown()
 
   /**
-   * Triggers the server shutdown and kicks all
-   * the players with the specified reason.
+   * Triggers the server shutdown and kicks all the players with the specified reason.
    */
   fun shutdown(reason: Text)
 
   /**
-   * Broadcasts the message to all the
-   * [Player]s on the proxy.
+   * Broadcasts the message to all the [Player]s on the proxy.
    */
   override fun sendMessage(message: String)
 
   /**
-   * Broadcasts the message to all the
-   * [Player]s on the proxy.
+   * Broadcasts the message to all the [Player]s on the proxy.
    */
   override fun sendMessage(message: Text)
 

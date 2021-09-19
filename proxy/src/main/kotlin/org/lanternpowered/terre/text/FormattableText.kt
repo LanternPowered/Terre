@@ -23,8 +23,8 @@ fun formattedTextOf(format: String, vararg substitutions: Any): FormattableText 
  */
 fun formattedTextOf(format: String, substitutions: Iterable<Any>): FormattableText {
   val textSubstitutions = substitutions.asSequence()
-      .map { it as? Text ?: it.toString().text() }
-      .toImmutableList()
+    .map { it as? Text ?: it.toString().text() }
+    .toImmutableList()
   return FormattableTextImpl(format, textSubstitutions)
 }
 

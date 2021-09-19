@@ -78,8 +78,8 @@ internal class ServerConnectionImpl(
     }
 
     val clientProtocol = player.protocol
-    // Check if there's a fixed version that should be used,
-    // otherwise try every possible protocol version.
+    // Check if there's a fixed version that should be used, otherwise try every possible
+    // protocol version.
     val versionedProtocol = server.versionedProtocol
     val versionsToAttempt = if (versionedProtocol != null) {
       mutableListOf(versionedProtocol)
@@ -143,19 +143,19 @@ internal class ServerConnectionImpl(
   ): CompletableFuture<ServerInitConnectionResult> {
     val result = CompletableFuture<ServerInitConnectionResult>()
     ProxyImpl.networkManager
-        .createClientBootstrap(player.clientConnection.eventLoop)
-        // There must be a handler, otherwise connect just freezes
-        .handler(object : ChannelInitializer<Channel>() {
-          override fun initChannel(channel: Channel) {}
-        })
-        .connect(server.info.address)
-        .addChannelFutureListener { future ->
-          if (future.isSuccess) {
-            future.channel().init(protocol, version, result)
-          } else {
-            result.completeExceptionally(future.cause())
-          }
+      .createClientBootstrap(player.clientConnection.eventLoop)
+      // There must be a handler, otherwise connect just freezes
+      .handler(object : ChannelInitializer<Channel>() {
+        override fun initChannel(channel: Channel) {}
+      })
+      .connect(server.info.address)
+      .addChannelFutureListener { future ->
+        if (future.isSuccess) {
+          future.channel().init(protocol, version, result)
+        } else {
+          result.completeExceptionally(future.cause())
         }
+      }
     return result
   }
 
@@ -186,10 +186,10 @@ internal class ServerConnectionImpl(
       Terre.logger.debug { "Successfully made a new connection to ${server.info}" }
       // Continue server connection after it has been approved
       connection.setConnectionHandler(ServerPlayConnectionHandler(
-          this@ServerConnectionImpl, player))
+        this@ServerConnectionImpl, player))
     }
     connection.setConnectionHandler(ServerInitConnectionHandler(
-        connection, player.clientConnection, future, version, protocol, server.info.password))
+      connection, player.clientConnection, future, version, protocol, server.info.password))
   }
 
   fun ensureConnected(): Connection {

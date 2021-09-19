@@ -81,12 +81,11 @@ private abstract class AbstractVanillaTextBuilder {
       builder.append(text, start, index)
       while (true) {
         val next = text.indexOf(']', index + 1, end)
-        resetColor()
-        switchColor(color)
+        appendLiteral(']')
         if (next != -1) {
-          builder.append(text, index, next)
+          builder.append(text, index + 1, next)
         } else {
-          builder.append(text, index, end)
+          builder.append(text, index + 1, end)
           break
         }
         index = next
@@ -176,7 +175,7 @@ private class PlainVanillaTextBuilder : AbstractVanillaTextBuilder() {
 private class TaggedVanillaTextBuilder : AbstractVanillaTextBuilder() {
 
   override fun appendLiteral(c: Char) {
-    builder.append("[l:").append(c).append(']')
+    builder.append('\\').append(c)
   }
 
   override fun startColor(color: Color) {
@@ -219,7 +218,10 @@ private class TaggedVanillaTextBuilder : AbstractVanillaTextBuilder() {
 /**
  * Flattens the text component structure in a list of plain components.
  */
-private fun TextImpl.appendToBuilder(builder: AbstractVanillaTextBuilder, parentColor: OptionalColor) {
+private fun TextImpl.appendToBuilder(
+  builder: AbstractVanillaTextBuilder,
+  parentColor: OptionalColor
+) {
   val color = if (optionalColor.isPresent) optionalColor else parentColor
   when (this) {
     is LiteralTextImpl -> builder.append(literal, color)

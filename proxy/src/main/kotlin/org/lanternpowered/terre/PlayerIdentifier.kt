@@ -10,8 +10,7 @@
 package org.lanternpowered.terre
 
 /**
- * Represents an identifier that can be used
- * to identify players.
+ * Represents an identifier that can be used to identify players.
  */
 class PlayerIdentifier {
 

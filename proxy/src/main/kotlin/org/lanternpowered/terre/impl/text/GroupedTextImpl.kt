@@ -19,8 +19,8 @@ import org.lanternpowered.terre.util.collection.contentEquals
 import java.util.*
 
 internal class GroupedTextImpl(
-    override val children: List<Text>,
-    override val optionalColor: OptionalColor = OptionalColor.empty()
+  override val children: List<Text>,
+  override val optionalColor: OptionalColor = OptionalColor.empty()
 ) : ColorableTextImpl(), GroupedText {
 
   override fun toPlain() = StringBuilder()

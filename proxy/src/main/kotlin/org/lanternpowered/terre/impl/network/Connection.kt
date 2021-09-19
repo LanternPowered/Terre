@@ -201,7 +201,7 @@ internal class Connection(
   }
 
   override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
-    this.connectionHandler?.exception(cause)
+    connectionHandler?.exception(cause)
     // Pipeline error, just log it
     if (cause is CodecException) {
       Terre.logger.error("A netty pipeline error occurred", cause)
@@ -307,11 +307,11 @@ internal class Connection(
   }
 
   fun send(packets: Array<out ByteBuf>) {
-    send(packets)
+    send(packets as Array<*>)
   }
 
   fun send(packets: Array<out Packet>) {
-    send(packets)
+    send(packets as Array<*>)
   }
 
   private fun send(packets: Array<*>) {
