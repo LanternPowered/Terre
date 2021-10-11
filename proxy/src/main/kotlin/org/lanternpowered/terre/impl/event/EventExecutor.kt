@@ -10,7 +10,6 @@
 package org.lanternpowered.terre.impl.event
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder
-import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.asCoroutineDispatcher
 import org.lanternpowered.terre.impl.dispatcher.PluginContextCoroutineDispatcher
 import org.lanternpowered.terre.impl.util.TerreThread

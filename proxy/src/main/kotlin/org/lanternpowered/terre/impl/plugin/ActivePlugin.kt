@@ -17,8 +17,7 @@ import org.lanternpowered.terre.plugin.PluginContextElement
 import kotlin.coroutines.CoroutineContext
 
 /**
- * A fallback thread local in case the
- * thread isn't a [TerreThread].
+ * A fallback thread local in case the thread isn't a [TerreThread].
  */
 private val threadLocal = FastThreadLocal<PluginContainer>()
 

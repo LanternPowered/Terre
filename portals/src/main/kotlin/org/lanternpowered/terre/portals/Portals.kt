@@ -36,7 +36,6 @@ import org.lanternpowered.terre.portal.PortalTypeRegistry
 import org.lanternpowered.terre.portal.PortalTypes
 import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.text.text
-import org.lanternpowered.terre.text.textOf
 import org.lanternpowered.terre.util.Color
 import java.nio.file.Files
 
@@ -140,7 +139,6 @@ object Portals {
     fun send(text: Text) {
       player.sendMessage(messagePrefix + text)
     }
-    send(textOf("TEST"))
     // TODO: Use Kommando
     if (args.isEmpty()) {
       send("Usage: portal create|delete".text())

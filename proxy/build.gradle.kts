@@ -20,7 +20,7 @@ dependencies {
   implementation(group = "com.google.code.gson", name = "gson", version = "2.8.8")
 
   // Primitive collections
-  implementation(group = "it.unimi.dsi", name = "fastutil", version = "8.5.4")
+  implementation(group = "it.unimi.dsi", name = "fastutil", version = "8.5.6")
 
   // Configuration
   implementation(group = "com.uchuhimo", name = "konf-hocon", version = "0.22.1")
@@ -29,10 +29,10 @@ dependencies {
   implementation(group = "net.sf.jopt-simple", name = "jopt-simple", version = "5.0.4")
 
   // Networking
-  implementation(group = "io.netty", name = "netty-all", version = "4.1.67.Final")
+  implementation(group = "io.netty", name = "netty-all", version = "4.1.68.Final")
 
   // Cache
-  implementation(group = "com.github.ben-manes.caffeine", name = "caffeine", version = "3.0.3")
+  implementation(group = "com.github.ben-manes.caffeine", name = "caffeine", version = "3.0.4")
 
   // Lambda generation
   implementation(group = "org.lanternpowered", name = "lmbda", version = "2.0.0")
@@ -56,7 +56,7 @@ dependencies {
   implementation(group = "org.jline", name = "jline-terminal-jansi", version = "3.20.0")
 
   // Testing
-  testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = "5.7.2")
+  testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = "5.8.0")
   testImplementation(kotlin(module = "test", version = "1.5.21"))
 }
 

@@ -12,6 +12,7 @@
 package org.lanternpowered.terre.impl.network.buffer
 
 import io.netty.buffer.ByteBuf
+import io.netty.buffer.Unpooled
 import io.netty.handler.codec.DecoderException
 import org.lanternpowered.terre.impl.text.TextImpl
 import org.lanternpowered.terre.impl.text.fromTaggedVanillaText
@@ -44,7 +45,7 @@ internal fun ByteBuf.writeString(string: String) = apply {
 }
 
 /**
- * Reads a int with varint encoding.
+ * Reads an int with varint encoding.
  */
 internal fun ByteBuf.readVarInt(): Int {
   var value = 0
@@ -63,7 +64,7 @@ internal fun ByteBuf.readVarInt(): Int {
 }
 
 /**
- * Writes a int with varint encoding.
+ * Writes an int with varint encoding.
  */
 internal fun ByteBuf.writeVarInt(value: Int) = apply {
   var v = value

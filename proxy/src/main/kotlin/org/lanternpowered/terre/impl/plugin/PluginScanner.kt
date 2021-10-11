@@ -163,7 +163,7 @@ internal class PluginScanner {
     try {
       reader.accept(visitor, ClassReader.SKIP_CODE or ClassReader.SKIP_DEBUG or ClassReader.SKIP_FRAMES)
       val pluginId = visitor.pluginId
-          ?: return null
+        ?: return null
       return PluginCandidate(visitor.className.replace('/', '.'), pluginId, source)
     } catch (e: InvalidPluginException) {
       Terre.logger.error("Skipping invalid plugin ${visitor.className} from $source", e)

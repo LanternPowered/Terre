@@ -41,8 +41,7 @@ internal class ClientPlayConnectionHandler(
   companion object {
 
     /**
-     * The timeout time before a session is closed
-     * due to not responding to a keep alive packet.
+     * The timeout time before a session is closed due to not responding to a keep alive packet.
      */
     private val keepAliveTimeout = Duration.ofSeconds(15).toMillis()
   }
