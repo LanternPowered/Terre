@@ -49,6 +49,7 @@ dependencies {
   implementation(group = "org.apache.logging.log4j", name = "log4j-jul", version = log4jVersion)
   api(group = "org.apache.logging.log4j", name = "log4j-api", version = log4jVersion)
   implementation(group = "org.apache.logging.log4j", name = "log4j-iostreams", version = log4jVersion)
+  implementation(group = "org.apache.logging.log4j", name = "log4j-slf4j-impl", version = log4jVersion)
   implementation(group = "com.lmax", name = "disruptor", version = "3.4.4")
 
   // Console
