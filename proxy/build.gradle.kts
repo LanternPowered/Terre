@@ -23,7 +23,7 @@ dependencies {
   implementation(group = "it.unimi.dsi", name = "fastutil", version = "8.5.6")
 
   // Configuration
-  implementation(group = "com.uchuhimo", name = "konf-yaml", version = "0.22.1")
+  api(group = "com.uchuhimo", name = "konf-yaml", version = "0.22.1")
 
   // Launch Options
   implementation(group = "net.sf.jopt-simple", name = "jopt-simple", version = "5.0.4")

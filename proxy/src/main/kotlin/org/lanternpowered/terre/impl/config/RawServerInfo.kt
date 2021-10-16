@@ -13,7 +13,7 @@ import org.lanternpowered.terre.ServerInfo
 import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.network.ProtocolVersions
 import org.lanternpowered.terre.impl.util.parseInetAddress
-import java.util.*
+import java.util.UUID
 
 /**
  * Represents raw server info, parsed from the configuration file.

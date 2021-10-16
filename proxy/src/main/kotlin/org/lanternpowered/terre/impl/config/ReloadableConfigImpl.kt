@@ -29,6 +29,14 @@ internal class ReloadableConfigImpl(
 
   override suspend fun load() = loadAsync().join()
 
+  override suspend fun loadOrCreate() {
+    if (exists) {
+      load()
+    } else {
+      save()
+    }
+  }
+
   override fun loadAsync(): Job {
     return launchAsync(Dispatchers.IO) {
       val loaded = Files.newBufferedReader(path).use {

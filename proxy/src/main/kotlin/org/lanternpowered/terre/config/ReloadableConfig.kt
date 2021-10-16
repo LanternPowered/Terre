@@ -39,6 +39,11 @@ interface ReloadableConfig : Config {
   suspend fun load()
 
   /**
+   * Loads, reloads or creates the config file.
+   */
+  suspend fun loadOrCreate()
+
+  /**
    * Loads or reloads the config file.
    */
   fun loadAsync(): Job
