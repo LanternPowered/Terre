@@ -81,11 +81,12 @@ private abstract class AbstractVanillaTextBuilder {
       builder.append(text, start, index)
       while (true) {
         val next = text.indexOf(']', index + 1, end)
-        appendLiteral(']')
+        resetColor()
+        switchColor(color)
         if (next != -1) {
-          builder.append(text, index + 1, next)
+          builder.append(text, index, next)
         } else {
-          builder.append(text, index + 1, end)
+          builder.append(text, index, end)
           break
         }
         index = next
@@ -175,7 +176,7 @@ private class PlainVanillaTextBuilder : AbstractVanillaTextBuilder() {
 private class TaggedVanillaTextBuilder : AbstractVanillaTextBuilder() {
 
   override fun appendLiteral(c: Char) {
-    builder.append('\\').append(c)
+    builder.append("[l:").append(c).append(']')
   }
 
   override fun startColor(color: Color) {

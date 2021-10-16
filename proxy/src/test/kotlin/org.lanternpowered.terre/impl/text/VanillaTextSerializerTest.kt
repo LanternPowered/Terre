@@ -85,13 +85,13 @@ class VanillaTextSerializerTest {
 
   @Test fun `test literal with square brackets text`() {
     val text = "[Test]".text().color(Colors.Red) as TextImpl
-    val expected = formattedTextOf("[c/ff0000:[Test\\]]")
+    val expected = formattedTextOf("[c/ff0000:[Test][c/ff0000:]]")
     assertEquals(expected, text.toTaggedVanillaText())
   }
 
   @Test fun `test literal with square brackets text 2`() {
     val text = "[Test] and another ] after".text().color(Colors.Red) as TextImpl
-    val expected = formattedTextOf("[c/ff0000:[Test\\] and another \\] after]")
+    val expected = formattedTextOf("[c/ff0000:[Test][c/ff0000:] and another ][c/ff0000:] after]")
     assertEquals(expected, text.toTaggedVanillaText())
   }
 
@@ -103,13 +103,13 @@ class VanillaTextSerializerTest {
 
   @Test fun `test colored literal with square brackets text 3`() {
     val text = "[c:Test]".text().color(Colors.Red) as TextImpl
-    val expected = formattedTextOf("[c/ff0000:[c:Test\\]]")
+    val expected = formattedTextOf("[c/ff0000:[c:Test][c/ff0000:]]")
     assertEquals(expected, text.toTaggedVanillaText())
   }
 
   @Test fun `test literal with square brackets text 3`() {
     val text = "[c:Test]".text() as TextImpl
-    val expected = formattedTextOf("\\[c:Test\\]")
+    val expected = formattedTextOf("[l:[]c:Test[l:]]")
     assertEquals(expected, text.toTaggedVanillaText())
   }
 
