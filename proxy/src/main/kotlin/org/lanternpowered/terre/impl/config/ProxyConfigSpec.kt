@@ -35,7 +35,6 @@ internal object ProxyConfigSpec : ConfigSpec("proxy") {
   )
 
   val maxPlayers by optional(
-    name = "max-players",
     default = -1,
     description = """
       The maximum amount of players that are allowed to join simultaneously. If set to -1, 
@@ -43,24 +42,18 @@ internal object ProxyConfigSpec : ConfigSpec("proxy") {
     """.trimIndent())
 
   val servers by optional(
-    default = listOf(
-      RawServerInfo(
-        name = "lobby",
-        address = "127.0.0.1:7778",
-        password = "",
-        `allow-auto-join` = true
-      ),
-      RawServerInfo(
-        name = "survival",
-        address = "127.0.0.1:7779",
-        password = "",
-        `allow-auto-join` = false
-      )
-    ),
+    default = listOf<RawServerInfo>(),
     description = """
       The servers that can be connected to through the proxy. When adding a server it's required 
       to specify the name and address to connect to it. And if necessary a password. Setting 
       allow-auto-join to true allows players to automatically connect to this server when 
       connecting to the proxy for the first time.
     """.trimIndent())
+
+  val disabledPlugins by optional(
+    default = setOf<String>(),
+    description = """
+      The plugins that shouldn't be loaded, used mainly in k8s.
+    """.trimIndent()
+  )
 }

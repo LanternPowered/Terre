@@ -21,6 +21,7 @@ import org.lanternpowered.terre.dispatcher.launchAsync
 import org.lanternpowered.terre.event.proxy.ProxyInitializeEvent
 import org.lanternpowered.terre.event.proxy.ProxyShutdownEvent
 import org.lanternpowered.terre.impl.config.ProxyConfigSpec
+import org.lanternpowered.terre.impl.config.RawServerInfo
 import org.lanternpowered.terre.impl.config.RootConfigDirectoryImpl
 import org.lanternpowered.terre.impl.console.ConsoleImpl
 import org.lanternpowered.terre.impl.coroutines.tryWithTimeout
@@ -42,7 +43,6 @@ import java.nio.file.Paths
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.exitProcess
 import kotlin.time.Duration
-import kotlin.time.seconds
 
 internal object ProxyImpl : Proxy {
 
@@ -97,14 +97,14 @@ internal object ProxyImpl : Proxy {
    * Initializes the server.
    */
   fun init() {
-    this.console.init()
+    console.init()
     Terre.logger.info("Starting ${Terre.name} Server ${Terre.version}")
 
     bindNetworkManager()
     initServers()
 
     // Instantiate all the plugins
-    pluginManager.load(true)
+    pluginManager.load(true, config[ProxyConfigSpec.disabledPlugins])
 
     // Post the proxy init event and wait for it to finish before continuing
     TerreEventBus.postAsyncWithFuture(ProxyInitializeEvent()).join()
@@ -201,7 +201,7 @@ internal object ProxyImpl : Proxy {
   private fun initServers() {
     for (rawServer in config[ProxyConfigSpec.servers]) {
       val info = rawServer.toServerInfo()
-      val allowAutoJoin = rawServer.`allow-auto-join`
+      val allowAutoJoin = rawServer.allowAutoJoin
 
       val server = servers.register(info, silently = true)
       val passwordInfo = if (info.password.isNotEmpty()) ", password: ${info.password}" else ""
@@ -225,15 +225,27 @@ internal object ProxyImpl : Proxy {
     try {
       if (config.exists) {
         config.loadAsync().joinBlocking()
+      } else {
+        // Add some examples
+        config[ProxyConfigSpec.servers] = listOf(
+          RawServerInfo(
+            name = "lobby",
+            address = "127.0.0.1:7778",
+            password = "",
+            allowAutoJoin = true
+          ),
+          RawServerInfo(
+            name = "survival",
+            address = "127.0.0.1:7779",
+            password = "",
+            allowAutoJoin = false
+          )
+        )
+        config.saveAsync().joinBlocking()
       }
     } catch (ex: Exception) {
-      Terre.logger.error("Failed to load configuration file", ex)
+      Terre.logger.error("Failed to load or save configuration file", ex)
       return config
-    }
-    try {
-      config.saveAsync().joinBlocking()
-    } catch (ex: Exception) {
-      Terre.logger.error("Failed to save configuration file", ex)
     }
     return config
   }

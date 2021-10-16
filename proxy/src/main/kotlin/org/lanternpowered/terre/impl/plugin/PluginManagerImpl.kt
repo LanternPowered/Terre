@@ -36,7 +36,7 @@ internal class PluginManagerImpl : PluginManager {
   /**
    * Loads all the plugins from the target directory.
    */
-  fun load(scanClasspath: Boolean = true) {
+  fun load(scanClasspath: Boolean = true, disabledPlugins: Set<String>) {
     val pluginsFolder = Paths.get("plugins")
 
     val pluginScanner = PluginScanner()
@@ -60,6 +60,8 @@ internal class PluginManagerImpl : PluginManager {
 
     try {
       for (candidate in candidates) {
+        if (disabledPlugins.contains(candidate.id))
+          continue
         val pluginClass = Class.forName(candidate.className).kotlin
         val instance = pluginClass.objectInstance ?: continue
         addOrGetPluginContainer(pluginClass.findAnnotation()!!, instance)

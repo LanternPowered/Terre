@@ -130,6 +130,7 @@ object K8sServerFinder {
             val address = InetSocketAddress(serviceName, port)
             val info = ServerInfo(name, address, password)
             server = Proxy.servers.register(info)
+            server.allowAutoJoin = allowAutoJoin
             services[serviceName] = server
           }
           Unit
@@ -153,7 +154,7 @@ object K8sServerFinder {
       updateService("ADDED", service)
   }
 
-  object ServerFinderConfigSpec : ConfigSpec("server-finder") {
+  object ServerFinderConfigSpec : ConfigSpec("serverFinder") {
 
     val namespace by optional(
       default = "",

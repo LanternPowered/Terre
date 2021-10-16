@@ -21,7 +21,7 @@ internal object EventExecutor {
   val executor: ExecutorService =
     Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
       ThreadFactoryBuilder()
-        .setNameFormat("event-executor-#%d")
+        .setNameFormat("event-executor-%d")
         .setDaemon(true)
         .setThreadFactory(::TerreThread)
         .build())

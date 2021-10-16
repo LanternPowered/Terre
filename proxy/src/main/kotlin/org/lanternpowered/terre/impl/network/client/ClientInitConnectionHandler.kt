@@ -89,7 +89,7 @@ internal class ClientInitConnectionHandler(
   }
 
   override fun initialize() {
-    Terre.logger.info("P <- C [${connection.remoteAddress}] Connected.")
+    Terre.logger.debug { "P <- C [${connection.remoteAddress}] Connected." }
   }
 
   override fun disconnect() {

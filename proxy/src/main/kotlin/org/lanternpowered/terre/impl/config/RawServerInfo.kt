@@ -21,13 +21,13 @@ import java.util.UUID
  * @property name The name of the server
  * @property address The ip address and port to connect to
  * @property password The password, if any
- * @property `allow-auto-join` Whether players are allowed to automatically connect to the server
+ * @property allowAutoJoin Whether players are allowed to automatically connect to the server
  */
 internal data class RawServerInfo(
   val name: String,
   val address: String,
   val password: String = "",
-  val `allow-auto-join`: Boolean = false,
+  val allowAutoJoin: Boolean = false,
   val protocol: String = ""
 ) {
 
