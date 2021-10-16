@@ -29,6 +29,7 @@ import org.lanternpowered.terre.plugin.inject
 import java.net.InetSocketAddress
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import io.kubernetes.client.util.Config as K8sConfig
 
 /**
@@ -71,6 +72,9 @@ object K8sServerFinder {
 
   private fun initAndStartWatching(config: Config) {
     val client = K8sConfig.defaultClient()
+    client.httpClient = client.httpClient.newBuilder()
+      .readTimeout(0, TimeUnit.SECONDS) // infinite timeout, needed for watching
+      .build()
     val api = CoreV1Api(client)
 
     val namespace = config[ServerFinderConfigSpec.namespace]
@@ -104,6 +108,7 @@ object K8sServerFinder {
 
       synchronized(services) {
         if (type == "DELETED") {
+          logger.info { "Deleted old server named $name (service: $serviceName)" }
           val server = services.remove(serviceName)
           server?.unregister()
         } else {
@@ -119,6 +124,9 @@ object K8sServerFinder {
             }
           }
           if (server == null) {
+            if (type == "ADDED") {
+              logger.info { "Discovered a new server named $name (service: $serviceName)" }
+            }
             val address = InetSocketAddress(serviceName, port)
             val info = ServerInfo(name, address, password)
             server = Proxy.servers.register(info)
@@ -130,7 +138,9 @@ object K8sServerFinder {
       }
     }
 
-    val watchExecutor = Executors.newSingleThreadExecutor()
+    val watchExecutor = Executors.newSingleThreadExecutor { task ->
+      Thread(task, "k8s-service-watcher")
+    }
     watchExecutor.execute {
       for (response in watch)
         updateService(response.type, response.`object`)
