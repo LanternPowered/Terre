@@ -60,8 +60,10 @@ internal class PluginManagerImpl : PluginManager {
 
     try {
       for (candidate in candidates) {
-        if (disabledPlugins.contains(candidate.id))
+        if (disabledPlugins.contains(candidate.id)) {
+          Terre.logger.info("Plugin ${candidate.id} is disabled, skipping...")
           continue
+        }
         val pluginClass = Class.forName(candidate.className).kotlin
         val instance = pluginClass.objectInstance ?: continue
         addOrGetPluginContainer(pluginClass.findAnnotation()!!, instance)
