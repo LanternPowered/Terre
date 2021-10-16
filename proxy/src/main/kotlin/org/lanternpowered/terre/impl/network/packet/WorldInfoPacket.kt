@@ -25,7 +25,7 @@ import org.lanternpowered.terre.impl.network.PacketEncoder
 import org.lanternpowered.terre.util.toString
 import java.util.UUID
 
-internal class WorldInfoPacket(
+internal data class WorldInfoPacket(
   val id: Int,
   val uniqueId: UUID,
   val name: String,
@@ -82,7 +82,7 @@ internal inline fun WorldInfoDecoder(protocol: Int) = PacketDecoder { buf ->
   val generatorVersion = if (protocol == 155) 0L else buf.readLongLE()
 
   val size = idOffset + buf.readableBytes()
-  val data = this.byteBufAllocator.buffer(size)
+  val data = byteBufAllocator.buffer(size)
   // Read data after the generator version or name
   buf.readBytes(data, idOffset, buf.readableBytes())
   val end = buf.readerIndex()

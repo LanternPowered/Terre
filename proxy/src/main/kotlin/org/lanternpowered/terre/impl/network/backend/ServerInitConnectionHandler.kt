@@ -102,7 +102,7 @@ internal class ServerInitConnectionHandler(
     debug { "Received unexpected packet." }
   }
 
-  private fun debug(fn: () -> String) {
-    Terre.logger.debug { "[${connection.localAddress}] ${fn()}" }
+  private fun debug(message: () -> String) {
+    Terre.logger.debug { "[${connection.localAddress}] ${message()}" }
   }
 }

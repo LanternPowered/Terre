@@ -32,6 +32,7 @@ import org.lanternpowered.terre.impl.network.packet.PasswordRequestPacket
 import org.lanternpowered.terre.impl.network.packet.PasswordResponsePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
+import org.lanternpowered.terre.impl.network.packet.init.InitDisconnectClientPacket
 import org.lanternpowered.terre.impl.player.PlayerImpl
 import org.lanternpowered.terre.text.textOf
 import java.security.MessageDigest
@@ -117,8 +118,9 @@ internal class ClientInitConnectionHandler(
             is ProtocolVersion.TModLoader -> "tModLoader ${it.version}"
           }
         }
-      connection.close(textOf(
-        "The client isn't supported. Expected version of $expected, but the client is $protocolVersion."))
+      val reason = textOf("The client isn't supported.\nExpected version of $expected, " +
+        "but the client is $protocolVersion.")
+      connection.close(reason) { InitDisconnectClientPacket(protocolVersion, reason) }
       return true
     }
     this.protocol = protocol

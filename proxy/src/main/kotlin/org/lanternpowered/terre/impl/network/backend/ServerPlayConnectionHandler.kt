@@ -44,7 +44,7 @@ internal open class ServerPlayConnectionHandler(
    * The client connection.
    */
   private val clientConnection
-    get() = this.player.clientConnection
+    get() = player.clientConnection
 
   private val wasPreviouslyConnectedToServer = player.wasPreviouslyConnectedToServer
 
@@ -86,7 +86,7 @@ internal open class ServerPlayConnectionHandler(
   private inline fun updateDeathSourceCache(crossinline fn: DeathSourceInfoCache.() -> Unit) {
     val cache = deathSourceInfoCache
     if (cache != null) {
-      player.clientConnection.eventLoop.execute {
+      clientConnection.eventLoop.execute {
         cache.fn()
       }
     }
@@ -129,9 +129,8 @@ internal open class ServerPlayConnectionHandler(
         npc.name = null
         npc.active = true
       }
-      if ((packet.life ?: 0) < 0) {
+      if ((packet.life ?: 0) < 0)
         npc.active = false
-      }
     }
     return false // Forward
   }
@@ -147,12 +146,12 @@ internal open class ServerPlayConnectionHandler(
     if (wasPreviouslyConnectedToServer) {
       // Sending this packet makes sure that the player spawns, even if the client was previously
       // connected to another world. This will trigger the client to find a new spawn location.
-      player.clientConnection.send(PlayerSpawnPacket(playerId,
+      clientConnection.send(PlayerSpawnPacket(playerId,
         Vec2i.Zero, 0, PlayerSpawnPacket.Context.SpawningIntoWorld))
     } else {
       // Notify the client that the connection is complete, this will attempt to spawn the player
       // in the world, only affects the first time the client connects to a server.
-      player.clientConnection.send(packet)
+      clientConnection.send(packet)
     }
 
     Terre.logger.debug { "P <- S(${serverConnection.server.info.name}) [${player.name}] Connection complete." }
@@ -203,10 +202,10 @@ internal open class ServerPlayConnectionHandler(
   }
 
   override fun handleGeneric(packet: Packet) {
-    player.clientConnection.send(packet)
+    clientConnection.send(packet)
   }
 
   override fun handleUnknown(packet: ByteBuf) {
-    player.clientConnection.send(packet)
+    clientConnection.send(packet)
   }
 }

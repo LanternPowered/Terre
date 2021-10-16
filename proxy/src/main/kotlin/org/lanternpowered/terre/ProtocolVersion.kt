@@ -57,6 +57,11 @@ sealed class ProtocolVersion {
        * The 1.4.0.5 vanilla version.
        */
       val `1․4․0․5` = Vanilla("1.4.0.5", 230)
+
+      /**
+       * The 1.4.2.3 vanilla version.
+       */
+      val `1․4․2․3` = Vanilla("1.4.2.3", 238)
     }
   }
 

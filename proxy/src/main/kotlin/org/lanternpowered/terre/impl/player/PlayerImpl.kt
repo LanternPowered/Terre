@@ -164,8 +164,7 @@ internal class PlayerImpl(
   }
 
   /**
-   * Called when the player loses connection
-   * to the backing server.
+   * Called when the player loses connection to the backing server.
    */
   fun disconnectedFromServer(connection: ServerConnectionImpl) {
     if (serverConnection != connection)

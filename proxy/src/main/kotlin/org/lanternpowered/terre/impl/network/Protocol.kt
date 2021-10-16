@@ -15,14 +15,14 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import kotlin.reflect.KClass
 
-internal fun protocol(fn: Protocol.() -> Unit): Protocol {
-  return Protocol().also(fn)
+internal fun protocol(name: String, builder: Protocol.() -> Unit): Protocol {
+  return Protocol(name).also(builder)
 }
 
 /**
  * The base class for all packet protocol versions.
  */
-internal class Protocol : ProtocolBase() {
+internal class Protocol(val name: String) : ProtocolBase() {
 
   companion object {
 

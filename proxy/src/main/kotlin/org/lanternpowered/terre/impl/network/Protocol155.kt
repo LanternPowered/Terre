@@ -12,7 +12,7 @@ package org.lanternpowered.terre.impl.network
 import org.lanternpowered.terre.impl.network.packet.*
 import org.lanternpowered.terre.impl.network.packet.v155.*
 
-internal val Protocol155 = multistateProtocol {
+internal val Protocol155 = multistateProtocol("155") {
   // Packets used in both the init and play states
   bind(0x01, ConnectionRequestEncoder, ConnectionRequestDecoder, PacketDirection.ClientToServer)
   bind(0x02, Disconnect155Encoder, Disconnect155Decoder, PacketDirection.ServerToClient)

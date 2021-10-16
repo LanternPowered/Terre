@@ -114,7 +114,15 @@ internal class Connection(
    *
    * @param reason The reason
    */
-  fun close(reason: Text): ChannelFuture {
+  fun close(reason: Text): ChannelFuture = close(reason) { DisconnectPacket(reason) }
+
+  /**
+   * Closes the connection with the given reason.
+   *
+   * @param reason The reason
+   * @param packet The packet constructor
+   */
+  fun close(reason: Text, packet: () -> Packet): ChannelFuture {
     if (disconnectReason != null)
       return channel.newSucceededFuture()
     val promise = channel.newPromise()
@@ -125,7 +133,7 @@ internal class Connection(
         return@execute
       }
       disconnectReason = reason
-      sendWithFuture(DisconnectPacket(reason), promise)
+      sendWithFuture(packet(), promise)
         .addListener(ChannelFutureListener.CLOSE)
     }
     return promise

@@ -13,13 +13,17 @@ package org.lanternpowered.terre.impl.network
 
 import kotlin.reflect.KClass
 
-internal fun multistateProtocol(fn: MultistateProtocol.() -> Unit): MultistateProtocol {
-  return MultistateProtocol().also(fn)
+internal fun multistateProtocol(
+  name: String, builder: MultistateProtocol.() -> Unit
+): MultistateProtocol {
+  return MultistateProtocol(name).also(builder)
 }
 
-internal class MultistateProtocol : ProtocolBase() {
+internal class MultistateProtocol(val name: String) : ProtocolBase() {
 
-  private val array = Array(State.values().size) { Protocol() }
+  private val array = State.values()
+    .map { state -> Protocol("${state.name}-$name") }
+    .toTypedArray()
 
   operator fun get(state: State): Protocol = array[state.ordinal]
 

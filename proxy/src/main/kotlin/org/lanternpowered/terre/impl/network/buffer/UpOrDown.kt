@@ -19,5 +19,5 @@ package org.lanternpowered.terre.impl.network.buffer
 internal value class UpOrDown(val isUp: Boolean) {
 
   val isDown: Boolean
-    get() = !this.isUp
+    get() = !isUp
 }

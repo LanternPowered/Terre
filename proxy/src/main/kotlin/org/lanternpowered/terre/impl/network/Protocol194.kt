@@ -20,7 +20,7 @@ import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsDoneEncod
 import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsEncoder
 import org.lanternpowered.terre.impl.network.packet.v194.*
 
-internal val Protocol194 = multistateProtocol {
+internal val Protocol194 = multistateProtocol("194") {
   bind(0x01, ConnectionRequestEncoder, ConnectionRequestDecoder, PacketDirection.ClientToServer)
   bind(0x02, DisconnectEncoder, DisconnectDecoder, PacketDirection.ServerToClient)
   bind(0x03, ConnectionApprovedEncoder, ConnectionApprovedDecoder, PacketDirection.ServerToClient)

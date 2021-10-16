@@ -16,24 +16,22 @@ package org.lanternpowered.terre.impl.network.buffer
 internal value class PlayerId(inline val value: Int) {
 
   /**
-   * Converts this [PlayerId] to a desktop player id. For mobile
-   * servers 16 represents "none" instead of 255.
+   * Converts this [PlayerId] to a desktop player id. For mobile servers 16 represents "none"
+   * instead of 255.
    */
   fun to(isMobile: Boolean): PlayerId {
-    if (isMobile && this == None) {
+    if (isMobile && this == None)
       return MobileNone
-    }
     return this
   }
 
   /**
-   * Converts this [PlayerId] to a desktop player id. For mobile
-   * servers 16 represents "none" instead of 255.
+   * Converts this [PlayerId] to a desktop player id. For mobile servers 16 represents "none"
+   * instead of 255.
    */
   internal fun from(isMobile: Boolean): PlayerId {
-    if (isMobile && this == MobileNone) {
+    if (isMobile && this == MobileNone)
       return None
-    }
     return this
   }
 

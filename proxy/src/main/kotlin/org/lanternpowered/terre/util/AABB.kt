@@ -33,6 +33,11 @@ class AABB(min: Vec2f, max: Vec2f) {
   val max = max(min, max)
 
   /**
+   * The size of the bounding box.
+   */
+  val size by lazy { max - min }
+
+  /**
    * The center of the bounding box.
    */
   val center by lazy { (max - min) / 2 + min }

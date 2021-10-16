@@ -12,6 +12,6 @@ package org.lanternpowered.terre.impl.network.buffer
 import org.lanternpowered.terre.impl.ProjectileType
 
 internal data class Projectile(
-    val id: ProjectileId,
-    val type: ProjectileType
+  val id: ProjectileId,
+  val type: ProjectileType
 )

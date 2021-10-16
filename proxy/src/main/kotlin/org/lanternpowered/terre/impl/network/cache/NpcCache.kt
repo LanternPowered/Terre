@@ -19,7 +19,7 @@ internal class NpcCache {
    */
   private val npcs = Array(capacity) { Npc() }
 
-  operator fun get(npcId: NpcId) = this.npcs[npcId.value]
+  operator fun get(npcId: NpcId) = npcs[npcId.value]
 
   companion object {
 

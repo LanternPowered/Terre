@@ -17,7 +17,7 @@ import org.lanternpowered.terre.impl.network.packet.PasswordRequestDecoder
 import org.lanternpowered.terre.impl.network.packet.PasswordResponseEncoder
 import org.lanternpowered.terre.impl.network.packet.init.DisconnectInitDecoder
 
-internal val ServerInitProtocol = protocol {
+internal val ServerInitProtocol = protocol("server-init") {
   bind(0x01, ConnectionRequestEncoder, PacketDirection.ClientToServer)
   bind(0x02, DisconnectInitDecoder, PacketDirection.ServerToClient)
   bind(0x03, ConnectionApprovedDecoder, PacketDirection.ServerToClient)
