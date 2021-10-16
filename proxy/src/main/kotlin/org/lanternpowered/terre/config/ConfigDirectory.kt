@@ -24,7 +24,7 @@ interface ConfigDirectory : ConfigDirectoryBase {
    * @param initializer Function to initialize the config
    */
   fun config(
-    format: ConfigFormat = ConfigFormats.Hocon,
+    format: ConfigFormat = ConfigFormats.Yaml,
     extension: String = format.extension,
     initializer: Config.() -> Unit
   ) = config("config", format, extension, initializer)

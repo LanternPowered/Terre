@@ -10,10 +10,9 @@
 package org.lanternpowered.terre.config
 
 import com.uchuhimo.konf.Config
-import com.uchuhimo.konf.source.hocon
-import com.uchuhimo.konf.source.hocon.toHocon
 import com.uchuhimo.konf.source.json.toJson
-import org.lanternpowered.terre.impl.config.HoconIndentRewriter
+import com.uchuhimo.konf.source.yaml
+import com.uchuhimo.konf.source.yaml.toYaml
 
 object ConfigFormats {
 
@@ -23,9 +22,9 @@ object ConfigFormats {
     override fun writerFor(config: Config) = config.toJson
   }
 
-  val Hocon = object : ConfigFormat {
-    override val extension get() = "conf"
-    override fun readerFor(config: Config) = config.from.hocon
-    override fun writerFor(config: Config) = HoconIndentRewriter(config.toHocon, indentSize = 2)
+  val Yaml = object : ConfigFormat {
+    override val extension get() = "yaml"
+    override fun readerFor(config: Config) = config.from.yaml
+    override fun writerFor(config: Config) = config.toYaml
   }
 }

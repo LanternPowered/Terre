@@ -32,7 +32,7 @@ interface ConfigDirectoryBase {
    */
   fun config(
     name: String,
-    format: ConfigFormat = ConfigFormats.Hocon,
+    format: ConfigFormat = ConfigFormats.Yaml,
     extension: String = format.extension,
     initializer: Config.() -> Unit
   ): ReloadableConfig
