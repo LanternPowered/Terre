@@ -51,7 +51,7 @@ object K8sServerFinder {
   private suspend fun onInit(event: ProxyInitializeEvent) {
     logger.info { "Initializing K8s Server Finder plugin!" }
 
-    if (System.getenv("KUBERNETES_SERVICE_HOST") == null) {
+    if (System.getenv(K8sConfig.ENV_SERVICE_HOST) == null) {
       logger.info { "Not running in a k8s cluster, no servers will be detected." }
       return
     }
