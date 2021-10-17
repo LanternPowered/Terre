@@ -12,14 +12,14 @@ dependencies {
 
 jib {
   from {
-    image = "azul/zulu-openjdk:16-jre"
+    image = "azul/zulu-openjdk-alpine:16-jre"
   }
   to {
     image = "cybermaxke/terre"
     tags = setOf("latest")
-    val dockerUsername: String by project
-    val dockerPassword: String by project
-    if (dockerUsername.isNotBlank() && dockerPassword.isNotBlank()) {
+    val dockerUsername: String? by project
+    val dockerPassword: String? by project
+    if (!dockerUsername.isNullOrBlank() && !dockerPassword.isNullOrBlank()) {
       auth {
         username = dockerUsername
         password = dockerPassword
@@ -29,5 +29,6 @@ jib {
   container {
     mainClass = "org.lanternpowered.terre.impl.TerreMainKt"
     ports = listOf("7777")
+    creationTime = "USE_CURRENT_TIMESTAMP"
   }
 }
