@@ -17,6 +17,14 @@ jib {
   to {
     image = "cybermaxke/terre"
     tags = setOf("latest")
+    val dockerUsername: String by project
+    val dockerPassword: String by project
+    if (dockerUsername.isNotBlank() && dockerPassword.isNotBlank()) {
+      auth {
+        username = dockerUsername
+        password = dockerPassword
+      }
+    }
   }
   container {
     mainClass = "org.lanternpowered.terre.impl.TerreMainKt"
