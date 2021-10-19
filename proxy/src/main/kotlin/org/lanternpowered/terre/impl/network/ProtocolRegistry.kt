@@ -24,16 +24,8 @@ internal object ProtocolRegistry {
     get() = mutableTranslations
 
   init {
-    register(ProtocolVersion.Vanilla.`1․3․0․7`, Protocol155)
-    register(ProtocolVersion.Vanilla.`1․3․0․8`, Protocol155)
-    register(ProtocolVersion.Vanilla.`1․3․5․3`, Protocol194)
     register(ProtocolVersion.Vanilla.`1․4․0․5`, Protocol230)
     register(ProtocolVersion.Vanilla.`1․4․2․3`, Protocol230)
-
-    // Allow 1.3.5.3 version to connect to the older 1.3.0.7 version,
-    // this allows desktop client to join 1.3.0.7 servers, which includes
-    // mobile servers.
-    allowTranslation(Protocol194 to Protocol155)
   }
 
   val all: Collection<VersionedProtocol> get() = byId.values

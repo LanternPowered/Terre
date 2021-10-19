@@ -12,17 +12,14 @@ package org.lanternpowered.terre.impl.network
 import org.lanternpowered.terre.ProtocolVersion
 import org.lanternpowered.terre.util.Version
 
-object ProtocolVersions {
+internal object ProtocolVersions {
 
   /**
-   * All the known protocol version numbers
-   * paired to their version name.
+   * All the known protocol version numbers paired to their version name.
    */
   private val knownVanillaVersions = listOf(
-    ProtocolVersion.Vanilla.`1․3․0․7`,
-    ProtocolVersion.Vanilla.`1․3․0․8`,
-    ProtocolVersion.Vanilla.`1․3․5․3`,
-    ProtocolVersion.Vanilla.`1․4․0․5`
+    ProtocolVersion.Vanilla.`1․4․0․5`,
+    ProtocolVersion.Vanilla.`1․4․2․3`,
   ).associateBy { it.protocol }
 
   /**

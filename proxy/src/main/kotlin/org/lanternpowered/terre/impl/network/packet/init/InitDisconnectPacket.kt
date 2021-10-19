@@ -12,9 +12,9 @@ package org.lanternpowered.terre.impl.network.packet.init
 import org.lanternpowered.terre.ProtocolVersion
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.PacketEncoder
+import org.lanternpowered.terre.impl.network.buffer.writeString
 import org.lanternpowered.terre.impl.network.packet.DisconnectEncoder
 import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
-import org.lanternpowered.terre.impl.network.packet.v155.Disconnect155Encoder
 import org.lanternpowered.terre.text.Text
 
 /**
@@ -28,11 +28,13 @@ internal data class InitDisconnectClientPacket(
 internal val InitDisconnectClientEncoder =
   PacketEncoder<InitDisconnectClientPacket> { packet ->
     val disconnectPacket = DisconnectPacket(packet.reason)
-    if (packet.version is ProtocolVersion.Vanilla &&
-      packet.version <= ProtocolVersion.Vanilla.`1․3․0․8`
-    ) {
-      Disconnect155Encoder.encode(this, disconnectPacket)
+    if (packet.version is ProtocolVersion.Vanilla && packet.version.protocol <= 156) {
+      LegacyDisconnectEncoder.encode(this, disconnectPacket)
     } else {
       DisconnectEncoder.encode(this, disconnectPacket)
     }
   }
+
+private val LegacyDisconnectEncoder = PacketEncoder<DisconnectPacket> { buf, packet ->
+  buf.writeString(packet.reason.toPlain())
+}

@@ -14,11 +14,8 @@ import org.lanternpowered.terre.ServerInfo
 import org.lanternpowered.terre.impl.ProxyImpl
 import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.network.ConnectionHandler
-import org.lanternpowered.terre.impl.network.MultistateProtocol
 import org.lanternpowered.terre.impl.network.Packet
-import org.lanternpowered.terre.impl.network.Protocol155
 import org.lanternpowered.terre.impl.network.buffer.readString
-import org.lanternpowered.terre.impl.network.cache.DeathSourceInfoCache
 import org.lanternpowered.terre.impl.network.packet.CompleteConnectionPacket
 import org.lanternpowered.terre.impl.network.packet.CustomPayloadPacket
 import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
@@ -48,11 +45,9 @@ internal open class ServerPlayConnectionHandler(
 
   private val wasPreviouslyConnectedToServer = player.wasPreviouslyConnectedToServer
 
-  private var deathSourceInfoCache: DeathSourceInfoCache? = null
   private var sendRequestEssentialTiles = false
 
   override fun initialize() {
-    initializeDeathSourceCache()
     player.wasPreviouslyConnectedToServer = true
   }
 
@@ -68,34 +63,7 @@ internal open class ServerPlayConnectionHandler(
   override fun exception(throwable: Throwable) {
   }
 
-  private fun initializeDeathSourceCache() {
-    val legacyServerProtocol = Protocol155[MultistateProtocol.State.Play]
-    val connection = serverConnection.ensureConnected()
-    // For the legacy protocol we need to keep track of some things to
-    // translate death reasons from the new protocol to the old one.
-    if (clientConnection.protocol != legacyServerProtocol
-        && connection.protocol == legacyServerProtocol) {
-      // Initialize every time a new connection is made, so
-      // the cache gets cleared.
-      deathSourceInfoCache = DeathSourceInfoCache(player.name)
-      clientConnection.attr(DeathSourceInfoCache.Attribute).set(deathSourceInfoCache)
-      connection.attr(DeathSourceInfoCache.Attribute).set(deathSourceInfoCache)
-    }
-  }
-
-  private inline fun updateDeathSourceCache(crossinline fn: DeathSourceInfoCache.() -> Unit) {
-    val cache = deathSourceInfoCache
-    if (cache != null) {
-      clientConnection.eventLoop.execute {
-        cache.fn()
-      }
-    }
-  }
-
   override fun handle(packet: WorldInfoPacket): Boolean {
-    updateDeathSourceCache {
-      worldName = packet.name
-    }
     if (!sendRequestEssentialTiles) {
       sendRequestEssentialTiles = true
       // The client sends this the first time it connects to a server,
@@ -107,31 +75,14 @@ internal open class ServerPlayConnectionHandler(
   }
 
   override fun handle(packet: PlayerInfoPacket): Boolean {
-    updateDeathSourceCache {
-      players.names[packet.playerId] = packet.playerName
-    }
     return false // Forward
   }
 
   override fun handle(packet: UpdateNpcNamePacket): Boolean {
-    updateDeathSourceCache {
-      npcs[packet.npcId].name = packet.name
-    }
     return false // Forward
   }
 
   override fun handle(packet: UpdateNpcPacket): Boolean {
-    updateDeathSourceCache {
-      val npc = npcs[packet.npcId]
-      val npcType = packet.npcType
-      if (npc.type != npcType || !npc.active) {
-        npc.type = npcType
-        npc.name = null
-        npc.active = true
-      }
-      if ((packet.life ?: 0) < 0)
-        npc.active = false
-    }
     return false // Forward
   }
 
