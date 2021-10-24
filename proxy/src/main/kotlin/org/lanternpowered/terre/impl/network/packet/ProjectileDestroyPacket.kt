@@ -20,12 +20,12 @@ import org.lanternpowered.terre.impl.network.PacketDecoder
 import org.lanternpowered.terre.impl.network.PacketEncoder
 
 internal data class ProjectileDestroyPacket(
-  val projectileId: ProjectileId,
+  val id: ProjectileId,
   val owner: PlayerId
 ) : Packet
 
 internal val ProjectileDestroyEncoder = PacketEncoder<ProjectileDestroyPacket> { buf, packet ->
-  buf.writeProjectileId(packet.projectileId)
+  buf.writeProjectileId(packet.id)
   buf.writePlayerId(packet.owner)
 }
 

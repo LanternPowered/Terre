@@ -24,50 +24,50 @@ import org.lanternpowered.terre.impl.network.PacketDecoder
 import org.lanternpowered.terre.impl.network.PacketEncoder
 
 internal data class ProjectileUpdatePacket(
-  val projectileId: ProjectileId,
-  val position: Vec2f,
-  val velocity: Vec2f,
-  val knockback: Float?,
-  val damage: Int?,
-  val originalDamage: Int?,
-  val owner: PlayerId,
+  val id: ProjectileId,
   val type: ProjectileType,
-  val ai0: Float?,
-  val ai1: Float?,
-  val uniqueId: Int?
+  val position: Vec2f,
+  val velocity: Vec2f = Vec2f.Zero,
+  val knockback: Float = 0f,
+  val damage: Int = 0,
+  val originalDamage: Int = 0,
+  val owner: PlayerId = PlayerId.None,
+  val ai0: Float = 0f,
+  val ai1: Float = 0f,
+  val uniqueId: Int = -1
 ) : Packet
 
 internal val ProjectileUpdateEncoder = PacketEncoder<ProjectileUpdatePacket> { buf, packet ->
-  buf.writeProjectileId(packet.projectileId)
+  buf.writeProjectileId(packet.id)
   buf.writeVec2f(packet.position)
   buf.writeVec2f(packet.velocity)
   buf.writePlayerId(packet.owner)
   buf.writeShortLE(packet.type.value)
   var flags = 0
-  if (packet.ai0 != null)
+  if (packet.ai0 != 0f)
     flags += 0x01
-  if (packet.ai1 != null)
+  if (packet.ai1 != 0f)
     flags += 0x02
-  if (packet.damage != null)
+  if (packet.damage != 0)
     flags += 0x10
-  if (packet.knockback != null)
+  if (packet.knockback != 0f)
     flags += 0x20
-  if (packet.originalDamage != null)
+  if (packet.originalDamage != 0)
     flags += 0x40
-  if (packet.uniqueId != null)
+  if (packet.uniqueId != -1)
     flags += 0x80
   buf.writeByte(flags)
-  if (packet.ai0 != null)
+  if (packet.ai0 != 0f)
     buf.writeFloatLE(packet.ai0)
-  if (packet.ai1 != null)
+  if (packet.ai1 != 0f)
     buf.writeFloatLE(packet.ai1)
-  if (packet.damage != null)
+  if (packet.damage != 0)
     buf.writeShortLE(packet.damage)
-  if (packet.knockback != null)
+  if (packet.knockback != 0f)
     buf.writeFloatLE(packet.knockback)
-  if (packet.originalDamage != null)
+  if (packet.originalDamage != 0)
     buf.writeShortLE(packet.originalDamage)
-  if (packet.uniqueId != null)
+  if (packet.uniqueId != -1)
     buf.writeShortLE(packet.uniqueId)
 }
 
@@ -78,12 +78,12 @@ internal val ProjectileUpdateDecoder = PacketDecoder { buf ->
   val owner = buf.readPlayerId()
   val projectileType = ProjectileType(buf.readShortLE().toInt())
   val flags = buf.readUnsignedByte().toInt()
-  val ai0 = if ((flags and 0x01) != 0) buf.readFloatLE() else null
-  val ai1 = if ((flags and 0x02) != 0) buf.readFloatLE() else null
-  val damage = if ((flags and 0x10) != 0) buf.readShortLE().toInt() else null
-  val knockback = if ((flags and 0x20) != 0) buf.readFloatLE() else null
-  val originalDamage = if ((flags and 0x40) != 0) buf.readShortLE().toInt() else null
-  val uniqueId = if ((flags and 0x80) != 0) buf.readShortLE().toInt() else null
-  ProjectileUpdatePacket(projectileId, position, velocity, knockback, damage,
-    originalDamage, owner, projectileType, ai0, ai1, uniqueId)
+  val ai0 = if ((flags and 0x01) != 0) buf.readFloatLE() else 0f
+  val ai1 = if ((flags and 0x02) != 0) buf.readFloatLE() else 0f
+  val damage = if ((flags and 0x10) != 0) buf.readShortLE().toInt() else 0
+  val knockback = if ((flags and 0x20) != 0) buf.readFloatLE() else 0f
+  val originalDamage = if ((flags and 0x40) != 0) buf.readShortLE().toInt() else 0
+  val uniqueId = if ((flags and 0x80) != 0) buf.readShortLE().toInt() else -1
+  ProjectileUpdatePacket(projectileId, projectileType, position, velocity, knockback,
+    damage, originalDamage, owner, ai0, ai1, uniqueId)
 }

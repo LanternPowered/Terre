@@ -20,4 +20,11 @@ internal value class LeftOrRight(val isRight: Boolean) {
 
   val isLeft: Boolean
     get() = !isRight
+
+  companion object {
+
+    val Right = LeftOrRight(true)
+
+    val Left = LeftOrRight(false)
+  }
 }

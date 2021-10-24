@@ -12,7 +12,6 @@
 package org.lanternpowered.terre.impl.network.buffer
 
 import io.netty.buffer.ByteBuf
-import io.netty.buffer.Unpooled
 import io.netty.handler.codec.DecoderException
 import org.lanternpowered.terre.impl.text.TextImpl
 import org.lanternpowered.terre.impl.text.fromTaggedVanillaText
@@ -211,8 +210,8 @@ internal inline fun ByteBuf.readPlayerId(): PlayerId =
 /**
  * Writes a player id.
  */
-internal inline fun ByteBuf.writePlayerId(playerId: PlayerId): ByteBuf =
-  writeByte(playerId.value)
+internal inline fun ByteBuf.writePlayerId(id: PlayerId): ByteBuf =
+  writeByte(id.value)
 
 /**
  * Reads a npc id.
@@ -223,8 +222,8 @@ internal inline fun ByteBuf.readNpcId(): NpcId =
 /**
  * Writes a npc id.
  */
-internal inline fun ByteBuf.writeNpcId(npcId: NpcId): ByteBuf =
-  writeShortLE(npcId.value)
+internal inline fun ByteBuf.writeNpcId(id: NpcId): ByteBuf =
+  writeShortLE(id.value)
 
 /**
  * Reads a projectile id.
@@ -235,8 +234,20 @@ internal inline fun ByteBuf.readProjectileId(): ProjectileId =
 /**
  * Writes a projectile id.
  */
-internal inline fun ByteBuf.writeProjectileId(projectileId: ProjectileId): ByteBuf =
-  writeShortLE(projectileId.value)
+internal inline fun ByteBuf.writeProjectileId(id: ProjectileId): ByteBuf =
+  writeShortLE(id.value)
+
+/**
+ * Reads an item id.
+ */
+internal inline fun ByteBuf.readItemId(): ItemId =
+  ItemId(readUnsignedShortLE())
+
+/**
+ * Writes an item id.
+ */
+internal inline fun ByteBuf.writeItemId(id: ItemId): ByteBuf =
+  writeShortLE(id.value)
 
 /**
  * Reads a position where x and y are encoded as short.

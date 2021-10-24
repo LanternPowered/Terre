@@ -207,7 +207,7 @@ private class TaggedVanillaTextBuilder : AbstractVanillaTextBuilder() {
       }
       builder.append('s').append(itemStack.quantity)
     }
-    builder.append(':').append(itemStack.item.numericId)
+    builder.append(':').append(itemStack.type.numericId)
     builder.append(']')
   }
 

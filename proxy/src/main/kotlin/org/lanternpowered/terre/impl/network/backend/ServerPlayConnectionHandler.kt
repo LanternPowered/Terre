@@ -20,11 +20,14 @@ import org.lanternpowered.terre.impl.network.packet.CompleteConnectionPacket
 import org.lanternpowered.terre.impl.network.packet.CustomPayloadPacket
 import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
 import org.lanternpowered.terre.impl.network.packet.EssentialTilesRequestPacket
+import org.lanternpowered.terre.impl.network.packet.PlayerActivePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerSpawnPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerTeamPacket
-import org.lanternpowered.terre.impl.network.packet.UpdateNpcNamePacket
-import org.lanternpowered.terre.impl.network.packet.UpdateNpcPacket
+import org.lanternpowered.terre.impl.network.packet.NpcUpdateNamePacket
+import org.lanternpowered.terre.impl.network.packet.NpcUpdatePacket
+import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
+import org.lanternpowered.terre.impl.network.packet.ProjectileUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoPacket
 import org.lanternpowered.terre.impl.player.PlayerImpl
 import org.lanternpowered.terre.impl.player.ServerConnectionImpl
@@ -74,20 +77,48 @@ internal open class ServerPlayConnectionHandler(
     return false // Forward
   }
 
+  override fun handle(packet: PlayerActivePacket): Boolean {
+    player.trackedPlayers[packet.playerId].active = packet.active
+    return false // Forward
+  }
+
   override fun handle(packet: PlayerInfoPacket): Boolean {
+    player.trackedPlayers[packet.playerId].name = packet.playerName
     return false // Forward
   }
 
-  override fun handle(packet: UpdateNpcNamePacket): Boolean {
+  override fun handle(packet: NpcUpdateNamePacket): Boolean {
+    player.trackedNpcs[packet.npcId].name = packet.name
     return false // Forward
   }
 
-  override fun handle(packet: UpdateNpcPacket): Boolean {
+  override fun handle(packet: NpcUpdatePacket): Boolean {
+    val npc = player.trackedNpcs[packet.id]
+    val npcType = packet.type
+    if (npc.type != npcType || !npc.active) {
+      npc.type = npcType
+      npc.name = null
+      npc.life = 1
+    }
+    if (packet.life != null)
+      npc.life = packet.life
     return false // Forward
   }
 
   override fun handle(packet: PlayerTeamPacket): Boolean {
     player.team = packet.team
+    return false // Forward
+  }
+
+  override fun handle(packet: ProjectileUpdatePacket): Boolean {
+    val projectile = player.trackedProjectiles[packet.id]
+    projectile.active = true
+    projectile.owner = packet.owner
+    return false // Forward
+  }
+
+  override fun handle(packet: ProjectileDestroyPacket): Boolean {
+    player.trackedProjectiles[packet.id].active = false
     return false // Forward
   }
 

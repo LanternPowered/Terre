@@ -78,8 +78,7 @@ internal class PortalImpl(
   fun createUpdatePacket(): ProjectileUpdatePacket? {
     if (type.projectileType == null)
       return null
-    return ProjectileUpdatePacket(projectileId, position, Vec2f.Zero, null,
-      null, null, PlayerId.None, type.projectileType, null, null, null)
+    return ProjectileUpdatePacket(projectileId, type.projectileType, position)
   }
 
   fun createDestroyPacket(): ProjectileDestroyPacket? {

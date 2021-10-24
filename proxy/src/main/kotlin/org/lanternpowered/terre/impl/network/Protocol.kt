@@ -83,7 +83,7 @@ internal class Protocol(val name: String) : ProtocolBase() {
     val directionsSet = if (direction != null) directionSetOf(direction) else bothDirectionsSet
     var registration = PacketEncoderRegistrationImpl(type.java, opcode, encoder, directionsSet)
     if (direction != null) {
-      this.encodersByPacketType[direction.ordinal][type.java] = registration
+      encodersByPacketType[direction.ordinal][type.java] = registration
     } else {
       for (map in encodersByPacketType) {
         map[type.java] = registration

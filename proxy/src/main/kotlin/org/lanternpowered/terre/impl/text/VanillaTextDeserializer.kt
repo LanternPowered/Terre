@@ -18,10 +18,9 @@ import org.lanternpowered.terre.util.collection.toImmutableList
 import org.lanternpowered.terre.impl.util.optional
 import org.lanternpowered.terre.item.ItemModifier
 import org.lanternpowered.terre.item.ItemModifierRegistry
-import org.lanternpowered.terre.item.ItemRegistry
-import org.lanternpowered.terre.item.itemStackOf
+import org.lanternpowered.terre.item.ItemTypeRegistry
+import org.lanternpowered.terre.item.ItemStack
 import org.lanternpowered.terre.text.GlyphRegistry
-import java.util.*
 
 /**
  * Converts the tagged vanilla text to an actual object.
@@ -91,7 +90,7 @@ private fun fromTaggedVanillaFormat(format: String, builder: TextBuilder) {
       }
       "i" -> {
         val internalId = value.toIntOrNull()
-        val item = if (internalId != null) ItemRegistry[internalId] else null
+        val item = if (internalId != null) ItemTypeRegistry[internalId] else null
         val optionList = options.split(",")
           .filter { it.isNotEmpty() }
         val quantity = optionList.firstOrNull { it[0] == 's' || it[0] == 'x' }
@@ -105,7 +104,7 @@ private fun fromTaggedVanillaFormat(format: String, builder: TextBuilder) {
           val modifierId = optionList.firstOrNull { it[0] == 'p' }
             ?.toIntOrNull()?.coerceIn(0..10000) ?: 0
           val modifier = ItemModifierRegistry[modifierId] ?: ItemModifier.Default
-          builder.append(ItemTextImpl(itemStackOf(item, modifier, quantity)))
+          builder.append(ItemTextImpl(ItemStack(item, modifier, quantity)))
         }
       }
       "n" -> builder.append('<' + value

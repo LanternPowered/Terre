@@ -9,22 +9,5 @@
  */
 package org.lanternpowered.terre.impl.network.buffer
 
-/**
- * Left or right. Usually used for up or down directions.
- *
- * @property isUp Whether it's up
- * @property isDown Whether it's down
- */
 @JvmInline
-internal value class UpOrDown(val isUp: Boolean) {
-
-  val isDown: Boolean
-    get() = !isUp
-
-  companion object {
-
-    val Up = UpOrDown(true)
-
-    val Down = UpOrDown(false)
-  }
-}
+internal value class ItemId(val value: Int)

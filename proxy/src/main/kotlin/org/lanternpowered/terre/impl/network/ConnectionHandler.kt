@@ -37,9 +37,10 @@ import org.lanternpowered.terre.impl.network.packet.PlayerUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
 import org.lanternpowered.terre.impl.network.packet.SpeechBubblePacket
 import org.lanternpowered.terre.impl.network.packet.StatusPacket
-import org.lanternpowered.terre.impl.network.packet.UpdateItemOwnerPacket
-import org.lanternpowered.terre.impl.network.packet.UpdateNpcNamePacket
-import org.lanternpowered.terre.impl.network.packet.UpdateNpcPacket
+import org.lanternpowered.terre.impl.network.packet.ItemUpdateOwnerPacket
+import org.lanternpowered.terre.impl.network.packet.NpcUpdateNamePacket
+import org.lanternpowered.terre.impl.network.packet.NpcUpdatePacket
+import org.lanternpowered.terre.impl.network.packet.ProjectileUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoPacket
 import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsDonePacket
 import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsPacket
@@ -138,15 +139,15 @@ internal interface ConnectionHandler {
     return false
   }
 
-  fun handle(packet: UpdateItemOwnerPacket): Boolean {
+  fun handle(packet: ItemUpdateOwnerPacket): Boolean {
     return false
   }
 
-  fun handle(packet: UpdateNpcNamePacket): Boolean {
+  fun handle(packet: NpcUpdateNamePacket): Boolean {
     return false
   }
 
-  fun handle(packet: UpdateNpcPacket): Boolean {
+  fun handle(packet: NpcUpdatePacket): Boolean {
     return false
   }
 
@@ -179,6 +180,10 @@ internal interface ConnectionHandler {
   }
 
   fun handle(packet: ProjectileDestroyPacket): Boolean {
+    return false
+  }
+
+  fun handle(packet: ProjectileUpdatePacket): Boolean {
     return false
   }
 

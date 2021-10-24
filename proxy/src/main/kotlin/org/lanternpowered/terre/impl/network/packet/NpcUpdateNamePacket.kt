@@ -12,7 +12,7 @@ package org.lanternpowered.terre.impl.network.packet
 import org.lanternpowered.terre.impl.network.buffer.NpcId
 import org.lanternpowered.terre.impl.network.Packet
 
-internal data class UpdateNpcNamePacket(
+internal data class NpcUpdateNamePacket(
   val npcId: NpcId,
   val name: String,
   val townNpcVariationIndex: Int

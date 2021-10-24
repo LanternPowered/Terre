@@ -11,17 +11,16 @@
 
 package org.lanternpowered.terre.impl.network.packet
 
-import com.google.common.primitives.Ints
 import io.netty.buffer.ByteBuf
 import org.lanternpowered.terre.impl.network.ForwardingReferenceCounted
 import org.lanternpowered.terre.impl.network.Packet
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 import org.lanternpowered.terre.impl.network.buffer.readString
 import org.lanternpowered.terre.impl.network.buffer.readUUID
 import org.lanternpowered.terre.impl.network.buffer.writeString
 import org.lanternpowered.terre.impl.network.buffer.writeUUID
 import org.lanternpowered.terre.impl.network.calculateLength
-import org.lanternpowered.terre.impl.network.PacketDecoder
-import org.lanternpowered.terre.impl.network.PacketEncoder
 import org.lanternpowered.terre.util.toString
 import java.util.UUID
 
@@ -53,33 +52,26 @@ private val idOffset = calculateLength {
   short() // rock layer position
 }
 
-internal val WorldInfoEncoder = WorldInfoEncoder(Int.MAX_VALUE)
-
-internal inline fun WorldInfoEncoder(protocol: Int) = PacketEncoder<WorldInfoPacket> { buf, packet ->
+internal val WorldInfoEncoder = PacketEncoder<WorldInfoPacket> { buf, packet ->
   val data = packet.data
   buf.writeBytes(data, 0, idOffset)
   buf.writeIntLE(packet.id)
   buf.writeString(packet.name)
-  if (protocol > 194)
-    buf.writeByte(packet.gameMode)
-  if (protocol != 155) {
-    buf.writeUUID(packet.uniqueId)
-    buf.writeLongLE(packet.generatorVersion)
-  }
+  buf.writeByte(packet.gameMode)
+  buf.writeUUID(packet.uniqueId)
+  buf.writeLongLE(packet.generatorVersion)
   buf.writeBytes(data, idOffset, data.readableBytes() - idOffset)
   // Last long is the steam lobby id, do we need to handle this?
 }
 
-internal val WorldInfoDecoder = WorldInfoDecoder(Int.MAX_VALUE)
-
-internal inline fun WorldInfoDecoder(protocol: Int) = PacketDecoder { buf ->
+internal val WorldInfoDecoder = PacketDecoder { buf ->
   buf.skipBytes(idOffset)
 
   val id = buf.readIntLE()
   val name = buf.readString()
-  val gameMode = if (protocol > 194) buf.readUnsignedByte().toInt() else 0
-  val uniqueId = if (protocol == 155) UUID.nameUUIDFromBytes(Ints.toByteArray(id)) else buf.readUUID()
-  val generatorVersion = if (protocol == 155) 0L else buf.readLongLE()
+  val gameMode = buf.readUnsignedByte().toInt()
+  val uniqueId = buf.readUUID()
+  val generatorVersion = buf.readLongLE()
 
   val size = idOffset + buf.readableBytes()
   val data = byteBufAllocator.buffer(size)

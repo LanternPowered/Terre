@@ -11,7 +11,8 @@
 
 package org.lanternpowered.terre.impl.network.packet
 
-import org.lanternpowered.terre.impl.network.*
+import org.lanternpowered.terre.impl.network.Packet
+import org.lanternpowered.terre.impl.network.PacketEncoder
 import org.lanternpowered.terre.impl.network.buffer.NpcId
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.buffer.ProjectileId
@@ -21,7 +22,7 @@ internal sealed class SpeechBubblePacket : Packet {
   abstract val id: Int
 
   /**
-   * Updates or creates a emote bubble.
+   * Updates or creates an emote bubble.
    */
   data class Update(
     override val id: Int,
@@ -32,7 +33,7 @@ internal sealed class SpeechBubblePacket : Packet {
   ) : SpeechBubblePacket()
 
   /**
-   * Removes a emote bubble.
+   * Removes an emote bubble.
    */
   data class Remove(override val id: Int) : SpeechBubblePacket()
 
@@ -46,9 +47,7 @@ internal sealed class SpeechBubblePacket : Packet {
   }
 }
 
-internal val SpeechBubbleEncoder = SpeechBubbleEncoder(Integer.MAX_VALUE)
-
-internal fun SpeechBubbleEncoder(version: Int) = PacketEncoder<SpeechBubblePacket> { buf, packet ->
+internal val SpeechBubbleEncoder = PacketEncoder<SpeechBubblePacket> { buf, packet ->
   buf.writeIntLE(packet.id)
   if (packet is SpeechBubblePacket.Remove) {
     buf.writeByte(255)
@@ -68,14 +67,9 @@ internal fun SpeechBubbleEncoder(version: Int) = PacketEncoder<SpeechBubblePacke
         buf.writeShortLE(anchor.id.value)
       }
     }
-    if (version > 194) {
-      buf.writeShortLE(packet.lifetime)
-    } else {
-      buf.writeByte(packet.lifetime)
-    }
+    buf.writeShortLE(packet.lifetime)
     buf.writeByte(packet.emote)
-    if (packet.emote < 0) {
+    if (packet.emote < 0)
       buf.writeShortLE(packet.emote)
-    }
   }
 }

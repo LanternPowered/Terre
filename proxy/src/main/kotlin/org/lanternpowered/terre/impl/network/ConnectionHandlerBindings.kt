@@ -37,9 +37,10 @@ import org.lanternpowered.terre.impl.network.packet.PlayerTeleportThroughPortalP
 import org.lanternpowered.terre.impl.network.packet.PlayerUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.SpeechBubblePacket
 import org.lanternpowered.terre.impl.network.packet.StatusPacket
-import org.lanternpowered.terre.impl.network.packet.UpdateItemOwnerPacket
-import org.lanternpowered.terre.impl.network.packet.UpdateNpcNamePacket
-import org.lanternpowered.terre.impl.network.packet.UpdateNpcPacket
+import org.lanternpowered.terre.impl.network.packet.ItemUpdateOwnerPacket
+import org.lanternpowered.terre.impl.network.packet.NpcUpdateNamePacket
+import org.lanternpowered.terre.impl.network.packet.NpcUpdatePacket
+import org.lanternpowered.terre.impl.network.packet.ProjectileUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
 import kotlin.reflect.KClass
@@ -67,9 +68,9 @@ internal object ConnectionHandlerBindings {
     bind<PlayerInfoPacket>(ConnectionHandler::handle)
     bind<SpeechBubblePacket>(ConnectionHandler::handle)
     bind<StatusPacket>(ConnectionHandler::handle)
-    bind<UpdateItemOwnerPacket>(ConnectionHandler::handle)
-    bind<UpdateNpcNamePacket>(ConnectionHandler::handle)
-    bind<UpdateNpcPacket>(ConnectionHandler::handle)
+    bind<ItemUpdateOwnerPacket>(ConnectionHandler::handle)
+    bind<NpcUpdateNamePacket>(ConnectionHandler::handle)
+    bind<NpcUpdatePacket>(ConnectionHandler::handle)
     bind<WorldInfoPacket>(ConnectionHandler::handle)
     bind<WorldInfoRequestPacket>(ConnectionHandler::handle)
     bind<AddPlayerBuffPacket>(ConnectionHandler::handle)
@@ -78,6 +79,7 @@ internal object ConnectionHandlerBindings {
     bind<CustomPayloadPacket>(ConnectionHandler::handle)
     bind<PlayerTeleportThroughPortalPacket>(ConnectionHandler::handle)
     bind<ProjectileDestroyPacket>(ConnectionHandler::handle)
+    bind<ProjectileUpdatePacket>(ConnectionHandler::handle)
     bind<PlayerUpdatePacket>(ConnectionHandler::handle)
     bind<PlayerTeamPacket>(ConnectionHandler::handle)
   }

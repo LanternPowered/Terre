@@ -17,12 +17,12 @@ import org.lanternpowered.terre.text.textOf
 /**
  * Constructs a new [ItemStack].
  */
-fun itemStackOf(
-  item: Item,
+fun ItemStack(
+  type: ItemType,
   modifier: ItemModifier = ItemModifier.Default,
   quantity: Int = 1
 ): ItemStack {
-  return ItemStackImpl(item, modifier, quantity)
+  return ItemStackImpl(type, modifier, quantity)
 }
 
 /**
@@ -38,7 +38,7 @@ interface ItemStack : TextLike {
   /**
    * The item type of the stack.
    */
-  val item: Item
+  val type: ItemType
 
   /**
    * The quantity of items in the stack.
@@ -59,4 +59,12 @@ interface ItemStack : TextLike {
    * Converts this stack into a text component.
    */
   override fun text(): ItemText = textOf(this)
+
+  companion object {
+
+    /**
+     * Represents an empty item.
+     */
+    val Empty = ItemStack(ItemType.None)
+  }
 }

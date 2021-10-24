@@ -15,4 +15,5 @@ internal data class AchievementImpl(
     override val name: String
 ) : Achievement
 
-internal val AchievementRegistryImpl = buildNamedCatalogTypeRegistryOf<Achievement>(::AchievementImpl)
+internal val AchievementRegistryImpl =
+  buildNamedCatalogTypeRegistryOf<Achievement>(::AchievementImpl)

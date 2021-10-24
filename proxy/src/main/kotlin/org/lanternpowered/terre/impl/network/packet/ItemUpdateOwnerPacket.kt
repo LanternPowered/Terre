@@ -15,23 +15,26 @@ import org.lanternpowered.terre.impl.network.buffer.readPlayerId
 import org.lanternpowered.terre.impl.network.buffer.writePlayerId
 import org.lanternpowered.terre.impl.network.PacketDecoder
 import org.lanternpowered.terre.impl.network.PacketEncoder
+import org.lanternpowered.terre.impl.network.buffer.ItemId
+import org.lanternpowered.terre.impl.network.buffer.readItemId
+import org.lanternpowered.terre.impl.network.buffer.writeItemId
 
-internal data class UpdateItemOwnerPacket(
-  val itemId: Int,
+internal data class ItemUpdateOwnerPacket(
+  val itemId: ItemId,
   val playerId: PlayerId
 ) : Packet
 
-internal val UpdateItemOwnerEncoder = PacketEncoder<UpdateItemOwnerPacket> { buf, packet ->
-  buf.writeShortLE(packet.itemId)
+internal val ItemUpdateOwnerEncoder = PacketEncoder<ItemUpdateOwnerPacket> { buf, packet ->
+  buf.writeItemId(packet.itemId)
   buf.writePlayerId(packet.playerId)
 }
 
-internal val UpdateItemOwnerDecoder = PacketDecoder { buf ->
-  val itemId = buf.readUnsignedShortLE()
+internal val ItemUpdateOwnerDecoder = PacketDecoder { buf ->
+  val itemId = buf.readItemId()
   val playerId = buf.readPlayerId()
   if (itemId == KeepAliveItemId) {
     KeepAlivePacket
   } else {
-    UpdateItemOwnerPacket(itemId, playerId)
+    ItemUpdateOwnerPacket(itemId, playerId)
   }
 }

@@ -25,7 +25,9 @@ internal object ProtocolRegistry {
 
   init {
     register(ProtocolVersion.Vanilla.`1․4․0․5`, Protocol230)
-    register(ProtocolVersion.Vanilla.`1․4․2․3`, Protocol230)
+    register(ProtocolVersion.Vanilla.`1․4․2․3`, Protocol238)
+
+    allowTranslation(Protocol238 to Protocol230)
   }
 
   val all: Collection<VersionedProtocol> get() = byId.values

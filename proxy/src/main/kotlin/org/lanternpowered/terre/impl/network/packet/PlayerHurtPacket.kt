@@ -27,9 +27,8 @@ import org.lanternpowered.terre.impl.network.buffer.writeString
 import org.lanternpowered.terre.impl.network.PacketDecoder
 import org.lanternpowered.terre.impl.network.PacketEncoder
 import org.lanternpowered.terre.item.ItemModifierRegistry
-import org.lanternpowered.terre.item.ItemRegistry
+import org.lanternpowered.terre.item.ItemTypeRegistry
 import org.lanternpowered.terre.item.ItemStack
-import org.lanternpowered.terre.item.itemStackOf
 
 /**
  * A packet when a player gets hurt.
@@ -111,8 +110,8 @@ internal fun ByteBuf.readDamageReason(): PlayerDamageReason {
     Projectile(projectileId, ProjectileType(projectileType)) else null
   val itemId = if ((flags and 0x20) != 0) readShortLE().toInt() else null
   val itemModifier = if ((flags and 0x40) != 0) readByte().toInt() else null
-  val itemStack = if (itemId != null) itemStackOf(
-    ItemRegistry.require(itemId), ItemModifierRegistry.require(itemModifier ?: 0)) else null
+  val itemStack = if (itemId != null) ItemStack(ItemTypeRegistry.require(itemId),
+    ItemModifierRegistry.require(itemModifier ?: 0)) else null
   val custom = if ((flags and 0x80) != 0) readString() else null
   return PlayerDamageReason(playerId, npcId, projectile, other, itemStack, custom)
 }
@@ -153,7 +152,7 @@ internal fun ByteBuf.writeDamageReason(reason: PlayerDamageReason) {
   if (projectile != null)
     writeShortLE(projectile.type.value)
   if (item != null) {
-    writeShortLE(item.item.numericId)
+    writeShortLE(item.type.numericId)
     writeByte(item.modifier.numericId)
   }
   if (custom != null)

@@ -30,8 +30,9 @@ internal class PacketMessageEncoder(
       opcode = input.opcode
     } else {
       val registration = context.protocol.getEncoder(context.direction, input.javaClass)
-        ?: throw EncoderException("No encoder is registered for packet type ${input::class.simpleName} " +
-          "with direction ${context.direction} for protocol ${context.protocol.name}.")
+        ?: throw EncoderException("No encoder is registered for packet type " +
+          "${input::class.simpleName} with direction ${context.direction} for protocol " +
+          "${context.protocol.name}.")
 
       opcode = registration.opcode
       result = try {

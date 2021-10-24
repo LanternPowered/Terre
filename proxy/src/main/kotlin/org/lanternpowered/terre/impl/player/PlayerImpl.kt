@@ -25,11 +25,21 @@ import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.event.TerreEventBus
 import org.lanternpowered.terre.impl.network.Connection
 import org.lanternpowered.terre.impl.network.MultistateProtocol
+import org.lanternpowered.terre.impl.network.buffer.NpcType
 import org.lanternpowered.terre.impl.network.client.ClientPlayConnectionHandler
 import org.lanternpowered.terre.impl.network.packet.ChatMessagePacket
+import org.lanternpowered.terre.impl.network.packet.ItemUpdatePacket
+import org.lanternpowered.terre.impl.network.packet.NpcUpdatePacket
+import org.lanternpowered.terre.impl.network.packet.PlayerActivePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerChatMessagePacket
+import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
 import org.lanternpowered.terre.impl.network.toDeferred
+import org.lanternpowered.terre.impl.network.tracking.TrackedItems
+import org.lanternpowered.terre.impl.network.tracking.TrackedNpcs
+import org.lanternpowered.terre.impl.network.tracking.TrackedPlayers
+import org.lanternpowered.terre.impl.network.tracking.TrackedProjectiles
 import org.lanternpowered.terre.impl.text.MessageReceiverImpl
+import org.lanternpowered.terre.item.ItemStack
 import org.lanternpowered.terre.math.Vec2f
 import org.lanternpowered.terre.portal.Portal
 import org.lanternpowered.terre.portal.PortalBuilder
@@ -69,6 +79,26 @@ internal class PlayerImpl(
 
   override val boundingBox: AABB
     get() = AABB.centerSize(Vec2f(20f, 42f)).offset(position)
+
+  /**
+   * The NPCs this player is aware of.
+   */
+  val trackedNpcs = TrackedNpcs()
+
+  /**
+   * The players this player is aware of.
+   */
+  val trackedPlayers = TrackedPlayers()
+
+  /**
+   * The items this player is aware of.
+   */
+  val trackedItems = TrackedItems()
+
+  /**
+   * The projectiles this player is aware of.
+   */
+  val trackedProjectiles = TrackedProjectiles()
 
   /**
    * Whether the player was previously connected to another server.
@@ -120,7 +150,7 @@ internal class PlayerImpl(
           clientConnection.close(eventResult.reason)
         } else {
           TerreEventBus.postAsyncWithFuture(ClientPostLoginEvent(this))
-              .thenAccept { afterLogin() }
+            .thenAccept { afterLogin() }
         }
       }, clientConnection.eventLoop)
   }
@@ -131,9 +161,8 @@ internal class PlayerImpl(
       .filter { it.allowAutoJoin }
       .toList()
     connectToAnyWithFuture(possibleServers).whenComplete { connected, _ ->
-      if (connected == null) {
+      if (connected == null)
         disconnectAndForget(textOf("Failed to connect to a server."))
-      }
     }
   }
 
@@ -177,9 +206,8 @@ internal class PlayerImpl(
       .filter { it.allowAutoJoin && it != server }
       .toList()
     connectToAnyWithFuture(possibleServers).whenComplete { connected, _ ->
-      if (connected == null) {
+      if (connected == null)
         disconnectAndForget(textOf("Failed to connect to a server."))
-      }
     }
   }
 
@@ -239,6 +267,7 @@ internal class PlayerImpl(
         serverConnection?.server?.removePlayer(this)
         // Replace it with the successfully established one
         serverConnection = connection
+        resetClient()
         connection.server.initPlayer(this)
         Terre.logger.debug("Successfully established connection to backend server: ${server.info}")
       }
@@ -246,4 +275,27 @@ internal class PlayerImpl(
   }
 
   override fun connectToAsync(server: Server) = connectToWithFuture(server).asDeferred()
+
+  private fun resetClient() {
+    for (player in trackedPlayers) {
+      if (player.active)
+        clientConnection.send(PlayerActivePacket(player.id, false))
+    }
+    trackedPlayers.reset()
+    for (npc in trackedNpcs) {
+      if (npc.active)
+        clientConnection.send(NpcUpdatePacket(npc.id, NpcType(0), Vec2f.Zero, 0))
+    }
+    trackedNpcs.reset()
+    for (item in trackedItems) {
+      if (item.active)
+        clientConnection.send(ItemUpdatePacket(item.id, Vec2f.Zero, ItemStack.Empty))
+    }
+    trackedItems.reset()
+    for (projectile in trackedProjectiles) {
+      if (projectile.active)
+        clientConnection.send(ProjectileDestroyPacket(projectile.id, projectile.owner))
+    }
+    trackedProjectiles.reset()
+  }
 }

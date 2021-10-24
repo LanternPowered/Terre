@@ -11,19 +11,27 @@ package org.lanternpowered.terre.item
 
 import org.lanternpowered.terre.catalog.NumericCatalogType
 import org.lanternpowered.terre.catalog.NumericCatalogTypeRegistry
-import org.lanternpowered.terre.impl.item.ItemRegistryImpl
+import org.lanternpowered.terre.impl.item.ItemTypeRegistryImpl
 import org.lanternpowered.terre.text.ItemText
 import org.lanternpowered.terre.text.TextLike
 
 /**
  * Represents the type of item.
  */
-interface Item : NumericCatalogType, TextLike {
+interface ItemType : NumericCatalogType, TextLike {
 
-  override fun text(): ItemText = itemStackOf(this).text()
+  override fun text(): ItemText = ItemStack(this).text()
+
+  companion object {
+
+    /**
+     * Represents an empty item.
+     */
+    val None: ItemType = ItemTypeRegistryImpl.require(0)
+  }
 }
 
 /**
- * A registry for all the [Item]s.
+ * A registry for all the [ItemType]s.
  */
-object ItemRegistry : NumericCatalogTypeRegistry<Item> by ItemRegistryImpl
+object ItemTypeRegistry : NumericCatalogTypeRegistry<ItemType> by ItemTypeRegistryImpl

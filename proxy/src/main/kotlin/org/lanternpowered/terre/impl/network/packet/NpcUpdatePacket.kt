@@ -12,6 +12,7 @@
 package org.lanternpowered.terre.impl.network.packet
 
 import io.netty.handler.codec.DecoderException
+import org.lanternpowered.terre.impl.NpcInfo
 import org.lanternpowered.terre.math.Vec2f
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.LeftOrRight
@@ -28,40 +29,42 @@ import org.lanternpowered.terre.impl.network.buffer.writeVec2f
 import org.lanternpowered.terre.impl.network.PacketDecoder
 import org.lanternpowered.terre.impl.network.PacketEncoder
 
-internal data class UpdateNpcPacket(
-  val npcId: NpcId,
-  val npcType: NpcType,
+internal data class NpcUpdatePacket(
+  val id: NpcId,
+  val type: NpcType,
   val position: Vec2f,
-  val velocity: Vec2f,
-  val target: PlayerId?,
-  val ai: NpcAI,
-  val direction: LeftOrRight,
-  val directionY: UpOrDown,
-  val spriteDirection: LeftOrRight,
   val life: Int?,
-  val releaseOwner: PlayerId?,
-  val playerCountForMultiplayerDifficultyOverride: Int?,
-  val spawnedFromStatue: Boolean,
-  val strengthMultiplier: Float?
+  val velocity: Vec2f = Vec2f.Zero,
+  val spriteDirection: LeftOrRight = LeftOrRight.Right,
+  val direction: LeftOrRight = LeftOrRight.Right,
+  val directionY: UpOrDown = UpOrDown.Up,
+  val target: PlayerId? = null,
+  val ai: NpcAI = NpcAI.None,
+  val releaseOwner: PlayerId = PlayerId.None,
+  val playerCountForMultiplayerDifficultyOverride: Int = 1,
+  val spawnedFromStatue: Boolean = false,
+  val strengthMultiplier: Float = 1f,
 ) : Packet
 
 internal data class NpcAI(
-    val ai1: Float,
-    val ai2: Float,
-    val ai3: Float,
-    val ai4: Float
-)
+  val ai1: Float,
+  val ai2: Float,
+  val ai3: Float,
+  val ai4: Float
+) {
 
-internal fun UpdateNpcEncoder(protocol: Int) = PacketEncoder<UpdateNpcPacket> { buf, packet ->
-  buf.writeNpcId(packet.npcId)
+  companion object {
+
+    val None = NpcAI(0f, 0f, 0f, 0f)
+  }
+}
+
+internal val NpcUpdateEncoder = PacketEncoder<NpcUpdatePacket> { buf, packet ->
+  buf.writeNpcId(packet.id)
   buf.writeVec2f(packet.position)
   buf.writeVec2f(packet.velocity)
-  val target = packet.target?.to(this.isMobile)?.value ?: -1
-  if (protocol == 155) {
-    buf.writeByte(target)
-  } else {
-    buf.writeShortLE(target)
-  }
+  val target = packet.target?.to(isMobile)?.value ?: -1
+  buf.writeShortLE(target)
   var flags = 0
   if (packet.direction.isRight)
     flags += 0x1
@@ -81,15 +84,14 @@ internal fun UpdateNpcEncoder(protocol: Int) = PacketEncoder<UpdateNpcPacket> { 
   val life = packet.life
   if (life == null)
     flags += 0x80
-  if (packet.playerCountForMultiplayerDifficultyOverride != null)
+  if (packet.playerCountForMultiplayerDifficultyOverride != 1)
     flags += 0x01_00
   if (packet.spawnedFromStatue)
     flags += 0x02_00
-  if (packet.strengthMultiplier != null)
+  if (packet.strengthMultiplier != 1f)
     flags += 0x04_00
   buf.writeByte(flags)
-  if (protocol > 194)
-    buf.writeByte(flags shr 8)
+  buf.writeByte(flags shr 8)
   if (ai.ai1 != 0f)
     buf.writeFloatLE(ai.ai1)
   if (ai.ai2 != 0f)
@@ -98,13 +100,11 @@ internal fun UpdateNpcEncoder(protocol: Int) = PacketEncoder<UpdateNpcPacket> { 
     buf.writeFloatLE(ai.ai3)
   if (ai.ai4 != 0f)
     buf.writeFloatLE(ai.ai4)
-  buf.writeShortLE(packet.npcType.value)
-  if (protocol > 194) {
-    if (packet.playerCountForMultiplayerDifficultyOverride != null)
-      buf.writeByte(packet.playerCountForMultiplayerDifficultyOverride)
-    if (packet.strengthMultiplier != null)
-      buf.writeFloatLE(packet.strengthMultiplier)
-  }
+  buf.writeShortLE(packet.type.value)
+  if (packet.playerCountForMultiplayerDifficultyOverride != 1)
+    buf.writeByte(packet.playerCountForMultiplayerDifficultyOverride)
+  if (packet.strengthMultiplier != 1f)
+    buf.writeFloatLE(packet.strengthMultiplier)
   if (life != null) {
     buf.writeByte(when {
       life <= Byte.MAX_VALUE -> Byte.SIZE_BYTES
@@ -118,17 +118,17 @@ internal fun UpdateNpcEncoder(protocol: Int) = PacketEncoder<UpdateNpcPacket> { 
     }
   }
   val releaseOwner = packet.releaseOwner
-  if (releaseOwner != null)
-    buf.writePlayerId(releaseOwner.to(this.isMobile))
+  if (NpcInfo.isCatchable(packet.type))
+    buf.writePlayerId(releaseOwner.to(isMobile))
 }
 
-internal fun UpdateNpcDecoder(protocol: Int) = PacketDecoder { buf ->
+internal val NpcUpdateDecoder = PacketDecoder { buf ->
   val npcId = buf.readNpcId()
   val position = buf.readVec2f()
   val velocity = buf.readVec2f()
-  val targetId = if (protocol == 155) buf.readUnsignedByte().toInt() else buf.readUnsignedShortLE()
-  val target = if (targetId == -1) null else PlayerId(targetId).from(this.isMobile)
-  val flags = if (protocol > 194) buf.readUnsignedShortLE() else buf.readUnsignedByte().toInt()
+  val targetId = buf.readUnsignedShortLE()
+  val target = if (targetId == -1) null else PlayerId(targetId).from(isMobile)
+  val flags = buf.readUnsignedShortLE()
   val direction = LeftOrRight((flags and 0x1) != 0)
   val directionY = UpOrDown((flags and 0x2) != 0)
   val spriteDirection = LeftOrRight((flags and 0x40) != 0)
@@ -138,8 +138,9 @@ internal fun UpdateNpcDecoder(protocol: Int) = PacketDecoder { buf ->
   val ai4 = if ((flags and 0x20) != 0) buf.readFloatLE() else 0f
   val ai = NpcAI(ai1, ai2, ai3, ai4)
   val npcType = NpcType(buf.readShortLE().toInt())
-  val playerCountForMultiplayerDifficultyOverride = if ((flags and 0x01_00) != 0) buf.readUnsignedByte().toInt() else null
-  val strengthMultiplier = if ((flags and 0x04_00) != 0) buf.readFloatLE() else null
+  val playerCountForMultiplayerDifficultyOverride =
+    if ((flags and 0x01_00) != 0) buf.readUnsignedByte().toInt() else 1
+  val strengthMultiplier = if ((flags and 0x04_00) != 0) buf.readFloatLE() else 1f
   val spawnedFromStatue = (flags and 0x02_00) != 0
   val life = if ((flags and 0x80) == 0) {
     when (val length = buf.readByte().toInt()) {
@@ -149,8 +150,9 @@ internal fun UpdateNpcDecoder(protocol: Int) = PacketDecoder { buf ->
       else -> throw DecoderException("Invalid life length: $length")
     }
   } else null
-  val releaseOwner = if (buf.readableBytes() > 0) buf.readPlayerId().from(this.isMobile) else null
-  UpdateNpcPacket(npcId, npcType, position, velocity, target, ai,
-      direction, directionY, spriteDirection, life, releaseOwner,
-      playerCountForMultiplayerDifficultyOverride, spawnedFromStatue, strengthMultiplier)
+  val releaseOwner =
+    if (buf.readableBytes() > 0) buf.readPlayerId().from(isMobile) else PlayerId.None
+  NpcUpdatePacket(npcId, npcType, position, life, velocity, spriteDirection, direction, directionY,
+    target, ai, releaseOwner, playerCountForMultiplayerDifficultyOverride, spawnedFromStatue,
+    strengthMultiplier)
 }
