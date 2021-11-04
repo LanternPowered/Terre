@@ -11,6 +11,7 @@ The following list gives an overview of each sub-project in this repository.
 
 * **proxy** - The actual proxy server.
 * **image** - A docker image build containing the proxy and all the official plugins.
+* **standalone** - Packs terre and all its dependencies into a single jar.
 * **test** - A test environment which can be used in the IDE, which will include plugins from the repository.
 * **portals** - A plugin which allows you to create portals to teleport between servers (worlds).
 * **tshock-users** - A plugin which hooks into the tShock user and permission system, so they can work together.

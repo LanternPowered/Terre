@@ -98,7 +98,8 @@ internal object ProxyImpl : Proxy {
    */
   fun init() {
     console.init()
-    Terre.logger.info("Starting ${Terre.name} Server ${Terre.version}")
+    Terre.logger.info("Starting ${Terre.name}")
+    Terre.logger.info("  Version: ${Terre.version}")
 
     bindNetworkManager()
     initServers()

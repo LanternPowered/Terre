@@ -21,32 +21,35 @@ private object Context
 internal fun main(args: Array<String>) {
   System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager")
 
-  val source: CodeSource? = Context::class.java.protectionDomain.codeSource
-  val location = source?.location
+  // Wrap in a URL classloader if needed
+  var bootstrapClassLoader = Context::class.java.classLoader
+  if (bootstrapClassLoader !is URLClassLoader) {
+    val source: CodeSource? = Context::class.java.protectionDomain.codeSource
+    val location = source?.location
 
-  val urls = mutableListOf<URL>()
+    val urls = mutableListOf<URL>()
 
-  val classPath = System.getProperty("java.class.path")
-  val libraries = classPath.split(File.pathSeparator).toTypedArray()
-  for (library in libraries) {
-    try {
-      val url: URL = Paths.get(library).toUri().toURL()
-      if (!library.endsWith(".jar") || url == location)
-        urls.add(url)
-    } catch (ignored: MalformedURLException) {
-      println("Invalid library found in the class path: $library")
+    val classPath = System.getProperty("java.class.path")
+    val libraries = classPath.split(File.pathSeparator).toTypedArray()
+    for (library in libraries) {
+      try {
+        val url: URL = Paths.get(library).toUri().toURL()
+        if (!library.endsWith(".jar") || url == location)
+          urls.add(url)
+      } catch (ignored: MalformedURLException) {
+        println("Invalid library found in the class path: $library")
+      }
     }
+
+    // Construct a URL class loader
+    bootstrapClassLoader = URLClassLoader(urls.toTypedArray(), bootstrapClassLoader)
+    Thread.currentThread().contextClassLoader = bootstrapClassLoader
   }
 
-  val bootstrapClassLoader = Context::class.java.classLoader
-
-  // Construct a URL class loader
-  val classLoader = URLClassLoader(urls.toTypedArray(), bootstrapClassLoader)
-  Thread.currentThread().contextClassLoader = classLoader
-
   // Load the proxy using the new class loader
-  Class.forName("org.lanternpowered.terre.impl.ProxyImpl", true, classLoader)
-
+  val proxyClass = Class.forName("org.lanternpowered.terre.impl.ProxyImpl",
+    true, bootstrapClassLoader)
   // Initialize the proxy
-  ProxyImpl.init()
+  val proxyInstance = proxyClass.getField("INSTANCE").get(null)
+  proxyClass.getMethod("init").invoke(proxyInstance)
 }

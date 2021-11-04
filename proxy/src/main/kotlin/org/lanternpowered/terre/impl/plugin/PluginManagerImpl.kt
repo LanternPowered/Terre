@@ -59,12 +59,16 @@ internal class PluginManagerImpl : PluginManager {
     Terre.logger.info("${candidates.size} plugin(s) found")
 
     try {
+      val pluginClassLoader = PluginClassLoader()
       for (candidate in candidates) {
         if (disabledPlugins.contains(candidate.id)) {
           Terre.logger.info("Plugin ${candidate.id} is disabled, skipping...")
           continue
         }
-        val pluginClass = Class.forName(candidate.className).kotlin
+        val url = candidate.source?.toUri()?.toURL()
+        if (url != null)
+          pluginClassLoader.addURL(url)
+        val pluginClass = Class.forName(candidate.className, true, pluginClassLoader).kotlin
         val instance = pluginClass.objectInstance ?: continue
         addOrGetPluginContainer(pluginClass.findAnnotation()!!, instance)
         EventBus.register(instance)

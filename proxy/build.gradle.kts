@@ -61,16 +61,29 @@ dependencies {
   testImplementation(kotlin(module = "test", version = "1.5.21"))
 }
 
-tasks {
-  jar {
-    exclude("**/*.java") // For module-info.java
+tasks.jar {
+  val name = "Terre"
+  val version = rootProject.version
+  val vendor = "LanternPowered"
 
-    exclude("log4j2.xml")
-    rename("log4j2_prod.xml", "log4j2.xml")
-    // Only enable async logging outside dev mode, using async in combination
-    // with code location logging is disabled by default to avoid performance
-    // issues, but in dev we want to see the locations, so no async here
-    // See https://logging.apache.org/log4j/2.x/manual/async.html @ Location, location, location...
-    rename("log4j2_prod.component.properties", "log4j2.component.properties")
+  manifest {
+    attributes(
+      "Main-Class" to "org.lanternpowered.terre.impl.TerreMainKt",
+      "Specification-Name" to name,
+      "Specification-Version" to version,
+      "Specification-Vendor" to vendor,
+      "Implementation-Name" to name,
+      "Implementation-Version" to version,
+      "Implementation-Vendor" to vendor,
+    )
   }
+  exclude("**/*.java") // For module-info.java
+
+  exclude("log4j2.xml")
+  rename("log4j2_prod.xml", "log4j2.xml")
+  // Only enable async logging outside dev mode, using async in combination
+  // with code location logging is disabled by default to avoid performance
+  // issues, but in dev we want to see the locations, so no async here
+  // See https://logging.apache.org/log4j/2.x/manual/async.html @ Location, location, location...
+  rename("log4j2_prod.component.properties", "log4j2.component.properties")
 }

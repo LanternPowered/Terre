@@ -16,8 +16,7 @@ import kotlin.reflect.typeOf
 import org.lanternpowered.terre.impl.plugin.inject as doInject
 
 /**
- * Injects a value of type [T] for
- * the target receiver.
+ * Injects a value of type [T] for the target receiver.
  */
 inline fun <reified T> Any.inject(): T {
   @Suppress("UNCHECKED_CAST")
@@ -25,7 +24,7 @@ inline fun <reified T> Any.inject(): T {
 }
 
 /**
- * Gets a [ReadOnlyProperty] that lazily injects the the value.
+ * Gets a [ReadOnlyProperty] that lazily injects the value.
  */
 inline fun <reified T> lazyInject(): ReadOnlyProperty<Any?, T> {
   return LazyReadOnlyProperty {
@@ -34,8 +33,7 @@ inline fun <reified T> lazyInject(): ReadOnlyProperty<Any?, T> {
 }
 
 /**
- * Injects a value of type [T] for
- * the target receiver.
+ * Injects a value of type [T] for the target receiver.
  */
 fun <T> Any.inject(type: KType): T {
   @Suppress("UNCHECKED_CAST")
@@ -43,7 +41,7 @@ fun <T> Any.inject(type: KType): T {
 }
 
 /**
- * Gets a [ReadOnlyProperty] that lazily injects the the value.
+ * Gets a [ReadOnlyProperty] that lazily injects the value.
  */
 fun <T> lazyInject(type: KType): ReadOnlyProperty<Any?, T> {
   @Suppress("UNCHECKED_CAST")

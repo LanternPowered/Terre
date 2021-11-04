@@ -19,7 +19,7 @@ import org.lanternpowered.terre.impl.network.PacketCodecContext
 import org.lanternpowered.terre.impl.network.UnknownPacket
 
 internal class PacketMessageDecoder(
-    private val context: PacketCodecContext
+  private val context: PacketCodecContext
 ) : MessageToMessageDecoder<ByteBuf>() {
 
   companion object {

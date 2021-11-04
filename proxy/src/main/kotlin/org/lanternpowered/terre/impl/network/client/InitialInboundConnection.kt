@@ -15,8 +15,8 @@ import org.lanternpowered.terre.util.ToStringHelper
 import java.net.SocketAddress
 
 internal class InitialInboundConnection(
-    override val remoteAddress: SocketAddress,
-    override val protocolVersion: ProtocolVersion
+  override val remoteAddress: SocketAddress,
+  override val protocolVersion: ProtocolVersion
 ) : InboundConnection {
 
   override fun toString() = ToStringHelper()
