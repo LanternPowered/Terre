@@ -26,6 +26,8 @@ tasks.jar {
   }
 }
 
+System.setProperty("org.gradle.internal.publish.checksums.insecure", "true")
+
 publishing {
   val repoUsername: String? by project
   val repoPassword: String? by project
