@@ -48,7 +48,7 @@ publishing {
   val projectSha: String? by project
   var projectVersion: String = version.toString()
   if (projectSha != null)
-    projectVersion = projectVersion.replace("-SNAPSHOT", projectSha!!)
+    projectVersion = projectVersion.replace("SNAPSHOT", projectSha!!)
 
   publications {
     create<MavenPublication>("maven") {
@@ -81,4 +81,8 @@ publishing {
       }
     }
   }
+}
+
+tasks.withType<GenerateModuleMetadata> {
+  enabled = false
 }
