@@ -12,12 +12,12 @@ package org.lanternpowered.terre.impl.util
 import java.net.InetSocketAddress
 import java.net.URI
 
-fun parseInetAddress(address: String): InetSocketAddress {
+internal fun parseInetAddress(address: String): InetSocketAddress {
   val uri = URI.create("tcp://$address")
   check(uri.port != -1) { "Port couldn't be parsed from: $address" }
   return InetSocketAddress.createUnresolved(uri.host, uri.port)
 }
 
-fun InetSocketAddress.resolve(): InetSocketAddress {
+internal fun InetSocketAddress.resolve(): InetSocketAddress {
   return InetSocketAddress(this.hostName, this.port)
 }

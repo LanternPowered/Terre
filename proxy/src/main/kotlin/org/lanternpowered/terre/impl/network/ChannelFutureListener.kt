@@ -13,7 +13,7 @@ import io.netty.channel.ChannelFuture
 import io.netty.channel.ChannelFutureListener
 
 @Suppress("RedundantSamConstructor")
-inline fun ChannelFuture.addChannelFutureListener(
+internal inline fun ChannelFuture.addChannelFutureListener(
   crossinline block: (future: ChannelFuture) -> Unit
 ): ChannelFuture {
   return this.addListener(ChannelFutureListener {

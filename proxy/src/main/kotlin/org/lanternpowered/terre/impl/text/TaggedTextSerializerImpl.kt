@@ -13,7 +13,7 @@ import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.text.TextSerializer
 import org.lanternpowered.terre.text.text
 
-object TaggedTextSerializerImpl : TextSerializer {
+internal object TaggedTextSerializerImpl : TextSerializer {
 
   override fun serialize(text: Text): String =
     (text as TextImpl).toTaggedVanillaText().toPlain()
