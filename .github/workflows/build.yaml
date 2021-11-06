@@ -9,6 +9,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Add short commit SHA
+        run: echo "GITHUB_SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
       - name: Checkout
         uses: actions/checkout@v2
       - name: Setup JDK 16
@@ -30,3 +32,4 @@ jobs:
           ORG_GRADLE_PROJECT_repoPassword: "${{ github.token }}"
           ORG_GRADLE_PROJECT_repoUrl: "https://maven.pkg.github.com/${{ github.repository }}"
           ORG_GRADLE_PROJECT_projectUrl: "https://github.com/${{ github.repository }}"
+          ORG_GRADLE_PROJECT_projectSha: "${{ env.GITHUB_SHORT_SHA }}"

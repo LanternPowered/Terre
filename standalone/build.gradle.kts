@@ -45,11 +45,16 @@ publishing {
     }
   }
 
+  val projectSha: String? by project
+  var projectVersion: String = version.toString()
+  if (projectSha != null)
+    projectVersion = projectVersion.replace("-SNAPSHOT", projectSha!!)
+
   publications {
     create<MavenPublication>("maven") {
       groupId = project.group.toString()
       artifactId = "terre"
-      version = project.version.toString()
+      version = projectVersion
       from(components["java"])
       pom {
         url.set(projectUrl ?: "https://github.com/LanternPowered/Terre")
@@ -67,6 +72,7 @@ publishing {
           }
         }
         withXml {
+          // Delete dependencies section
           val root = asNode()
           val nodes = root["dependencies"] as groovy.util.NodeList
           if (nodes.isNotEmpty())
