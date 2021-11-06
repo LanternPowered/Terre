@@ -1,5 +1,6 @@
 plugins {
   java
+  `maven-publish`
 }
 
 dependencies {
@@ -20,6 +21,51 @@ tasks.jar {
     from (lib.file) {
       rename {
         "libs/${dependency.name}-${dependency.version}.jar"
+      }
+    }
+  }
+}
+
+publishing {
+  val repoUsername: String? by project
+  val repoPassword: String? by project
+  val repoUrl: String? by project
+  val projectUrl: String? by project
+
+  if (repoUrl == null || repoUsername == null || repoPassword == null)
+    return@publishing
+
+  repositories {
+    maven {
+      url = uri(repoUrl!!)
+      credentials {
+        username = repoUsername
+        password = repoPassword
+      }
+    }
+  }
+
+  publications {
+    create<MavenPublication>("maven") {
+      groupId = project.group.toString()
+      artifactId = "terre"
+      version = project.version.toString()
+      from(components["java"])
+      pom {
+        url.set(projectUrl ?: "https://github.com/LanternPowered/Terre")
+        licenses {
+          license {
+            name.set("The MIT License")
+            url.set("https://opensource.org/licenses/MIT")
+          }
+        }
+        developers {
+          developer {
+            id.set("Cybermaxke")
+            name.set("Seppe Volkaerts")
+            email.set("contact@seppevolkaerts.be")
+          }
+        }
       }
     }
   }

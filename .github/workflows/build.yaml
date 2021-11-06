@@ -23,3 +23,10 @@ jobs:
         env:
           ORG_GRADLE_PROJECT_dockerUsername: "${{ secrets.DOCKER_USERNAME }}"
           ORG_GRADLE_PROJECT_dockerPassword: "${{ secrets.DOCKER_PASSWORD }}"
+      - name: Build and push standalone jar
+        run: "./gradlew publish"
+        env:
+          ORG_GRADLE_PROJECT_repoUsername: "${{ github.actor }}"
+          ORG_GRADLE_PROJECT_repoPassword: "${{ github.token }}"
+          ORG_GRADLE_PROJECT_repoUrl: "https://maven.pkg.github.com/${{ github.repository_owner }}/${{ github.repository }}"
+          ORG_GRADLE_PROJECT_projectUrl: "https://github.com/${{ github.repository_owner }}/${{ github.repository }}"
