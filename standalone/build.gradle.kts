@@ -67,8 +67,10 @@ publishing {
           }
         }
         withXml {
-          val node = asNode()
-          node.remove(node.get("dependencies") as groovy.util.Node)
+          val root = asNode()
+          val nodes = root["dependencies"] as groovy.util.NodeList
+          if (nodes.isNotEmpty())
+            root.remove(nodes.first() as groovy.util.Node)
         }
       }
     }
