@@ -66,6 +66,10 @@ publishing {
             email.set("contact@seppevolkaerts.be")
           }
         }
+        withXml {
+          val node = asNode()
+          node.remove(node.get("dependencies") as groovy.util.Node)
+        }
       }
     }
   }

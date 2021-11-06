@@ -9,8 +9,6 @@
  */
 package org.lanternpowered.terre.impl;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -34,7 +32,7 @@ public final class StandaloneMain {
    *
    * @param args The application arguments
    */
-  public static void main(final @NotNull String... args) {
+  public static void main(final String... args) {
     final var source = StandaloneMain.class.getProtectionDomain().getCodeSource();
     final var location = source.getLocation();
 
