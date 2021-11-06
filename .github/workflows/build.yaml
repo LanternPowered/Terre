@@ -9,10 +9,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Add short commit SHA
-        run: echo "GITHUB_SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Add short commit SHA
+        run: echo "GITHUB_SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
       - name: Setup JDK 16
         uses: actions/setup-java@v2
         with:
