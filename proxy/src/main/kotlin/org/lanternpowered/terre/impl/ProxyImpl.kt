@@ -42,7 +42,7 @@ import java.net.InetSocketAddress
 import java.nio.file.Paths
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.exitProcess
-import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 internal object ProxyImpl : Proxy {
 
@@ -79,8 +79,8 @@ internal object ProxyImpl : Proxy {
   override var password by config.property(ProxyConfigSpec.password)
 
   override val address: InetSocketAddress by lazy {
-    val ip = this.config[ProxyConfigSpec.host]
-    val port = this.config[ProxyConfigSpec.port]
+    val ip = config[ProxyConfigSpec.host]
+    val port = config[ProxyConfigSpec.port]
 
     if (ip.isBlank()) {
       InetSocketAddress(port)
@@ -113,10 +113,12 @@ internal object ProxyImpl : Proxy {
     // Start the console, reading commands starts now
     console.start()
 
-    // Start broadcasting the server information to the LAN network, used by mobile
-    // TODO: Make this configurable
-    val broadcastTask = ProxyBroadcastTask(this)
-    broadcastTask.init()
+    if (config[ProxyConfigSpec.LocalBroadcast.enabled]) {
+      // Start broadcasting the server information to the LAN network, used by mobile
+      // TODO: Make values configurable?
+      val broadcastTask = ProxyBroadcastTask(this)
+      broadcastTask.init()
+    }
   }
 
   private fun processCommand(command: String) {
@@ -149,7 +151,7 @@ internal object ProxyImpl : Proxy {
 
       var timeout = false
 
-      timeout = tryWithTimeout(Duration.seconds(10)) {
+      timeout = tryWithTimeout(10.seconds) {
         players.toImmutableList()
             .map { it.disconnectAsync(reason) }
             .forEach { it.join() }
@@ -159,12 +161,12 @@ internal object ProxyImpl : Proxy {
       console.stop()
 
       // Post the proxy shutdown event and wait for it to finish before continuing
-      timeout = tryWithTimeout(Duration.seconds(10)) {
+      timeout = tryWithTimeout(10.seconds) {
         TerreEventBus.post(ProxyShutdownEvent())
       }.isFailure || timeout
 
       val executor = EventExecutor.executor
-      val executorShutdownTimeout = Duration.seconds(10)
+      val executorShutdownTimeout = 10.seconds
       // Shutdown the executor, give 10 seconds to finish remaining tasks
       executor.shutdown()
 

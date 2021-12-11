@@ -57,6 +57,7 @@ internal fun Any?.inject(type: KType): Any? {
  * Injects plugin related objects.
  */
 private fun TerrePluginContainer.inject(type: KType): Any? {
+  @Suppress("DEPRECATION")
   return when (type.classifier as KClass<*>) {
     PluginContainer::class -> this
     Logger::class, org.apache.logging.log4j.Logger::class -> this.logger

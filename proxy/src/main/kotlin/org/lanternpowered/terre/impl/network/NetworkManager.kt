@@ -29,18 +29,22 @@ import org.lanternpowered.terre.impl.network.pipeline.FrameEncoder
 import org.lanternpowered.terre.impl.network.pipeline.PacketMessageDecoder
 import org.lanternpowered.terre.impl.network.pipeline.PacketMessageEncoder
 import java.net.SocketAddress
-import kotlin.time.Duration
+import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 
-internal val ReadTimeout = Duration.seconds(20)
-internal val ConnectTimeout = Duration.seconds(5)
+internal val ReadTimeout = 20.seconds
+internal val ConnectTimeout = 5.seconds
 
 internal class NetworkManager {
 
   private val transportType = TransportType.findBestType()
 
-  val bossGroup = transportType.eventLoopGroupSupplier(0, NettyThreadFactory("boss"))
-  val workerGroup = transportType.eventLoopGroupSupplier(0, NettyThreadFactory("worker"))
+  private val bossGroup = transportType
+    .eventLoopGroupSupplier(0, NettyThreadFactory("boss"))
+
+  private val workerGroup = transportType
+    .eventLoopGroupSupplier(0, NettyThreadFactory("worker"))
 
   private val resolverGroup = DnsAddressResolverGroup(
     DnsNameResolverBuilder()
@@ -72,7 +76,7 @@ internal class NetworkManager {
     connection.setConnectionHandler(ClientInitConnectionHandler(connection))
     val pipeline = channel.pipeline()
     pipeline.apply {
-      addLast(ReadTimeoutHandler(ReadTimeout.inWholeMilliseconds, DurationUnit.MILLISECONDS))
+      addLast(ReadTimeoutHandler(ReadTimeout.inWholeMilliseconds, TimeUnit.MILLISECONDS))
       addLast(FrameDecoder())
       addLast(FrameEncoder())
       addLast(PacketMessageDecoder(

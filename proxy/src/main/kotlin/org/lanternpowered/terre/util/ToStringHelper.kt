@@ -130,7 +130,8 @@ class ToStringHelper(
 
   @Suppress("DeprecatedCallableAddReplaceWith")
   @Deprecated(message = "Not allowed.", level = DeprecationLevel.ERROR)
-  infix fun <A, B> A.to(that: B): Nothing = throw UnsupportedOperationException()
+  infix fun <A, B> A.to(@Suppress("UNUSED_PARAMETER") that: B): Nothing =
+    throw UnsupportedOperationException()
 
   /**
    * Adds a key-value pair.

@@ -8,16 +8,16 @@ dependencies {
   api(kotlin("stdlib-jdk8"))
   api(kotlin("reflect"))
 
-  val coroutinesVersion = "1.5.2"
+  val coroutinesVersion = "1.6.0-RC"
   api(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = coroutinesVersion)
   api(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-jdk8", version = coroutinesVersion)
-  api(group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json-jvm", version = "1.3.0-RC")
+  api(group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json-jvm", version = "1.3.1")
 
   // General utilities
-  api(group = "com.google.guava", name = "guava", version = "30.1.1-jre")
+  api(group = "com.google.guava", name = "guava", version = "31.0.1-jre")
 
   // Json
-  implementation(group = "com.google.code.gson", name = "gson", version = "2.8.8")
+  implementation(group = "com.google.code.gson", name = "gson", version = "2.8.9")
 
   // Primitive collections
   implementation(group = "it.unimi.dsi", name = "fastutil", version = "8.5.6")
@@ -29,7 +29,7 @@ dependencies {
   implementation(group = "net.sf.jopt-simple", name = "jopt-simple", version = "5.0.4")
 
   // Networking
-  implementation(group = "io.netty", name = "netty-all", version = "4.1.68.Final")
+  implementation(group = "io.netty", name = "netty-all", version = "4.1.70.Final")
 
   // Cache
   implementation(group = "com.github.ben-manes.caffeine", name = "caffeine", version = "3.0.4")
@@ -44,7 +44,7 @@ dependencies {
   implementation(group = "org.spongepowered", name = "plugin-spi", version = "0.3.0")
 
   // Logging
-  val log4jVersion = "2.14.1"
+  val log4jVersion = "2.15.0"
   implementation(group = "org.apache.logging.log4j", name = "log4j-core", version = log4jVersion)
   implementation(group = "org.apache.logging.log4j", name = "log4j-jul", version = log4jVersion)
   api(group = "org.apache.logging.log4j", name = "log4j-api", version = log4jVersion)
@@ -57,8 +57,8 @@ dependencies {
   implementation(group = "org.jline", name = "jline-terminal-jansi", version = "3.20.0")
 
   // Testing
-  testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = "5.8.0")
-  testImplementation(kotlin(module = "test", version = "1.5.21"))
+  testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = "5.8.2")
+  testImplementation(kotlin(module = "test", version = "1.6.0"))
 }
 
 tasks.jar {

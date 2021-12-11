@@ -51,9 +51,6 @@ private class TerreMainCoroutineDispatcher(
   override fun dispatch(context: CoroutineContext, block: Runnable) =
     dispatcher.dispatch(context, block)
 
-  override suspend fun delay(time: Long) =
-    delay.delay(time)
-
   override fun scheduleResumeAfterDelay(
     timeMillis: Long, continuation: CancellableContinuation<Unit>
   ) = delay.scheduleResumeAfterDelay(timeMillis, continuation)

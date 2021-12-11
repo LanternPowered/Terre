@@ -35,7 +35,7 @@ import org.lanternpowered.terre.impl.network.pipeline.PacketMessageDecoder
 import org.lanternpowered.terre.impl.network.pipeline.PacketMessageEncoder
 import org.lanternpowered.terre.text.textOf
 import java.util.concurrent.CompletableFuture
-import kotlin.time.DurationUnit
+import java.util.concurrent.TimeUnit
 
 internal class ServerConnectionImpl(
   override val server: ServerImpl,
@@ -166,7 +166,7 @@ internal class ServerConnectionImpl(
   ) {
     val connection = Connection(this)
     pipeline().apply {
-      addLast(ReadTimeoutHandler(ReadTimeout.inWholeMilliseconds, DurationUnit.MILLISECONDS))
+      addLast(ReadTimeoutHandler(ReadTimeout.inWholeMilliseconds, TimeUnit.MILLISECONDS))
       addLast(FrameDecoder())
       addLast(FrameEncoder())
       addLast(PacketMessageDecoder(PacketCodecContextImpl(connection, PacketDirection.ServerToClient)))

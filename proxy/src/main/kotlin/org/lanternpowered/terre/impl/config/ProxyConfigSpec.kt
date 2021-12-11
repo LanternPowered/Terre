@@ -56,4 +56,12 @@ internal object ProxyConfigSpec : ConfigSpec("proxy") {
       The plugins that shouldn't be loaded, used mainly in k8s.
     """.trimIndent()
   )
+
+  object LocalBroadcast : ConfigSpec("localBroadcast") {
+
+    val enabled by optional(
+      default = true,
+      description = "If the local broadcast task is enabled."
+    )
+  }
 }

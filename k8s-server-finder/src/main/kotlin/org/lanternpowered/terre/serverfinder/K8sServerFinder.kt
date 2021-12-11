@@ -86,13 +86,11 @@ object K8sServerFinder {
     val defaultPort = config[ServerFinderConfigSpec.defaultPort]
 
     fun listServices(watch: Boolean) = if (namespace.isNotBlank()) {
-      api.listNamespacedServiceCall(
-        namespace, null, null, null, null, labelSelector,
-        null, null, null, watch, null)
+      api.listNamespacedServiceCall(namespace, null, null, null, null, labelSelector, null, null,
+        null, null, watch, null)
     } else {
-      api.listServiceForAllNamespacesCall(null, null, null,
-        labelSelector, null, null, null, null, watch,
-        null)
+      api.listServiceForAllNamespacesCall(null, null, null, labelSelector, null, null, null,
+        null, null, watch, null)
     }
 
     val watch = Watch.createWatch<V1Service>(client, listServices(true),
