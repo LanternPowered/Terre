@@ -16,11 +16,15 @@ tasks.jar {
     attributes(common + overrides)
   }
 
+  val added = hashSetOf<String>()
   for (lib in configurations.runtimeClasspath.get().resolvedConfiguration.resolvedArtifacts) {
     val dependency = dependencies.create(lib.moduleVersion.id.toString())
-    from (lib.file) {
-      rename {
-        "libs/${dependency.name}-${dependency.version}.jar"
+    val fileName = "${dependency.name}-${dependency.version}.jar"
+    if (added.add(fileName)) {
+      from(lib.file) {
+        rename {
+          "libs/$fileName"
+        }
       }
     }
   }
