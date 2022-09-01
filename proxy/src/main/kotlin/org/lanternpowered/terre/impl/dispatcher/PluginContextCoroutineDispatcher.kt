@@ -17,7 +17,6 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Runnable
 import org.lanternpowered.terre.impl.plugin.PluginThreadLocalElement
 import org.lanternpowered.terre.plugin.PluginContextElement
-import kotlin.coroutines.Continuation
 import kotlin.coroutines.CoroutineContext
 
 /**

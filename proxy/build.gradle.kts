@@ -8,43 +8,43 @@ dependencies {
   api(kotlin("stdlib-jdk8"))
   api(kotlin("reflect"))
 
-  val coroutinesVersion = "1.6.0-RC"
+  val coroutinesVersion = "1.6.4"
   api(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = coroutinesVersion)
   api(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-jdk8", version = coroutinesVersion)
-  api(group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json-jvm", version = "1.3.1")
+  api(group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json-jvm", version = "1.4.0")
 
   // General utilities
-  api(group = "com.google.guava", name = "guava", version = "31.0.1-jre")
+  api(group = "com.google.guava", name = "guava", version = "31.1-jre")
 
   // Json
-  implementation(group = "com.google.code.gson", name = "gson", version = "2.8.9")
+  implementation(group = "com.google.code.gson", name = "gson", version = "2.9.0")
 
   // Primitive collections
-  implementation(group = "it.unimi.dsi", name = "fastutil", version = "8.5.6")
+  implementation(group = "it.unimi.dsi", name = "fastutil", version = "8.5.8")
 
   // Configuration
-  api(group = "com.uchuhimo", name = "konf-yaml", version = "0.22.1")
+  api(group = "com.uchuhimo", name = "konf-yaml", version = "1.1.2")
 
   // Launch Options
   implementation(group = "net.sf.jopt-simple", name = "jopt-simple", version = "5.0.4")
 
   // Networking
-  implementation(group = "io.netty", name = "netty-all", version = "4.1.70.Final")
+  implementation(group = "io.netty", name = "netty-all", version = "4.1.80.Final")
 
   // Cache
-  implementation(group = "com.github.ben-manes.caffeine", name = "caffeine", version = "3.0.4")
+  implementation(group = "com.github.ben-manes.caffeine", name = "caffeine", version = "3.1.1")
 
   // Lambda generation
   implementation(group = "org.lanternpowered", name = "lmbda", version = "2.0.0")
 
   // ASM
-  implementation(group = "org.ow2.asm", name = "asm", version = "9.2")
+  implementation(group = "org.ow2.asm", name = "asm", version = "9.3")
 
   // Plugins
   implementation(group = "org.spongepowered", name = "plugin-spi", version = "0.3.0")
 
   // Logging
-  val log4jVersion = "2.15.0"
+  val log4jVersion = "2.18.0"
   implementation(group = "org.apache.logging.log4j", name = "log4j-core", version = log4jVersion)
   implementation(group = "org.apache.logging.log4j", name = "log4j-jul", version = log4jVersion)
   api(group = "org.apache.logging.log4j", name = "log4j-api", version = log4jVersion)
@@ -54,11 +54,11 @@ dependencies {
 
   // Console
   implementation(group = "net.minecrell", name = "terminalconsoleappender", version = "1.3.0")
-  implementation(group = "org.jline", name = "jline-terminal-jansi", version = "3.20.0")
+  implementation(group = "org.jline", name = "jline-terminal-jansi", version = "3.21.0")
 
   // Testing
-  testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = "5.8.2")
-  testImplementation(kotlin(module = "test", version = "1.6.0"))
+  testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = "5.9.0")
+  testImplementation(kotlin(module = "test"))
 }
 
 tasks.jar {

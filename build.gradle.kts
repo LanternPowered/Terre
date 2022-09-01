@@ -1,6 +1,6 @@
 plugins {
-  kotlin("jvm") version "1.6.0"
-  kotlin("plugin.serialization") version "1.6.0"
+  kotlin("jvm") version "1.7.10"
+  kotlin("plugin.serialization") version "1.7.10"
   id("org.cadixdev.licenser") version "0.6.1"
 }
 
@@ -70,8 +70,8 @@ subprojects {
           args += "-Xjvm-default=all"
           args += "-Xallow-result-return-type"
 
-          fun useExperimentalAnnotation(name: String) {
-            args += "-Xuse-experimental=$name"
+          fun optIn(name: String) {
+            args += "-opt-in=$name"
           }
 
           fun enableLanguageFeature(name: String) {
@@ -82,13 +82,11 @@ subprojects {
           enableLanguageFeature("NewInference")
           enableLanguageFeature("NonParenthesizedAnnotationsOnFunctionalTypes")
 
-          useExperimentalAnnotation("kotlin.ExperimentalUnsignedTypes")
-          useExperimentalAnnotation("kotlin.contracts.ExperimentalContracts")
-          useExperimentalAnnotation("kotlin.ExperimentalStdlibApi")
-          useExperimentalAnnotation("kotlin.experimental.ExperimentalTypeInference")
-          useExperimentalAnnotation("kotlin.time.ExperimentalTime")
-          useExperimentalAnnotation("kotlinx.serialization.UnstableDefault")
-          useExperimentalAnnotation("kotlinx.coroutines.InternalCoroutinesApi")
+          optIn("kotlin.ExperimentalUnsignedTypes")
+          optIn("kotlin.contracts.ExperimentalContracts")
+          optIn("kotlin.ExperimentalStdlibApi")
+          optIn("kotlin.experimental.ExperimentalTypeInference")
+          optIn("kotlinx.coroutines.InternalCoroutinesApi")
 
           freeCompilerArgs = args
         }
@@ -99,7 +97,6 @@ subprojects {
       header(rootProject.file("HEADER.txt"))
       newLine(false)
       ignoreFailures(false)
-      include("**/*.kt")
 
       include("**/*.java")
       include("**/*.kt")
