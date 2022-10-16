@@ -24,11 +24,15 @@ internal object ProtocolRegistry {
     get() = mutableTranslations
 
   init {
+    register(ProtocolVersion.Vanilla.`1․4․0․5`, Protocol230) // 230
+    register(ProtocolVersion.Vanilla.`1․4․2․3`, Protocol238) // 238
     // TODO: Are there differences between 270, 273 and 274? if so create protocol for 1.4.4.1
     //  and/or 1.4.4.4
     register(ProtocolVersion.Vanilla.`1․4․4․1`, Protocol274) // 270
     register(ProtocolVersion.Vanilla.`1․4․4․4`, Protocol274) // 273
     register(ProtocolVersion.Vanilla.`1․4․4․5`, Protocol274) // 274
+
+    allowTranslation(Protocol238 to Protocol230)
   }
 
   val all: Collection<VersionedProtocol> get() = byId.values
