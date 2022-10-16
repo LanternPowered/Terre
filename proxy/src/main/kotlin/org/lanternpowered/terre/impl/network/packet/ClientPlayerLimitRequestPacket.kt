@@ -12,13 +12,13 @@ package org.lanternpowered.terre.impl.network.packet
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.PacketEncoder
 
-internal object IsMobileRequestPacket : Packet
+internal object ClientPlayerLimitRequestPacket : Packet
 
 /**
  * The item id used to check whether the client is a mobile client.
  */
-internal const val IsMobileItemId = 400
+internal const val ClientPlayerLimitItemId = 400
 
-internal val IsMobileRequestEncoder = PacketEncoder<IsMobileRequestPacket> { buf, _ ->
-  buf.writeShortLE(IsMobileItemId)
+internal val ClientPlayerLimitRequestEncoder = PacketEncoder<ClientPlayerLimitRequestPacket> { buf, _ ->
+  buf.writeShortLE(ClientPlayerLimitItemId)
 }

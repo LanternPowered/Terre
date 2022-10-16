@@ -63,8 +63,11 @@ internal val NpcUpdateEncoder = PacketEncoder<NpcUpdatePacket> { buf, packet ->
   buf.writeNpcId(packet.id)
   buf.writeVec2f(packet.position)
   buf.writeVec2f(packet.velocity)
-  val target = packet.target?.to(isMobile)?.value ?: -1
-  buf.writeShortLE(target)
+  val target = packet.target
+  var targetId = -1
+  if (target != null)
+    targetId = (if (target == PlayerId.None) nonePlayerId else target).value
+  buf.writeShortLE(targetId)
   var flags = 0
   if (packet.direction.isRight)
     flags += 0x1
@@ -119,7 +122,7 @@ internal val NpcUpdateEncoder = PacketEncoder<NpcUpdatePacket> { buf, packet ->
   }
   val releaseOwner = packet.releaseOwner
   if (NpcInfo.isCatchable(packet.type))
-    buf.writePlayerId(releaseOwner.to(isMobile))
+    buf.writePlayerId(if (releaseOwner == PlayerId.None) nonePlayerId else releaseOwner)
 }
 
 internal val NpcUpdateDecoder = PacketDecoder { buf ->
@@ -127,7 +130,10 @@ internal val NpcUpdateDecoder = PacketDecoder { buf ->
   val position = buf.readVec2f()
   val velocity = buf.readVec2f()
   val targetId = buf.readUnsignedShortLE()
-  val target = if (targetId == -1) null else PlayerId(targetId).from(isMobile)
+  val target = if (targetId == -1) null else {
+    val playerId = PlayerId(targetId)
+    if (playerId == nonePlayerId) PlayerId.None else playerId
+  }
   val flags = buf.readUnsignedShortLE()
   val direction = LeftOrRight((flags and 0x1) != 0)
   val directionY = UpOrDown((flags and 0x2) != 0)
@@ -150,8 +156,10 @@ internal val NpcUpdateDecoder = PacketDecoder { buf ->
       else -> throw DecoderException("Invalid life length: $length")
     }
   } else null
-  val releaseOwner =
-    if (buf.readableBytes() > 0) buf.readPlayerId().from(isMobile) else PlayerId.None
+  val releaseOwner = if (buf.readableBytes() > 0) {
+    val playerId = buf.readPlayerId()
+    if (playerId == nonePlayerId) PlayerId.None else playerId
+  } else PlayerId.None
   NpcUpdatePacket(npcId, npcType, position, life, velocity, spriteDirection, direction, directionY,
     target, ai, releaseOwner, playerCountForMultiplayerDifficultyOverride, spawnedFromStatue,
     strengthMultiplier)

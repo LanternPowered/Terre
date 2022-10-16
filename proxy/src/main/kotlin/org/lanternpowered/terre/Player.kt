@@ -30,11 +30,6 @@ interface Player : Named, MessageReceiver, MessageSender, PortalAware, InboundCo
   CommandSource {
 
   /**
-   * Whether this player connected using a mobile client.
-   */
-  val isMobile: Boolean
-
-  /**
    * The identifier of this player.
    */
   val identifier: PlayerIdentifier

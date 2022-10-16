@@ -27,6 +27,7 @@ import io.netty.util.AttributeKey
 import io.netty.util.ReferenceCountUtil
 import kotlinx.coroutines.asCoroutineDispatcher
 import org.lanternpowered.terre.impl.Terre
+import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
 import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.text.textOf
@@ -100,7 +101,7 @@ internal class Connection(
   /**
    * Whether this connection uses mobile.
    */
-  var isMobile: Boolean = false
+  var nonePlayerId: PlayerId = PlayerId.None
 
   /**
    * Closes the connection.

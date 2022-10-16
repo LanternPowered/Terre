@@ -28,7 +28,6 @@ import org.lanternpowered.terre.impl.network.MultistateProtocol
 import org.lanternpowered.terre.impl.network.buffer.NpcType
 import org.lanternpowered.terre.impl.network.client.ClientPlayConnectionHandler
 import org.lanternpowered.terre.impl.network.packet.ChatMessagePacket
-import org.lanternpowered.terre.impl.network.packet.ItemUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.NpcUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerActivePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerChatMessagePacket
@@ -59,7 +58,6 @@ internal class PlayerImpl(
   val protocol: MultistateProtocol,
   override val name: String,
   override val identifier: PlayerIdentifier,
-  override val isMobile: Boolean,
   val uniqueId: UUID
 ) : Player, MessageReceiverImpl {
 

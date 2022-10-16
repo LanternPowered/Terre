@@ -10,6 +10,7 @@
 package org.lanternpowered.terre.impl.network
 
 import io.netty.buffer.ByteBufAllocator
+import org.lanternpowered.terre.impl.network.buffer.PlayerId
 
 internal interface PacketCodecContext : NetworkContext {
 
@@ -27,8 +28,8 @@ internal interface PacketCodecContext : NetworkContext {
   val protocol: Protocol
     get() = connection.protocol
 
-  val isMobile: Boolean
-    get() = connection.isMobile
+  val nonePlayerId: PlayerId
+    get() = connection.nonePlayerId
 
   /**
    * The direction for which the packet is being encoded or decoded.

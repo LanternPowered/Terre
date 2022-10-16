@@ -20,7 +20,7 @@ import org.lanternpowered.terre.impl.network.packet.ConnectionRequestPacket
 import org.lanternpowered.terre.impl.network.packet.CustomPayloadPacket
 import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
 import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
-import org.lanternpowered.terre.impl.network.packet.IsMobileResponsePacket
+import org.lanternpowered.terre.impl.network.packet.ClientPlayerLimitResponsePacket
 import org.lanternpowered.terre.impl.network.packet.KeepAlivePacket
 import org.lanternpowered.terre.impl.network.packet.PasswordRequestPacket
 import org.lanternpowered.terre.impl.network.packet.PasswordResponsePacket
@@ -160,7 +160,7 @@ internal interface ConnectionHandler {
     return false
   }
 
-  fun handle(packet: IsMobileResponsePacket): Boolean {
+  fun handle(packet: ClientPlayerLimitResponsePacket): Boolean {
     return false
   }
 

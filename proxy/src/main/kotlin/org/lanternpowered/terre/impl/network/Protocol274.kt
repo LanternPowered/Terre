@@ -30,8 +30,8 @@ import org.lanternpowered.terre.impl.network.packet.DisconnectDecoder
 import org.lanternpowered.terre.impl.network.packet.DisconnectEncoder
 import org.lanternpowered.terre.impl.network.packet.EssentialTilesRequestEncoder
 import org.lanternpowered.terre.impl.network.packet.InstancedItemUpdateDecoder
-import org.lanternpowered.terre.impl.network.packet.IsMobileRequestEncoder
-import org.lanternpowered.terre.impl.network.packet.IsMobileResponseDecoder
+import org.lanternpowered.terre.impl.network.packet.ClientPlayerLimitRequestEncoder
+import org.lanternpowered.terre.impl.network.packet.ClientPlayerLimitResponseDecoder
 import org.lanternpowered.terre.impl.network.packet.SimpleItemUpdateDecoder
 import org.lanternpowered.terre.impl.network.packet.ItemUpdateEncoder
 import org.lanternpowered.terre.impl.network.packet.KeepAliveEncoder
@@ -111,8 +111,8 @@ internal val Protocol274 = multistateProtocol("274") {
   bind(0xFC, ModFileRequestEncoder, ModFileRequestDecoder, PacketDirection.ClientToServer)
 
   init {
-    bind(0x16, IsMobileResponseDecoder, PacketDirection.ClientToServer)
-    bind(0x27, IsMobileRequestEncoder, PacketDirection.ServerToClient)
+    bind(0x16, ClientPlayerLimitResponseDecoder, PacketDirection.ClientToServer)
+    bind(0x27, ClientPlayerLimitRequestEncoder, PacketDirection.ServerToClient)
   }
 
   play {

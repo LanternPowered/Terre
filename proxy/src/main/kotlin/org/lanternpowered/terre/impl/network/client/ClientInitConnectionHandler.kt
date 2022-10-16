@@ -26,8 +26,8 @@ import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.packet.ClientUniqueIdPacket
 import org.lanternpowered.terre.impl.network.packet.ConnectionApprovedPacket
 import org.lanternpowered.terre.impl.network.packet.ConnectionRequestPacket
-import org.lanternpowered.terre.impl.network.packet.IsMobileRequestPacket
-import org.lanternpowered.terre.impl.network.packet.IsMobileResponsePacket
+import org.lanternpowered.terre.impl.network.packet.ClientPlayerLimitRequestPacket
+import org.lanternpowered.terre.impl.network.packet.ClientPlayerLimitResponsePacket
 import org.lanternpowered.terre.impl.network.packet.PasswordRequestPacket
 import org.lanternpowered.terre.impl.network.packet.PasswordResponsePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
@@ -50,7 +50,7 @@ internal class ClientInitConnectionHandler(
     Init,
     Handshake,
     RequestClientInfo,
-    DetectMobile,
+    DetectClientPlayerLimit,
     RequestPassword,
     Done,
   }
@@ -150,15 +150,15 @@ internal class ClientInitConnectionHandler(
     Terre.logger.debug { "P -> C [${connection.remoteAddress}] Start login by collecting client info" }
   }
 
-  private fun continueLogin(isMobile: Boolean) {
+  private fun continueLogin(nonePlayerId: PlayerId) {
     // Generate an identifier that matches the tShock player identifiers.
     val digest = MessageDigest.getInstance("SHA-512")
     digest.reset()
     digest.update(uniqueId.toString().toByteArray(Charsets.UTF_8))
     val identifier = PlayerIdentifier(digest.digest())
 
-    connection.isMobile = isMobile
-    player = PlayerImpl(connection, protocolVersion, protocol, name, identifier, isMobile, uniqueId)
+    connection.nonePlayerId = nonePlayerId
+    player = PlayerImpl(connection, protocolVersion, protocol, name, identifier, uniqueId)
     if (player.checkDuplicateIdentifier())
       return
 
@@ -210,25 +210,24 @@ internal class ClientInitConnectionHandler(
 
   override fun handle(packet: WorldInfoRequestPacket): Boolean {
     checkState(State.RequestClientInfo)
-    state = State.DetectMobile
-    connection.send(IsMobileRequestPacket)
-    Terre.logger.debug { "P <- C [${connection.remoteAddress}, $name] Start detecting mobile" }
+    state = State.DetectClientPlayerLimit
+    connection.send(ClientPlayerLimitRequestPacket)
+    Terre.logger.debug { "P <- C [${connection.remoteAddress}, $name] Start detecting player " +
+      "limit" }
     return true
   }
 
-  override fun handle(packet: IsMobileResponsePacket): Boolean {
-    checkState(State.DetectMobile)
-    val isMobile = packet.isMobile
+  override fun handle(packet: ClientPlayerLimitResponsePacket): Boolean {
+    checkState(State.DetectClientPlayerLimit)
+    val nonePlayerId = packet.nonePlayerId
 
-    Terre.logger.debug {
-      val type = if (isMobile) "mobile" else "desktop"
-      "P <- C [${connection.remoteAddress}, $name] Detected $type client"
-    }
+    Terre.logger.debug { "P <- C [${connection.remoteAddress}, $name] Detected client with player" +
+      " limit of ${nonePlayerId.value} players" }
     Terre.logger.debug { "P <- C [${connection.remoteAddress}, $name] Client info sending done" }
 
     // By now we should have received all information from the client, so we can initialize the
     // play phase. And the client can actually start connecting to backing servers.
-    continueLogin(isMobile)
+    continueLogin(nonePlayerId)
     return true
   }
 

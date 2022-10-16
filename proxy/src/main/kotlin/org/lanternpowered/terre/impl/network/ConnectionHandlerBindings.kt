@@ -23,7 +23,7 @@ import org.lanternpowered.terre.impl.network.packet.CustomPayloadPacket
 import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
 import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
 import org.lanternpowered.terre.impl.network.packet.InstancedItemUpdatePacket
-import org.lanternpowered.terre.impl.network.packet.IsMobileResponsePacket
+import org.lanternpowered.terre.impl.network.packet.ClientPlayerLimitResponsePacket
 import org.lanternpowered.terre.impl.network.packet.KeepAlivePacket
 import org.lanternpowered.terre.impl.network.packet.PasswordRequestPacket
 import org.lanternpowered.terre.impl.network.packet.PasswordResponsePacket
@@ -40,7 +40,6 @@ import org.lanternpowered.terre.impl.network.packet.PlayerUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.SpeechBubblePacket
 import org.lanternpowered.terre.impl.network.packet.StatusPacket
 import org.lanternpowered.terre.impl.network.packet.ItemUpdateOwnerPacket
-import org.lanternpowered.terre.impl.network.packet.ItemUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.NpcUpdateNamePacket
 import org.lanternpowered.terre.impl.network.packet.NpcUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.ProjectileUpdatePacket
@@ -79,7 +78,7 @@ internal object ConnectionHandlerBindings {
     bind<WorldInfoPacket>(ConnectionHandler::handle)
     bind<WorldInfoRequestPacket>(ConnectionHandler::handle)
     bind<AddPlayerBuffPacket>(ConnectionHandler::handle)
-    bind<IsMobileResponsePacket>(ConnectionHandler::handle)
+    bind<ClientPlayerLimitResponsePacket>(ConnectionHandler::handle)
     bind<PlayerSpawnPacket>(ConnectionHandler::handle)
     bind<CustomPayloadPacket>(ConnectionHandler::handle)
     bind<PlayerTeleportThroughPortalPacket>(ConnectionHandler::handle)
