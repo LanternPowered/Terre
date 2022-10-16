@@ -106,7 +106,7 @@ internal class ServerConnectionImpl(
     fun tryConnectNext() {
       if (player.clientConnection.isClosed) {
         future.complete(ServerConnectionRequestResult.Disconnected(
-            server, textOf("Client already disconnected.")))
+          server, textOf("Client already disconnected.")))
         return
       }
       val (version, protocol) = versionsToAttempt.removeAt(0)

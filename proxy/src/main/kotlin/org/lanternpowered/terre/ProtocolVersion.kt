@@ -39,14 +39,19 @@ sealed class ProtocolVersion {
     companion object {
 
       /**
-       * The 1.4.0.5 vanilla version.
+       * The 1.4.4.1 vanilla version.
        */
-      val `1․4․0․5` = Vanilla("1.4.0.5", 230)
+      val `1․4․4․1` = Vanilla("1.4.4.1", 270)
 
       /**
-       * The 1.4.2.3 vanilla version.
+       * The 1.4.4.4 vanilla version.
        */
-      val `1․4․2․3` = Vanilla("1.4.2.3", 238)
+      val `1․4․4․4` = Vanilla("1.4.4.4", 273)
+
+      /**
+       * The 1.4.4.5 vanilla version.
+       */
+      val `1․4․4․5` = Vanilla("1.4.4.5", 274)
     }
   }
 

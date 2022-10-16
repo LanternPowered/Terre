@@ -12,7 +12,7 @@ package org.lanternpowered.terre.impl
 import org.lanternpowered.terre.text.Achievement
 
 internal data class AchievementImpl(
-    override val name: String
+  override val name: String
 ) : Achievement
 
 internal val AchievementRegistryImpl =

@@ -11,6 +11,7 @@ package org.lanternpowered.terre.impl.network
 
 import org.lanternpowered.terre.impl.network.packet.AddPlayerBuffDecoder
 import org.lanternpowered.terre.impl.network.packet.AddPlayerBuffEncoder
+import org.lanternpowered.terre.impl.network.packet.CannotBeTakenByEnemiesItemUpdateDecoder
 import org.lanternpowered.terre.impl.network.packet.ChatMessageDecoder
 import org.lanternpowered.terre.impl.network.packet.ChatMessageEncoder
 import org.lanternpowered.terre.impl.network.packet.ClientUniqueIdDecoder
@@ -29,10 +30,9 @@ import org.lanternpowered.terre.impl.network.packet.DisconnectDecoder
 import org.lanternpowered.terre.impl.network.packet.DisconnectEncoder
 import org.lanternpowered.terre.impl.network.packet.EssentialTilesRequestEncoder
 import org.lanternpowered.terre.impl.network.packet.InstancedItemUpdateDecoder
-import org.lanternpowered.terre.impl.network.packet.InstancedItemUpdateEncoder
 import org.lanternpowered.terre.impl.network.packet.IsMobileRequestEncoder
 import org.lanternpowered.terre.impl.network.packet.IsMobileResponseDecoder
-import org.lanternpowered.terre.impl.network.packet.ItemUpdateDecoder
+import org.lanternpowered.terre.impl.network.packet.SimpleItemUpdateDecoder
 import org.lanternpowered.terre.impl.network.packet.ItemUpdateEncoder
 import org.lanternpowered.terre.impl.network.packet.KeepAliveEncoder
 import org.lanternpowered.terre.impl.network.packet.PasswordRequestDecoder
@@ -76,10 +76,13 @@ import org.lanternpowered.terre.impl.network.packet.RequestWorldInfoEncoder
 import org.lanternpowered.terre.impl.network.packet.SpeechBubbleEncoder
 import org.lanternpowered.terre.impl.network.packet.StatusDecoder
 import org.lanternpowered.terre.impl.network.packet.StatusEncoder
+import org.lanternpowered.terre.impl.network.packet.TileSquareDecoder
+import org.lanternpowered.terre.impl.network.packet.TileSquareEncoder
 import org.lanternpowered.terre.impl.network.packet.ItemUpdateOwnerDecoder
 import org.lanternpowered.terre.impl.network.packet.ItemUpdateOwnerEncoder
 import org.lanternpowered.terre.impl.network.packet.NpcUpdateDecoder
 import org.lanternpowered.terre.impl.network.packet.NpcUpdateEncoder
+import org.lanternpowered.terre.impl.network.packet.ShimmeredItemUpdateDecoder
 import org.lanternpowered.terre.impl.network.packet.WorldInfoDecoder
 import org.lanternpowered.terre.impl.network.packet.WorldInfoEncoder
 import org.lanternpowered.terre.impl.network.packet.tmodloader.ModDataDecoder
@@ -90,10 +93,8 @@ import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsDecoder
 import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsDoneDecoder
 import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsDoneEncoder
 import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsEncoder
-import org.lanternpowered.terre.impl.network.packet.v230.TileSquare230Decoder
-import org.lanternpowered.terre.impl.network.packet.v230.TileSquare230Encoder
 
-internal val Protocol230 = multistateProtocol("230") {
+internal val Protocol274 = multistateProtocol("274") {
   bind(0x01, ConnectionRequestEncoder, ConnectionRequestDecoder, PacketDirection.ClientToServer)
   bind(0x02, DisconnectEncoder, DisconnectDecoder, PacketDirection.ServerToClient)
   bind(0x03, ConnectionApprovedEncoder, ConnectionApprovedDecoder, PacketDirection.ServerToClient)
@@ -123,8 +124,8 @@ internal val Protocol230 = multistateProtocol("230") {
     bind(0x0D, PlayerUpdateEncoder, PlayerUpdateDecoder)
     bind(0x0E, PlayerActiveEncoder, PlayerActiveDecoder, PacketDirection.ServerToClient)
     bind(0x10, PlayerHealthEncoder, PlayerHealthDecoder)
-    bind(0x14, TileSquare230Encoder, TileSquare230Decoder)
-    bind(0x15, ItemUpdateEncoder, ItemUpdateDecoder)
+    bind(0x14, TileSquareEncoder, TileSquareDecoder)
+    bind(0x15, ItemUpdateEncoder, SimpleItemUpdateDecoder)
     bind(0x16, ItemUpdateOwnerEncoder)
     bind(0x16, ItemUpdateOwnerDecoder) // And keep alive
     bind(0x17, NpcUpdateEncoder, NpcUpdateDecoder, PacketDirection.ServerToClient)
@@ -138,13 +139,15 @@ internal val Protocol230 = multistateProtocol("230") {
     bind(0x37, AddPlayerBuffEncoder, AddPlayerBuffDecoder)
     bind(0x43, CustomPayloadEncoder, CustomPayloadDecoder)
     bind(0x51, CombatMessageEncoder, CombatMessageDecoder, PacketDirection.ServerToClient) // TODO
-    bind(0x5A, InstancedItemUpdateEncoder, InstancedItemUpdateDecoder)
+    bind(0x5A, ItemUpdateEncoder, InstancedItemUpdateDecoder)
     bind(0x5B, SpeechBubbleEncoder)
     bind(0x60, PlayerTeleportThroughPortalEncoder, PlayerTeleportThroughPortalDecoder)
     // bind(0x66, NebulaLevelUpRequestEncoder, PacketDirection.ServerToClient)
     bind(0x6B, ChatMessageEncoder, ChatMessageDecoder, PacketDirection.ServerToClient)
     bind(0x75, PlayerHurtEncoder, PlayerHurtDecoder)
     bind(0x76, PlayerDeathEncoder, PlayerDeathDecoder)
+    bind(0x91, ItemUpdateEncoder, ShimmeredItemUpdateDecoder)
+    bind(0x94, ItemUpdateEncoder, CannotBeTakenByEnemiesItemUpdateDecoder)
 
     bind(0x01FF, PlayerCommandEncoder, PlayerCommandDecoder, PacketDirection.ClientToServer)
     bind(0x01FF, PlayerChatMessageEncoder, PlayerChatMessageDecoder, PacketDirection.ServerToClient)

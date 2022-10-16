@@ -38,6 +38,7 @@ import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
 import org.lanternpowered.terre.impl.network.packet.SpeechBubblePacket
 import org.lanternpowered.terre.impl.network.packet.StatusPacket
 import org.lanternpowered.terre.impl.network.packet.ItemUpdateOwnerPacket
+import org.lanternpowered.terre.impl.network.packet.ItemUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.NpcUpdateNamePacket
 import org.lanternpowered.terre.impl.network.packet.NpcUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.ProjectileUpdatePacket
@@ -188,6 +189,10 @@ internal interface ConnectionHandler {
   }
 
   fun handle(packet: PlayerTeamPacket): Boolean {
+    return false
+  }
+
+  fun handle(packet: ItemUpdatePacket): Boolean {
     return false
   }
 

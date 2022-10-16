@@ -20,8 +20,11 @@ internal data class ConnectionApprovedPacket(val playerId: PlayerId) : Packet
 
 internal val ConnectionApprovedEncoder = PacketEncoder<ConnectionApprovedPacket> { buf, packet ->
   buf.writePlayerId(packet.playerId)
+  buf.writeBoolean(false) // serverWantsToRunCheckBytesInClientLoopThread -> disable
 }
 
 internal val ConnectionApprovedDecoder = PacketDecoder { buf ->
-  ConnectionApprovedPacket(buf.readPlayerId())
+  val playerId = buf.readPlayerId()
+  buf.readBoolean() // serverWantsToRunCheckBytesInClientLoopThread -> ignore
+  ConnectionApprovedPacket(playerId)
 }

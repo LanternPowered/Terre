@@ -20,6 +20,7 @@ import org.lanternpowered.terre.impl.network.packet.CompleteConnectionPacket
 import org.lanternpowered.terre.impl.network.packet.CustomPayloadPacket
 import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
 import org.lanternpowered.terre.impl.network.packet.EssentialTilesRequestPacket
+import org.lanternpowered.terre.impl.network.packet.ItemUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerActivePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerSpawnPacket
@@ -122,6 +123,11 @@ internal open class ServerPlayConnectionHandler(
     return false // Forward
   }
 
+  override fun handle(packet: ItemUpdatePacket): Boolean {
+    player.trackedItems[packet.id].type = packet.stack.type
+    return false // Forward
+  }
+
   override fun handle(packet: CompleteConnectionPacket): Boolean {
     val playerId = serverConnection.playerId ?: error("Player id isn't known.")
 
@@ -129,7 +135,7 @@ internal open class ServerPlayConnectionHandler(
       // Sending this packet makes sure that the player spawns, even if the client was previously
       // connected to another world. This will trigger the client to find a new spawn location.
       clientConnection.send(PlayerSpawnPacket(playerId,
-        Vec2i.Zero, 0, PlayerSpawnPacket.Context.SpawningIntoWorld))
+        Vec2i.Zero, 0, 0, 0, PlayerSpawnPacket.Context.SpawningIntoWorld))
     } else {
       // Notify the client that the connection is complete, this will attempt to spawn the player
       // in the world, only affects the first time the client connects to a server.

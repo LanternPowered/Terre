@@ -18,8 +18,9 @@ internal object ProtocolVersions {
    * All the known protocol version numbers paired to their version name.
    */
   private val knownVanillaVersions = listOf(
-    ProtocolVersion.Vanilla.`1․4․0․5`,
-    ProtocolVersion.Vanilla.`1․4․2․3`,
+    ProtocolVersion.Vanilla.`1․4․4․1`,
+    ProtocolVersion.Vanilla.`1․4․4․4`,
+    ProtocolVersion.Vanilla.`1․4․4․5`,
   ).associateBy { it.protocol }
 
   /**

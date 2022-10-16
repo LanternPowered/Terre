@@ -37,46 +37,44 @@ internal interface Optional<T> {
   /**
    * Unwraps this optional as a nullable object.
    */
-  fun orNull(): T?
-      = if (this.isPresent) this.value else null
+  fun orNull(): T? =
+    if (this.isPresent) this.value else null
 
   /**
    * Gets the value, if present, returns otherwise `that` value.
    */
-  fun or(that: T): T
-      = if (this.isPresent) this.value else that
+  fun or(that: T): T =
+    if (this.isPresent) this.value else that
 
   /**
    * Gets this optional, if the value is present, returns otherwise `that` optional.
    */
-  fun or(that: Optional<T>): Optional<T>
-      = if (this.isPresent) this else that
+  fun or(that: Optional<T>): Optional<T> =
+    if (this.isPresent) this else that
 
   /**
    * Maps the value.
    */
-  fun <R> map(fn: (value: T) -> R): Optional<R>
-      = if (this.isPresent) of(fn(this.value)) else empty()
+  fun <R> map(fn: (value: T) -> R): Optional<R> =
+    if (this.isPresent) of(fn(this.value)) else empty()
 
   companion object {
 
     /**
      * Gets an empty optional.
      */
-    fun <T> empty(): Optional<T>
-        = EmptyOptional as Optional<T>
+    fun <T> empty(): Optional<T> = EmptyOptional as Optional<T>
 
     /**
      * Wraps the value into an optional.
      */
-    fun <T> of(value: T): Optional<T>
-        = PresentOptional(value)
+    fun <T> of(value: T): Optional<T> = PresentOptional(value)
 
     /**
      * Wraps the nullable value into an optional.
      */
-    fun <T : Any> ofNullable(value: T?): Optional<T>
-        = if (value == null) EmptyOptional as Optional<T> else PresentOptional(value)
+    fun <T : Any> ofNullable(value: T?): Optional<T> =
+      if (value == null) EmptyOptional as Optional<T> else PresentOptional(value)
   }
 }
 
@@ -84,21 +82,21 @@ internal interface Optional<T> {
  * Gets the value, if present, returns otherwise
  * the value provided by the function.
  */
-internal inline fun <T> Optional<T>.or(fn: () -> T): T
-    = if (this.isPresent) this.value else fn()
+internal inline fun <T> Optional<T>.or(fn: () -> T): T =
+  if (this.isPresent) this.value else fn()
 
 /**
  * Wraps the value into an optional.
  */
-internal inline fun <T> T.optional(): Optional<T>
-    = Optional.of(this)
+internal inline fun <T> T.optional(): Optional<T> =
+  Optional.of(this)
 
 /**
  * Wraps the nullable value into an optional.
  */
 @JvmName("optionalOfNullable")
-internal inline fun <T : Any> T?.optionalFromNullable(): Optional<T>
-    = Optional.ofNullable(this)
+internal inline fun <T : Any> T?.optionalFromNullable(): Optional<T> =
+  Optional.ofNullable(this)
 
 /**
  * A simple optional implementation where the value is present.
@@ -116,7 +114,7 @@ private data class PresentOptional<T>(override val value: T) : Optional<T> {
 private object EmptyOptional : Optional<Any?> {
   override val isPresent: Boolean
     get() = false
-  override val value: Any?
+  override val value: Any
     get() = throw IllegalStateException("No value is present.")
 
   override fun toString(): String = "Optional.empty"

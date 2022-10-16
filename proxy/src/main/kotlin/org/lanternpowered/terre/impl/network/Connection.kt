@@ -208,6 +208,7 @@ internal class Connection(
     }
   }
 
+  @Deprecated("Not deprecated")
   override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
     connectionHandler?.exception(cause)
     // Pipeline error, just log it

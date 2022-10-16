@@ -23,6 +23,8 @@ internal data class PlayerSpawnPacket(
   val playerId: PlayerId,
   val position: Vec2i,
   val respawnTimeRemaining: Int,
+  val numberOfDeathsPvE: Int,
+  val numberOfDeathsPvP: Int,
   val respawnContext: Context
 ) : Packet {
 
@@ -39,6 +41,8 @@ internal val PlayerSpawnEncoder = PacketEncoder<PlayerSpawnPacket> { buf, packet
   buf.writePlayerId(packet.playerId)
   buf.writeShortVec2i(packet.position)
   buf.writeIntLE(packet.respawnTimeRemaining)
+  buf.writeShortLE(packet.numberOfDeathsPvE)
+  buf.writeShortLE(packet.numberOfDeathsPvP)
   buf.writeByte(packet.respawnContext.ordinal)
 }
 
@@ -46,6 +50,9 @@ internal val PlayerSpawnDecoder = PacketDecoder { buf ->
   val playerId = buf.readPlayerId()
   val position = buf.readShortVec2i()
   val respawnTimeRemaining = buf.readIntLE()
+  val numberOfDeathsPvE = buf.readShortLE().toInt()
+  val numberOfDeathsPvP = buf.readShortLE().toInt()
   val respawnContext = contextById[buf.readUnsignedByte().toInt()]
-  PlayerSpawnPacket(playerId, position, respawnTimeRemaining, respawnContext)
+  PlayerSpawnPacket(playerId, position, respawnTimeRemaining, numberOfDeathsPvE, numberOfDeathsPvP,
+    respawnContext)
 }

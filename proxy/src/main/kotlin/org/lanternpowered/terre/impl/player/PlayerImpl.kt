@@ -33,6 +33,7 @@ import org.lanternpowered.terre.impl.network.packet.NpcUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerActivePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerChatMessagePacket
 import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
+import org.lanternpowered.terre.impl.network.packet.SimpleItemUpdatePacket
 import org.lanternpowered.terre.impl.network.toDeferred
 import org.lanternpowered.terre.impl.network.tracking.TrackedItems
 import org.lanternpowered.terre.impl.network.tracking.TrackedNpcs
@@ -228,7 +229,7 @@ internal class PlayerImpl(
     // send as a player chat message, this will show the text message above the head of the sender.
     if (sender is PlayerImpl) {
       val serverConnection = sender.serverConnection
-      if (serverConnection != null && serverConnection.server == serverConnection.server) {
+      if (serverConnection != null && this.serverConnection?.server == serverConnection.server) {
         val playerId = serverConnection.playerId
         if (playerId != null) {
           clientConnection.send(PlayerChatMessagePacket(playerId, message))
@@ -289,7 +290,7 @@ internal class PlayerImpl(
     trackedNpcs.reset()
     for (item in trackedItems) {
       if (item.active)
-        clientConnection.send(ItemUpdatePacket(item.id, Vec2f.Zero, ItemStack.Empty))
+        clientConnection.send(SimpleItemUpdatePacket(item.id, Vec2f.Zero, ItemStack.Empty))
     }
     trackedItems.reset()
     for (projectile in trackedProjectiles) {

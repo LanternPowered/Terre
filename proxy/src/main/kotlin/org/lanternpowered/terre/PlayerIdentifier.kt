@@ -14,16 +14,13 @@ package org.lanternpowered.terre
  */
 class PlayerIdentifier {
 
-  /**
-   * Create a safe clone.
-   */
   private val backing: ByteArray
   private val hashCode: Int
 
   /**
    * Constructs a new [PlayerIdentifier] from the given [ByteArray].
    */
-  constructor(bytes: ByteArray) : this(bytes.clone(), Unit)
+  constructor(bytes: ByteArray) : this(bytes.copyOf(), Unit)
 
   /**
    * Constructs a new [PlayerIdentifier] from the given [ByteArray].

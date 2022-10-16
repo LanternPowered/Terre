@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 
 internal fun <T : NamedCatalogType> buildNamedCatalogTypeRegistryOf(
-    type: KClass<T>, fn: CatalogTypeRegistryBuilder<T>.() -> Unit
+  type: KClass<T>, fn: CatalogTypeRegistryBuilder<T>.() -> Unit
 ): NamedCatalogTypeRegistryImpl<T> {
   val builder = NamedCatalogTypeRegistryBuilderImpl<T>()
   fn(builder)

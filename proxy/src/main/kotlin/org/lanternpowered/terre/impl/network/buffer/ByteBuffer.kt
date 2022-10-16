@@ -114,9 +114,9 @@ private fun ByteBuf.readRawText(): Text {
       textOf(literal)
     }
     1 -> {
-      val key = readString()
+      val format = readString()
       val substitutions = readRawTextList()
-      formattedTextOf(key, substitutions)
+      formattedTextOf(format, substitutions)
     }
     2 -> {
       val key = readString()

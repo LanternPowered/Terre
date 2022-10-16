@@ -72,6 +72,6 @@ internal class NumericCatalogTypeRegistryImpl<T : NumericCatalogType>(
   }
 
   override fun require(numericId: Int): T =
-      this[numericId] ?: throw IllegalArgumentException(
-          "${type.simpleName} with numeric id '$numericId' doesn't exist.")
+    this[numericId] ?: throw IllegalArgumentException(
+      "${type.simpleName} with numeric id '$numericId' doesn't exist.")
 }

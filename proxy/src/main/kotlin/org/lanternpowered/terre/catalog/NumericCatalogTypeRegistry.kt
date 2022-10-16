@@ -29,14 +29,12 @@ fun <T : NumericCatalogType> numericCatalogTypeRegistry(
 interface NumericCatalogTypeRegistry<T : NumericCatalogType> : CatalogTypeRegistry<T> {
 
   /**
-   * Gets a catalog type of type [T] from
-   * the registry, if present.
+   * Gets a catalog type of type [T] from the registry, if present.
    */
   operator fun get(numericId: Int): T?
 
   /**
-   * Requires that a catalog type of the
-   * given numeric id exists and returns it.
+   * Requires that a catalog type of the given numeric id exists and returns it.
    */
   fun require(numericId: Int): T
 }

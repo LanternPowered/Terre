@@ -12,6 +12,7 @@
 package org.lanternpowered.terre.impl.network
 
 import org.lanternpowered.terre.impl.network.packet.AddPlayerBuffPacket
+import org.lanternpowered.terre.impl.network.packet.CannotBeTakenByEnemiesItemUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.ChatMessagePacket
 import org.lanternpowered.terre.impl.network.packet.ClientUniqueIdPacket
 import org.lanternpowered.terre.impl.network.packet.CombatMessagePacket
@@ -21,6 +22,7 @@ import org.lanternpowered.terre.impl.network.packet.ConnectionRequestPacket
 import org.lanternpowered.terre.impl.network.packet.CustomPayloadPacket
 import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
 import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
+import org.lanternpowered.terre.impl.network.packet.InstancedItemUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.IsMobileResponsePacket
 import org.lanternpowered.terre.impl.network.packet.KeepAlivePacket
 import org.lanternpowered.terre.impl.network.packet.PasswordRequestPacket
@@ -38,9 +40,12 @@ import org.lanternpowered.terre.impl.network.packet.PlayerUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.SpeechBubblePacket
 import org.lanternpowered.terre.impl.network.packet.StatusPacket
 import org.lanternpowered.terre.impl.network.packet.ItemUpdateOwnerPacket
+import org.lanternpowered.terre.impl.network.packet.ItemUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.NpcUpdateNamePacket
 import org.lanternpowered.terre.impl.network.packet.NpcUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.ProjectileUpdatePacket
+import org.lanternpowered.terre.impl.network.packet.ShimmeredItemUpdatePacket
+import org.lanternpowered.terre.impl.network.packet.SimpleItemUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
 import kotlin.reflect.KClass
@@ -82,6 +87,10 @@ internal object ConnectionHandlerBindings {
     bind<ProjectileUpdatePacket>(ConnectionHandler::handle)
     bind<PlayerUpdatePacket>(ConnectionHandler::handle)
     bind<PlayerTeamPacket>(ConnectionHandler::handle)
+    bind<SimpleItemUpdatePacket>(ConnectionHandler::handle)
+    bind<InstancedItemUpdatePacket>(ConnectionHandler::handle)
+    bind<ShimmeredItemUpdatePacket>(ConnectionHandler::handle)
+    bind<CannotBeTakenByEnemiesItemUpdatePacket>(ConnectionHandler::handle)
   }
 
   internal fun <P : Packet> getBinding(

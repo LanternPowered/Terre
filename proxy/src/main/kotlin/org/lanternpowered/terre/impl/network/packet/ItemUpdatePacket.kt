@@ -15,6 +15,7 @@ import org.lanternpowered.terre.impl.network.PacketDecoder
 import org.lanternpowered.terre.impl.network.PacketEncoder
 import org.lanternpowered.terre.impl.network.buffer.ItemId
 import org.lanternpowered.terre.impl.network.buffer.readItemId
+import org.lanternpowered.terre.impl.network.buffer.readUByte
 import org.lanternpowered.terre.impl.network.buffer.readVec2f
 import org.lanternpowered.terre.impl.network.buffer.writeItemId
 import org.lanternpowered.terre.impl.network.buffer.writeVec2f
@@ -23,42 +24,102 @@ import org.lanternpowered.terre.item.ItemStack
 import org.lanternpowered.terre.item.ItemTypeRegistry
 import org.lanternpowered.terre.math.Vec2f
 
-internal data class ItemUpdatePacket(
-  val id: ItemId,
-  val position: Vec2f,
-  val stack: ItemStack,
-  val velocity: Vec2f = Vec2f.Zero,
-  val noDelay: Boolean = false,
-) : Packet
+internal sealed interface ItemUpdatePacket : Packet {
+  val id: ItemId
+  val position: Vec2f
+  val stack: ItemStack
+  val velocity: Vec2f
+  val noDelay: Boolean
+}
+
+internal data class SimpleItemUpdatePacket(
+  override val id: ItemId,
+  override val position: Vec2f,
+  override val stack: ItemStack,
+  override val velocity: Vec2f = Vec2f.Zero,
+  override val noDelay: Boolean = false
+) : ItemUpdatePacket
+
+internal data class InstancedItemUpdatePacket(
+  override val id: ItemId,
+  override val position: Vec2f,
+  override val stack: ItemStack,
+  override val velocity: Vec2f = Vec2f.Zero,
+  override val noDelay: Boolean = false,
+) : ItemUpdatePacket
+
+internal data class ShimmeredItemUpdatePacket(
+  override val id: ItemId,
+  override val position: Vec2f,
+  override val stack: ItemStack,
+  override val velocity: Vec2f,
+  override val noDelay: Boolean,
+  val shimmered: Boolean,
+  var shimmerTime: Float,
+) : ItemUpdatePacket
+
+internal data class CannotBeTakenByEnemiesItemUpdatePacket(
+  override val id: ItemId,
+  override val position: Vec2f,
+  override val stack: ItemStack,
+  override val velocity: Vec2f,
+  override val noDelay: Boolean,
+  val cannotBeTakenByEnemiesTime: Int,
+) : ItemUpdatePacket
 
 internal val ItemUpdateEncoder = PacketEncoder<ItemUpdatePacket> { buf, packet ->
-  buf.writeItemUpdate(packet.id, packet.position, packet.stack, packet.velocity,  packet.noDelay)
+  buf.writeItemId(packet.id)
+  buf.writeVec2f(packet.position)
+  buf.writeVec2f(packet.velocity)
+  buf.writeShortLE(packet.stack.quantity)
+  buf.writeByte(packet.stack.modifier.numericId)
+  buf.writeBoolean(packet.noDelay)
+  buf.writeShortLE(packet.stack.type.numericId)
+  if (packet is ShimmeredItemUpdatePacket) {
+    buf.writeBoolean(packet.shimmered)
+    buf.writeFloatLE(packet.shimmerTime)
+  }
+  if (packet is CannotBeTakenByEnemiesItemUpdatePacket) {
+    buf.writeByte(packet.cannotBeTakenByEnemiesTime)
+  }
 }
 
-internal fun ByteBuf.writeItemUpdate(
-  id: ItemId, position: Vec2f, stack: ItemStack, velocity: Vec2f, noDelay: Boolean
-) {
-  writeItemId(id)
-  writeVec2f(position)
-  writeVec2f(velocity)
-  writeShortLE(stack.quantity)
-  writeByte(stack.modifier.numericId)
-  writeBoolean(noDelay)
-  writeShortLE(stack.type.numericId)
+internal val SimpleItemUpdateDecoder = itemUpdateDecoder {
+    id, position, stack, velocity, noDelay ->
+  SimpleItemUpdatePacket(id, position, stack, velocity, noDelay)
 }
 
-internal val ItemUpdateDecoder = PacketDecoder { buf -> buf.readItemUpdate(::ItemUpdatePacket) }
+internal val InstancedItemUpdateDecoder = itemUpdateDecoder {
+    id, position, stack, velocity, noDelay ->
+  InstancedItemUpdatePacket(id, position, stack, velocity, noDelay)
+}
 
-internal inline fun <R> ByteBuf.readItemUpdate(
-  packet: (id: ItemId, position: Vec2f, stack: ItemStack, velocity: Vec2f, noDelay: Boolean) -> R
-): R {
-  val id = readItemId()
-  val position = readVec2f()
-  val velocity = readVec2f()
-  val quantity = readShortLE().toInt()
-  val modifier = ItemModifierRegistry.require(readByte().toInt())
-  val noDelay = readBoolean()
-  val type = ItemTypeRegistry.require(readShortLE().toInt())
+internal val ShimmeredItemUpdateDecoder = itemUpdateDecoder {
+    id, position, stack, velocity, noDelay ->
+  val shimmered = readBoolean()
+  val shimmerTime = readFloatLE()
+  ShimmeredItemUpdatePacket(id, position, stack, velocity, noDelay, shimmered, shimmerTime)
+}
+
+internal val CannotBeTakenByEnemiesItemUpdateDecoder = itemUpdateDecoder {
+    id, position, stack, velocity, noDelay ->
+  val cannotBeTakenByEnemiesTime = readUByte().toInt()
+  CannotBeTakenByEnemiesItemUpdatePacket(id, position, stack, velocity, noDelay,
+    cannotBeTakenByEnemiesTime)
+}
+
+private inline fun <P : Packet> itemUpdateDecoder(
+  crossinline packet: ByteBuf.(
+    id: ItemId, position: Vec2f, stack: ItemStack, velocity: Vec2f, noDelay: Boolean
+  ) -> P
+) = PacketDecoder { buf ->
+  val id = buf.readItemId()
+  val position = buf.readVec2f()
+  val velocity = buf.readVec2f()
+  val quantity = buf.readShortLE().toInt()
+  val modifier = ItemModifierRegistry.require(buf.readByte().toInt())
+  val noDelay = buf.readBoolean()
+  val type = ItemTypeRegistry.require(buf.readShortLE().toInt())
   val stack = ItemStack(type, modifier, quantity)
-  return packet(id, position, stack, velocity, noDelay)
+  buf.packet(id, position, stack, velocity, noDelay)
 }
