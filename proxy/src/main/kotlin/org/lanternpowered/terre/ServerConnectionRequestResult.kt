@@ -16,9 +16,9 @@ import org.lanternpowered.terre.text.Text
  *
  * @property server The server that the request is targeting
  */
-sealed class ServerConnectionRequestResult {
+sealed interface ServerConnectionRequestResult {
 
-  abstract val server: Server
+  val server: Server
 
   /**
    * When connecting to the server was successful.
@@ -27,7 +27,7 @@ sealed class ServerConnectionRequestResult {
    */
   data class Success(
     override val server: Server
-  ) : ServerConnectionRequestResult()
+  ) : ServerConnectionRequestResult
 
   /**
    * When a client is already connected to the target server.
@@ -36,7 +36,7 @@ sealed class ServerConnectionRequestResult {
    */
   data class AlreadyConnected(
     override val server: Server
-  ) : ServerConnectionRequestResult()
+  ) : ServerConnectionRequestResult
 
   /**
    * When a client is already being connected to the target or another server.
@@ -45,7 +45,7 @@ sealed class ServerConnectionRequestResult {
    */
   data class ConnectionInProgress(
     override val server: Server
-  ) : ServerConnectionRequestResult()
+  ) : ServerConnectionRequestResult
 
   /**
    * When the server disconnected the connection when attempting to connect.
@@ -56,5 +56,5 @@ sealed class ServerConnectionRequestResult {
   data class Disconnected(
     override val server: Server,
     val reason: Text? = null
-  ) : ServerConnectionRequestResult()
+  ) : ServerConnectionRequestResult
 }

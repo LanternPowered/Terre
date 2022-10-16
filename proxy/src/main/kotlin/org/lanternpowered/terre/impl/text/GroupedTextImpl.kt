@@ -30,7 +30,10 @@ internal class GroupedTextImpl(
 
   override fun color(color: Color?): GroupedTextImpl {
     val optionalColor = color.optionalFromNullable()
-    return if (optionalColor == optionalColor) this else GroupedTextImpl(children, optionalColor)
+    return when (this.optionalColor) {
+      optionalColor -> this
+      else -> GroupedTextImpl(children, optionalColor)
+    }
   }
 
   override fun equals(other: Any?): Boolean {

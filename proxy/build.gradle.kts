@@ -20,7 +20,7 @@ dependencies {
   implementation(group = "com.google.code.gson", name = "gson", version = "2.9.0")
 
   // Primitive collections
-  implementation(group = "it.unimi.dsi", name = "fastutil", version = "8.5.8")
+  implementation(group = "it.unimi.dsi", name = "fastutil-core", version = "8.5.9")
 
   // Configuration
   api(group = "com.uchuhimo", name = "konf-yaml", version = "1.1.2")
@@ -29,7 +29,22 @@ dependencies {
   implementation(group = "net.sf.jopt-simple", name = "jopt-simple", version = "5.0.4")
 
   // Networking
-  implementation(group = "io.netty", name = "netty-all", version = "4.1.80.Final")
+  implementation(group = "io.netty", name = "netty-all", version = "4.1.82.Final") {
+    exclude(group = "io.netty", module = "netty-codec-haproxy")
+    exclude(group = "io.netty", module = "netty-codec-http2")
+    exclude(group = "io.netty", module = "netty-codec-http")
+    exclude(group = "io.netty", module = "netty-codec-memcache")
+    exclude(group = "io.netty", module = "netty-codec-mqtt")
+    exclude(group = "io.netty", module = "netty-codec-redis")
+    exclude(group = "io.netty", module = "netty-codec-smtp")
+    exclude(group = "io.netty", module = "netty-codec-socks")
+    exclude(group = "io.netty", module = "netty-codec-stomp")
+    exclude(group = "io.netty", module = "netty-codec-xml")
+    exclude(group = "io.netty", module = "netty-handler-proxy")
+    exclude(group = "io.netty", module = "netty-transport-rxtx")
+    exclude(group = "io.netty", module = "netty-transport-sctp")
+    exclude(group = "io.netty", module = "netty-transport-udt")
+  }
 
   // Cache
   implementation(group = "com.github.ben-manes.caffeine", name = "caffeine", version = "3.1.1")
@@ -38,13 +53,13 @@ dependencies {
   implementation(group = "org.lanternpowered", name = "lmbda", version = "2.0.0")
 
   // ASM
-  implementation(group = "org.ow2.asm", name = "asm", version = "9.3")
+  implementation(group = "org.ow2.asm", name = "asm", version = "9.4")
 
   // Plugins
   implementation(group = "org.spongepowered", name = "plugin-spi", version = "0.3.0")
 
   // Logging
-  val log4jVersion = "2.18.0"
+  val log4jVersion = "2.19.0"
   implementation(group = "org.apache.logging.log4j", name = "log4j-core", version = log4jVersion)
   implementation(group = "org.apache.logging.log4j", name = "log4j-jul", version = log4jVersion)
   api(group = "org.apache.logging.log4j", name = "log4j-api", version = log4jVersion)

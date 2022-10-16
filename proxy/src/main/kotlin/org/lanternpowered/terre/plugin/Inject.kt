@@ -19,7 +19,6 @@ import org.lanternpowered.terre.impl.plugin.inject as doInject
  * Injects a value of type [T] for the target receiver.
  */
 inline fun <reified T> Any.inject(): T {
-  @Suppress("UNCHECKED_CAST")
   return doInject(typeOf<T>()) as T
 }
 

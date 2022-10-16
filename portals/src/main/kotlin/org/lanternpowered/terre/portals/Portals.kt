@@ -35,8 +35,10 @@ import org.lanternpowered.terre.portal.PortalType
 import org.lanternpowered.terre.portal.PortalTypeRegistry
 import org.lanternpowered.terre.portal.PortalTypes
 import org.lanternpowered.terre.text.Text
+import org.lanternpowered.terre.text.joinToText
 import org.lanternpowered.terre.text.text
 import org.lanternpowered.terre.util.Color
+import org.lanternpowered.terre.util.Colors
 import java.nio.file.Files
 
 /**
@@ -164,7 +166,7 @@ object Portals {
           while (index < args.size) {
             var option = args[index++]
             if (!option.startsWith("--")) {
-              send("Unexpected value: $option".text())
+              send("Unexpected value: ".text() + option.text(color = Colors.Red))
               return@SimpleCommandExecutor
             }
             option = option.substring(2)
@@ -176,7 +178,13 @@ object Portals {
                   return@SimpleCommandExecutor
                 }
                 type = PortalTypeRegistry[typeName] ?: run {
-                  send("Invalid portal type specified: $typeName".text())
+                  val validTypes = PortalTypeRegistry.all.joinToText(
+                    separator = ", ".text()
+                  ) { it.name.text(color = Colors.Lime) }
+                  send("Invalid portal type specified ".text() +
+                    typeName.text(color = Colors.Red) +
+                    ", the valid types are: )".text() +
+                    validTypes)
                   return@SimpleCommandExecutor
                 }
               }
@@ -188,7 +196,7 @@ object Portals {
                   return@SimpleCommandExecutor
                 }
                 if (x.toFloatOrNull() == null || y.toFloatOrNull() == null) {
-                  send("Invalid position specified: $x $y".text())
+                  send("Invalid position specified: ".text() + "$x $y".text(color = Colors.Red))
                   return@SimpleCommandExecutor
                 }
                 position = Vec2f(x.toFloat(), y.toFloat())
@@ -205,7 +213,7 @@ object Portals {
             return@SimpleCommandExecutor
           }
           if (args.size > 2) {
-            send("Unexpected argument: ${args[2]}".text())
+            send("Unexpected argument: ".text() + args[2].text(color = Colors.Red))
             return@SimpleCommandExecutor
           }
           removePortal(name)
