@@ -32,10 +32,9 @@ internal class FormattableTextImpl(
 
   override fun color(color: Color?): FormattableTextImpl {
     val optionalColor = color.optionalFromNullable()
-    return if (optionalColor == optionalColor) {
-      this
-    } else {
-      FormattableTextImpl(format, substitutions, optionalColor)
+    return when (this.optionalColor) {
+      optionalColor -> this
+      else -> FormattableTextImpl(format, substitutions, optionalColor)
     }
   }
 
