@@ -25,6 +25,8 @@ internal val ConnectionApprovedEncoder = PacketEncoder<ConnectionApprovedPacket>
 
 internal val ConnectionApprovedDecoder = PacketDecoder { buf ->
   val playerId = buf.readPlayerId()
-  buf.readBoolean() // serverWantsToRunCheckBytesInClientLoopThread -> ignore
+  // if condition for server-init protocol
+  if (buf.readableBytes() > 0)
+    buf.readBoolean() // serverWantsToRunCheckBytesInClientLoopThread -> ignore
   ConnectionApprovedPacket(playerId)
 }
