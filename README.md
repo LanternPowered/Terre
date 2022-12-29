@@ -31,7 +31,7 @@ If you are looking for some more information, or you like to help out, feel free
 discord server. You will find the button at the top.
 
 ## Prerequisites
-* [Java 16] or newer, JDK 16 for development
+* [Java 17] or newer, JDK 17 for development
 * [Docker Desktop] when building and testing the docker images locally
 
 ## Clone
@@ -68,6 +68,6 @@ gradle jibDockerBuild
 [Discussions]: https://github.com/LanternPowered/Terre/discussions
 [Wiki]: https://github.com/LanternPowered/Terre/wiki
 [Docker Images]: https://hub.docker.com/r/cybermaxke/terre
-[Java 16]: https://www.oracle.com/java/technologies/javase/jdk16-archive-downloads.html
+[Java 17]: https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html
 [Docker Desktop]: https://www.docker.com/products/docker-desktop
 [Helm Charts]: https://github.com/Cybermaxke/terraria-helm-charts
