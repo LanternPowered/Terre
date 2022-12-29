@@ -12,7 +12,7 @@ dependencies {
 
 jib {
   from {
-    image = "azul/zulu-openjdk-alpine:16-jre"
+    image = "azul/zulu-openjdk-alpine:17-jre"
   }
   to {
     image = "cybermaxke/terre"

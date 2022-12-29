@@ -63,8 +63,8 @@ subprojects {
 
       withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().forEach {
         it.kotlinOptions.apply {
-          jvmTarget = "16"
-          languageVersion = "1.6"
+          jvmTarget = "17"
+          languageVersion = "1.7"
 
           val args = mutableListOf<String>()
           args += "-Xjvm-default=all"

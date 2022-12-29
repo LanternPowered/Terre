@@ -110,8 +110,8 @@ internal class ClientInitConnectionHandler(
     }
     val protocol = ProtocolRegistry[protocolVersion]
     if (protocol == null) {
-      val expected = ProtocolRegistry.all.stream()
-        .map { it.version }.toList()
+      val expected = ProtocolRegistry.all.asSequence()
+        .map { it.version }
         .joinToString(separator = ", ", prefix = "[", postfix = "]") {
           when (it) {
             is ProtocolVersion.Vanilla -> it.version.toString()

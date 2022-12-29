@@ -18,9 +18,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.lanternpowered.lmbda.kt.createLambda
-import org.lanternpowered.lmbda.kt.lambdaType
-import org.lanternpowered.lmbda.kt.privateLookupIn
+import org.lanternpowered.lmbda.createLambda
+import org.lanternpowered.lmbda.lambdaType
+import org.lanternpowered.lmbda.mh.privateLookupIn
 import org.lanternpowered.terre.event.Event
 import org.lanternpowered.terre.event.EventBus
 import org.lanternpowered.terre.event.EventSubscription

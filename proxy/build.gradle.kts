@@ -11,16 +11,16 @@ dependencies {
   val coroutinesVersion = "1.6.4"
   api(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = coroutinesVersion)
   api(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-jdk8", version = coroutinesVersion)
-  api(group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json-jvm", version = "1.4.0")
+  api(group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json-jvm", version = "1.4.1")
 
   // General utilities
   api(group = "com.google.guava", name = "guava", version = "31.1-jre")
 
   // Json
-  implementation(group = "com.google.code.gson", name = "gson", version = "2.9.0")
+  implementation(group = "com.google.code.gson", name = "gson", version = "2.10")
 
   // Primitive collections
-  implementation(group = "it.unimi.dsi", name = "fastutil-core", version = "8.5.9")
+  implementation(group = "it.unimi.dsi", name = "fastutil-core", version = "8.5.11")
 
   // Configuration
   api(group = "com.uchuhimo", name = "konf-yaml", version = "1.1.2")
@@ -29,7 +29,7 @@ dependencies {
   implementation(group = "net.sf.jopt-simple", name = "jopt-simple", version = "5.0.4")
 
   // Networking
-  implementation(group = "io.netty", name = "netty-all", version = "4.1.82.Final") {
+  implementation(group = "io.netty", name = "netty-all", version = "4.1.86.Final") {
     exclude(group = "io.netty", module = "netty-codec-haproxy")
     exclude(group = "io.netty", module = "netty-codec-http2")
     exclude(group = "io.netty", module = "netty-codec-http")
@@ -47,10 +47,10 @@ dependencies {
   }
 
   // Cache
-  implementation(group = "com.github.ben-manes.caffeine", name = "caffeine", version = "3.1.1")
+  implementation(group = "com.github.ben-manes.caffeine", name = "caffeine", version = "3.1.2")
 
   // Lambda generation
-  implementation(group = "org.lanternpowered", name = "lmbda", version = "2.0.0")
+  implementation(group = "org.lanternpowered", name = "lmbda", version = "3.0.0-SNAPSHOT")
 
   // ASM
   implementation(group = "org.ow2.asm", name = "asm", version = "9.4")

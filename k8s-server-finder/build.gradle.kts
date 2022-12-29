@@ -5,5 +5,5 @@ plugins {
 
 dependencies {
   api(project(":terre-proxy"))
-  implementation(group = "io.kubernetes", name = "client-java", version = "16.0.0")
+  implementation(group = "io.kubernetes", name = "client-java", version = "17.0.0")
 }

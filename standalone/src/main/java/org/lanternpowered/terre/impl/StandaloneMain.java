@@ -27,6 +27,9 @@ import java.util.Map;
  */
 public final class StandaloneMain {
 
+  private StandaloneMain() {
+  }
+
   /**
    * The entrypoint.
    *

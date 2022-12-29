@@ -31,6 +31,7 @@ internal object ProtocolRegistry {
     register(ProtocolVersion.Vanilla.`1․4․4․1`, Protocol274) // 270
     register(ProtocolVersion.Vanilla.`1․4․4․4`, Protocol274) // 273
     register(ProtocolVersion.Vanilla.`1․4․4․5`, Protocol274) // 274
+    register(ProtocolVersion.Vanilla.`1․4․4․9`, Protocol274) // 279
 
     allowTranslation(Protocol238 to Protocol230)
   }
