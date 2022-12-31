@@ -17,13 +17,12 @@ internal object ProtocolVersions {
   /**
    * All the known protocol version numbers paired to their version name.
    */
-  private val knownVanillaVersions = listOf(
-    ProtocolVersion.Vanilla.`1․4․0․5`,
-    ProtocolVersion.Vanilla.`1․4․2․3`,
-    ProtocolVersion.Vanilla.`1․4․4․1`,
-    ProtocolVersion.Vanilla.`1․4․4․4`,
-    ProtocolVersion.Vanilla.`1․4․4․5`,
-  ).associateBy { it.protocol }
+  private val knownVanillaVersions = ProtocolVersion.Vanilla.Companion::class
+    .members
+    .asSequence()
+    .filter { member -> member.returnType.classifier == ProtocolVersion.Vanilla::class }
+    .map { member -> member.call(ProtocolVersion.Vanilla.Companion) as ProtocolVersion.Vanilla }
+    .associateBy { it.protocol }
 
   /**
    * Gets the vanilla [ProtocolVersion] for the given protocol version number.
