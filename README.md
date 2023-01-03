@@ -11,8 +11,9 @@ installing plugins or even develop your own.
 * [Docker Images]
 * [Helm Charts]
 
-**The proxy is still is a work in progress, bugs are to be expected. There are currently no official 
-builds, so for now you will need to build the project yourself.**
+**The proxy is still is a work in progress, bugs are to be expected. There is a getting started 
+page on the [wiki] and downloads are available as
+[packages](https://github.com/orgs/LanternPowered/packages?repo_name=Terre).**
  
 The following list gives an overview of each sub-project in this repository.
 
