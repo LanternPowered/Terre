@@ -12,38 +12,27 @@
 package org.lanternpowered.terre.impl.network
 
 import io.netty.util.concurrent.Future
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Deferred
-import org.lanternpowered.terre.impl.ProxyImpl
-import org.lanternpowered.terre.impl.event.EventExecutor
-import org.lanternpowered.terre.impl.event.TerreEventBus
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
-@JvmName("toUnitDeferred")
-internal fun Future<Void>.toDeferred(): Deferred<Unit> {
-  val deferred = CompletableDeferred<Unit>()
-  addListener {
-    EventExecutor.executor.execute {
-      if (it.isSuccess) {
-        deferred.complete(Unit)
+internal suspend fun <T> Future<T>.join(): T {
+  if (isDone) {
+    val cause = cause()
+    if (cause != null) {
+      throw cause
+    }
+    return get()
+  }
+  return suspendCoroutine { continuation ->
+    addListener { future ->
+      val cause = future.cause()
+      if (cause != null) {
+        continuation.resumeWithException(cause)
       } else {
-        deferred.completeExceptionally(it.cause())
+        @Suppress("UNCHECKED_CAST")
+        continuation.resume(future.get() as T)
       }
     }
   }
-  return deferred
-}
-
-internal fun <V> Future<V>.toDeferred(): Deferred<V> {
-  val future = this
-  val deferred = CompletableDeferred<V>()
-  addListener {
-    EventExecutor.executor.execute {
-      if (future.isSuccess) {
-        deferred.complete(future.get())
-      } else {
-        deferred.completeExceptionally(future.cause())
-      }
-    }
-  }
-  return deferred
 }

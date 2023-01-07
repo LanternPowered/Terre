@@ -7,7 +7,7 @@
  * This work is licensed under the terms of the MIT License (MIT). For
  * a copy, see 'LICENSE.txt' or <https://opensource.org/licenses/MIT>.
  */
-@file:Suppress("FunctionName", "NOTHING_TO_INLINE")
+@file:Suppress("FunctionName")
 
 package org.lanternpowered.terre.impl.network.packet
 
@@ -30,6 +30,7 @@ internal data class WorldInfoPacket(
   val name: String,
   val generatorVersion: Long,
   val gameMode: Int,
+  val serverSideCharacter: Boolean,
   val data: ByteBuf
 ) : Packet, ForwardingReferenceCounted(data) {
 
@@ -52,6 +53,56 @@ private val idOffset = calculateLength {
   short() // rock layer position
 }
 
+private val generatorVersionToEventInfoOffset = calculateLength {
+  byte() // moon type
+  byte() // tree background 1
+  byte() // tree background 2
+  byte() // tree background 3
+  byte() // tree background 4
+  byte() // corruption background
+  byte() // jungle background
+  byte() // snow background
+  byte() // hallow background
+  byte() // crimson background
+  byte() // desert background
+  byte() // ocean background
+  byte() // mushroom background
+  byte() // underworld background
+  byte() // ice back style
+  byte() // jungle back style
+  byte() // hell back style
+  float() // wind
+  byte() // cloud number
+  int() // tree 1
+  int() // tree 2
+  int() // tree 3
+  byte() // tree style 1
+  byte() // tree style 2
+  byte() // tree style 3
+  byte() // tree style 4
+  int() // cave back 1
+  int() // cave back 2
+  int() // cave back 3
+  byte() // cave back style 1
+  byte() // cave back style 2
+  byte() // cave back style 3
+  byte() // cave back style 4
+  byte() // forest tree top style 1
+  byte() // forest tree top style 2
+  byte() // forest tree top style 3
+  byte() // forest tree top style 4
+  byte() // corruption tree top style
+  byte() // jungle tree top style
+  byte() // snow tree top style
+  byte() // hallow tree top style
+  byte() // crimson tree top style
+  byte() // desert tree top style
+  byte() // ocean tree top style
+  byte() // glowing mushroom tree top style
+  byte() // underground tree top style
+  float() // rain
+}
+
 internal val WorldInfoEncoder = PacketEncoder<WorldInfoPacket> { buf, packet ->
   val data = packet.data
   buf.writeBytes(data, 0, idOffset)
@@ -60,8 +111,12 @@ internal val WorldInfoEncoder = PacketEncoder<WorldInfoPacket> { buf, packet ->
   buf.writeByte(packet.gameMode)
   buf.writeUUID(packet.uniqueId)
   buf.writeLongLE(packet.generatorVersion)
+  val index = buf.writerIndex()
   buf.writeBytes(data, idOffset, data.readableBytes() - idOffset)
-  // Last long is the steam lobby id, do we need to handle this?
+  // Apply the serverSideCharacter bit if applicable
+  val eventInfoIndex = index + generatorVersionToEventInfoOffset
+  if (packet.serverSideCharacter)
+    buf.setByte(eventInfoIndex, buf.getUnsignedByte(eventInfoIndex).toInt() or 0x40)
 }
 
 internal val WorldInfoDecoder = PacketDecoder { buf ->
@@ -84,6 +139,12 @@ internal val WorldInfoDecoder = PacketDecoder { buf ->
   // Move reader index back to the end
   buf.readerIndex(end)
   data.writerIndex(size)
-
-  WorldInfoPacket(id, uniqueId, name, generatorVersion, gameMode, data)
+  val eventInfoIndex = idOffset + generatorVersionToEventInfoOffset
+  val eventInfo = data.getByte(eventInfoIndex).toInt()
+  val serverSideCharacter = (eventInfo and 0x40) != 0
+  if (serverSideCharacter) {
+    // Clear the bit in the data
+    data.setByte(eventInfoIndex, eventInfo and 0x40.inv())
+  }
+  WorldInfoPacket(id, uniqueId, name, generatorVersion, gameMode, serverSideCharacter, data)
 }

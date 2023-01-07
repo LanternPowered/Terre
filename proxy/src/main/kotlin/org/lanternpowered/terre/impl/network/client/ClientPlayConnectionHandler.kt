@@ -17,7 +17,8 @@ import org.lanternpowered.terre.impl.network.ConnectionHandler
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.packet.ClientUniqueIdPacket
-import org.lanternpowered.terre.impl.network.packet.KeepAlivePacket
+import org.lanternpowered.terre.impl.network.packet.ItemRemoveOwnerPacket
+import org.lanternpowered.terre.impl.network.packet.ItemUpdateOwnerPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerActivePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerBuffsPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerCommandPacket
@@ -27,7 +28,6 @@ import org.lanternpowered.terre.impl.network.packet.PlayerInventorySlotPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerManaPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerSpawnPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerUpdatePacket
-import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
 import org.lanternpowered.terre.impl.player.PlayerImpl
 import org.lanternpowered.terre.text.textOf
@@ -68,7 +68,7 @@ internal class ClientPlayConnectionHandler(
     keepAliveTask = connection.eventLoop.scheduleAtFixedRate({
       if (keepAliveTime == -1L) {
         keepAliveTime = System.currentTimeMillis()
-        connection.send(KeepAlivePacket)
+        connection.send(ItemRemoveOwnerPacket(ItemRemoveOwnerPacket.PingPongItemId))
       } else if (System.currentTimeMillis() - keepAliveTime > keepAliveTimeout) {
         connection.close(textOf("Timed out"))
       }
@@ -80,10 +80,18 @@ internal class ClientPlayConnectionHandler(
     keepAliveTask = null
   }
 
-  override fun handle(packet: KeepAlivePacket): Boolean {
-    playerImpl.latency = (System.currentTimeMillis() - keepAliveTime).toInt()
-    keepAliveTime = -1L
-    return true
+  override fun handle(packet: ItemUpdateOwnerPacket): Boolean {
+    if (packet.id == ItemRemoveOwnerPacket.PingPongItemId) {
+      if (keepAliveTime != -1L) {
+        playerImpl.latency = (System.currentTimeMillis() - keepAliveTime).toInt()
+        keepAliveTime = -1L
+      } else if (playerImpl.forwardNextOwnerUpdate) {
+        playerImpl.forwardNextOwnerUpdate = false
+        return false // Forward
+      }
+      return true
+    }
+    return false // Forward
   }
 
   override suspend fun handle(packet: PlayerCommandPacket): Boolean {
@@ -113,7 +121,8 @@ internal class ClientPlayConnectionHandler(
     return false // Forward
   }
 
-  override fun handle(packet: ProjectileDestroyPacket): Boolean {
+  override fun handle(packet: PlayerInventorySlotPacket): Boolean {
+    playerImpl.setInventoryItem(packet.slot, packet.itemStack)
     return false // Forward
   }
 

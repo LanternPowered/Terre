@@ -243,13 +243,13 @@ internal object TerreEventBus : EventBus {
 
   override fun <T : Event> postAsync(event: T): Deferred<T> {
     val deferred = CompletableDeferred<T>()
-    post(event) { deferred.complete(it); }
+    post(event) { deferred.complete(it) }
     return deferred
   }
 
   fun <T : Event> postAsyncWithFuture(event: T): CompletableFuture<T> {
     val future = CompletableFuture<T>()
-    post(event) { future.complete(it); }
+    post(event) { future.complete(it) }
     return future
   }
 

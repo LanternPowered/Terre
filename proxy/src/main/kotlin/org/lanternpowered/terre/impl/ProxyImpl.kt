@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import com.uchuhimo.konf.Config
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import org.lanternpowered.terre.Console
 import org.lanternpowered.terre.MaxPlayers
 import org.lanternpowered.terre.Proxy
@@ -32,7 +33,6 @@ import org.lanternpowered.terre.impl.network.ProxyBroadcastTask
 import org.lanternpowered.terre.impl.plugin.PluginManagerImpl
 import org.lanternpowered.terre.impl.text.TextJsonDeserializer
 import org.lanternpowered.terre.impl.text.TextJsonSerializer
-import org.lanternpowered.terre.impl.util.dispatcher.joinBlocking
 import org.lanternpowered.terre.text.MessageSender
 import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.text.textOf
@@ -153,8 +153,8 @@ internal object ProxyImpl : Proxy {
 
       timeout = tryWithTimeout(10.seconds) {
         players.toImmutableList()
-            .map { it.disconnectAsync(reason) }
-            .forEach { it.join() }
+          .map { it.disconnectAsync(reason) }
+          .forEach { it.join() }
       }.isFailure || timeout
 
       // Stop reading the console
@@ -227,7 +227,9 @@ internal object ProxyImpl : Proxy {
     }
     try {
       if (config.exists) {
-        config.loadAsync().joinBlocking()
+        runBlocking {
+          config.load()
+        }
       } else {
         // Add some examples
         config[ProxyConfigSpec.servers] = listOf(
@@ -244,7 +246,9 @@ internal object ProxyImpl : Proxy {
             allowAutoJoin = false
           )
         )
-        config.saveAsync().joinBlocking()
+        runBlocking {
+          config.save()
+        }
       }
     } catch (ex: Exception) {
       Terre.logger.error("Failed to load or save configuration file", ex)

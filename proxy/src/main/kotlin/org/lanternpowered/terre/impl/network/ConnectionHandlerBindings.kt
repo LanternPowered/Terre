@@ -24,7 +24,7 @@ import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
 import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
 import org.lanternpowered.terre.impl.network.packet.InstancedItemUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.ClientPlayerLimitResponsePacket
-import org.lanternpowered.terre.impl.network.packet.KeepAlivePacket
+import org.lanternpowered.terre.impl.network.packet.ItemRemoveOwnerPacket
 import org.lanternpowered.terre.impl.network.packet.PasswordRequestPacket
 import org.lanternpowered.terre.impl.network.packet.PasswordResponsePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerActivePacket
@@ -40,8 +40,8 @@ import org.lanternpowered.terre.impl.network.packet.PlayerUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.SpeechBubblePacket
 import org.lanternpowered.terre.impl.network.packet.StatusPacket
 import org.lanternpowered.terre.impl.network.packet.ItemUpdateOwnerPacket
-import org.lanternpowered.terre.impl.network.packet.NpcUpdateNamePacket
 import org.lanternpowered.terre.impl.network.packet.NpcUpdatePacket
+import org.lanternpowered.terre.impl.network.packet.PlayerInventorySlotPacket
 import org.lanternpowered.terre.impl.network.packet.ProjectileUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.ShimmeredItemUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.SimpleItemUpdatePacket
@@ -61,7 +61,6 @@ internal object ConnectionHandlerBindings {
     bind<ConnectionApprovedPacket>(ConnectionHandler::handle)
     bind<ConnectionRequestPacket>(ConnectionHandler::handle)
     bind<DisconnectPacket>(ConnectionHandler::handle)
-    bind<KeepAlivePacket>(ConnectionHandler::handle)
     bind<PasswordRequestPacket>(ConnectionHandler::handle)
     bind<PasswordResponsePacket>(ConnectionHandler::handle)
     bind<PlayerActivePacket>(ConnectionHandler::handle)
@@ -70,10 +69,11 @@ internal object ConnectionHandlerBindings {
     bind<PlayerDeathPacket>(ConnectionHandler::handle)
     bind<PlayerHurtPacket>(ConnectionHandler::handle)
     bind<PlayerInfoPacket>(ConnectionHandler::handle)
+    bind<PlayerInventorySlotPacket>(ConnectionHandler::handle)
     bind<SpeechBubblePacket>(ConnectionHandler::handle)
     bind<StatusPacket>(ConnectionHandler::handle)
     bind<ItemUpdateOwnerPacket>(ConnectionHandler::handle)
-    bind<NpcUpdateNamePacket>(ConnectionHandler::handle)
+    bind<ItemRemoveOwnerPacket>(ConnectionHandler::handle)
     bind<NpcUpdatePacket>(ConnectionHandler::handle)
     bind<WorldInfoPacket>(ConnectionHandler::handle)
     bind<WorldInfoRequestPacket>(ConnectionHandler::handle)

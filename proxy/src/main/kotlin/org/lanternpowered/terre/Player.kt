@@ -45,6 +45,12 @@ interface Player : Named, MessageReceiver, MessageSender, PortalAware, InboundCo
   val serverConnection: ServerConnection?
 
   /**
+   * The server this player is connected to, if present.
+   */
+  val server: Server?
+    get() = serverConnection?.server
+
+  /**
    * The position of the player in the world.
    *
    * Defaults to [Vec2f.Zero] if the player isn't connected.

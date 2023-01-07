@@ -13,6 +13,8 @@ import org.lanternpowered.terre.impl.network.packet.AddPlayerBuffDecoder
 import org.lanternpowered.terre.impl.network.packet.AddPlayerBuffEncoder
 import org.lanternpowered.terre.impl.network.packet.ChatMessageDecoder
 import org.lanternpowered.terre.impl.network.packet.ChatMessageEncoder
+import org.lanternpowered.terre.impl.network.packet.ClientPlayerLimitRequestEncoder
+import org.lanternpowered.terre.impl.network.packet.ClientPlayerLimitResponseDecoder
 import org.lanternpowered.terre.impl.network.packet.ClientUniqueIdDecoder
 import org.lanternpowered.terre.impl.network.packet.ClientUniqueIdEncoder
 import org.lanternpowered.terre.impl.network.packet.CombatMessageDecoder
@@ -27,12 +29,11 @@ import org.lanternpowered.terre.impl.network.packet.DisconnectDecoder
 import org.lanternpowered.terre.impl.network.packet.DisconnectEncoder
 import org.lanternpowered.terre.impl.network.packet.EssentialTilesRequestEncoder
 import org.lanternpowered.terre.impl.network.packet.InstancedItemUpdateDecoder
-import org.lanternpowered.terre.impl.network.packet.ClientPlayerLimitRequestEncoder
-import org.lanternpowered.terre.impl.network.packet.ClientPlayerLimitResponseDecoder
+import org.lanternpowered.terre.impl.network.packet.ItemRemoveOwnerDecoder
+import org.lanternpowered.terre.impl.network.packet.ItemRemoveOwnerEncoder
 import org.lanternpowered.terre.impl.network.packet.ItemUpdateEncoder
 import org.lanternpowered.terre.impl.network.packet.ItemUpdateOwnerDecoder
 import org.lanternpowered.terre.impl.network.packet.ItemUpdateOwnerEncoder
-import org.lanternpowered.terre.impl.network.packet.KeepAliveEncoder
 import org.lanternpowered.terre.impl.network.packet.NpcUpdateDecoder
 import org.lanternpowered.terre.impl.network.packet.NpcUpdateEncoder
 import org.lanternpowered.terre.impl.network.packet.PasswordRequestDecoder
@@ -124,12 +125,11 @@ internal val Protocol238 = multistateProtocol("238") {
     bind(0x10, PlayerHealthEncoder, PlayerHealthDecoder)
     bind(0x14, TileSquareEncoder, TileSquareDecoder)
     bind(0x15, ItemUpdateEncoder, SimpleItemUpdateDecoder)
-    bind(0x16, ItemUpdateOwnerEncoder)
-    bind(0x16, ItemUpdateOwnerDecoder) // And keep alive
+    bind(0x16, ItemUpdateOwnerEncoder, ItemUpdateOwnerDecoder)
     bind(0x17, NpcUpdateEncoder, NpcUpdateDecoder, PacketDirection.ServerToClient)
     bind(0x1B, ProjectileUpdateEncoder, ProjectileUpdateDecoder)
     bind(0x1D, ProjectileDestroyEncoder, ProjectileDestroyDecoder)
-    bind(0x27, KeepAliveEncoder, PacketDirection.ServerToClient)
+    bind(0x27, ItemRemoveOwnerEncoder, ItemRemoveOwnerDecoder)
     bind(0x2A, PlayerManaEncoder, PlayerManaDecoder)
     bind(0x2D, PlayerTeamEncoder, PlayerTeamDecoder, PacketDirection.ServerToClient)
     bind(0x31, CompleteConnectionEncoder, CompleteConnectionDecoder, PacketDirection.ServerToClient)

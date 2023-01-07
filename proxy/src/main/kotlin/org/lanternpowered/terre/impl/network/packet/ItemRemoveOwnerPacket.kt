@@ -10,27 +10,32 @@
 package org.lanternpowered.terre.impl.network.packet
 
 import org.lanternpowered.terre.impl.network.Packet
-import org.lanternpowered.terre.impl.network.buffer.PlayerId
-import org.lanternpowered.terre.impl.network.buffer.readPlayerId
-import org.lanternpowered.terre.impl.network.buffer.writePlayerId
 import org.lanternpowered.terre.impl.network.PacketDecoder
 import org.lanternpowered.terre.impl.network.PacketEncoder
 import org.lanternpowered.terre.impl.network.buffer.ItemId
 import org.lanternpowered.terre.impl.network.buffer.readItemId
 import org.lanternpowered.terre.impl.network.buffer.writeItemId
 
-internal data class ItemUpdateOwnerPacket(
-  val id: ItemId,
-  val ownerId: PlayerId
-) : Packet
+internal data class ItemRemoveOwnerPacket(
+  val id: ItemId
+) : Packet {
 
-internal val ItemUpdateOwnerEncoder = PacketEncoder<ItemUpdateOwnerPacket> { buf, packet ->
-  buf.writeItemId(packet.id)
-  buf.writePlayerId(packet.ownerId)
+  companion object {
+
+    /**
+     * An item id that is not used by vanilla so can be used as a ping pong between the client
+     * and server. The client will always respond with a [ItemUpdateOwnerPacket] when sending
+     * a [ItemRemoveOwnerPacket].
+     */
+    val PingPongItemId = ItemId(400)
+  }
 }
 
-internal val ItemUpdateOwnerDecoder = PacketDecoder { buf ->
+internal val ItemRemoveOwnerEncoder = PacketEncoder<ItemRemoveOwnerPacket> { buf, packet ->
+  buf.writeItemId(packet.id)
+}
+
+internal val ItemRemoveOwnerDecoder = PacketDecoder { buf ->
   val itemId = buf.readItemId()
-  val ownerId = buf.readPlayerId()
-  ItemUpdateOwnerPacket(itemId, ownerId)
+  ItemRemoveOwnerPacket(itemId)
 }

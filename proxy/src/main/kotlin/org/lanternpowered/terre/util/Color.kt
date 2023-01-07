@@ -7,7 +7,7 @@
  * This work is licensed under the terms of the MIT License (MIT). For
  * a copy, see 'LICENSE.txt' or <https://opensource.org/licenses/MIT>.
  */
-@file:Suppress("FunctionName", "NOTHING_TO_INLINE", "DEPRECATION")
+@file:Suppress("FunctionName")
 
 package org.lanternpowered.terre.util
 

@@ -29,10 +29,11 @@ import org.lanternpowered.terre.impl.network.packet.EssentialTilesRequestEncoder
 import org.lanternpowered.terre.impl.network.packet.InstancedItemUpdateDecoder
 import org.lanternpowered.terre.impl.network.packet.ClientPlayerLimitRequestEncoder
 import org.lanternpowered.terre.impl.network.packet.ClientPlayerLimitResponseDecoder
+import org.lanternpowered.terre.impl.network.packet.ItemRemoveOwnerDecoder
+import org.lanternpowered.terre.impl.network.packet.ItemRemoveOwnerEncoder
 import org.lanternpowered.terre.impl.network.packet.ItemUpdateEncoder
 import org.lanternpowered.terre.impl.network.packet.ItemUpdateOwnerDecoder
 import org.lanternpowered.terre.impl.network.packet.ItemUpdateOwnerEncoder
-import org.lanternpowered.terre.impl.network.packet.KeepAliveEncoder
 import org.lanternpowered.terre.impl.network.packet.NpcUpdateDecoder
 import org.lanternpowered.terre.impl.network.packet.NpcUpdateEncoder
 import org.lanternpowered.terre.impl.network.packet.PasswordRequestDecoder
@@ -125,11 +126,11 @@ internal val Protocol230 = multistateProtocol("230") {
     bind(0x14, TileSquare230Encoder, TileSquare230Decoder)
     bind(0x15, ItemUpdateEncoder, SimpleItemUpdateDecoder)
     bind(0x16, ItemUpdateOwnerEncoder)
-    bind(0x16, ItemUpdateOwnerDecoder) // And keep alive
+    bind(0x16, ItemUpdateOwnerDecoder)
     bind(0x17, NpcUpdateEncoder, NpcUpdateDecoder, PacketDirection.ServerToClient)
     bind(0x1B, ProjectileUpdateEncoder, ProjectileUpdateDecoder)
     bind(0x1D, ProjectileDestroyEncoder, ProjectileDestroyDecoder)
-    bind(0x27, KeepAliveEncoder, PacketDirection.ServerToClient)
+    bind(0x27, ItemRemoveOwnerEncoder, ItemRemoveOwnerDecoder)
     bind(0x2A, PlayerManaEncoder, PlayerManaDecoder)
     bind(0x2D, PlayerTeamEncoder, PlayerTeamDecoder, PacketDirection.ServerToClient)
     bind(0x31, CompleteConnectionEncoder, CompleteConnectionDecoder, PacketDirection.ServerToClient)
