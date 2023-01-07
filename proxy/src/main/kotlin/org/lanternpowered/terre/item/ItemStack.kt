@@ -56,6 +56,12 @@ interface ItemStack : TextLike {
   fun copy(): ItemStack
 
   /**
+   * Returns if this item stack is similar to the other one. Everything matches except the
+   * quantity.
+   */
+  fun similarTo(other: ItemStack): Boolean
+
+  /**
    * Converts this stack into a text component.
    */
   override fun text(): ItemText = textOf(this)

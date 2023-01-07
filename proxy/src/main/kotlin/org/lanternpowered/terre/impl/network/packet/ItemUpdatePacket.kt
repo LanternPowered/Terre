@@ -27,7 +27,7 @@ import org.lanternpowered.terre.math.Vec2f
 internal sealed interface ItemUpdatePacket : Packet {
   val id: ItemId
   val position: Vec2f
-  val stack: ItemStack
+  val itemStack: ItemStack
   val velocity: Vec2f
   val noDelay: Boolean
 }
@@ -35,7 +35,7 @@ internal sealed interface ItemUpdatePacket : Packet {
 internal data class SimpleItemUpdatePacket(
   override val id: ItemId,
   override val position: Vec2f,
-  override val stack: ItemStack,
+  override val itemStack: ItemStack,
   override val velocity: Vec2f = Vec2f.Zero,
   override val noDelay: Boolean = false
 ) : ItemUpdatePacket
@@ -43,7 +43,7 @@ internal data class SimpleItemUpdatePacket(
 internal data class InstancedItemUpdatePacket(
   override val id: ItemId,
   override val position: Vec2f,
-  override val stack: ItemStack,
+  override val itemStack: ItemStack,
   override val velocity: Vec2f = Vec2f.Zero,
   override val noDelay: Boolean = false,
 ) : ItemUpdatePacket
@@ -51,7 +51,7 @@ internal data class InstancedItemUpdatePacket(
 internal data class ShimmeredItemUpdatePacket(
   override val id: ItemId,
   override val position: Vec2f,
-  override val stack: ItemStack,
+  override val itemStack: ItemStack,
   override val velocity: Vec2f,
   override val noDelay: Boolean,
   val shimmered: Boolean,
@@ -61,7 +61,7 @@ internal data class ShimmeredItemUpdatePacket(
 internal data class CannotBeTakenByEnemiesItemUpdatePacket(
   override val id: ItemId,
   override val position: Vec2f,
-  override val stack: ItemStack,
+  override val itemStack: ItemStack,
   override val velocity: Vec2f,
   override val noDelay: Boolean,
   val cannotBeTakenByEnemiesTime: Int,
@@ -71,10 +71,10 @@ internal val ItemUpdateEncoder = PacketEncoder<ItemUpdatePacket> { buf, packet -
   buf.writeItemId(packet.id)
   buf.writeVec2f(packet.position)
   buf.writeVec2f(packet.velocity)
-  buf.writeShortLE(packet.stack.quantity)
-  buf.writeByte(packet.stack.modifier.numericId)
+  buf.writeShortLE(packet.itemStack.quantity)
+  buf.writeByte(packet.itemStack.modifier.numericId)
   buf.writeBoolean(packet.noDelay)
-  buf.writeShortLE(packet.stack.type.numericId)
+  buf.writeShortLE(packet.itemStack.type.numericId)
   if (packet is ShimmeredItemUpdatePacket) {
     buf.writeBoolean(packet.shimmered)
     buf.writeFloatLE(packet.shimmerTime)
@@ -119,7 +119,7 @@ private inline fun <P : Packet> itemUpdateDecoder(
   val quantity = buf.readShortLE().toInt()
   val modifier = ItemModifierRegistry.require(buf.readByte().toInt())
   val noDelay = buf.readBoolean()
-  val type = ItemTypeRegistry.require(buf.readShortLE().toInt())
+  val type = ItemTypeRegistry.require(buf.readUnsignedShortLE())
   val stack = ItemStack(type, modifier, quantity)
   buf.packet(id, position, stack, velocity, noDelay)
 }

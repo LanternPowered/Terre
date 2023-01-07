@@ -12,16 +12,18 @@ package org.lanternpowered.terre.impl.network
 import io.netty.buffer.ByteBuf
 import org.lanternpowered.terre.impl.network.packet.AddPlayerBuffPacket
 import org.lanternpowered.terre.impl.network.packet.ChatMessagePacket
+import org.lanternpowered.terre.impl.network.packet.ClientPlayerLimitResponsePacket
 import org.lanternpowered.terre.impl.network.packet.ClientUniqueIdPacket
 import org.lanternpowered.terre.impl.network.packet.CombatMessagePacket
 import org.lanternpowered.terre.impl.network.packet.CompleteConnectionPacket
 import org.lanternpowered.terre.impl.network.packet.ConnectionApprovedPacket
 import org.lanternpowered.terre.impl.network.packet.ConnectionRequestPacket
 import org.lanternpowered.terre.impl.network.packet.CustomPayloadPacket
-import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
 import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
-import org.lanternpowered.terre.impl.network.packet.ClientPlayerLimitResponsePacket
-import org.lanternpowered.terre.impl.network.packet.KeepAlivePacket
+import org.lanternpowered.terre.impl.network.packet.ItemRemoveOwnerPacket
+import org.lanternpowered.terre.impl.network.packet.ItemUpdateOwnerPacket
+import org.lanternpowered.terre.impl.network.packet.ItemUpdatePacket
+import org.lanternpowered.terre.impl.network.packet.NpcUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.PasswordRequestPacket
 import org.lanternpowered.terre.impl.network.packet.PasswordResponsePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerActivePacket
@@ -30,19 +32,17 @@ import org.lanternpowered.terre.impl.network.packet.PlayerCommandPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerDeathPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerHurtPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
+import org.lanternpowered.terre.impl.network.packet.PlayerInventorySlotPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerSpawnPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerTeamPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerTeleportThroughPortalPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerUpdatePacket
-import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
+import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
+import org.lanternpowered.terre.impl.network.packet.ProjectileUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.SpeechBubblePacket
 import org.lanternpowered.terre.impl.network.packet.StatusPacket
-import org.lanternpowered.terre.impl.network.packet.ItemUpdateOwnerPacket
-import org.lanternpowered.terre.impl.network.packet.ItemUpdatePacket
-import org.lanternpowered.terre.impl.network.packet.NpcUpdateNamePacket
-import org.lanternpowered.terre.impl.network.packet.NpcUpdatePacket
-import org.lanternpowered.terre.impl.network.packet.ProjectileUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoPacket
+import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
 import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsDonePacket
 import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsPacket
 
@@ -94,12 +94,6 @@ internal interface ConnectionHandler {
     return false
   }
 
-  fun handle(packet: KeepAlivePacket): Boolean {
-    // Never forward keep alive packets, this is just a
-    // concept in Terre and does not exist officially.
-    return true
-  }
-
   fun handle(packet: PasswordRequestPacket): Boolean {
     return false
   }
@@ -132,6 +126,10 @@ internal interface ConnectionHandler {
     return false
   }
 
+  fun handle(packet: PlayerInventorySlotPacket): Boolean {
+    return false
+  }
+
   fun handle(packet: SpeechBubblePacket): Boolean {
     return false
   }
@@ -144,7 +142,7 @@ internal interface ConnectionHandler {
     return false
   }
 
-  fun handle(packet: NpcUpdateNamePacket): Boolean {
+  fun handle(packet: ItemRemoveOwnerPacket): Boolean {
     return false
   }
 

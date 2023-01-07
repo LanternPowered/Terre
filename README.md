@@ -15,16 +15,18 @@ installing plugins or even develop your own.
 page on the [wiki] and downloads are available as
 [packages](https://github.com/orgs/LanternPowered/packages?repo_name=Terre).**
  
-The following list gives an overview of each sub-project in this repository.
+The following list gives an overview of each subproject in this repository.
 
 * **proxy** - The actual proxy server.
 * **image** - A docker image build containing the proxy and all the official plugins.
 * **standalone** - Packs terre and all its dependencies into a single jar.
 * **test** - A test environment which can be used in the IDE, which will include plugins from the 
-repository.
-* **portals** - A plugin which allows you to create portals to teleport between servers (worlds).
-* **tshock-users** - A plugin which hooks into the tShock user and permission system, so they can 
-work together. (Placeholder)
+  repository.
+* **portals** - A plugin that makes it possible to create portals to teleport between servers 
+  (worlds).
+* **characters** - A plugin that allows configuration of character storages. As alternative to 
+  client side characters. **WIP, is currently only used to test server side character 
+  compatibility, no data is currently saved.**
 * **k8s-server-finder** A plugin that discovers Terraria servers on a kubernetes cluster and 
   automatically registers them.
 

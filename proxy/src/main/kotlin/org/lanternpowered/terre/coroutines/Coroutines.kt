@@ -39,11 +39,10 @@ suspend fun delay(duration: Duration) {
 }
 
 /**
- * Continues the current coroutine with the given
- * coroutine dispatcher.
+ * Continues the current coroutine with the given coroutine dispatcher.
  */
 suspend fun continueWith(dispatcher: CoroutineDispatcher) {
-  suspendCoroutine<Unit> { continuation ->
+  suspendCoroutine { continuation ->
     dispatcher.dispatch {
       continuation.resume(Unit)
     }

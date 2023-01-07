@@ -15,18 +15,21 @@ import org.lanternpowered.terre.impl.ProxyImpl
 import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.network.ConnectionHandler
 import org.lanternpowered.terre.impl.network.Packet
+import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.buffer.readString
 import org.lanternpowered.terre.impl.network.packet.CompleteConnectionPacket
 import org.lanternpowered.terre.impl.network.packet.CustomPayloadPacket
 import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
 import org.lanternpowered.terre.impl.network.packet.EssentialTilesRequestPacket
+import org.lanternpowered.terre.impl.network.packet.ItemRemoveOwnerPacket
+import org.lanternpowered.terre.impl.network.packet.ItemUpdateOwnerPacket
 import org.lanternpowered.terre.impl.network.packet.ItemUpdatePacket
+import org.lanternpowered.terre.impl.network.packet.NpcUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerActivePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
+import org.lanternpowered.terre.impl.network.packet.PlayerInventorySlotPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerSpawnPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerTeamPacket
-import org.lanternpowered.terre.impl.network.packet.NpcUpdateNamePacket
-import org.lanternpowered.terre.impl.network.packet.NpcUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
 import org.lanternpowered.terre.impl.network.packet.ProjectileUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoPacket
@@ -35,21 +38,20 @@ import org.lanternpowered.terre.impl.player.ServerConnectionImpl
 import org.lanternpowered.terre.impl.util.parseInetAddress
 import org.lanternpowered.terre.impl.util.resolve
 import org.lanternpowered.terre.math.Vec2i
+import java.util.UUID
 
 internal open class ServerPlayConnectionHandler(
   private val serverConnection: ServerConnectionImpl,
   private val player: PlayerImpl,
 ) : ConnectionHandler {
 
-  /**
-   * The client connection.
-   */
   private val clientConnection
     get() = player.clientConnection
 
   private val wasPreviouslyConnectedToServer = player.wasPreviouslyConnectedToServer
 
   private var sendRequestEssentialTiles = false
+  private var worldUniqueId: UUID? = null
 
   override fun initialize() {
     player.wasPreviouslyConnectedToServer = true
@@ -75,6 +77,20 @@ internal open class ServerPlayConnectionHandler(
       if (wasPreviouslyConnectedToServer)
         serverConnection.ensureConnected().send(EssentialTilesRequestPacket(Vec2i(-1, -1)))
     }
+    if (worldUniqueId != packet.uniqueId) {
+      // Only reinitialize if the world changed (servers)
+      worldUniqueId = packet.uniqueId
+      Terre.logger.debug {
+        "P <- S(${serverConnection.server.info.name}) [${player.name}] " +
+          "Initializing proxy side character..."
+      }
+      val serverSideCharacter = player.updateServerSideCharacter(packet.serverSideCharacter)
+      clientConnection.send(packet.copy(serverSideCharacter = serverSideCharacter))
+      // Load proxy side character, updates client and server, inventory is loaded async
+      // and then packets are sent
+      player.loadAndInitCharacter()
+      return true // Do not forward
+    }
     return false // Forward
   }
 
@@ -88,17 +104,11 @@ internal open class ServerPlayConnectionHandler(
     return false // Forward
   }
 
-  override fun handle(packet: NpcUpdateNamePacket): Boolean {
-    player.trackedNpcs[packet.npcId].name = packet.name
-    return false // Forward
-  }
-
   override fun handle(packet: NpcUpdatePacket): Boolean {
     val npc = player.trackedNpcs[packet.id]
     val npcType = packet.type
     if (npc.type != npcType || !npc.active) {
       npc.type = npcType
-      npc.name = null
       npc.life = 1
     }
     if (packet.life != null)
@@ -119,12 +129,34 @@ internal open class ServerPlayConnectionHandler(
   }
 
   override fun handle(packet: ProjectileDestroyPacket): Boolean {
-    player.trackedProjectiles[packet.id].active = false
+    player.trackedProjectiles[packet.id].reset()
     return false // Forward
   }
 
   override fun handle(packet: ItemUpdatePacket): Boolean {
-    player.trackedItems[packet.id].type = packet.stack.type
+    player.trackedItems[packet.id].itemStack = packet.itemStack
+    return false // Forward
+  }
+
+  override fun handle(packet: ItemUpdateOwnerPacket): Boolean {
+    player.trackedItems[packet.id].owner = packet.ownerId
+    return false // Forward
+  }
+
+  override fun handle(packet: ItemRemoveOwnerPacket): Boolean {
+    player.trackedItems[packet.id].owner = PlayerId.None
+    // tShock sends this packet with item id 400 after server side character data is loaded
+    // to know that client packets can be accepted again
+    if (packet.id == ItemRemoveOwnerPacket.PingPongItemId) {
+      // normally this packet interferes with the keep alive system, so mark the next response
+      // to make sure it gets forwarded
+      player.forwardNextOwnerUpdate = true
+    }
+    return false // Forward
+  }
+
+  override fun handle(packet: PlayerInventorySlotPacket): Boolean {
+    player.setInventoryItem(packet.slot, packet.itemStack)
     return false // Forward
   }
 

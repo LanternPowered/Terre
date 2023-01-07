@@ -12,7 +12,7 @@ package org.lanternpowered.terre.event.proxy
 import org.lanternpowered.terre.event.Event
 
 /**
- * This event is thrown after the plugins are loaded
- * and the proxy is starting to accept connections.
+ * This event is thrown after the plugins are loaded and the proxy is starting to accept
+ * connections.
  */
 class ProxyInitializeEvent : Event

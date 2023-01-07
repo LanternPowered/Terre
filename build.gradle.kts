@@ -1,6 +1,6 @@
 plugins {
-  kotlin("jvm") version "1.7.20"
-  kotlin("plugin.serialization") version "1.7.20"
+  kotlin("jvm") version "1.8.10"
+  kotlin("plugin.serialization") version "1.8.10"
   id("org.cadixdev.licenser") version "0.6.1"
 }
 
@@ -64,7 +64,7 @@ subprojects {
       withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().forEach {
         it.kotlinOptions.apply {
           jvmTarget = "17"
-          languageVersion = "1.7"
+          languageVersion = "1.8"
 
           val args = mutableListOf<String>()
           args += "-Xjvm-default=all"
@@ -87,6 +87,7 @@ subprojects {
           optIn("kotlin.ExperimentalStdlibApi")
           optIn("kotlin.experimental.ExperimentalTypeInference")
           optIn("kotlinx.coroutines.InternalCoroutinesApi")
+          optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
 
           freeCompilerArgs = args
         }

@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Terre Test" type="JetRunConfigurationType">
-    <option name="ALTERNATIVE_JRE_PATH" value="16" />
+    <option name="ALTERNATIVE_JRE_PATH" value="openjdk-18" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <option name="MAIN_CLASS_NAME" value="org.lanternpowered.terre.impl.TerreMainKt" />
     <module name="Terre.terre-test.main" />

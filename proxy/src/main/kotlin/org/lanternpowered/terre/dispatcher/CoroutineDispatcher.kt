@@ -70,50 +70,11 @@ fun launchAsync(
   }
 }
 
-fun <T, R> T.letAsync(
+fun <R> async(
   context: CoroutineContext = EmptyCoroutineContext,
-  block: suspend (T) -> R
-): Deferred<R> {
-  return newCoroutineScope().async(context) {
-    block(this@letAsync)
-  }
-}
-
-fun <T, R> T.runAsync(
-  context: CoroutineContext = EmptyCoroutineContext,
-  block: suspend T.() -> R
+  block: suspend CoroutineScope.() -> R
 ): Deferred<R> {
   return newCoroutineScope().async(context) {
     block()
-  }
-}
-
-fun <T> T.applyAsync(
-  context: CoroutineContext = EmptyCoroutineContext,
-  block: suspend T.() -> Unit
-): Deferred<T> {
-  return newCoroutineScope().async(context) {
-    block()
-    this@applyAsync
-  }
-}
-
-fun <T> T.alsoAsync(
-  context: CoroutineContext = EmptyCoroutineContext,
-  block: suspend (T) -> Unit
-): Deferred<T> {
-  return newCoroutineScope().async(context) {
-    block(this@alsoAsync)
-    this@alsoAsync
-  }
-}
-
-fun <T, R> withAsync(
-  context: CoroutineContext = EmptyCoroutineContext,
-  receiver: T,
-  block: suspend T.() -> R
-): Deferred<R> {
-  return newCoroutineScope().async(context) {
-    block(receiver)
   }
 }

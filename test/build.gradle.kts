@@ -6,4 +6,5 @@ plugins {
 dependencies {
   implementation(project(":terre-proxy"))
   implementation(project(":terre-portals"))
+  implementation(project(":terre-characters"))
 }

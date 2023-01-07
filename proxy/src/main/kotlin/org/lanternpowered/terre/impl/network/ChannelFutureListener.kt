@@ -12,7 +12,6 @@ package org.lanternpowered.terre.impl.network
 import io.netty.channel.ChannelFuture
 import io.netty.channel.ChannelFutureListener
 
-@Suppress("RedundantSamConstructor")
 internal inline fun ChannelFuture.addChannelFutureListener(
   crossinline block: (future: ChannelFuture) -> Unit
 ): ChannelFuture {

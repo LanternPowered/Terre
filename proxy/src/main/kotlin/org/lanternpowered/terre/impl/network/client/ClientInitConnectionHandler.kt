@@ -23,11 +23,11 @@ import org.lanternpowered.terre.impl.network.MultistateProtocol
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.ProtocolRegistry
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
+import org.lanternpowered.terre.impl.network.packet.ClientPlayerLimitRequestPacket
+import org.lanternpowered.terre.impl.network.packet.ClientPlayerLimitResponsePacket
 import org.lanternpowered.terre.impl.network.packet.ClientUniqueIdPacket
 import org.lanternpowered.terre.impl.network.packet.ConnectionApprovedPacket
 import org.lanternpowered.terre.impl.network.packet.ConnectionRequestPacket
-import org.lanternpowered.terre.impl.network.packet.ClientPlayerLimitRequestPacket
-import org.lanternpowered.terre.impl.network.packet.ClientPlayerLimitResponsePacket
 import org.lanternpowered.terre.impl.network.packet.PasswordRequestPacket
 import org.lanternpowered.terre.impl.network.packet.PasswordResponsePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket

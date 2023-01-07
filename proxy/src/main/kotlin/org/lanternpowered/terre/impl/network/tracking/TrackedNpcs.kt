@@ -34,7 +34,6 @@ internal class TrackedNpc(
   val id: NpcId
 ) {
   var type = NpcType(0)
-  var name: String? = null
   var life: Int = 0
 
   val active: Boolean
@@ -42,7 +41,6 @@ internal class TrackedNpc(
 
   fun reset() {
     type = NpcType(0)
-    name = null
     life = 0
   }
 }

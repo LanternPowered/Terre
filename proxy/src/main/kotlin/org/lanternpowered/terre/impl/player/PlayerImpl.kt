@@ -10,6 +10,8 @@
 package org.lanternpowered.terre.impl.player
 
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.future.asCompletableFuture
 import kotlinx.coroutines.future.asDeferred
 import org.lanternpowered.terre.MaxPlayers
 import org.lanternpowered.terre.Player
@@ -17,28 +19,35 @@ import org.lanternpowered.terre.PlayerIdentifier
 import org.lanternpowered.terre.ProtocolVersion
 import org.lanternpowered.terre.Server
 import org.lanternpowered.terre.ServerConnectionRequestResult
+import org.lanternpowered.terre.character.CharacterStorage
+import org.lanternpowered.terre.dispatcher.async
+import org.lanternpowered.terre.dispatcher.launchAsync
+import org.lanternpowered.terre.event.character.InitCharacterStorageEvent
 import org.lanternpowered.terre.event.connection.ClientLoginEvent
 import org.lanternpowered.terre.event.connection.ClientPostLoginEvent
 import org.lanternpowered.terre.impl.ProxyImpl
 import org.lanternpowered.terre.impl.ServerImpl
 import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.event.TerreEventBus
+import org.lanternpowered.terre.impl.item.InventoryImpl
 import org.lanternpowered.terre.impl.network.Connection
 import org.lanternpowered.terre.impl.network.MultistateProtocol
 import org.lanternpowered.terre.impl.network.buffer.NpcType
+import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.client.ClientPlayConnectionHandler
 import org.lanternpowered.terre.impl.network.packet.ChatMessagePacket
 import org.lanternpowered.terre.impl.network.packet.NpcUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerActivePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerChatMessagePacket
+import org.lanternpowered.terre.impl.network.packet.PlayerInventorySlotPacket
 import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
 import org.lanternpowered.terre.impl.network.packet.SimpleItemUpdatePacket
-import org.lanternpowered.terre.impl.network.toDeferred
 import org.lanternpowered.terre.impl.network.tracking.TrackedItems
 import org.lanternpowered.terre.impl.network.tracking.TrackedNpcs
 import org.lanternpowered.terre.impl.network.tracking.TrackedPlayers
 import org.lanternpowered.terre.impl.network.tracking.TrackedProjectiles
 import org.lanternpowered.terre.impl.text.MessageReceiverImpl
+import org.lanternpowered.terre.impl.util.channel.distinct
 import org.lanternpowered.terre.item.ItemStack
 import org.lanternpowered.terre.math.Vec2f
 import org.lanternpowered.terre.portal.Portal
@@ -65,6 +74,25 @@ internal class PlayerImpl(
 
   override var serverConnection: ServerConnectionImpl? = null
     private set
+
+  var serverSideCharacter: Boolean = false
+    private set
+
+  var clientSideCharacter: Boolean = true
+    private set
+
+  var characterStorage: CharacterStorage? = null
+    private set
+
+  var forwardNextOwnerUpdate = false
+
+  private var characterStoragePersistJob: Job? = null
+  private var characterStoragePersistQueue: Channel<Int>? = null
+
+  private val inventory = InventoryImpl()
+
+  val playerId: PlayerId?
+    get() = serverConnection?.playerId
 
   override val remoteAddress: SocketAddress
     get() = clientConnection.remoteAddress
@@ -103,6 +131,22 @@ internal class PlayerImpl(
    * Whether the player was previously connected to another server.
    */
   var wasPreviouslyConnectedToServer = false
+
+  /**
+   * Deferred that will be updated when the player is cleaned up.
+   */
+  var cleanedUp = CompletableFuture<Unit>()
+
+  fun setInventoryItem(index: Int, itemStack: ItemStack) {
+    inventory[index] = itemStack
+    val serverConnection = serverConnection
+    if (serverConnection == null || !serverConnection.isWorldInitialized || serverSideCharacter)
+      return // Too early to persist or server side character
+    val characterStoragePersistQueue = characterStoragePersistQueue
+    assert(characterStoragePersistQueue != null &&
+      !characterStoragePersistQueue.trySend(index).isSuccess
+    ) { "Failed to queue persist for item at $index" }
+  }
 
   // Duplicate client UUIDs aren't allowed, however duplicate names are.
   private fun disconnectByDuplicateId() {
@@ -155,6 +199,26 @@ internal class PlayerImpl(
   }
 
   private fun afterLogin() {
+    val event = object : InitCharacterStorageEvent {
+      override val player: Player
+        get() = this@PlayerImpl
+
+      override fun provide(storage: CharacterStorage) {
+        characterStorage = storage
+      }
+    }
+    TerreEventBus.postAsyncWithFuture(event)
+      .whenComplete { _, exception ->
+        if (exception != null) {
+          Terre.logger.error("Failed to initialize character storage for $name", exception)
+          disconnectAndForget(textOf("Failed to initialize character storage."))
+        } else {
+          autoJoinServer()
+        }
+      }
+  }
+
+  private fun autoJoinServer() {
     // Try to connect to one of the servers
     val possibleServers = ProxyImpl.servers.asSequence()
       .filter { it.allowAutoJoin }
@@ -216,6 +280,10 @@ internal class PlayerImpl(
   fun cleanup() {
     ProxyImpl.mutablePlayers.remove(this)
     serverConnection?.connection?.close()
+    launchAsync {
+      saveAndCleanupCharacter()
+      cleanedUp.complete(Unit)
+    }
   }
 
   override fun sendMessage(message: Text) {
@@ -247,33 +315,114 @@ internal class PlayerImpl(
     serverConnection?.connection?.close()
   }
 
-  override fun disconnectAsync(reason: Text): Job =
-    clientConnection.close(reason).toDeferred()
+  override fun disconnectAsync(reason: Text): Job {
+    disconnectAndForget(reason)
+    return cleanedUp.asDeferred()
+  }
 
   fun connectToWithFuture(server: Server): CompletableFuture<ServerConnectionRequestResult> {
     server as ServerImpl
     val connection = ServerConnectionImpl(server, this)
-    return connection.connect().whenComplete { result, throwable ->
-      if (throwable != null) {
-        Terre.logger.debug(
-          "Failed to establish connection to backend server: ${server.info}", throwable)
-      } else if (result is ServerConnectionRequestResult.Success) {
-        val old = serverConnection?.connection
-        if (old != null) {
-          old.setConnectionHandler(null)
-          old.close()
-        }
-        serverConnection?.server?.removePlayer(this)
-        // Replace it with the successfully established one
-        serverConnection = connection
-        resetClient()
-        connection.server.initPlayer(this)
-        Terre.logger.debug("Successfully established connection to backend server: ${server.info}")
+    return connection.connect()
+      .thenCompose { result ->
+        async {
+          // Only cleanup if we are switching servers
+          if (serverConnection != null) {
+            saveAndCleanupCharacter()
+          }
+          result
+        }.asCompletableFuture()
       }
-    }
+      .whenCompleteAsync({ result, throwable ->
+        if (throwable != null) {
+          Terre.logger.debug(
+            "Failed to establish connection to backend server: ${server.info}", throwable
+          )
+        } else if (result is ServerConnectionRequestResult.Success) {
+          val old = serverConnection?.connection
+          if (old != null) {
+            old.setConnectionHandler(null)
+            old.close()
+          }
+          serverConnection?.server?.removePlayer(this)
+          // Replace it with the successfully established one
+          serverConnection = connection
+          resetClient()
+          connection.server.initPlayer(this)
+          Terre.logger.debug("Successfully established connection to backend server: ${server.info}")
+        }
+      }, clientConnection.eventLoop)
   }
 
   override fun connectToAsync(server: Server) = connectToWithFuture(server).asDeferred()
+
+  fun updateServerSideCharacter(
+    serverSideCharacter: Boolean
+  ): Boolean {
+    // server side character refers to data being stored on the backing server
+    this.serverSideCharacter = serverSideCharacter
+    // Once set to false, cannot be changed back, items will be lost on servers that don't have
+    // server side characters and if there is no character storage
+    if (serverSideCharacter || characterStorage != null)
+      clientSideCharacter = false
+    return !clientSideCharacter
+  }
+
+  fun loadAndInitCharacter() {
+    if (serverSideCharacter)
+      return
+    val characterStorage = characterStorage ?: return
+    launchAsync {
+      loadAndInitCharacterStorage(characterStorage)
+    }
+  }
+
+  private suspend fun loadAndInitCharacterStorage(characterStorage: CharacterStorage) {
+    inventory.clear()
+    characterStorage.loadInventory(inventory)
+    val serverConnection = serverConnection!!
+    val playerId = serverConnection.playerId!!
+    for (index in 0..<inventory.maxSize) {
+      val packet = PlayerInventorySlotPacket(playerId, index, inventory[index])
+      clientConnection.send(packet)
+      serverConnection.ensureConnected().send(packet)
+    }
+    initItemPersistJob()
+  }
+
+  private suspend fun saveAndCleanupCharacter() {
+    if (serverSideCharacter)
+      return
+    val characterStorage = characterStorage ?: return
+    val characterStoragePersistJob = characterStoragePersistJob
+    if (characterStoragePersistJob != null) {
+      // wait for all persists to complete
+      characterStoragePersistJob.cancel()
+      characterStoragePersistJob.join()
+      this.characterStoragePersistJob = null
+      this.characterStoragePersistQueue = null
+    }
+    try {
+      characterStorage.saveInventory(inventory)
+    } catch (ex: Exception) {
+      Terre.logger.error("Failed to save inventory for player $name", ex)
+    }
+  }
+
+  private fun initItemPersistJob() {
+    if (characterStoragePersistJob != null)
+      return
+    val characterStorage = characterStorage ?: return
+    val characterStoragePersistQueue = Channel<Int>(Channel.UNLIMITED).distinct()
+    this.characterStoragePersistQueue = characterStoragePersistQueue
+    characterStoragePersistJob = launchAsync {
+      while (true) {
+        val index = characterStoragePersistQueue.receive()
+        val item = inventory[index]
+        characterStorage.saveItem(index, item)
+      }
+    }
+  }
 
   private fun resetClient() {
     for (player in trackedPlayers) {

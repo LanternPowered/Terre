@@ -10,7 +10,8 @@
 package org.lanternpowered.terre.impl.network.tracking
 
 import org.lanternpowered.terre.impl.network.buffer.ItemId
-import org.lanternpowered.terre.item.ItemType
+import org.lanternpowered.terre.impl.network.buffer.PlayerId
+import org.lanternpowered.terre.item.ItemStack
 
 internal class TrackedItems : Iterable<TrackedItem> {
 
@@ -33,12 +34,13 @@ internal class TrackedItems : Iterable<TrackedItem> {
 internal class TrackedItem(
   val id: ItemId
 ) {
-  var type = ItemType.None
+  var itemStack = ItemStack.Empty
+  var owner = PlayerId.None
 
   val active: Boolean
-    get() = type != ItemType.None
+    get() = !itemStack.isEmpty
 
   fun reset() {
-    type = ItemType.None
+    itemStack = ItemStack.Empty
   }
 }

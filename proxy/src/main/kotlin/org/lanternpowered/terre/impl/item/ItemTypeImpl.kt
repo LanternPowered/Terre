@@ -14,7 +14,9 @@ import org.lanternpowered.terre.item.ItemType
 
 internal class ItemTypeImpl(
   override val numericId: Int
-) : ItemType
+) : ItemType {
+  override fun toString(): String = "ItemType(numericId=$numericId)"
+}
 
 internal val ItemTypeRegistryImpl =
   buildNumericCatalogTypeRegistryOf<ItemType>(::ItemTypeImpl)

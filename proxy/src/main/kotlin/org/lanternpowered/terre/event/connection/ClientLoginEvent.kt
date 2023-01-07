@@ -14,7 +14,7 @@ import org.lanternpowered.terre.event.Event
 import org.lanternpowered.terre.text.Text
 
 /**
- * An event that's thrown when a player has been authenticated, but before they connect to a
+ * An event that is thrown when a player has been authenticated, but before they connect to a
  * server through a proxy.
  *
  * A [ClientLoginEvent] can have a result [Result.Denied] if the player failed to provide a valid
