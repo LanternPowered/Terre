@@ -12,7 +12,6 @@ package org.lanternpowered.terre.impl.network
 import io.netty.buffer.ByteBuf
 import org.lanternpowered.terre.impl.network.packet.AddPlayerBuffPacket
 import org.lanternpowered.terre.impl.network.packet.ChatMessagePacket
-import org.lanternpowered.terre.impl.network.packet.ClientPlayerLimitResponsePacket
 import org.lanternpowered.terre.impl.network.packet.ClientUniqueIdPacket
 import org.lanternpowered.terre.impl.network.packet.CombatMessagePacket
 import org.lanternpowered.terre.impl.network.packet.CompleteConnectionPacket
@@ -155,10 +154,6 @@ internal interface ConnectionHandler {
   }
 
   fun handle(packet: WorldInfoRequestPacket): Boolean {
-    return false
-  }
-
-  fun handle(packet: ClientPlayerLimitResponsePacket): Boolean {
     return false
   }
 

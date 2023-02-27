@@ -24,6 +24,7 @@ import org.lanternpowered.terre.impl.network.PacketCodecContextImpl
 import org.lanternpowered.terre.impl.network.PacketDirection
 import org.lanternpowered.terre.impl.network.ProtocolRegistry
 import org.lanternpowered.terre.impl.network.ReadTimeout
+import org.lanternpowered.terre.impl.network.VersionedProtocol
 import org.lanternpowered.terre.impl.network.addChannelFutureListener
 import org.lanternpowered.terre.impl.network.backend.ServerInitConnectionHandler
 import org.lanternpowered.terre.impl.network.backend.ServerInitConnectionResult
@@ -89,14 +90,24 @@ internal class ServerConnectionImpl(
         .flatMap { translation ->
           ProtocolRegistry.all.asSequence().filter { it.protocol == translation.to }
         }
+        .distinct()
         .let {
           // Prioritize the last known entry, for faster connections
           val lastKnownVersion = server.lastKnownVersion
-          if (lastKnownVersion != null) {
-            it.sortedWith { o1, _ ->
-              if (o1.version == lastKnownVersion) -1 else 0
+          var comparator = Comparator<VersionedProtocol> { o1, o2 ->
+            val v1 = o1.version
+            val v2 = o2.version
+            when {
+              v1 is ProtocolVersion.Vanilla && v2 is ProtocolVersion.Vanilla -> -v1.compareTo(v2)
+              else -> 0
             }
-          } else it
+          }
+          if (lastKnownVersion != null) {
+            comparator = Comparator<VersionedProtocol> { o1, _ ->
+              if (o1.version == lastKnownVersion) -1 else 0
+            }.thenComparing(comparator)
+          }
+          it.sortedWith(comparator)
         }
         .toMutableList()
     }
@@ -112,14 +123,19 @@ internal class ServerConnectionImpl(
       val (version, protocol) = versionsToAttempt.removeAt(0)
       connect(protocol, version).whenComplete { result, throwable ->
         if (throwable == null) {
-          if (result is ServerInitConnectionResult.Success) {
-            future.complete(ServerConnectionRequestResult.Success(server))
-          } else {
-            result as ServerInitConnectionResult.Disconnected
-            if (versionsToAttempt.isEmpty()) {
+          when (result) {
+            is ServerInitConnectionResult.Success -> {
+              future.complete(ServerConnectionRequestResult.Success(server))
+            }
+            is ServerInitConnectionResult.Disconnected -> {
               future.complete(ServerConnectionRequestResult.Disconnected(server, result.reason))
-            } else {
-              tryConnectNext()
+            }
+            is ServerInitConnectionResult.UnsupportedProtocol -> {
+              if (versionsToAttempt.isEmpty()) {
+                future.complete(ServerConnectionRequestResult.Disconnected(server, result.reason))
+              } else {
+                tryConnectNext()
+              }
             }
           }
         } else {
@@ -189,7 +205,8 @@ internal class ServerConnectionImpl(
         this@ServerConnectionImpl, player))
     }
     connection.setConnectionHandler(ServerInitConnectionHandler(
-      connection, player.clientConnection, future, version, protocol, server.info.password))
+      connection, player.clientConnection, future, version, protocol, server.info.password,
+      player.lastPlayerInfo))
   }
 
   fun ensureConnected(): Connection {

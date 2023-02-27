@@ -23,11 +23,11 @@ import org.lanternpowered.terre.impl.network.MultistateProtocol
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.ProtocolRegistry
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
-import org.lanternpowered.terre.impl.network.packet.ClientPlayerLimitRequestPacket
-import org.lanternpowered.terre.impl.network.packet.ClientPlayerLimitResponsePacket
 import org.lanternpowered.terre.impl.network.packet.ClientUniqueIdPacket
 import org.lanternpowered.terre.impl.network.packet.ConnectionApprovedPacket
 import org.lanternpowered.terre.impl.network.packet.ConnectionRequestPacket
+import org.lanternpowered.terre.impl.network.packet.ItemRemoveOwnerPacket
+import org.lanternpowered.terre.impl.network.packet.ItemUpdateOwnerPacket
 import org.lanternpowered.terre.impl.network.packet.PasswordRequestPacket
 import org.lanternpowered.terre.impl.network.packet.PasswordResponsePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
@@ -59,12 +59,12 @@ internal class ClientInitConnectionHandler(
 
   // C -> S: ConnectionRequestPacket
   // E: ClientConnectEvent -> Disconnect if denied
-  // S -> C: ConnectionApprovedPacket(playerId = 16)
+  // S -> C: ConnectionApprovedPacket(playerId = 1)
   // C -> S: PlayerInfoPacket
   // C -> S: ClientUniqueIdPacket
   // C -> S: WorldInfoRequestPacket
-  // S -> C: IsMobileRequestPacket
-  // C -> S: IsMobileResponsePacket
+  // S -> C: ItemRemoveOwnerPacket
+  // C -> S: ItemUpdateOwnerPacket
   // E: ClientPreLoginEvent -> Disconnect if denied
   // If a password is requested
   //   S -> C: PasswordRequestPacket
@@ -80,6 +80,8 @@ internal class ClientInitConnectionHandler(
 
   private lateinit var player: PlayerImpl
   private lateinit var expectedPassword: String
+
+  private lateinit var playerInfo: PlayerInfoPacket
 
   private var state: State = State.Init
 
@@ -159,6 +161,7 @@ internal class ClientInitConnectionHandler(
 
     connection.nonePlayerId = nonePlayerId
     player = PlayerImpl(connection, protocolVersion, protocol, name, identifier, uniqueId)
+    player.lastPlayerInfo = playerInfo
     if (player.checkDuplicateIdentifier())
       return
 
@@ -198,6 +201,7 @@ internal class ClientInitConnectionHandler(
   override fun handle(packet: PlayerInfoPacket): Boolean {
     checkState(State.RequestClientInfo)
     name = packet.playerName
+    playerInfo = packet
     Terre.logger.debug { "P <- C [${connection.remoteAddress}] Client player name: $name" }
     return true
   }
@@ -211,19 +215,21 @@ internal class ClientInitConnectionHandler(
   override fun handle(packet: WorldInfoRequestPacket): Boolean {
     checkState(State.RequestClientInfo)
     state = State.DetectClientPlayerLimit
-    connection.send(ClientPlayerLimitRequestPacket)
-    Terre.logger.debug { "P <- C [${connection.remoteAddress}, $name] Start detecting player " +
-      "limit" }
+    connection.send(ItemRemoveOwnerPacket(ItemRemoveOwnerPacket.PingPongItemId))
+    Terre.logger.debug { "P <- C [${connection.remoteAddress}, $name] " +
+      "Start detecting player limit" }
     return true
   }
 
-  override fun handle(packet: ClientPlayerLimitResponsePacket): Boolean {
+  override fun handle(packet: ItemUpdateOwnerPacket): Boolean {
+    if (packet.id != ItemRemoveOwnerPacket.PingPongItemId)
+      return false
     checkState(State.DetectClientPlayerLimit)
-    val nonePlayerId = packet.nonePlayerId
-
-    Terre.logger.debug { "P <- C [${connection.remoteAddress}, $name] Detected client with player" +
-      " limit of ${nonePlayerId.value} players" }
-    Terre.logger.debug { "P <- C [${connection.remoteAddress}, $name] Client info sending done" }
+    val nonePlayerId = packet.ownerId
+    Terre.logger.debug { "P <- C [${connection.remoteAddress}, $name] " +
+      "Detected client with player limit of ${nonePlayerId.value} players" }
+    Terre.logger.debug { "P <- C [${connection.remoteAddress}, $name] " +
+      "Client info sending done" }
 
     // By now we should have received all information from the client, so we can initialize the
     // play phase. And the client can actually start connecting to backing servers.

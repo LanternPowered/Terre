@@ -110,6 +110,11 @@ internal class ClientPlayConnectionHandler(
     return false // Forward
   }
 
+  override fun handle(packet: PlayerInfoPacket): Boolean {
+    playerImpl.lastPlayerInfo = packet
+    return false // Forward
+  }
+
   override fun handle(packet: PlayerSpawnPacket): Boolean {
     playerImpl.serverConnection?.isWorldInitialized = true
     playerImpl.position = packet.position.toFloat()
@@ -134,7 +139,8 @@ internal class ClientPlayConnectionHandler(
       packet is PlayerBuffsPacket ||
       packet is PlayerInventorySlotPacket ||
       packet is WorldInfoRequestPacket ||
-      packet is ClientUniqueIdPacket
+      packet is ClientUniqueIdPacket ||
+      (packet is ItemUpdateOwnerPacket && packet.id == ItemRemoveOwnerPacket.PingPongItemId)
   }
 
   override fun handleGeneric(packet: Packet) {

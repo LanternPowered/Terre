@@ -23,7 +23,6 @@ import org.lanternpowered.terre.impl.network.packet.CustomPayloadPacket
 import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
 import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
 import org.lanternpowered.terre.impl.network.packet.InstancedItemUpdatePacket
-import org.lanternpowered.terre.impl.network.packet.ClientPlayerLimitResponsePacket
 import org.lanternpowered.terre.impl.network.packet.ItemRemoveOwnerPacket
 import org.lanternpowered.terre.impl.network.packet.PasswordRequestPacket
 import org.lanternpowered.terre.impl.network.packet.PasswordResponsePacket
@@ -78,7 +77,6 @@ internal object ConnectionHandlerBindings {
     bind<WorldInfoPacket>(ConnectionHandler::handle)
     bind<WorldInfoRequestPacket>(ConnectionHandler::handle)
     bind<AddPlayerBuffPacket>(ConnectionHandler::handle)
-    bind<ClientPlayerLimitResponsePacket>(ConnectionHandler::handle)
     bind<PlayerSpawnPacket>(ConnectionHandler::handle)
     bind<CustomPayloadPacket>(ConnectionHandler::handle)
     bind<PlayerTeleportThroughPortalPacket>(ConnectionHandler::handle)

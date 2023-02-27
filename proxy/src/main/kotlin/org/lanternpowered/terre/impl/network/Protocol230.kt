@@ -27,8 +27,6 @@ import org.lanternpowered.terre.impl.network.packet.DisconnectDecoder
 import org.lanternpowered.terre.impl.network.packet.DisconnectEncoder
 import org.lanternpowered.terre.impl.network.packet.EssentialTilesRequestEncoder
 import org.lanternpowered.terre.impl.network.packet.InstancedItemUpdateDecoder
-import org.lanternpowered.terre.impl.network.packet.ClientPlayerLimitRequestEncoder
-import org.lanternpowered.terre.impl.network.packet.ClientPlayerLimitResponseDecoder
 import org.lanternpowered.terre.impl.network.packet.ItemRemoveOwnerDecoder
 import org.lanternpowered.terre.impl.network.packet.ItemRemoveOwnerEncoder
 import org.lanternpowered.terre.impl.network.packet.ItemUpdateEncoder
@@ -99,8 +97,10 @@ internal val Protocol230 = multistateProtocol("230") {
   bind(0x03, ConnectionApproved238Encoder, ConnectionApproved238Decoder, PacketDirection.ServerToClient)
   bind(0x04, PlayerInfoEncoder, PlayerInfoDecoder)
   bind(0x06, RequestWorldInfoEncoder, RequestWorldInfoDecoder, PacketDirection.ClientToServer)
+  bind(0x16, ItemUpdateOwnerEncoder, ItemUpdateOwnerDecoder)
   bind(0x25, PasswordRequestEncoder, PasswordRequestDecoder, PacketDirection.ServerToClient)
   bind(0x26, PasswordResponseEncoder, PasswordResponseDecoder, PacketDirection.ClientToServer)
+  bind(0x27, ItemRemoveOwnerEncoder, ItemRemoveOwnerDecoder)
   bind(0x44, ClientUniqueIdEncoder, ClientUniqueIdDecoder, PacketDirection.ClientToServer)
 
   // tModLoader
@@ -108,11 +108,6 @@ internal val Protocol230 = multistateProtocol("230") {
   bind(0xFB, SyncModsEncoder, SyncModsDecoder, PacketDirection.ServerToClient)
   bind(0xFB, SyncModsDoneEncoder, SyncModsDoneDecoder, PacketDirection.ClientToServer)
   bind(0xFC, ModFileRequestEncoder, ModFileRequestDecoder, PacketDirection.ClientToServer)
-
-  init {
-    bind(0x16, ClientPlayerLimitResponseDecoder, PacketDirection.ClientToServer)
-    bind(0x27, ClientPlayerLimitRequestEncoder, PacketDirection.ServerToClient)
-  }
 
   play {
     bind(0x05, PlayerInventorySlotEncoder, PlayerInventorySlotDecoder)
@@ -125,12 +120,9 @@ internal val Protocol230 = multistateProtocol("230") {
     bind(0x10, PlayerHealthEncoder, PlayerHealthDecoder)
     bind(0x14, TileSquare230Encoder, TileSquare230Decoder)
     bind(0x15, ItemUpdateEncoder, SimpleItemUpdateDecoder)
-    bind(0x16, ItemUpdateOwnerEncoder)
-    bind(0x16, ItemUpdateOwnerDecoder)
     bind(0x17, NpcUpdateEncoder, NpcUpdateDecoder, PacketDirection.ServerToClient)
     bind(0x1B, ProjectileUpdateEncoder, ProjectileUpdateDecoder)
     bind(0x1D, ProjectileDestroyEncoder, ProjectileDestroyDecoder)
-    bind(0x27, ItemRemoveOwnerEncoder, ItemRemoveOwnerDecoder)
     bind(0x2A, PlayerManaEncoder, PlayerManaDecoder)
     bind(0x2D, PlayerTeamEncoder, PlayerTeamDecoder, PacketDirection.ServerToClient)
     bind(0x31, CompleteConnectionEncoder, CompleteConnectionDecoder, PacketDirection.ServerToClient)

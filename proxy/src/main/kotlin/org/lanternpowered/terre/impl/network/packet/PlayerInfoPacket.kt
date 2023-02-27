@@ -10,23 +10,23 @@
 package org.lanternpowered.terre.impl.network.packet
 
 import io.netty.buffer.ByteBuf
-import org.lanternpowered.terre.impl.network.ForwardingReferenceCounted
+import io.netty.buffer.Unpooled
 import org.lanternpowered.terre.impl.network.Packet
+import org.lanternpowered.terre.impl.network.PacketDecoder
+import org.lanternpowered.terre.impl.network.PacketEncoder
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.buffer.readPlayerId
 import org.lanternpowered.terre.impl.network.buffer.readString
 import org.lanternpowered.terre.impl.network.buffer.writePlayerId
 import org.lanternpowered.terre.impl.network.buffer.writeString
 import org.lanternpowered.terre.impl.network.calculateLength
-import org.lanternpowered.terre.impl.network.PacketDecoder
-import org.lanternpowered.terre.impl.network.PacketEncoder
 import org.lanternpowered.terre.util.toString
 
-internal class PlayerInfoPacket(
+internal data class PlayerInfoPacket(
   val playerId: PlayerId,
   val playerName: String,
   val data: ByteBuf
-) : Packet, ForwardingReferenceCounted(data) {
+) : Packet {
 
   override fun toString() = toString {
     "playerId" to playerId
@@ -46,7 +46,7 @@ internal val PlayerInfoDecoder = PacketDecoder { buf ->
   val playerName = buf.readString()
 
   val size = buf.readableBytes() + idToNameOffset
-  val data = byteBufAllocator.buffer(size)
+  val data = Unpooled.buffer(size)
   buf.readBytes(data, idToNameOffset, buf.readableBytes())
   buf.readerIndex(index)
   buf.readBytes(data, 0, idToNameOffset)

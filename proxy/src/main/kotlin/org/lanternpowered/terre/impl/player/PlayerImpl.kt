@@ -39,6 +39,7 @@ import org.lanternpowered.terre.impl.network.packet.ChatMessagePacket
 import org.lanternpowered.terre.impl.network.packet.NpcUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerActivePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerChatMessagePacket
+import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInventorySlotPacket
 import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
 import org.lanternpowered.terre.impl.network.packet.SimpleItemUpdatePacket
@@ -101,6 +102,11 @@ internal class PlayerImpl(
    * The team this player is currently part of, or white if none.
    */
   var team = Team.White
+
+  /**
+   * The last player info and send by the client.
+   */
+  lateinit var lastPlayerInfo: PlayerInfoPacket
 
   @Volatile override var position: Vec2f = Vec2f.Zero
 
@@ -223,29 +229,39 @@ internal class PlayerImpl(
     val possibleServers = ProxyImpl.servers.asSequence()
       .filter { it.allowAutoJoin }
       .toList()
-    connectToAnyWithFuture(possibleServers).whenComplete { connected, _ ->
-      if (connected == null)
-        disconnectAndForget(textOf("Failed to connect to a server."))
+    connectToAnyWithFuture(possibleServers).whenComplete { result, _ ->
+      if (result is ConnectResult.Failure)
+        disconnectAndForget(result.reason ?: textOf("Failed to connect to a server."))
     }
   }
 
-  private fun connectToAnyWithFuture(servers: Iterable<Server>): CompletableFuture<Server?> {
+  private sealed interface ConnectResult {
+    data class Success(val server: Server) : ConnectResult
+    data class Failure(val reason: Text?) : ConnectResult
+  }
+
+  private fun connectToAnyWithFuture(
+    servers: Iterable<Server>
+  ): CompletableFuture<ConnectResult> {
     val queue = servers.toMutableList()
     if (queue.isEmpty())
       return CompletableFuture.completedFuture(null)
 
-    val future = CompletableFuture<Server?>()
+    var failureReason: Text? = null
+    val future = CompletableFuture<ConnectResult>()
 
     fun connectNextOrComplete() {
       if (queue.isEmpty()) {
-        future.complete(null)
+        future.complete(ConnectResult.Failure(failureReason))
         return
       }
       val next = queue.removeAt(0)
       connectToWithFuture(next).whenComplete { result, _ ->
         if (result is ServerConnectionRequestResult.Success) {
-          future.complete(result.server)
+          future.complete(ConnectResult.Success(result.server))
         } else {
+          if (failureReason == null && result is ServerConnectionRequestResult.Disconnected)
+            failureReason = result.reason
           connectNextOrComplete()
         }
       }
@@ -275,7 +291,9 @@ internal class PlayerImpl(
   }
 
   override fun connectToAnyAsync(servers: Iterable<Server>) =
-    connectToAnyWithFuture(servers).asDeferred()
+    connectToAnyWithFuture(servers)
+      .thenApply { (it as? ConnectResult.Success)?.server }
+      .asDeferred()
 
   fun cleanup() {
     ProxyImpl.mutablePlayers.remove(this)
