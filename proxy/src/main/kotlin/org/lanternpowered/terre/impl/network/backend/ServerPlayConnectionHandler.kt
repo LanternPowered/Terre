@@ -94,7 +94,7 @@ internal open class ServerPlayConnectionHandler(
       // packets are sent
       player.loadAndInitCharacter()
     } else {
-      clientConnection.send(packet.copy(name = Terre.name))
+      clientConnection.send(packet.copy(name = ProxyImpl.name))
     }
     return true // Do not forward
   }
