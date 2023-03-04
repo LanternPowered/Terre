@@ -86,13 +86,17 @@ internal open class ServerPlayConnectionHandler(
           "Initializing proxy side character..."
       }
       val serverSideCharacter = player.updateServerSideCharacter(packet.serverSideCharacter)
-      clientConnection.send(packet.copy(serverSideCharacter = serverSideCharacter))
-      // Load proxy side character, updates client and server, inventory is loaded async
-      // and then packets are sent
+      clientConnection.send(packet.copy(
+        name = ProxyImpl.name,
+        serverSideCharacter = serverSideCharacter,
+      ))
+      // Load proxy side character, updates client and server, inventory is loaded async and then
+      // packets are sent
       player.loadAndInitCharacter()
-      return true // Do not forward
+    } else {
+      clientConnection.send(packet.copy(name = Terre.name))
     }
-    return false // Forward
+    return true // Do not forward
   }
 
   override fun handle(packet: PlayerActivePacket): Boolean {
