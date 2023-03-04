@@ -61,6 +61,23 @@ private abstract class AbstractVanillaTextBuilder {
   abstract fun appendLiteral(c: Char)
 
   fun append(text: String, start: Int, end: Int, color: OptionalColor) {
+    @Suppress("NAME_SHADOWING")
+    var start = start
+    while (true) {
+      val index = text.indexOf('\n', start, end)
+      if (index == -1)
+        break
+      appendPart(text, start, index, color)
+      resetColor()
+      builder.append('\n')
+      start = index + 1
+    }
+    appendPart(text, start, end, color)
+  }
+
+  private fun appendPart(text: String, start: Int, end: Int, color: OptionalColor) {
+    if (start == end)
+      return
     switchColor(color)
     var index = text.indexOf(']', start, end)
     if (color.isEmpty && (index != -1 || text.indexOf('[', start, end) != -1)) {

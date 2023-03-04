@@ -17,22 +17,32 @@ import org.lanternpowered.terre.portal.Portal
 import org.lanternpowered.terre.portal.PortalAware
 import org.lanternpowered.terre.portal.PortalBuilder
 import org.lanternpowered.terre.portal.PortalType
+import org.lanternpowered.terre.text.CombatTextAware
 import org.lanternpowered.terre.text.MessageReceiver
 import org.lanternpowered.terre.text.MessageSender
+import org.lanternpowered.terre.text.StatusTextAware
 import org.lanternpowered.terre.text.Text
+import org.lanternpowered.terre.text.TextLike
+import org.lanternpowered.terre.text.color
 import org.lanternpowered.terre.text.textOf
 import org.lanternpowered.terre.util.AABB
+import java.util.UUID
 
 /**
  * Represents a player.
  */
 interface Player : Named, MessageReceiver, MessageSender, PortalAware, InboundConnection,
-  CommandSource {
+  CommandSource, CombatTextAware, StatusTextAware {
 
   /**
-   * The identifier of this player.
+   * The unique id of the player. This combines the client unique id and the name of the character.
    */
-  val identifier: PlayerIdentifier
+  val uniqueId: UUID
+
+  /**
+   * The unique id of the client the player used to join.
+   */
+  val clientUniqueId: UUID
 
   /**
    * The latency of the connection to the client.
@@ -146,6 +156,19 @@ interface Player : Named, MessageReceiver, MessageSender, PortalAware, InboundCo
   override fun openPortal(
     type: PortalType, position: Vec2f, builder: PortalBuilder.() -> Unit
   ): Portal
+
+  /**
+   * Shows combat [text] at the current player [position]. Text [color] is only supported at the
+   * root element.
+   */
+  fun showCombatText(text: TextLike) =
+    showCombatText(text.text())
+
+  /**
+   * Shows combat [text] at the current player [position]. Text [color] is only supported at the
+   * root element.
+   */
+  fun showCombatText(text: Text) = showCombatText(text, position)
 }
 
 /**

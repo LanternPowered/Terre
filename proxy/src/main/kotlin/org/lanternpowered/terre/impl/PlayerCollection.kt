@@ -11,26 +11,26 @@ package org.lanternpowered.terre.impl
 
 import org.lanternpowered.terre.Player
 import org.lanternpowered.terre.PlayerCollection
-import org.lanternpowered.terre.PlayerIdentifier
 import org.lanternpowered.terre.util.collection.toImmutableMap
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
 internal class MutablePlayerCollection private constructor(
-  private val map: MutableMap<PlayerIdentifier, Player>
+  private val map: MutableMap<UUID, Player>
 ) : PlayerCollection, Collection<Player> by map.values {
 
-  override fun get(identifier: PlayerIdentifier) = map[identifier]
-  override fun contains(identifier: PlayerIdentifier) = map.containsKey(identifier)
+  override fun get(uniqueId: UUID) = map[uniqueId]
+  override fun contains(uniqueId: UUID) = map.containsKey(uniqueId)
 
   fun add(player: Player) {
-    map[player.identifier] = player
+    map[player.uniqueId] = player
   }
 
   fun addIfAbsent(player: Player): Player? =
-    map.putIfAbsent(player.identifier, player)
+    map.putIfAbsent(player.uniqueId, player)
 
   fun remove(player: Player): Boolean =
-    map.remove(player.identifier, player)
+    map.remove(player.uniqueId, player)
 
   fun toImmutable() = ImmutablePlayerCollection.of(map)
 
@@ -45,15 +45,15 @@ internal class MutablePlayerCollection private constructor(
 }
 
 internal class ImmutablePlayerCollection private constructor(
-  private val map: Map<PlayerIdentifier, Player>
+  private val map: Map<UUID, Player>
 ) : PlayerCollection, Collection<Player> by map.values {
 
-  override fun get(identifier: PlayerIdentifier) = map[identifier]
-  override fun contains(identifier: PlayerIdentifier) = map.containsKey(identifier)
+  override fun get(uniqueId: UUID) = map[uniqueId]
+  override fun contains(uniqueId: UUID) = map.containsKey(uniqueId)
 
   companion object {
 
-    fun of(map: Map<PlayerIdentifier, Player>): ImmutablePlayerCollection =
+    fun of(map: Map<UUID, Player>): ImmutablePlayerCollection =
       ImmutablePlayerCollection(map.toImmutableMap())
   }
 }

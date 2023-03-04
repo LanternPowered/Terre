@@ -9,7 +9,6 @@
  */
 package org.lanternpowered.terre.characters
 
-import org.lanternpowered.terre.PlayerIdentifier
 import org.lanternpowered.terre.character.CharacterStorage
 import org.lanternpowered.terre.event.Subscribe
 import org.lanternpowered.terre.event.character.InitCharacterStorageEvent
@@ -22,6 +21,7 @@ import org.lanternpowered.terre.item.ItemTypeRegistry
 import org.lanternpowered.terre.logger.Logger
 import org.lanternpowered.terre.plugin.Plugin
 import org.lanternpowered.terre.plugin.inject
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap
 object Characters {
 
   private val logger = inject<Logger>()
-  private val storages = ConcurrentHashMap<PlayerIdentifier, CharacterStorage>()
+  private val storages = ConcurrentHashMap<UUID, CharacterStorage>()
 
   @Subscribe
   private fun onInit(event: ProxyInitializeEvent) {
@@ -45,7 +45,7 @@ object Characters {
   @Subscribe
   private fun onInitCharacterStorage(event: InitCharacterStorageEvent) {
     // for testing an in memory storage
-    val storage = storages.computeIfAbsent(event.player.identifier) {
+    val storage = storages.computeIfAbsent(event.player.uniqueId) {
       object : CharacterStorage {
         private val items = ConcurrentHashMap<Int, ItemStack>()
 

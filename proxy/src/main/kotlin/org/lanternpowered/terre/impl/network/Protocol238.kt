@@ -97,6 +97,7 @@ internal val Protocol238 = multistateProtocol("238") {
   bind(0x03, ConnectionApproved238Encoder, ConnectionApproved238Decoder, PacketDirection.ServerToClient)
   bind(0x04, PlayerInfoEncoder, PlayerInfoDecoder)
   bind(0x06, RequestWorldInfoEncoder, RequestWorldInfoDecoder, PacketDirection.ClientToServer)
+  bind(0x09, StatusEncoder, StatusDecoder, PacketDirection.ServerToClient)
   bind(0x16, ItemUpdateOwnerEncoder, ItemUpdateOwnerDecoder)
   bind(0x25, PasswordRequestEncoder, PasswordRequestDecoder, PacketDirection.ServerToClient)
   bind(0x26, PasswordResponseEncoder, PasswordResponseDecoder, PacketDirection.ClientToServer)
@@ -113,7 +114,6 @@ internal val Protocol238 = multistateProtocol("238") {
     bind(0x05, PlayerInventorySlotEncoder, PlayerInventorySlotDecoder)
     bind(0x07, WorldInfoEncoder, WorldInfoDecoder, PacketDirection.ServerToClient)
     bind(0x08, EssentialTilesRequestEncoder, PacketDirection.ClientToServer)
-    bind(0x09, StatusEncoder, StatusDecoder, PacketDirection.ServerToClient)
     bind(0x0C, PlayerSpawn238Encoder, PlayerSpawn238Decoder)
     bind(0x0D, PlayerUpdateEncoder, PlayerUpdateDecoder)
     bind(0x0E, PlayerActiveEncoder, PlayerActiveDecoder, PacketDirection.ServerToClient)
@@ -129,7 +129,6 @@ internal val Protocol238 = multistateProtocol("238") {
     bind(0x32, PlayerBuffsEncoder, PlayerBuffsDecoder)
     bind(0x37, AddPlayerBuffEncoder, AddPlayerBuffDecoder)
     bind(0x43, CustomPayloadEncoder, CustomPayloadDecoder)
-    bind(0x51, CombatMessageEncoder, CombatMessageDecoder, PacketDirection.ServerToClient) // TODO
     bind(0x5A, ItemUpdateEncoder, InstancedItemUpdateDecoder)
     bind(0x5B, SpeechBubbleEncoder)
     bind(0x60, PlayerTeleportThroughPortalEncoder, PlayerTeleportThroughPortalDecoder)
@@ -137,6 +136,7 @@ internal val Protocol238 = multistateProtocol("238") {
     bind(0x6B, ChatMessageEncoder, ChatMessageDecoder, PacketDirection.ServerToClient)
     bind(0x75, PlayerHurtEncoder, PlayerHurtDecoder)
     bind(0x76, PlayerDeathEncoder, PlayerDeathDecoder)
+    bind(0x77, CombatMessageEncoder, CombatMessageDecoder, PacketDirection.ServerToClient)
 
     bind(0x01FF, PlayerCommandEncoder, PlayerCommandDecoder, PacketDirection.ClientToServer)
     bind(0x01FF, PlayerChatMessageEncoder, PlayerChatMessageDecoder, PacketDirection.ServerToClient)

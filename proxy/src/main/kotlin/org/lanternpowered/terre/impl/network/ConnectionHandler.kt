@@ -53,6 +53,9 @@ internal interface ConnectionHandler {
 
   fun exception(throwable: Throwable)
 
+  fun afterWrite(packet: Any) {
+  }
+
   fun handle(packet: CustomPayloadPacket): Boolean {
     return false
   }

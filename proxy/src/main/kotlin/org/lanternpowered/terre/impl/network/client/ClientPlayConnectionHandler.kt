@@ -28,6 +28,7 @@ import org.lanternpowered.terre.impl.network.packet.PlayerInventorySlotPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerManaPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerSpawnPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerUpdatePacket
+import org.lanternpowered.terre.impl.network.packet.StatusPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
 import org.lanternpowered.terre.impl.player.PlayerImpl
 import org.lanternpowered.terre.text.textOf
@@ -58,6 +59,17 @@ internal class ClientPlayConnectionHandler(
     cleanupKeepAliveTask()
     playerImpl.cleanup()
     Terre.logger.debug { "[${playerImpl.clientConnection.remoteAddress}] Disconnected" }
+  }
+
+  override fun afterWrite(packet: Any) {
+    if (playerImpl.statusCounter > 0) {
+      playerImpl.statusCounter--
+      val statusPacket = playerImpl.statusText
+      if (statusPacket != null)
+        playerImpl.clientConnection.send(statusPacket)
+    }
+    if (packet is StatusPacket)
+      playerImpl.statusCounter += packet.statusMax
   }
 
   override fun exception(throwable: Throwable) {
@@ -106,7 +118,7 @@ internal class ClientPlayConnectionHandler(
   }
 
   override fun handle(packet: ClientUniqueIdPacket): Boolean {
-    check(packet.uniqueId == playerImpl.uniqueId)
+    check(packet.uniqueId == playerImpl.clientUniqueId)
     return false // Forward
   }
 

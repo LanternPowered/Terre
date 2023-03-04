@@ -84,6 +84,7 @@ internal class NetworkManager {
       addLast(PacketMessageEncoder(
         PacketCodecContextImpl(connection, PacketDirection.ServerToClient)))
       addLast(connection)
+      addLast(connection.outboundHandler)
     }
   }
 

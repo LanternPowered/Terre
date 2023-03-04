@@ -17,14 +17,17 @@ import org.lanternpowered.terre.impl.network.ConnectionHandler
 import org.lanternpowered.terre.impl.network.MultistateProtocol
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
+import org.lanternpowered.terre.impl.network.packet.ClientUniqueIdPacket
 import org.lanternpowered.terre.impl.network.packet.ConnectionApprovedPacket
 import org.lanternpowered.terre.impl.network.packet.ConnectionRequestPacket
 import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
 import org.lanternpowered.terre.impl.network.packet.PasswordRequestPacket
 import org.lanternpowered.terre.impl.network.packet.PasswordResponsePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
+import org.lanternpowered.terre.impl.network.packet.StatusPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
+import java.util.UUID
 import java.util.concurrent.CompletableFuture
 
 /**
@@ -38,7 +41,6 @@ import java.util.concurrent.CompletableFuture
  */
 internal class ServerInitConnectionHandler(
   private val connection: Connection,
-  private val clientConnection: Connection,
   private val future: CompletableFuture<ServerInitConnectionResult>,
   private val version: ProtocolVersion,
   private val protocol: MultistateProtocol,
@@ -88,6 +90,9 @@ internal class ServerInitConnectionHandler(
     debug { "Connection approved: $playerId" }
     accepted = true
     this.playerId = playerId
+    // Send an empty client unique id for tShock, so it does not send character data
+    // until we are done
+    connection.send(ClientUniqueIdPacket(UUID(0L, 0L)))
     // Send player info, the server responds either with player info if ok, or disconnects
     connection.send(playerInfo.copy(playerId = playerId))
     // We either disconnect because of the player info or get a world info response
@@ -109,15 +114,17 @@ internal class ServerInitConnectionHandler(
     return true
   }
 
+  override fun handle(packet: StatusPacket): Boolean {
+    debug { "Status: ${packet.text}" }
+    return true
+  }
+
   private fun approveConnection() {
     debug { "Approve connection: $playerId" }
     val playerId = playerId ?: return
     // Connection was approved so the client version was accepted
     connection.protocol = protocol[MultistateProtocol.State.Play]
     future.complete(ServerInitConnectionResult.Success(playerId))
-    // Sending this packet triggers the client to request all the information
-    // from the server once again, this allows it to request and load a new world.
-    clientConnection.send(ConnectionApprovedPacket(playerId))
     this.playerId = null
   }
 

@@ -18,6 +18,7 @@ import io.netty.channel.ChannelFuture
 import io.netty.channel.ChannelFutureListener
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelInboundHandlerAdapter
+import io.netty.channel.ChannelOutboundHandlerAdapter
 import io.netty.channel.ChannelPromise
 import io.netty.channel.EventLoop
 import io.netty.handler.codec.CodecException
@@ -43,6 +44,13 @@ internal class Connection(
 
   private var disconnectReason: Text? = null
   private var connectionHandler: ConnectionHandler? = null
+
+  var outboundHandler = object : ChannelOutboundHandlerAdapter() {
+    override fun write(ctx: ChannelHandlerContext, msg: Any, promise: ChannelPromise) {
+      super.write(ctx, msg, promise)
+      connectionHandler?.afterWrite(msg)
+    }
+  }
 
   /**
    * The current protocol.
@@ -271,20 +279,20 @@ internal class Connection(
     if (!channel.isActive)
       return promise
     ReferenceCountUtil.retain(packet)
-    // Write the packet and add a exception handler
+    // Write the packet and add an exception handler
     return channel.writeAndFlush(packet, promise)
       .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
   }
 
   fun sendWithFuture(packets: Array<out ByteBuf>): ChannelFuture {
-    return sendWithFuture(packets)
+    return sendWithFuture(packets as Array<out Any>)
   }
 
   fun sendWithFuture(packets: Array<out Packet>): ChannelFuture {
-    return sendWithFuture(packets)
+    return sendWithFuture(packets as Array<out Any>)
   }
 
-  private fun sendWithFuture(packets: Array<*>): ChannelFuture {
+  private fun sendWithFuture(packets: Array<out Any>): ChannelFuture {
     val promise = channel.newPromise()
     if (!channel.isActive)
       return promise
@@ -317,14 +325,14 @@ internal class Connection(
   }
 
   fun send(packets: Array<out ByteBuf>) {
-    send(packets as Array<*>)
+    send(packets as Array<out Any>)
   }
 
   fun send(packets: Array<out Packet>) {
-    send(packets as Array<*>)
+    send(packets as Array<out Any>)
   }
 
-  private fun send(packets: Array<*>) {
+  private fun send(packets: Array<out Any>) {
     if (!channel.isActive)
       return
     val eventLoop = channel.eventLoop()
@@ -340,7 +348,7 @@ internal class Connection(
   }
 
   private inline fun Channel.writeArrayAndFlushWithFuture(
-    packets: Array<*>, promise: ChannelPromise
+    packets: Array<out Any>, promise: ChannelPromise
   ) {
     val voidPromise = voidPromise()
     for (i in packets.indices) {
@@ -355,7 +363,7 @@ internal class Connection(
     }
   }
 
-  private inline fun Channel.writeArrayAndFlush(packets: Array<*>) {
+  private inline fun Channel.writeArrayAndFlush(packets: Array<out Any>) {
     val voidPromise = voidPromise()
     for (packet in packets) {
       ReferenceCountUtil.retain(packet)

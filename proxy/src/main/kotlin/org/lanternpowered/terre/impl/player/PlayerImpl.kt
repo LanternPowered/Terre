@@ -15,7 +15,6 @@ import kotlinx.coroutines.future.asCompletableFuture
 import kotlinx.coroutines.future.asDeferred
 import org.lanternpowered.terre.MaxPlayers
 import org.lanternpowered.terre.Player
-import org.lanternpowered.terre.PlayerIdentifier
 import org.lanternpowered.terre.ProtocolVersion
 import org.lanternpowered.terre.Server
 import org.lanternpowered.terre.ServerConnectionRequestResult
@@ -36,6 +35,7 @@ import org.lanternpowered.terre.impl.network.buffer.NpcType
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.client.ClientPlayConnectionHandler
 import org.lanternpowered.terre.impl.network.packet.ChatMessagePacket
+import org.lanternpowered.terre.impl.network.packet.CombatMessagePacket
 import org.lanternpowered.terre.impl.network.packet.NpcUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerActivePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerChatMessagePacket
@@ -43,6 +43,7 @@ import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInventorySlotPacket
 import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
 import org.lanternpowered.terre.impl.network.packet.SimpleItemUpdatePacket
+import org.lanternpowered.terre.impl.network.packet.StatusPacket
 import org.lanternpowered.terre.impl.network.tracking.TrackedItems
 import org.lanternpowered.terre.impl.network.tracking.TrackedNpcs
 import org.lanternpowered.terre.impl.network.tracking.TrackedPlayers
@@ -56,6 +57,7 @@ import org.lanternpowered.terre.portal.PortalBuilder
 import org.lanternpowered.terre.portal.PortalType
 import org.lanternpowered.terre.text.MessageSender
 import org.lanternpowered.terre.text.Text
+import org.lanternpowered.terre.text.text
 import org.lanternpowered.terre.text.textOf
 import org.lanternpowered.terre.util.AABB
 import java.net.SocketAddress
@@ -67,11 +69,27 @@ internal class PlayerImpl(
   override val protocolVersion: ProtocolVersion,
   val protocol: MultistateProtocol,
   override val name: String,
-  override val identifier: PlayerIdentifier,
-  val uniqueId: UUID
+  override val clientUniqueId: UUID,
 ) : Player, MessageReceiverImpl {
 
   @Volatile override var latency = 0
+
+  private fun generateUniqueId(): UUID {
+    val nameUniqueId = UUID.nameUUIDFromBytes(name.toByteArray())
+    var most = nameUniqueId.mostSignificantBits xor clientUniqueId.mostSignificantBits
+    var least = nameUniqueId.leastSignificantBits xor clientUniqueId.leastSignificantBits
+    // clear version
+    most = most and (0xfL shl 12).inv()
+    // set version
+    most = most or (8L shl 12)
+    // clear variant
+    least = least and (0x3L shl 62).inv()
+    // set variant
+    least = least or (1 shl 62)
+    return UUID(most, least)
+  }
+
+  override val uniqueId: UUID = generateUniqueId()
 
   override var serverConnection: ServerConnectionImpl? = null
     private set
@@ -143,6 +161,12 @@ internal class PlayerImpl(
    */
   var cleanedUp = CompletableFuture<Unit>()
 
+  /**
+   * The status text that is currently being shown.
+   */
+  var statusText: StatusPacket? = null
+  var statusCounter = 0
+
   fun setInventoryItem(index: Int, itemStack: ItemStack) {
     inventory[index] = itemStack
     val serverConnection = serverConnection
@@ -155,14 +179,10 @@ internal class PlayerImpl(
   }
 
   // Duplicate client UUIDs aren't allowed, however duplicate names are.
-  private fun disconnectByDuplicateId() {
-    clientConnection.close(textOf(
-      "There's already a player connected with the identifier: $identifier"))
-  }
-
   fun checkDuplicateIdentifier(): Boolean {
-    if (ProxyImpl.mutablePlayers.contains(identifier)) {
-      disconnectByDuplicateId()
+    if (ProxyImpl.mutablePlayers.any { it.clientUniqueId == clientUniqueId }) {
+      clientConnection.close(textOf(
+        "There's already a player connected with the same client unique id."))
       return true
     }
     return false
@@ -190,8 +210,10 @@ internal class PlayerImpl(
       .thenAcceptAsync({ event ->
         if (clientConnection.isClosed)
           return@thenAcceptAsync
+        checkDuplicateIdentifier()
         if (ProxyImpl.mutablePlayers.addIfAbsent(this) != null) {
-          disconnectByDuplicateId()
+          clientConnection.close(textOf(
+            "There's already a player connected with the same unique id."))
           return@thenAcceptAsync
         }
         val eventResult = event.result
@@ -231,7 +253,7 @@ internal class PlayerImpl(
       .toList()
     connectToAnyWithFuture(possibleServers).whenComplete { result, _ ->
       if (result is ConnectResult.Failure)
-        disconnectAndForget(result.reason ?: textOf("Failed to connect to a server."))
+        disconnectAndForget(failedToConnectReason(result.reason))
     }
   }
 
@@ -284,9 +306,17 @@ internal class PlayerImpl(
     val possibleServers = ProxyImpl.servers.asSequence()
       .filter { it.allowAutoJoin && it != server }
       .toList()
-    connectToAnyWithFuture(possibleServers).whenComplete { connected, _ ->
-      if (connected == null)
-        disconnectAndForget(textOf("Failed to connect to a server."))
+    connectToAnyWithFuture(possibleServers).whenComplete { result, _ ->
+      if (result is ConnectResult.Failure)
+        disconnectAndForget(failedToConnectReason(result.reason))
+    }
+  }
+
+  private fun failedToConnectReason(reason: Text?): Text {
+    val message = "Failed to connect to a server"
+    return when {
+      reason != null -> "$message: ".text() + reason
+      else -> "$message.".text()
     }
   }
 
@@ -327,6 +357,27 @@ internal class PlayerImpl(
   override fun openPortal(
     type: PortalType, position: Vec2f, builder: PortalBuilder.() -> Unit
   ): Portal = serverConnection!!.server.openPortalFor(type, position, builder, this)
+
+  override fun showCombatText(text: Text, position: Vec2f) {
+    clientConnection.send(CombatMessagePacket(position, text))
+  }
+
+  override fun showStatusText(text: Text, showShadows: Boolean) {
+    val statusText = StatusPacket(0, text, true, showShadows)
+    this.statusText = statusText
+    if (statusCounter == 0)
+      clientConnection.send(statusText)
+  }
+
+  override fun resetStatusText() {
+    if (statusText == null)
+      return
+    statusText = null
+    if (statusCounter == 0) {
+      clientConnection.send(StatusPacket(0, textOf(),
+        hidePercentage = false, showShadows = false))
+    }
+  }
 
   private fun disconnectAndForget(reason: Text) {
     clientConnection.close(reason)

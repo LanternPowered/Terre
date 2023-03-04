@@ -10,6 +10,8 @@
 package org.lanternpowered.terre.impl.network.backend
 
 import org.lanternpowered.terre.impl.network.PacketDirection
+import org.lanternpowered.terre.impl.network.packet.ClientUniqueIdDecoder
+import org.lanternpowered.terre.impl.network.packet.ClientUniqueIdEncoder
 import org.lanternpowered.terre.impl.network.packet.ConnectionApprovedDecoder
 import org.lanternpowered.terre.impl.network.packet.ConnectionRequestEncoder
 import org.lanternpowered.terre.impl.network.packet.DisconnectDecoder
@@ -32,4 +34,5 @@ internal val ServerInitProtocol = protocol("server-init") {
   bind(0x07, WorldInfoEncoder, WorldInfoDecoder, PacketDirection.ServerToClient)
   bind(0x25, PasswordRequestDecoder, PacketDirection.ServerToClient)
   bind(0x26, PasswordResponseEncoder, PacketDirection.ClientToServer)
+  bind(0x44, ClientUniqueIdEncoder, ClientUniqueIdDecoder, PacketDirection.ClientToServer)
 }

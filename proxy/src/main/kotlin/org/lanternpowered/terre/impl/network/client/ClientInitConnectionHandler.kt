@@ -10,7 +10,6 @@
 package org.lanternpowered.terre.impl.network.client
 
 import io.netty.buffer.ByteBuf
-import org.lanternpowered.terre.PlayerIdentifier
 import org.lanternpowered.terre.ProtocolVersion
 import org.lanternpowered.terre.event.connection.ClientConnectEvent
 import org.lanternpowered.terre.event.connection.ClientLoginEvent
@@ -35,7 +34,6 @@ import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
 import org.lanternpowered.terre.impl.network.packet.init.InitDisconnectClientPacket
 import org.lanternpowered.terre.impl.player.PlayerImpl
 import org.lanternpowered.terre.text.textOf
-import java.security.MessageDigest
 import java.util.UUID
 
 /**
@@ -153,14 +151,8 @@ internal class ClientInitConnectionHandler(
   }
 
   private fun continueLogin(nonePlayerId: PlayerId) {
-    // Generate an identifier that matches the tShock player identifiers.
-    val digest = MessageDigest.getInstance("SHA-512")
-    digest.reset()
-    digest.update(uniqueId.toString().toByteArray(Charsets.UTF_8))
-    val identifier = PlayerIdentifier(digest.digest())
-
     connection.nonePlayerId = nonePlayerId
-    player = PlayerImpl(connection, protocolVersion, protocol, name, identifier, uniqueId)
+    player = PlayerImpl(connection, protocolVersion, protocol, name, uniqueId)
     player.lastPlayerInfo = playerInfo
     if (player.checkDuplicateIdentifier())
       return

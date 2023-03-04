@@ -30,6 +30,7 @@ import org.lanternpowered.terre.impl.network.backend.ServerInitConnectionHandler
 import org.lanternpowered.terre.impl.network.backend.ServerInitConnectionResult
 import org.lanternpowered.terre.impl.network.backend.ServerPlayConnectionHandler
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
+import org.lanternpowered.terre.impl.network.packet.ConnectionApprovedPacket
 import org.lanternpowered.terre.impl.network.pipeline.FrameDecoder
 import org.lanternpowered.terre.impl.network.pipeline.FrameEncoder
 import org.lanternpowered.terre.impl.network.pipeline.PacketMessageDecoder
@@ -188,6 +189,7 @@ internal class ServerConnectionImpl(
       addLast(PacketMessageDecoder(PacketCodecContextImpl(connection, PacketDirection.ServerToClient)))
       addLast(PacketMessageEncoder(PacketCodecContextImpl(connection, PacketDirection.ClientToServer)))
       addLast(connection)
+      addLast(connection.outboundHandler)
     }
     future.whenComplete { result, throwable ->
       if (throwable != null || result !is ServerInitConnectionResult.Success) {
@@ -203,10 +205,12 @@ internal class ServerConnectionImpl(
       // Continue server connection after it has been approved
       connection.setConnectionHandler(ServerPlayConnectionHandler(
         this@ServerConnectionImpl, player))
+      // Sending this packet triggers the client to request all the information
+      // from the server once again, this allows it to request and load a new world.
+      player.clientConnection.send(ConnectionApprovedPacket(result.playerId))
     }
     connection.setConnectionHandler(ServerInitConnectionHandler(
-      connection, player.clientConnection, future, version, protocol, server.info.password,
-      player.lastPlayerInfo))
+      connection, future, version, protocol, server.info.password, player.lastPlayerInfo))
   }
 
   fun ensureConnected(): Connection {

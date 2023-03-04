@@ -32,6 +32,7 @@ import org.lanternpowered.terre.impl.network.packet.PlayerSpawnPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerTeamPacket
 import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
 import org.lanternpowered.terre.impl.network.packet.ProjectileUpdatePacket
+import org.lanternpowered.terre.impl.network.packet.StatusPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoPacket
 import org.lanternpowered.terre.impl.player.PlayerImpl
 import org.lanternpowered.terre.impl.player.ServerConnectionImpl
@@ -176,6 +177,10 @@ internal open class ServerPlayConnectionHandler(
 
     Terre.logger.debug { "P <- S(${serverConnection.server.info.name}) [${player.name}] Connection complete." }
     return true
+  }
+
+  override fun handle(packet: StatusPacket): Boolean {
+    return packet.statusMax != 0 || player.statusText != null
   }
 
   /**

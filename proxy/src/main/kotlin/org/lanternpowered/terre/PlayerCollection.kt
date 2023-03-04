@@ -12,6 +12,7 @@ package org.lanternpowered.terre
 import kotlinx.coroutines.Job
 import org.lanternpowered.terre.dispatcher.launchAsync
 import org.lanternpowered.terre.text.Text
+import java.util.UUID
 
 /**
  * Represents a collection of players.
@@ -19,14 +20,14 @@ import org.lanternpowered.terre.text.Text
 interface PlayerCollection : Collection<Player> {
 
   /**
-   * Attempts to get the player for the given [PlayerIdentifier].
+   * Attempts to get the player for the given [UUID].
    */
-  operator fun get(identifier: PlayerIdentifier): Player?
+  operator fun get(uniqueId: UUID): Player?
 
   /**
-   * Gets whether a player with the given [PlayerIdentifier] exists in this collection.
+   * Gets whether a player with the given [UUID] exists in this collection.
    */
-  operator fun contains(identifier: PlayerIdentifier): Boolean
+  operator fun contains(uniqueId: UUID): Boolean
 }
 
 /**

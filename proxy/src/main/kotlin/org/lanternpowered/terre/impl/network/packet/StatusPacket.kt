@@ -10,27 +10,41 @@
 package org.lanternpowered.terre.impl.network.packet
 
 import org.lanternpowered.terre.impl.network.Packet
-import org.lanternpowered.terre.impl.network.buffer.readPlainText
-import org.lanternpowered.terre.impl.network.buffer.writePlainText
 import org.lanternpowered.terre.impl.network.PacketDecoder
 import org.lanternpowered.terre.impl.network.PacketEncoder
+import org.lanternpowered.terre.impl.network.buffer.readTaggedText
+import org.lanternpowered.terre.impl.network.buffer.writePlainText
+import org.lanternpowered.terre.impl.network.buffer.writeTaggedText
 import org.lanternpowered.terre.text.Text
 
 internal data class StatusPacket(
   val statusMax: Int,
-  val statusText: Text,
-  val flags: Int // TODO: What flags?
+  val text: Text,
+  val hidePercentage: Boolean,
+  val showShadows: Boolean,
+  val plainText: Boolean = false,
 ) : Packet
 
 internal val StatusEncoder = PacketEncoder<StatusPacket> { buf, packet ->
   buf.writeIntLE(packet.statusMax)
-  buf.writePlainText(packet.statusText)
-  buf.writeByte(packet.flags)
+  if (packet.plainText) {
+    buf.writePlainText(packet.text)
+  } else {
+    buf.writeTaggedText(packet.text)
+  }
+  var flags = 0
+  if (packet.hidePercentage)
+    flags += 0x1
+  if (packet.showShadows)
+    flags += 0x2
+  buf.writeByte(flags)
 }
 
 internal val StatusDecoder = PacketDecoder { buf ->
   val statusMax = buf.readIntLE()
-  val statusText = buf.readPlainText()
+  val statusText = buf.readTaggedText()
   val flags = buf.readUnsignedByte().toInt()
-  StatusPacket(statusMax, statusText, flags)
+  val hidePercentage = (flags and 0x1) != 0
+  val showShadows = (flags and 0x2) != 0
+  StatusPacket(statusMax, statusText, hidePercentage, showShadows)
 }

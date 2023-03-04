@@ -99,6 +99,7 @@ internal val Protocol274 = multistateProtocol("274") {
   bind(0x03, ConnectionApprovedEncoder, ConnectionApprovedDecoder, PacketDirection.ServerToClient)
   bind(0x04, PlayerInfoEncoder, PlayerInfoDecoder)
   bind(0x06, RequestWorldInfoEncoder, RequestWorldInfoDecoder, PacketDirection.ClientToServer)
+  bind(0x09, StatusEncoder, StatusDecoder, PacketDirection.ServerToClient)
   bind(0x16, ItemUpdateOwnerEncoder, ItemUpdateOwnerDecoder)
   bind(0x25, PasswordRequestEncoder, PasswordRequestDecoder, PacketDirection.ServerToClient)
   bind(0x26, PasswordResponseEncoder, PasswordResponseDecoder, PacketDirection.ClientToServer)
@@ -115,7 +116,6 @@ internal val Protocol274 = multistateProtocol("274") {
     bind(0x05, PlayerInventorySlotEncoder, PlayerInventorySlotDecoder)
     bind(0x07, WorldInfoEncoder, WorldInfoDecoder, PacketDirection.ServerToClient)
     bind(0x08, EssentialTilesRequestEncoder, PacketDirection.ClientToServer)
-    bind(0x09, StatusEncoder, StatusDecoder, PacketDirection.ServerToClient)
     bind(0x0C, PlayerSpawnEncoder, PlayerSpawnDecoder)
     bind(0x0D, PlayerUpdateEncoder, PlayerUpdateDecoder)
     bind(0x0E, PlayerActiveEncoder, PlayerActiveDecoder, PacketDirection.ServerToClient)
@@ -131,7 +131,6 @@ internal val Protocol274 = multistateProtocol("274") {
     bind(0x32, PlayerBuffsEncoder, PlayerBuffsDecoder)
     bind(0x37, AddPlayerBuffEncoder, AddPlayerBuffDecoder)
     bind(0x43, CustomPayloadEncoder, CustomPayloadDecoder)
-    bind(0x51, CombatMessageEncoder, CombatMessageDecoder, PacketDirection.ServerToClient) // TODO
     bind(0x5A, ItemUpdateEncoder, InstancedItemUpdateDecoder)
     bind(0x5B, SpeechBubbleEncoder)
     bind(0x60, PlayerTeleportThroughPortalEncoder, PlayerTeleportThroughPortalDecoder)
@@ -139,6 +138,7 @@ internal val Protocol274 = multistateProtocol("274") {
     bind(0x6B, ChatMessageEncoder, ChatMessageDecoder, PacketDirection.ServerToClient)
     bind(0x75, PlayerHurtEncoder, PlayerHurtDecoder)
     bind(0x76, PlayerDeathEncoder, PlayerDeathDecoder)
+    bind(0x77, CombatMessageEncoder, CombatMessageDecoder, PacketDirection.ServerToClient)
     bind(0x91, ItemUpdateEncoder, ShimmeredItemUpdateDecoder)
     bind(0x94, ItemUpdateEncoder, CannotBeTakenByEnemiesItemUpdateDecoder)
 
