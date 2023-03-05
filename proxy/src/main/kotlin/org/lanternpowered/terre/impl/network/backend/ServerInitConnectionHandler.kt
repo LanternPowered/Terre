@@ -10,12 +10,12 @@
 package org.lanternpowered.terre.impl.network.backend
 
 import io.netty.buffer.ByteBuf
-import org.lanternpowered.terre.ProtocolVersion
 import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.network.Connection
 import org.lanternpowered.terre.impl.network.ConnectionHandler
 import org.lanternpowered.terre.impl.network.MultistateProtocol
 import org.lanternpowered.terre.impl.network.Packet
+import org.lanternpowered.terre.impl.network.VersionedProtocol
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.packet.ClientUniqueIdPacket
 import org.lanternpowered.terre.impl.network.packet.ConnectionApprovedPacket
@@ -24,9 +24,11 @@ import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
 import org.lanternpowered.terre.impl.network.packet.PasswordRequestPacket
 import org.lanternpowered.terre.impl.network.packet.PasswordResponsePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
+import org.lanternpowered.terre.impl.network.packet.RealIPPacket
 import org.lanternpowered.terre.impl.network.packet.StatusPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
+import org.lanternpowered.terre.text.LocalizedText
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
 
@@ -36,22 +38,23 @@ import java.util.concurrent.CompletableFuture
  *
  * @property connection The server connection
  * @property future The future that will be notified of the connection result
- * @property version The protocol version to use to handshake
- * @property protocol The protocol to use
+ * @property versionedProtocol The versioned protocol to use to handshake
  */
 internal class ServerInitConnectionHandler(
   private val connection: Connection,
   private val future: CompletableFuture<ServerInitConnectionResult>,
-  private val version: ProtocolVersion,
-  private val protocol: MultistateProtocol,
+  private val versionedProtocol: VersionedProtocol,
   private val password: String,
   private val playerInfo: PlayerInfoPacket,
+  private val modded: Boolean,
+  private val clientIP: String,
 ) : ConnectionHandler {
 
   private var playerId: PlayerId? = null
-  private var accepted: Boolean = false
+  private var accepted = false
 
   override fun initialize() {
+    val version = versionedProtocol.version
     connection.protocol = ServerInitProtocol
     connection.send(ConnectionRequestPacket(version))
     debug { "Send server connection request to ${connection.remoteAddress} with $version" }
@@ -67,15 +70,21 @@ internal class ServerInitConnectionHandler(
   }
 
   override fun handle(packet: DisconnectPacket): Boolean {
+    val reason = packet.reason
     val result = if (accepted) {
-      ServerInitConnectionResult.Disconnected(packet.reason)
+      if (modded && reason is LocalizedText && reason.key == "LegacyMultiplayer.2") {
+        // The server was not able to handle the RealIPPacket, so probably a vanilla server
+        ServerInitConnectionResult.NotModded(reason)
+      } else {
+        ServerInitConnectionResult.Disconnected(reason)
+      }
     } else {
-      ServerInitConnectionResult.UnsupportedProtocol(packet.reason)
+      ServerInitConnectionResult.UnsupportedProtocol(reason)
     }
     future.complete(result)
     // Make sure that the connection gets closed
     connection.close()
-    debug { "Disconnect: ${packet.reason}" }
+    debug { "Disconnect: $reason" }
     return true
   }
 
@@ -88,11 +97,15 @@ internal class ServerInitConnectionHandler(
   override fun handle(packet: ConnectionApprovedPacket): Boolean {
     val playerId = packet.playerId
     debug { "Connection approved: $playerId" }
-    accepted = true
+    this.accepted = true
     this.playerId = playerId
     // Send an empty client unique id for tShock, so it does not send character data
     // until we are done
     connection.send(ClientUniqueIdPacket(UUID(0L, 0L)))
+    if (modded) {
+      // Forward the original client ip address
+      connection.send(RealIPPacket(clientIP))
+    }
     // Send player info, the server responds either with player info if ok, or disconnects
     connection.send(playerInfo.copy(playerId = playerId))
     // We either disconnect because of the player info or get a world info response
@@ -123,7 +136,7 @@ internal class ServerInitConnectionHandler(
     debug { "Approve connection: $playerId" }
     val playerId = playerId ?: return
     // Connection was approved so the client version was accepted
-    connection.protocol = protocol[MultistateProtocol.State.Play]
+    connection.protocol = versionedProtocol.protocol[MultistateProtocol.State.Play]
     future.complete(ServerInitConnectionResult.Success(playerId))
     this.playerId = null
   }

@@ -27,16 +27,11 @@ import org.lanternpowered.terre.event.Event
  * Once proxy or server side characters have been enabled for a specific player, it is no longer
  * possible to use client side characters. So if enabled, make sure that all the backing servers
  * are covered by proxy or server side characters, otherwise items will be lost.
+ *
+ * @property player The player whose character storage is being initialized.
+ * @property storage Custom implementation of the character storage.
  */
-interface InitCharacterStorageEvent : Event {
-
-  /**
-   * The player whose character storage is being initialized.
-   */
-  val player: Player
-
-  /**
-   * Provides a custom implementation of the character storage.
-   */
-  fun provide(storage: CharacterStorage)
-}
+data class InitCharacterStorageEvent(
+  val player: Player,
+  var storage: CharacterStorage? = null,
+) : Event

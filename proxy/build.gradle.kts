@@ -30,7 +30,6 @@ dependencies {
 
   // Networking
   implementation(group = "io.netty", name = "netty-all", version = "4.1.86.Final") {
-    exclude(group = "io.netty", module = "netty-codec-haproxy")
     exclude(group = "io.netty", module = "netty-codec-http2")
     exclude(group = "io.netty", module = "netty-codec-http")
     exclude(group = "io.netty", module = "netty-codec-memcache")

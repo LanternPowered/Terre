@@ -9,4 +9,6 @@
  */
 package org.lanternpowered.terre.command
 
-interface CommandSource
+import org.lanternpowered.terre.permission.PermissionSubject
+
+interface CommandSource : PermissionSubject

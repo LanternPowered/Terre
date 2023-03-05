@@ -16,17 +16,17 @@ internal object ProxyConfigSpec : ConfigSpec("proxy") {
 
   val name by optional(
     default = Terre.name,
-    description = "The name of the proxy."
+    description = "The name of the proxy that will be shown in the server list."
   )
 
   val host by optional(
     default = "0.0.0.0",
-    description = "The host address the server will be bound to."
+    description = "The host address the proxy server will be bound to."
   )
 
   val port by optional(
     default = 7777,
-    description = "The port the server will be bound to."
+    description = "The port the proxy server will be bound to."
   )
 
   val password by optional(
@@ -41,12 +41,19 @@ internal object ProxyConfigSpec : ConfigSpec("proxy") {
       players can join as long that backing servers have empty slots.
     """.trimIndent())
 
+  val haProxy by optional(
+    default = false,
+    description = """
+      If HAProxy support is enabled, all clients should go through the HAProxy when enabled.
+    """.trimIndent()
+  )
+
   val servers by optional(
     default = listOf<RawServerInfo>(),
     description = """
       The servers that can be connected to through the proxy. When adding a server it's required 
       to specify the name and address to connect to it. And if necessary a password. Setting 
-      allow-auto-join to true allows players to automatically connect to this server when 
+      allowAutoJoin to true allows players to automatically connect to this server when  
       connecting to the proxy for the first time.
     """.trimIndent())
 

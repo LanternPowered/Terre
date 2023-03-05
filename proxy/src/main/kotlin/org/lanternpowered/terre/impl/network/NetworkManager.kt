@@ -19,9 +19,11 @@ import io.netty.channel.ChannelInitializer
 import io.netty.channel.ChannelOption
 import io.netty.channel.EventLoopGroup
 import io.netty.channel.socket.SocketChannel
+import io.netty.handler.codec.haproxy.HAProxyMessageDecoder
 import io.netty.handler.timeout.ReadTimeoutHandler
 import io.netty.resolver.dns.DnsAddressResolverGroup
 import io.netty.resolver.dns.DnsNameResolverBuilder
+import org.lanternpowered.terre.impl.ProxyImpl
 import org.lanternpowered.terre.impl.network.client.ClientInitConnectionHandler
 import org.lanternpowered.terre.impl.network.client.ClientInitProtocol
 import org.lanternpowered.terre.impl.network.pipeline.FrameDecoder
@@ -76,6 +78,8 @@ internal class NetworkManager {
     connection.setConnectionHandler(ClientInitConnectionHandler(connection))
     val pipeline = channel.pipeline()
     pipeline.apply {
+      if (ProxyImpl.haProxy)
+        addLast(HAProxyMessageDecoder())
       addLast(ReadTimeoutHandler(ReadTimeout.inWholeMilliseconds, TimeUnit.MILLISECONDS))
       addLast(FrameDecoder())
       addLast(FrameEncoder())

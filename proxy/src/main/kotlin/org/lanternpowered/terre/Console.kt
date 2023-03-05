@@ -18,6 +18,9 @@ import org.lanternpowered.terre.text.MessageReceiver
  */
 interface Console : MessageReceiver, CommandSource {
 
+  override fun hasPermission(permission: String): Boolean =
+    permissionValue(permission) != false
+
   /**
    * The singleton instance of the console.
    */

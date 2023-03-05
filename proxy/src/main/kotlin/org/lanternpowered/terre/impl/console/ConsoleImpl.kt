@@ -21,11 +21,13 @@ import org.lanternpowered.terre.impl.text.MessageReceiverImpl
 import org.lanternpowered.terre.text.Text
 
 internal class ConsoleImpl(
-    val commandHandler: (command: String) -> Unit,
-    val shutdownHandler: () -> Unit
+  val commandHandler: (command: String) -> Unit,
+  val shutdownHandler: () -> Unit
 ) : SimpleTerminalConsole(), Console, MessageReceiverImpl {
 
   private var readThread: Thread? = null
+
+  var permissionFunction: (String) -> Boolean? = { null }
 
   init {
     LocationPatternConverter.RedirectFqcns += this::class.java.name
@@ -38,6 +40,8 @@ internal class ConsoleImpl(
   override fun sendMessage(message: String) {
     Terre.logger.info(message)
   }
+
+  override fun permissionValue(permission: String) = permissionFunction(permission)
 
   fun init() {
     System.setOut(IoBuilder.forLogger(Terre.logger).setLevel(Level.INFO).buildPrintStream())

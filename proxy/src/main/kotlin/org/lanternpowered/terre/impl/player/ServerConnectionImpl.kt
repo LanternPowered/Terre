@@ -19,7 +19,6 @@ import org.lanternpowered.terre.impl.ProxyImpl
 import org.lanternpowered.terre.impl.ServerImpl
 import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.network.Connection
-import org.lanternpowered.terre.impl.network.MultistateProtocol
 import org.lanternpowered.terre.impl.network.PacketCodecContextImpl
 import org.lanternpowered.terre.impl.network.PacketDirection
 import org.lanternpowered.terre.impl.network.ProtocolRegistry
@@ -115,17 +114,17 @@ internal class ServerConnectionImpl(
 
     var firstThrowable: Throwable? = null
 
-    fun tryConnectNext() {
+    fun tryConnect(versionedProtocol: VersionedProtocol, modded: Boolean) {
       if (player.clientConnection.isClosed) {
         future.complete(ServerConnectionRequestResult.Disconnected(
           server, textOf("Client already disconnected.")))
         return
       }
-      val (version, protocol) = versionsToAttempt.removeAt(0)
-      connect(protocol, version).whenComplete { result, throwable ->
+      connect(versionedProtocol, modded).whenComplete { result, throwable ->
         if (throwable == null) {
           when (result) {
             is ServerInitConnectionResult.Success -> {
+              server.modded = modded
               future.complete(ServerConnectionRequestResult.Success(server))
             }
             is ServerInitConnectionResult.Disconnected -> {
@@ -135,8 +134,11 @@ internal class ServerConnectionImpl(
               if (versionsToAttempt.isEmpty()) {
                 future.complete(ServerConnectionRequestResult.Disconnected(server, result.reason))
               } else {
-                tryConnectNext()
+                tryConnect(versionsToAttempt.removeAt(0), modded)
               }
+            }
+            is ServerInitConnectionResult.NotModded -> {
+              tryConnect(versionedProtocol, false)
             }
           }
         } else {
@@ -145,18 +147,19 @@ internal class ServerConnectionImpl(
           if (versionsToAttempt.isEmpty()) {
             future.completeExceptionally(firstThrowable)
           } else {
-            tryConnectNext()
+            tryConnect(versionsToAttempt.removeAt(0), modded)
           }
         }
       }
     }
 
-    tryConnectNext()
+    tryConnect(versionsToAttempt.removeAt(0), server.modded ?: true)
     return future
   }
 
   private fun connect(
-    protocol: MultistateProtocol, version: ProtocolVersion
+    versionedProtocol: VersionedProtocol,
+    modded: Boolean,
   ): CompletableFuture<ServerInitConnectionResult> {
     val result = CompletableFuture<ServerInitConnectionResult>()
     ProxyImpl.networkManager
@@ -168,7 +171,7 @@ internal class ServerConnectionImpl(
       .connect(server.info.address)
       .addChannelFutureListener { future ->
         if (future.isSuccess) {
-          future.channel().init(protocol, version, result)
+          future.channel().init(versionedProtocol, result, modded)
         } else {
           result.completeExceptionally(future.cause())
         }
@@ -177,9 +180,9 @@ internal class ServerConnectionImpl(
   }
 
   private fun Channel.init(
-    protocol: MultistateProtocol,
-    version: ProtocolVersion,
-    future: CompletableFuture<ServerInitConnectionResult>
+    versionedProtocol: VersionedProtocol,
+    future: CompletableFuture<ServerInitConnectionResult>,
+    modded: Boolean,
   ) {
     val connection = Connection(this)
     pipeline().apply {
@@ -198,7 +201,7 @@ internal class ServerConnectionImpl(
       }
       // Store the version, so other connections to this
       // server can be made faster.
-      server.lastKnownVersion = version
+      server.lastKnownVersion = versionedProtocol.version
       this@ServerConnectionImpl.playerId = result.playerId
       this@ServerConnectionImpl.connection = connection
       Terre.logger.debug { "Successfully made a new connection to ${server.info}" }
@@ -209,8 +212,11 @@ internal class ServerConnectionImpl(
       // from the server once again, this allows it to request and load a new world.
       player.clientConnection.send(ConnectionApprovedPacket(result.playerId))
     }
+    val clientIP = player.remoteAddress.address.hostAddress
+    val playerInfo = player.lastPlayerInfo
+    val password = server.info.password
     connection.setConnectionHandler(ServerInitConnectionHandler(
-      connection, future, version, protocol, server.info.password, player.lastPlayerInfo))
+      connection, future, versionedProtocol, password, playerInfo, modded, clientIP))
   }
 
   fun ensureConnected(): Connection {

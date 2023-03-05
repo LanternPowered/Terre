@@ -25,7 +25,7 @@ private const val vanillaVersionPrefix = "Terraria"
 
 private const val tModLoaderVersionPrefix = "tModLoader"
 private val tModLoaderVersionRegex =
-  "^$tModLoaderVersionPrefix v([0-9.]*)(?: ([^\\s]*))?(?: Beta ([0-9]*))?\$".toRegex()
+  "^$tModLoaderVersionPrefix v([0-9.]*)(?: (\\S*))?(?: Beta ([0-9]*))?\$".toRegex()
 
 internal val ConnectionRequestDecoder = PacketDecoder { buf ->
   val value = buf.readString()

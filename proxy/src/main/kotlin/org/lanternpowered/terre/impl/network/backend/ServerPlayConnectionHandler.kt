@@ -10,6 +10,7 @@
 package org.lanternpowered.terre.impl.network.backend
 
 import io.netty.buffer.ByteBuf
+import org.lanternpowered.terre.Server
 import org.lanternpowered.terre.ServerInfo
 import org.lanternpowered.terre.impl.ProxyImpl
 import org.lanternpowered.terre.impl.Terre
@@ -196,34 +197,40 @@ internal open class ServerPlayConnectionHandler(
     if (buf.readableBytes() < Short.SIZE_BYTES)
       return false // Forward
 
-    val (server, success) = try {
+    var server: Server? = null
+    var valid = false
+    try {
       val servers = ProxyImpl.servers
       when (buf.readUnsignedShortLE()) {
         2 -> {
           // By name
           val name = buf.readString()
-          servers[name] to true
+          if (buf.readableBytes() == 0) {
+            valid = true
+            server = servers[name]
+          }
         }
         3 -> {
           // By server info
           val ip = buf.readString()
           val port = buf.readUnsignedShortLE()
-          val address = parseInetAddress("$ip:$port").resolve()
-          val server = servers.find { it.info.address == address } ?: run {
-            val info = ServerInfo(address.hostName, address)
-            servers.register(info)
+          if (buf.readableBytes() == 0) {
+            valid = true
+            val address = parseInetAddress("$ip:$port").resolve()
+            server = servers.find { it.info.address == address } ?: run {
+              val info = ServerInfo(address.hostName, address)
+              servers.register(info)
+            }
           }
-          server to true
         }
-        else -> null to false
       }
-    } catch (ex: Exception) {
-      null to false
+    } catch (_: Exception) {
     }
+
     if (server != null)
       player.connectToWithFuture(server)
 
-    if (success)
+    if (valid)
       return true
 
     buf.readerIndex(index)

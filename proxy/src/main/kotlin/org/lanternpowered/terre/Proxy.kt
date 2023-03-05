@@ -57,6 +57,11 @@ interface Proxy : MessageReceiver {
   var password: String
 
   /**
+   * If HAProxy support is enabled.
+   */
+  var haProxy: Boolean
+
+  /**
    * The address the server is bound to.
    */
   val address: InetSocketAddress

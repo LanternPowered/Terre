@@ -19,6 +19,7 @@ import org.lanternpowered.terre.impl.network.packet.PasswordRequestDecoder
 import org.lanternpowered.terre.impl.network.packet.PasswordResponseEncoder
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoDecoder
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoEncoder
+import org.lanternpowered.terre.impl.network.packet.RealIPEncoder
 import org.lanternpowered.terre.impl.network.packet.RequestWorldInfoDecoder
 import org.lanternpowered.terre.impl.network.packet.RequestWorldInfoEncoder
 import org.lanternpowered.terre.impl.network.packet.WorldInfoDecoder
@@ -34,5 +35,6 @@ internal val ServerInitProtocol = protocol("server-init") {
   bind(0x07, WorldInfoEncoder, WorldInfoDecoder, PacketDirection.ServerToClient)
   bind(0x25, PasswordRequestDecoder, PacketDirection.ServerToClient)
   bind(0x26, PasswordResponseEncoder, PacketDirection.ClientToServer)
+  bind(0x43, RealIPEncoder, PacketDirection.ClientToServer)
   bind(0x44, ClientUniqueIdEncoder, ClientUniqueIdDecoder, PacketDirection.ClientToServer)
 }

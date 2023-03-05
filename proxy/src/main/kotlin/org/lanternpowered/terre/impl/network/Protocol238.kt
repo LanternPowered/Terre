@@ -68,6 +68,7 @@ import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyDecoder
 import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyEncoder
 import org.lanternpowered.terre.impl.network.packet.ProjectileUpdateDecoder
 import org.lanternpowered.terre.impl.network.packet.ProjectileUpdateEncoder
+import org.lanternpowered.terre.impl.network.packet.RealIPEncoder
 import org.lanternpowered.terre.impl.network.packet.RequestWorldInfoDecoder
 import org.lanternpowered.terre.impl.network.packet.RequestWorldInfoEncoder
 import org.lanternpowered.terre.impl.network.packet.SimpleItemUpdateDecoder
@@ -102,6 +103,7 @@ internal val Protocol238 = multistateProtocol("238") {
   bind(0x25, PasswordRequestEncoder, PasswordRequestDecoder, PacketDirection.ServerToClient)
   bind(0x26, PasswordResponseEncoder, PasswordResponseDecoder, PacketDirection.ClientToServer)
   bind(0x27, ItemRemoveOwnerEncoder, ItemRemoveOwnerDecoder)
+  bind(0x43, RealIPEncoder, PacketDirection.ClientToServer)
   bind(0x44, ClientUniqueIdEncoder, ClientUniqueIdDecoder, PacketDirection.ClientToServer)
 
   // tModLoader

@@ -42,6 +42,11 @@ internal class ServerImpl(
   var unregistered = false
     private set
 
+  /**
+   * If the server is modded, like tShock.
+   */
+  var modded: Boolean? = null
+
   val registerLock = Any()
 
   private val mutablePlayers = MutablePlayerCollection.concurrentOf()
@@ -102,6 +107,10 @@ internal class ServerImpl(
 
   fun removePlayer(player: Player) {
     mutablePlayers.remove(player)
+
+    // Reset modded state, server can be swapped in the meantime
+    if (mutablePlayers.isEmpty())
+      modded = null
 
     // Destroy all the portals
     player as PlayerImpl

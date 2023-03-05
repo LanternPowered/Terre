@@ -60,7 +60,7 @@ import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.text.text
 import org.lanternpowered.terre.text.textOf
 import org.lanternpowered.terre.util.AABB
-import java.net.SocketAddress
+import java.net.InetSocketAddress
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
 
@@ -113,7 +113,7 @@ internal class PlayerImpl(
   val playerId: PlayerId?
     get() = serverConnection?.playerId
 
-  override val remoteAddress: SocketAddress
+  override val remoteAddress: InetSocketAddress
     get() = clientConnection.remoteAddress
 
   /**
@@ -162,10 +162,13 @@ internal class PlayerImpl(
   var cleanedUp = CompletableFuture<Unit>()
 
   /**
-   * The status text that is currently being shown.
+   * The status text that is currently being shown, and a counter of packets
+   * that are expected before it can be shown.
    */
   var statusText: StatusPacket? = null
   var statusCounter = 0
+
+  var permissionFunction: (String) -> Boolean? = { null }
 
   fun setInventoryItem(index: Int, itemStack: ItemStack) {
     inventory[index] = itemStack
@@ -227,16 +230,9 @@ internal class PlayerImpl(
   }
 
   private fun afterLogin() {
-    val event = object : InitCharacterStorageEvent {
-      override val player: Player
-        get() = this@PlayerImpl
-
-      override fun provide(storage: CharacterStorage) {
-        characterStorage = storage
-      }
-    }
-    TerreEventBus.postAsyncWithFuture(event)
-      .whenComplete { _, exception ->
+    TerreEventBus.postAsyncWithFuture(InitCharacterStorageEvent(this))
+      .whenComplete { event, exception ->
+        characterStorage = event.storage
         if (exception != null) {
           Terre.logger.error("Failed to initialize character storage for $name", exception)
           disconnectAndForget(textOf("Failed to initialize character storage."))
@@ -333,6 +329,8 @@ internal class PlayerImpl(
       cleanedUp.complete(Unit)
     }
   }
+
+  override fun permissionValue(permission: String): Boolean? = permissionFunction(permission)
 
   override fun sendMessage(message: Text) {
     clientConnection.send(ChatMessagePacket(message))

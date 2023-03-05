@@ -18,9 +18,9 @@ import java.util.UUID
 /**
  * Represents raw server info, parsed from the configuration file.
  *
- * @property name The name of the server
- * @property address The ip address and port to connect to
- * @property password The password, if any
+ * @property name The name of the backing server.
+ * @property address The ip address and port to connect to the backing server.
+ * @property password The password, if any.
  * @property allowAutoJoin Whether players are allowed to automatically connect to the server
  */
 internal data class RawServerInfo(

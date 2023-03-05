@@ -22,4 +22,6 @@ internal sealed class ServerInitConnectionResult {
   data class Disconnected(val reason: Text?) : ServerInitConnectionResult()
 
   data class UnsupportedProtocol(val reason: Text?) : ServerInitConnectionResult()
+
+  data class NotModded(val reason: Text?) : ServerInitConnectionResult()
 }

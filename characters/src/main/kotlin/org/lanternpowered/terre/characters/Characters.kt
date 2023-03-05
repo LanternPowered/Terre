@@ -73,6 +73,6 @@ object Characters {
         }
       }
     }
-    event.provide(storage)
+    event.storage = storage
   }
 }

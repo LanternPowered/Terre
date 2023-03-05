@@ -14,6 +14,7 @@ import org.lanternpowered.terre.ProtocolVersion
 import org.lanternpowered.terre.event.connection.ClientConnectEvent
 import org.lanternpowered.terre.event.connection.ClientLoginEvent
 import org.lanternpowered.terre.event.connection.ClientPreLoginEvent
+import org.lanternpowered.terre.event.permission.InitPermissionSubjectEvent
 import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.event.TerreEventBus
 import org.lanternpowered.terre.impl.network.Connection
@@ -156,6 +157,10 @@ internal class ClientInitConnectionHandler(
     player.lastPlayerInfo = playerInfo
     if (player.checkDuplicateIdentifier())
       return
+
+    val initPermissionSubjectEvent = TerreEventBus
+      .postAsyncWithFuture(InitPermissionSubjectEvent(player)).join()
+    player.permissionFunction = initPermissionSubjectEvent.permissionFunction
 
     TerreEventBus.postAsyncWithFuture(ClientPreLoginEvent(player))
       .thenAcceptAsync({ event ->

@@ -19,6 +19,7 @@ import org.lanternpowered.terre.MaxPlayers
 import org.lanternpowered.terre.Proxy
 import org.lanternpowered.terre.coroutines.delay
 import org.lanternpowered.terre.dispatcher.launchAsync
+import org.lanternpowered.terre.event.permission.InitPermissionSubjectEvent
 import org.lanternpowered.terre.event.proxy.ProxyInitializeEvent
 import org.lanternpowered.terre.event.proxy.ProxyShutdownEvent
 import org.lanternpowered.terre.impl.config.ProxyConfigSpec
@@ -72,11 +73,13 @@ internal object ProxyImpl : Proxy {
     set(value) {
       config[ProxyConfigSpec.maxPlayers] = when (value) {
         is MaxPlayers.Limited -> value.amount
-        MaxPlayers.Unlimited -> -1
+        else -> -1
       }
     }
 
   override var password by config.property(ProxyConfigSpec.password)
+
+  override var haProxy by config.property(ProxyConfigSpec.haProxy)
 
   override val address: InetSocketAddress by lazy {
     val ip = config[ProxyConfigSpec.host]
@@ -112,6 +115,11 @@ internal object ProxyImpl : Proxy {
 
     // Start the console, reading commands starts now
     console.start()
+
+    // Init console permission subject
+    val initPermissionSubjectEvent = TerreEventBus
+      .postAsyncWithFuture(InitPermissionSubjectEvent(console)).join()
+    console.permissionFunction = initPermissionSubjectEvent.permissionFunction
 
     if (config[ProxyConfigSpec.LocalBroadcast.enabled]) {
       // Start broadcasting the server information to the LAN network, used by mobile

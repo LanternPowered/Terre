@@ -22,6 +22,7 @@ import io.netty.channel.ChannelOutboundHandlerAdapter
 import io.netty.channel.ChannelPromise
 import io.netty.channel.EventLoop
 import io.netty.handler.codec.CodecException
+import io.netty.handler.codec.haproxy.HAProxyMessage
 import io.netty.handler.timeout.TimeoutException
 import io.netty.util.Attribute
 import io.netty.util.AttributeKey
@@ -33,6 +34,7 @@ import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
 import org.lanternpowered.terre.text.Text
 import org.lanternpowered.terre.text.textOf
 import java.io.IOException
+import java.net.InetSocketAddress
 import java.net.SocketAddress
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.EmptyCoroutineContext
@@ -85,8 +87,7 @@ internal class Connection(
   /**
    * The remote address this connection is connected to.
    */
-  val remoteAddress: SocketAddress
-      get() = channel.remoteAddress()
+  var remoteAddress: InetSocketAddress = channel.remoteAddress() as InetSocketAddress
 
   /**
    * The local address of this connection.
@@ -193,6 +194,9 @@ internal class Connection(
         } else {
           connectionHandler.handleGeneric(packet)
         }
+      } else if (packet is HAProxyMessage) {
+        remoteAddress = InetSocketAddress.createUnresolved(
+          packet.sourceAddress(), packet.sourcePort())
       } else if (packet is ByteBuf) {
         connectionHandler.handleUnknown(packet)
       }

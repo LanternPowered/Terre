@@ -27,9 +27,9 @@ internal object CommandManagerImpl : CommandManager {
   }
 
   override fun register(name: String, executor: SimpleCommandExecutor) {
-    register(name, RawCommandExecutor { source, name1, args ->
+    register(name, RawCommandExecutor { source, alias, args ->
       val argsList = args.split(" ").filter { it.isNotEmpty() }
-      executor.execute(source, name1, argsList)
+      executor.execute(source, alias, argsList)
     })
   }
 

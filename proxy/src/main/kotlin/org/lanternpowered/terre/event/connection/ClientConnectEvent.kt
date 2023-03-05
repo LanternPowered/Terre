@@ -14,8 +14,7 @@ import org.lanternpowered.terre.event.Event
 import org.lanternpowered.terre.text.Text
 
 /**
- * An event that's thrown when a client establishes a new
- * connection with the proxy.
+ * An event that's thrown when a client establishes a new connection with the proxy.
  *
  * @property inboundConnection The inbound connection
  * @property result The result of the event
