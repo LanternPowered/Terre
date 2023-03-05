@@ -158,11 +158,11 @@ internal class ClientInitConnectionHandler(
     if (player.checkDuplicateIdentifier())
       return
 
-    val initPermissionSubjectEvent = TerreEventBus
-      .postAsyncWithFuture(InitPermissionSubjectEvent(player)).join()
-    player.permissionFunction = initPermissionSubjectEvent.permissionFunction
-
-    TerreEventBus.postAsyncWithFuture(ClientPreLoginEvent(player))
+    TerreEventBus.postAsyncWithFuture(InitPermissionSubjectEvent(player))
+      .thenCompose { event ->
+        player.permissionFunction = event.permissionFunction
+        TerreEventBus.postAsyncWithFuture(ClientPreLoginEvent(player))
+      }
       .thenAcceptAsync({ event ->
         if (connection.isClosed)
           return@thenAcceptAsync
