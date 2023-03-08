@@ -40,14 +40,16 @@ import java.util.concurrent.TimeUnit
 
 internal class ServerConnectionImpl(
   override val server: ServerImpl,
-  override val player: PlayerImpl
+  override val player: PlayerImpl,
 ) : ServerConnection {
+
+  private var nullablePlayerId: PlayerId? = null
 
   /**
    * The id that the player got assigned by the server.
    */
-  var playerId: PlayerId? = null
-    private set
+  val playerId: PlayerId
+    get() = nullablePlayerId ?: error("playerId not initialized")
 
   var connection: Connection? = null
     private set
@@ -60,6 +62,19 @@ internal class ServerConnectionImpl(
   init {
     if (!player.wasPreviouslyConnectedToServer)
       isWorldInitialized = true
+  }
+
+  /**
+   * Accepts the successful connection.
+   */
+  fun accept() {
+    val connection = connection ?: error("No connection to accept.")
+    // Continue server connection after it has been approved
+    connection.setConnectionHandler(ServerPlayConnectionHandler(
+      this@ServerConnectionImpl, player))
+    // Sending this packet triggers the client to request all the information from the
+    // server once again, this allows it to request and load a new world.
+    player.clientConnection.send(ConnectionApprovedPacket(playerId))
   }
 
   fun connect(): CompletableFuture<ServerConnectionRequestResult> {
@@ -199,18 +214,11 @@ internal class ServerConnectionImpl(
         connection.close()
         return@whenComplete
       }
-      // Store the version, so other connections to this
-      // server can be made faster.
+      // Store the version, so other connections to this server can be made faster.
       server.lastKnownVersion = versionedProtocol.version
-      this@ServerConnectionImpl.playerId = result.playerId
+      this@ServerConnectionImpl.nullablePlayerId = result.playerId
       this@ServerConnectionImpl.connection = connection
       Terre.logger.debug { "Successfully made a new connection to ${server.info}" }
-      // Continue server connection after it has been approved
-      connection.setConnectionHandler(ServerPlayConnectionHandler(
-        this@ServerConnectionImpl, player))
-      // Sending this packet triggers the client to request all the information
-      // from the server once again, this allows it to request and load a new world.
-      player.clientConnection.send(ConnectionApprovedPacket(result.playerId))
     }
     val clientIP = player.remoteAddress.address.hostAddress
     val playerInfo = player.lastPlayerInfo

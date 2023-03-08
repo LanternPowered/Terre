@@ -18,9 +18,9 @@ import org.lanternpowered.terre.text.Text
  * Represents the pre login event. This event is thrown after all most important information
  * about the player is retrieved. This event is thrown before requesting a password from the player.
  *
- * This event is followed by a [ClientLoginEvent].
+ * This event is followed by a [PlayerLoginEvent].
  */
-data class ClientPreLoginEvent(
+data class PlayerPreLoginEvent(
   val player: Player,
   var result: Result = Result.RequestPassword
 ) : Event {
@@ -28,31 +28,27 @@ data class ClientPreLoginEvent(
   /**
    * Represents the result of a pre login event.
    */
-  sealed class Result {
+  sealed interface Result {
 
     /**
-     * The player is allowed to proceed connecting to
-     * the proxy.
+     * The player is allowed to proceed connecting to the proxy.
      */
-    object Allowed : Result()
+    object Allowed : Result
 
     /**
-     * The proxy requests the player for a password to join
-     * the server.
+     * The proxy requests the player for a password to join the server.
      *
-     * If the specified [password] is empty, this result will
-     * act the same as [Allowed].
+     * If the specified [password] is empty, this result will act the same as [Allowed].
      *
      * @property password The password that should be used
      */
-    data class RequestPassword(val password: String) : Result()
+    data class RequestPassword(val password: String) : Result
 
     /**
-     * The player is denied to proceed connecting to the
-     * proxy. The player will be disconnected with the
-     * specified [reason].
+     * The player is denied to proceed connecting to the proxy. The player will be disconnected
+     * with the specified [reason].
      */
-    data class Denied(val reason: Text) : Result()
+    data class Denied(val reason: Text) : Result
 
     companion object {
 

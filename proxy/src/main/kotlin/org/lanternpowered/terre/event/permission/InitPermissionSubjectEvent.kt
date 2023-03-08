@@ -9,16 +9,20 @@
  */
 package org.lanternpowered.terre.event.permission
 
+import org.lanternpowered.terre.Player
 import org.lanternpowered.terre.event.Event
+import org.lanternpowered.terre.event.connection.PlayerPreLoginEvent
 import org.lanternpowered.terre.permission.PermissionSubject
 
 /**
  * An event that is thrown when setting up the permission function of a specific [subject].
  *
+ * For [Player]s, this event is thrown before [PlayerPreLoginEvent].
+ *
  * @property subject The subject that is being setup.
- * @property permissionFunction Provides a permission function.
+ * @property permissionChecker A function that checks permissions.
  */
 data class InitPermissionSubjectEvent(
   val subject: PermissionSubject,
-  var permissionFunction: (permission: String) -> Boolean? = { null },
+  var permissionChecker: (permission: String) -> Boolean = { true },
 ) : Event

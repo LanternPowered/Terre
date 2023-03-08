@@ -69,7 +69,11 @@ internal class PluginManagerImpl : PluginManager {
         if (url != null)
           pluginClassLoader.addURL(url)
         val pluginClass = Class.forName(candidate.className, true, pluginClassLoader).kotlin
-        val instance = pluginClass.objectInstance ?: continue
+        val instance = pluginClass.objectInstance
+        if (instance == null) {
+          Terre.logger.info("Plugin ${candidate.id} is not an object, skipping...")
+          continue
+        }
         addOrGetPluginContainer(pluginClass.findAnnotation()!!, instance)
         EventBus.register(instance)
       }

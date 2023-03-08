@@ -13,9 +13,9 @@ import org.apache.logging.log4j.Logger
 
 interface Logger : Logger {
 
-  fun info(fn: () -> String)
+  fun info(message: () -> String)
 
-  fun debug(fn: () -> String)
+  fun debug(message: () -> String)
 
-  fun warn(fn: () -> String)
+  fun warn(message: () -> String)
 }

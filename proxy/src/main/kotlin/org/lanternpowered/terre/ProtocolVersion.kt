@@ -16,7 +16,7 @@ import org.lanternpowered.terre.util.Version
 /**
  * Represents the protocol version.
  */
-sealed class ProtocolVersion {
+sealed interface ProtocolVersion {
 
   /**
    * Represents a vanilla protocol version.
@@ -24,7 +24,7 @@ sealed class ProtocolVersion {
   data class Vanilla(
     val version: Version,
     val protocol: Int
-  ) : ProtocolVersion(), Comparable<Vanilla> {
+  ) : ProtocolVersion, Comparable<Vanilla> {
 
     constructor(version: String, protocol: Int) : this(Version(version), protocol)
 
@@ -81,7 +81,7 @@ sealed class ProtocolVersion {
     val version: Version,
     val branch: String? = null,
     val beta: Int? = null
-  ) : ProtocolVersion(), Comparable<TModLoader> {
+  ) : ProtocolVersion, Comparable<TModLoader> {
 
     override fun compareTo(other: TModLoader) =
       compareValuesBy(this, other, { it.version }, { it.branch }, { it.beta })

@@ -7,15 +7,12 @@
  * This work is licensed under the terms of the MIT License (MIT). For
  * a copy, see 'LICENSE.txt' or <https://opensource.org/licenses/MIT>.
  */
-package org.lanternpowered.terre.permission
+package org.lanternpowered.terre.tshock.group
 
-/**
- * Represents an object that has a set of permissions.
- */
-interface PermissionSubject {
+object SuperAdminGroup : Group {
 
-  /**
-   * Returns if this subject has the specified [permission].
-   */
-  fun hasPermission(permission: String): Boolean
+  override val name: String
+    get() = "superadmin"
+
+  override fun hasPermission(permission: String) = true
 }

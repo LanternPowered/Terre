@@ -14,7 +14,7 @@ import org.lanternpowered.terre.text.AchievementText
 import org.lanternpowered.terre.util.ToStringHelper
 
 internal data class AchievementTextImpl(
-    override val achievement: Achievement
+  override val achievement: Achievement
 ) : TextImpl(), AchievementText {
 
   override val isEmpty: Boolean

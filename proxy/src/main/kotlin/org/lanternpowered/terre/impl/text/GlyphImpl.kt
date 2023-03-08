@@ -13,7 +13,7 @@ import org.lanternpowered.terre.impl.buildNumericCatalogTypeRegistryOf
 import org.lanternpowered.terre.text.Glyph
 
 internal data class GlyphImpl(
-    override val numericId: Int
+  override val numericId: Int
 ) : Glyph
 
 internal val GlyphRegistryImpl = buildNumericCatalogTypeRegistryOf<Glyph>(::GlyphImpl)

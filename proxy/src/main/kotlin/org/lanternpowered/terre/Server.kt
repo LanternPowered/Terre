@@ -27,6 +27,12 @@ interface Server : MessageReceiver, PortalAware {
   val info: ServerInfo
 
   /**
+   * The name of this server.
+   */
+  val name: String
+    get() = info.name
+
+  /**
    * All the players that are currently connected to this server.
    */
   val players: PlayerCollection

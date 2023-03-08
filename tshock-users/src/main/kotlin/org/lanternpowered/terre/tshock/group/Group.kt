@@ -7,15 +7,11 @@
  * This work is licensed under the terms of the MIT License (MIT). For
  * a copy, see 'LICENSE.txt' or <https://opensource.org/licenses/MIT>.
  */
-package org.lanternpowered.terre.permission
+package org.lanternpowered.terre.tshock.group
 
-/**
- * Represents an object that has a set of permissions.
- */
-interface PermissionSubject {
+interface Group {
 
-  /**
-   * Returns if this subject has the specified [permission].
-   */
+  val name: String
+
   fun hasPermission(permission: String): Boolean
 }

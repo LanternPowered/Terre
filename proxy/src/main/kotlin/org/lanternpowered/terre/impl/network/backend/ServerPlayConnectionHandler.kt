@@ -12,12 +12,15 @@ package org.lanternpowered.terre.impl.network.backend
 import io.netty.buffer.ByteBuf
 import org.lanternpowered.terre.Server
 import org.lanternpowered.terre.ServerInfo
+import org.lanternpowered.terre.event.chat.ServerChatEvent
 import org.lanternpowered.terre.impl.ProxyImpl
 import org.lanternpowered.terre.impl.Terre
+import org.lanternpowered.terre.impl.event.TerreEventBus
 import org.lanternpowered.terre.impl.network.ConnectionHandler
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.buffer.readString
+import org.lanternpowered.terre.impl.network.packet.ChatMessagePacket
 import org.lanternpowered.terre.impl.network.packet.CompleteConnectionPacket
 import org.lanternpowered.terre.impl.network.packet.CustomPayloadPacket
 import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
@@ -27,6 +30,7 @@ import org.lanternpowered.terre.impl.network.packet.ItemUpdateOwnerPacket
 import org.lanternpowered.terre.impl.network.packet.ItemUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.NpcUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerActivePacket
+import org.lanternpowered.terre.impl.network.packet.PlayerChatMessagePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInventorySlotPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerSpawnPacket
@@ -40,6 +44,8 @@ import org.lanternpowered.terre.impl.player.ServerConnectionImpl
 import org.lanternpowered.terre.impl.util.parseInetAddress
 import org.lanternpowered.terre.impl.util.resolve
 import org.lanternpowered.terre.math.Vec2i
+import org.lanternpowered.terre.text.MessageSender
+import org.lanternpowered.terre.text.Text
 import java.util.UUID
 
 internal open class ServerPlayConnectionHandler(
@@ -167,7 +173,7 @@ internal open class ServerPlayConnectionHandler(
   }
 
   override fun handle(packet: CompleteConnectionPacket): Boolean {
-    val playerId = serverConnection.playerId ?: error("Player id isn't known.")
+    val playerId = serverConnection.playerId
 
     if (wasPreviouslyConnectedToServer) {
       // Sending this packet makes sure that the player spawns, even if the client was previously
@@ -235,6 +241,33 @@ internal open class ServerPlayConnectionHandler(
 
     buf.readerIndex(index)
     return false // Forward
+  }
+
+  override fun handle(packet: PlayerChatMessagePacket): Boolean {
+    val sender = if (packet.authorId != PlayerId.None) {
+      serverConnection.server.players
+        .find { player -> (player as PlayerImpl).playerId == packet.authorId }
+        ?: MessageSender.Unknown
+    } else null
+    handleChat(packet, packet.text, sender)
+    return true
+  }
+
+  override fun handle(packet: ChatMessagePacket): Boolean {
+    handleChat(packet, packet.text, null)
+    return true
+  }
+
+  private fun handleChat(packet: Packet, message: Text, sender: MessageSender?) {
+    val server = serverConnection.server
+    TerreEventBus.postAsyncWithFuture(ServerChatEvent(player, server, message, sender))
+      .whenCompleteAsync({ event, exception ->
+        if (exception != null) {
+          Terre.logger.error("Failed to handle server chat event", exception)
+        } else if (!event.cancelled) {
+          clientConnection.send(packet)
+        }
+      }, clientConnection.eventLoop)
   }
 
   override fun handleGeneric(packet: Packet) {

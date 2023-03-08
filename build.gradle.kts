@@ -86,6 +86,7 @@ subprojects {
           optIn("kotlin.contracts.ExperimentalContracts")
           optIn("kotlin.ExperimentalStdlibApi")
           optIn("kotlin.experimental.ExperimentalTypeInference")
+          optIn("kotlin.time.ExperimentalTime")
           optIn("kotlinx.coroutines.InternalCoroutinesApi")
           optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
 

@@ -12,8 +12,8 @@ package org.lanternpowered.terre.impl.network.client
 import io.netty.buffer.ByteBuf
 import org.lanternpowered.terre.ProtocolVersion
 import org.lanternpowered.terre.event.connection.ClientConnectEvent
-import org.lanternpowered.terre.event.connection.ClientLoginEvent
-import org.lanternpowered.terre.event.connection.ClientPreLoginEvent
+import org.lanternpowered.terre.event.connection.PlayerLoginEvent
+import org.lanternpowered.terre.event.connection.PlayerPreLoginEvent
 import org.lanternpowered.terre.event.permission.InitPermissionSubjectEvent
 import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.event.TerreEventBus
@@ -74,7 +74,7 @@ internal class ClientInitConnectionHandler(
   private lateinit var protocolVersion: ProtocolVersion
   private lateinit var protocol: MultistateProtocol
 
-  private lateinit var uniqueId: UUID
+  private lateinit var clientUniqueId: UUID
   private lateinit var name: String
 
   private lateinit var player: PlayerImpl
@@ -153,31 +153,31 @@ internal class ClientInitConnectionHandler(
 
   private fun continueLogin(nonePlayerId: PlayerId) {
     connection.nonePlayerId = nonePlayerId
-    player = PlayerImpl(connection, protocolVersion, protocol, name, uniqueId)
+    player = PlayerImpl(connection, protocolVersion, protocol, name, clientUniqueId)
     player.lastPlayerInfo = playerInfo
     if (player.checkDuplicateIdentifier())
       return
 
     TerreEventBus.postAsyncWithFuture(InitPermissionSubjectEvent(player))
       .thenCompose { event ->
-        player.permissionFunction = event.permissionFunction
-        TerreEventBus.postAsyncWithFuture(ClientPreLoginEvent(player))
+        player.permissionChecker = event.permissionChecker
+        TerreEventBus.postAsyncWithFuture(PlayerPreLoginEvent(player))
       }
       .thenAcceptAsync({ event ->
         if (connection.isClosed)
           return@thenAcceptAsync
         val result = event.result
-        if (result is ClientPreLoginEvent.Result.Denied) {
+        if (result is PlayerPreLoginEvent.Result.Denied) {
           state = State.Done
           connection.close(result.reason)
-        } else if (result is ClientPreLoginEvent.Result.RequestPassword && result.password.isNotEmpty()) {
+        } else if (result is PlayerPreLoginEvent.Result.RequestPassword && result.password.isNotEmpty()) {
           state = State.RequestPassword
           expectedPassword = result.password
           connection.send(PasswordRequestPacket)
           Terre.logger.debug { "P -> C [${connection.remoteAddress},$name] Password request" }
         } else {
           state = State.Done
-          player.finishLogin(ClientLoginEvent.Result.Allowed)
+          player.finishLogin(PlayerLoginEvent.Result.Allowed)
         }
       }, connection.eventLoop)
   }
@@ -186,9 +186,9 @@ internal class ClientInitConnectionHandler(
     Terre.logger.debug { "P <- C [${connection.remoteAddress},$name] Password response" }
     checkState(State.RequestPassword)
     val result = if (packet.password != expectedPassword) {
-      ClientLoginEvent.Result.Denied(textOf("Invalid password."))
+      PlayerLoginEvent.Result.Denied(textOf("Invalid password."))
     } else {
-      ClientLoginEvent.Result.Allowed
+      PlayerLoginEvent.Result.Allowed
     }
     state = State.Done
     player.finishLogin(result)
@@ -205,7 +205,7 @@ internal class ClientInitConnectionHandler(
 
   override fun handle(packet: ClientUniqueIdPacket): Boolean {
     checkState(State.RequestClientInfo)
-    uniqueId = packet.uniqueId
+    clientUniqueId = packet.uniqueId
     return true
   }
 

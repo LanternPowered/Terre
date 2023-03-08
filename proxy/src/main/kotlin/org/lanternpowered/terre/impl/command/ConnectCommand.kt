@@ -31,6 +31,10 @@ internal object ConnectCommand : SimpleCommandExecutor {
       send("Please specify a target server.".text())
       return
     }
+    if (!player.hasPermission("terre.command.connect.$name")) {
+      send("You don't have permission to connect to ".text() + name.text(Terre.color) + ".".text())
+      return
+    }
     val server = Proxy.servers[name]
     if (server != null) {
       name = server.info.name

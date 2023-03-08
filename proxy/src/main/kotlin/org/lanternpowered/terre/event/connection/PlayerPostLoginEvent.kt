@@ -13,11 +13,11 @@ import org.lanternpowered.terre.Player
 import org.lanternpowered.terre.event.Event
 
 /**
- * An event that's thrown when a player has logged in successfully. This event is thrown after
- * [ClientLoginEvent] if the result wasn't [ClientLoginEvent.Result.Denied].
+ * An event that is thrown when a player has logged in successfully. This event is thrown after
+ * [PlayerLoginEvent] if the result is not [PlayerLoginEvent.Result.Denied].
  *
  * @property player The player that logged in
  */
-data class ClientPostLoginEvent(
+data class PlayerPostLoginEvent(
   val player: Player
 ) : Event

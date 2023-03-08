@@ -119,7 +119,7 @@ internal object ProxyImpl : Proxy {
     // Init console permission subject
     val initPermissionSubjectEvent = TerreEventBus
       .postAsyncWithFuture(InitPermissionSubjectEvent(console)).join()
-    console.permissionFunction = initPermissionSubjectEvent.permissionFunction
+    console.permissionChecker = initPermissionSubjectEvent.permissionChecker
 
     if (config[ProxyConfigSpec.LocalBroadcast.enabled]) {
       // Start broadcasting the server information to the LAN network, used by mobile

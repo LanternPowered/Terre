@@ -16,18 +16,18 @@ import org.lanternpowered.terre.logger.Logger
 internal class LoggerImpl(logger: Log4jLogger) :
   Logger, ExtendedLogger by (logger as ExtendedLogger) {
 
-  override fun info(fn: () -> String) {
+  override fun info(message: () -> String) {
     if (isInfoEnabled)
-      info(fn())
+      info(message())
   }
 
-  override fun debug(fn: () -> String) {
+  override fun debug(message: () -> String) {
     if (isDebugEnabled)
-      debug(fn())
+      debug(message())
   }
 
-  override fun warn(fn: () -> String) {
+  override fun warn(message: () -> String) {
     if (isWarnEnabled)
-      warn(fn())
+      warn(message())
   }
 }

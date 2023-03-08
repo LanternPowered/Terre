@@ -169,6 +169,12 @@ interface Player : Named, MessageReceiver, MessageSender, PortalAware, InboundCo
    * root element.
    */
   fun showCombatText(text: Text) = showCombatText(text, position)
+
+  /**
+   * Sends a command to the current [server]. Returns `false` if the player is currently not
+   * connected to a server.
+   */
+  fun executeCommandOnServer(command: String): Boolean
 }
 
 /**

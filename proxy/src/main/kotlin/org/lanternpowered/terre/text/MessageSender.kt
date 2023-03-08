@@ -12,4 +12,10 @@ package org.lanternpowered.terre.text
 /**
  * Represents a sender of messages.
  */
-interface MessageSender
+interface MessageSender {
+
+  /**
+   * Represents an unknown message sender.
+   */
+  object Unknown : MessageSender
+}

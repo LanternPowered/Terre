@@ -14,7 +14,7 @@ import org.lanternpowered.terre.event.Event
 import org.lanternpowered.terre.text.Text
 
 /**
- * An event that's thrown when a client establishes a new connection with the proxy.
+ * An event that is thrown when a client establishes a new connection with the proxy.
  *
  * @property inboundConnection The inbound connection
  * @property result The result of the event
@@ -27,18 +27,17 @@ data class ClientConnectEvent(
   /**
    * Represents the result of a [ClientConnectEvent].
    */
-  sealed class Result {
+  sealed interface Result {
 
     /**
      * The client is allowed to proceed connecting to the proxy.
      */
-    object Allowed : Result()
+    object Allowed : Result
 
     /**
-     * The client is denied to proceed connecting to the
-     * proxy. The client will be disconnected with the
-     * specified [reason].
+     * The client is denied to proceed connecting to the proxy. The client will be disconnected
+     * with the specified [reason].
      */
-    data class Denied(val reason: Text) : Result()
+    data class Denied(val reason: Text) : Result
   }
 }

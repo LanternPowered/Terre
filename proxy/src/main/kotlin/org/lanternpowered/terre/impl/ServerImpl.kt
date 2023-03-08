@@ -42,11 +42,6 @@ internal class ServerImpl(
   var unregistered = false
     private set
 
-  /**
-   * If the server is modded, like tShock.
-   */
-  var modded: Boolean? = null
-
   val registerLock = Any()
 
   private val mutablePlayers = MutablePlayerCollection.concurrentOf()
@@ -92,6 +87,11 @@ internal class ServerImpl(
    * connection when multiple versions are possible.
    */
   @Volatile var lastKnownVersion: ProtocolVersion? = null
+
+  /**
+   * If the server is modded, like tShock.
+   */
+  var modded: Boolean? = null
 
   override val players
     get() = mutablePlayers.toImmutable()

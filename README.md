@@ -29,6 +29,11 @@ The following list gives an overview of each subproject in this repository.
   compatibility, no data is currently saved.**
 * **k8s-server-finder** A plugin that discovers Terraria servers on a kubernetes cluster and 
   automatically registers them.
+* **tshock-users** A plugin that hooks into the tShock user system to provide permission support
+  on the proxy. Also improves server side character support when sharing characters between backing 
+  servers. Requires that the tShock backing servers and this plugin are connected to the same
+  MySQL database. The plugin only reads data from this database. **WIP, can be unstable, not all 
+  login scenarios are tested.**
 
 If you are looking for some more information, or you like to help out, feel free to hop on our 
 discord server. You will find the button at the top.

@@ -27,7 +27,7 @@ internal class ConsoleImpl(
 
   private var readThread: Thread? = null
 
-  var permissionFunction: (String) -> Boolean? = { null }
+  var permissionChecker: (String) -> Boolean = { true }
 
   init {
     LocationPatternConverter.RedirectFqcns += this::class.java.name
@@ -41,7 +41,7 @@ internal class ConsoleImpl(
     Terre.logger.info(message)
   }
 
-  override fun permissionValue(permission: String) = permissionFunction(permission)
+  override fun hasPermission(permission: String): Boolean = permissionChecker(permission)
 
   fun init() {
     System.setOut(IoBuilder.forLogger(Terre.logger).setLevel(Level.INFO).buildPrintStream())

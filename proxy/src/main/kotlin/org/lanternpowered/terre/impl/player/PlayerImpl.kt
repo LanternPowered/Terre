@@ -22,8 +22,10 @@ import org.lanternpowered.terre.character.CharacterStorage
 import org.lanternpowered.terre.dispatcher.async
 import org.lanternpowered.terre.dispatcher.launchAsync
 import org.lanternpowered.terre.event.character.InitCharacterStorageEvent
-import org.lanternpowered.terre.event.connection.ClientLoginEvent
-import org.lanternpowered.terre.event.connection.ClientPostLoginEvent
+import org.lanternpowered.terre.event.connection.PlayerLoginEvent
+import org.lanternpowered.terre.event.connection.PlayerPostLoginEvent
+import org.lanternpowered.terre.event.server.PlayerJoinServerEvent
+import org.lanternpowered.terre.event.server.PlayerLeaveServerEvent
 import org.lanternpowered.terre.impl.ProxyImpl
 import org.lanternpowered.terre.impl.ServerImpl
 import org.lanternpowered.terre.impl.Terre
@@ -39,6 +41,7 @@ import org.lanternpowered.terre.impl.network.packet.CombatMessagePacket
 import org.lanternpowered.terre.impl.network.packet.NpcUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerActivePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerChatMessagePacket
+import org.lanternpowered.terre.impl.network.packet.PlayerCommandPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInventorySlotPacket
 import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
@@ -168,7 +171,7 @@ internal class PlayerImpl(
   var statusText: StatusPacket? = null
   var statusCounter = 0
 
-  var permissionFunction: (String) -> Boolean? = { null }
+  var permissionChecker: (String) -> Boolean = { true }
 
   fun setInventoryItem(index: Int, itemStack: ItemStack) {
     inventory[index] = itemStack
@@ -194,7 +197,7 @@ internal class PlayerImpl(
   /**
    * Initializes the player and adds it to the proxy.
    */
-  fun finishLogin(originalResult: ClientLoginEvent.Result) {
+  fun finishLogin(originalResult: PlayerLoginEvent.Result) {
     clientConnection.protocol = protocol[MultistateProtocol.State.Play]
     if (checkDuplicateIdentifier())
       return
@@ -202,14 +205,14 @@ internal class PlayerImpl(
     clientConnection.setConnectionHandler(ClientPlayConnectionHandler(this))
 
     var result = originalResult
-    if (result is ClientLoginEvent.Result.Allowed) {
+    if (result is PlayerLoginEvent.Result.Allowed) {
       val maxPlayers = ProxyImpl.maxPlayers
       if (maxPlayers is MaxPlayers.Limited && ProxyImpl.players.size >= maxPlayers.amount) {
-        result = ClientLoginEvent.Result.Denied(textOf("The server is full."))
+        result = PlayerLoginEvent.Result.Denied(textOf("The server is full."))
       }
     }
 
-    TerreEventBus.postAsyncWithFuture(ClientLoginEvent(this, result))
+    TerreEventBus.postAsyncWithFuture(PlayerLoginEvent(this, result))
       .thenAcceptAsync({ event ->
         if (clientConnection.isClosed)
           return@thenAcceptAsync
@@ -220,10 +223,10 @@ internal class PlayerImpl(
           return@thenAcceptAsync
         }
         val eventResult = event.result
-        if (eventResult is ClientLoginEvent.Result.Denied) {
+        if (eventResult is PlayerLoginEvent.Result.Denied) {
           clientConnection.close(eventResult.reason)
         } else {
-          TerreEventBus.postAsyncWithFuture(ClientPostLoginEvent(this))
+          TerreEventBus.postAsyncWithFuture(PlayerPostLoginEvent(this))
             .thenAccept { afterLogin() }
         }
       }, clientConnection.eventLoop)
@@ -322,15 +325,28 @@ internal class PlayerImpl(
       .asDeferred()
 
   fun cleanup() {
-    ProxyImpl.mutablePlayers.remove(this)
-    serverConnection?.connection?.close()
-    launchAsync {
-      saveAndCleanupCharacter()
-      cleanedUp.complete(Unit)
+    val serverConnection = serverConnection
+    val result = if (serverConnection != null) {
+      val leaveEvent = PlayerLeaveServerEvent(this@PlayerImpl, serverConnection.server)
+      TerreEventBus.postAsyncWithFuture(leaveEvent)
+    } else {
+      CompletableFuture.completedFuture(Unit)
     }
+    result
+      .handle { _, _ ->
+        serverConnection?.connection?.close()
+        saveAndCleanupCharacter()
+      }
+      .whenComplete { _, ex ->
+        ProxyImpl.mutablePlayers.remove(this)
+        if (ex != null) {
+          Terre.logger.error("An exception occurred while saving and cleaning up character", ex)
+        }
+        cleanedUp.complete(Unit)
+      }
   }
 
-  override fun permissionValue(permission: String): Boolean? = permissionFunction(permission)
+  override fun hasPermission(permission: String): Boolean = permissionChecker(permission)
 
   override fun sendMessage(message: Text) {
     clientConnection.send(ChatMessagePacket(message))
@@ -342,11 +358,8 @@ internal class PlayerImpl(
     if (sender is PlayerImpl) {
       val serverConnection = sender.serverConnection
       if (serverConnection != null && this.serverConnection?.server == serverConnection.server) {
-        val playerId = serverConnection.playerId
-        if (playerId != null) {
-          clientConnection.send(PlayerChatMessagePacket(playerId, message))
-          return
-        }
+        clientConnection.send(PlayerChatMessagePacket(serverConnection.playerId, message))
+        return
       }
     }
     super<MessageReceiverImpl>.sendMessageAs(message, sender)
@@ -358,6 +371,14 @@ internal class PlayerImpl(
 
   override fun showCombatText(text: Text, position: Vec2f) {
     clientConnection.send(CombatMessagePacket(position, text))
+  }
+
+  override fun executeCommandOnServer(command: String): Boolean {
+    val serverConnection = serverConnection
+    return if (serverConnection != null) {
+      serverConnection.ensureConnected().send(PlayerCommandPacket("Say", "/$command"))
+      true
+    } else false
   }
 
   override fun showStatusText(text: Text, showShadows: Boolean) {
@@ -392,19 +413,21 @@ internal class PlayerImpl(
     val connection = ServerConnectionImpl(server, this)
     return connection.connect()
       .thenCompose { result ->
-        async {
-          // Only cleanup if we are switching servers
-          if (serverConnection != null) {
-            saveAndCleanupCharacter()
-          }
-          result
-        }.asCompletableFuture()
+        val serverConnection = serverConnection
+        if (result is ServerConnectionRequestResult.Success && serverConnection != null) {
+          // When switching servers, cleanup first and wait for the leave event, then continue
+          // with the server connection
+          val leaveEvent = PlayerLeaveServerEvent(this@PlayerImpl, serverConnection.server)
+          TerreEventBus.postAsyncWithFuture(leaveEvent)
+            .thenCompose { saveAndCleanupCharacter() }
+            .thenApply { result }
+        } else {
+          CompletableFuture.completedFuture(result)
+        }
       }
-      .whenCompleteAsync({ result, throwable ->
-        if (throwable != null) {
-          Terre.logger.debug(
-            "Failed to establish connection to backend server: ${server.info}", throwable
-          )
+      .whenCompleteAsync({ result, ex ->
+        if (ex != null) {
+          Terre.logger.debug("Failed to establish connection to backend server: ${server.info}", ex)
         } else if (result is ServerConnectionRequestResult.Success) {
           val old = serverConnection?.connection
           if (old != null) {
@@ -414,9 +437,12 @@ internal class PlayerImpl(
           serverConnection?.server?.removePlayer(this)
           // Replace it with the successfully established one
           serverConnection = connection
+          // Reset client and then accept the new connection
           resetClient()
+          connection.accept()
           connection.server.initPlayer(this)
           Terre.logger.debug("Successfully established connection to backend server: ${server.info}")
+          TerreEventBus.postAsyncWithFuture(PlayerJoinServerEvent(this@PlayerImpl, server))
         }
       }, clientConnection.eventLoop)
   }
@@ -448,7 +474,7 @@ internal class PlayerImpl(
     inventory.clear()
     characterStorage.loadInventory(inventory)
     val serverConnection = serverConnection!!
-    val playerId = serverConnection.playerId!!
+    val playerId = serverConnection.playerId
     for (index in 0..<inventory.maxSize) {
       val packet = PlayerInventorySlotPacket(playerId, index, inventory[index])
       clientConnection.send(packet)
@@ -457,23 +483,25 @@ internal class PlayerImpl(
     initItemPersistJob()
   }
 
-  private suspend fun saveAndCleanupCharacter() {
-    if (serverSideCharacter)
-      return
-    val characterStorage = characterStorage ?: return
-    val characterStoragePersistJob = characterStoragePersistJob
-    if (characterStoragePersistJob != null) {
-      // wait for all persists to complete
-      characterStoragePersistJob.cancel()
-      characterStoragePersistJob.join()
-      this.characterStoragePersistJob = null
-      this.characterStoragePersistQueue = null
-    }
-    try {
-      characterStorage.saveInventory(inventory)
-    } catch (ex: Exception) {
-      Terre.logger.error("Failed to save inventory for player $name", ex)
-    }
+  private fun saveAndCleanupCharacter(): CompletableFuture<Unit> {
+    val characterStorage = characterStorage
+    if (serverSideCharacter || characterStorage == null)
+      return CompletableFuture.completedFuture(Unit)
+    return async {
+      val characterStoragePersistJob = characterStoragePersistJob
+      if (characterStoragePersistJob != null) {
+        // wait for all persists to complete
+        characterStoragePersistJob.cancel()
+        characterStoragePersistJob.join()
+        this@PlayerImpl.characterStoragePersistJob = null
+        this@PlayerImpl.characterStoragePersistQueue = null
+      }
+      try {
+        characterStorage.saveInventory(inventory)
+      } catch (ex: Exception) {
+        Terre.logger.error("Failed to save inventory for player $name", ex)
+      }
+    }.asCompletableFuture()
   }
 
   private fun initItemPersistJob() {
