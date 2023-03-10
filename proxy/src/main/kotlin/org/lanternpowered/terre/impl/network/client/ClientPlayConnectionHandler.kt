@@ -36,7 +36,7 @@ import java.time.Duration
 import java.util.concurrent.TimeUnit
 
 internal class ClientPlayConnectionHandler(
-  private val playerImpl: PlayerImpl
+  private val player: PlayerImpl
 ) : ConnectionHandler {
 
   companion object {
@@ -52,31 +52,31 @@ internal class ClientPlayConnectionHandler(
 
   override fun initialize() {
     initializeKeepAliveTask()
-    playerImpl.clientConnection.send(PlayerActivePacket(PlayerId.None, false))
+    player.clientConnection.send(PlayerActivePacket(PlayerId.None, false))
   }
 
   override fun disconnect() {
     cleanupKeepAliveTask()
-    playerImpl.cleanup()
-    Terre.logger.debug { "[${playerImpl.clientConnection.remoteAddress}] Disconnected" }
+    player.cleanup()
+    Terre.logger.debug { "[${player.clientConnection.remoteAddress}] Disconnected" }
   }
 
   override fun afterWrite(packet: Any) {
-    if (playerImpl.statusCounter > 0) {
-      playerImpl.statusCounter--
-      val statusPacket = playerImpl.statusText
+    if (player.statusCounter > 0) {
+      player.statusCounter--
+      val statusPacket = player.statusText
       if (statusPacket != null)
-        playerImpl.clientConnection.send(statusPacket)
+        player.clientConnection.send(statusPacket)
     }
     if (packet is StatusPacket)
-      playerImpl.statusCounter += packet.statusMax
+      player.statusCounter += packet.statusMax
   }
 
   override fun exception(throwable: Throwable) {
   }
 
   private fun initializeKeepAliveTask() {
-    val connection = playerImpl.clientConnection
+    val connection = player.clientConnection
     keepAliveTask = connection.eventLoop.scheduleAtFixedRate({
       if (keepAliveTime == -1L) {
         keepAliveTime = System.currentTimeMillis()
@@ -95,10 +95,10 @@ internal class ClientPlayConnectionHandler(
   override fun handle(packet: ItemUpdateOwnerPacket): Boolean {
     if (packet.id == ItemRemoveOwnerPacket.PingPongItemId) {
       if (keepAliveTime != -1L) {
-        playerImpl.latency = (System.currentTimeMillis() - keepAliveTime).toInt()
+        player.latency = (System.currentTimeMillis() - keepAliveTime).toInt()
         keepAliveTime = -1L
-      } else if (playerImpl.forwardNextOwnerUpdate) {
-        playerImpl.forwardNextOwnerUpdate = false
+      } else if (player.forwardNextOwnerUpdate) {
+        player.forwardNextOwnerUpdate = false
         return false // Forward
       }
       return true
@@ -110,7 +110,7 @@ internal class ClientPlayConnectionHandler(
     if (packet.commandId == "Say") {
       val command = packet.arguments
       if (command.startsWith("/")) {
-        if (CommandManagerImpl.execute(playerImpl, command.substring(1)))
+        if (CommandManagerImpl.execute(player, command.substring(1)))
           return true
       }
     }
@@ -118,28 +118,30 @@ internal class ClientPlayConnectionHandler(
   }
 
   override fun handle(packet: ClientUniqueIdPacket): Boolean {
-    check(packet.uniqueId == playerImpl.clientUniqueId)
-    return false // Forward
+    check(packet.uniqueId == player.clientUniqueId)
+    val serverConnection = player.serverConnection
+    serverConnection?.ensureConnected()?.send(ClientUniqueIdPacket(player.serverClientUniqueId))
+    return true
   }
 
   override fun handle(packet: PlayerInfoPacket): Boolean {
-    playerImpl.lastPlayerInfo = packet
+    player.lastPlayerInfo = packet
     return false // Forward
   }
 
   override fun handle(packet: PlayerSpawnPacket): Boolean {
-    playerImpl.serverConnection?.isWorldInitialized = true
-    playerImpl.position = packet.position.toFloat()
+    player.serverConnection?.isWorldInitialized = true
+    player.position = packet.position.toFloat()
     return false // Forward
   }
 
   override fun handle(packet: PlayerUpdatePacket): Boolean {
-    playerImpl.position = packet.position
+    player.position = packet.position
     return false // Forward
   }
 
   override fun handle(packet: PlayerInventorySlotPacket): Boolean {
-    playerImpl.setInventoryItem(packet.slot, packet.itemStack)
+    player.setInventoryItem(packet.slot, packet.itemStack)
     return false // Forward
   }
 
@@ -156,7 +158,7 @@ internal class ClientPlayConnectionHandler(
   }
 
   override fun handleGeneric(packet: Packet) {
-    val serverConnection = playerImpl.serverConnection ?: return
+    val serverConnection = player.serverConnection ?: return
     // During this state, not all packets are allowed to pass through
     if (!serverConnection.isWorldInitialized && !isWorldInitPacket(packet))
       return
@@ -165,7 +167,7 @@ internal class ClientPlayConnectionHandler(
   }
 
   override fun handleUnknown(packet: ByteBuf) {
-    val serverConnection = playerImpl.serverConnection ?: return
+    val serverConnection = player.serverConnection ?: return
     // During this state, not all packets are allowed to pass through
     if (!serverConnection.isWorldInitialized)
       return

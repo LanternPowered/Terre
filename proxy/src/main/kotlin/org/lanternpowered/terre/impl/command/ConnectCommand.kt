@@ -38,30 +38,29 @@ internal object ConnectCommand : SimpleCommandExecutor {
     val server = Proxy.servers[name]
     if (server != null) {
       name = server.info.name
-      send(textOf("Attempting to connect to $name."))
       player.connectToWithFuture(server)
         .whenComplete { result, _ ->
           val message = if (result != null) {
             when (result) {
               is ServerConnectionRequestResult.Success -> {
-                textOf("Successfully connected to $name.")
+                "Successfully connected to ".text() + name.text(Terre.color) + ".".text()
               }
               is ServerConnectionRequestResult.Disconnected -> {
-                textOf("Failed to connect to $name") +
+                "Failed to connect to ".text() + name.text(Terre.color) +
                   (result.reason?.also { ": ".text() + it } ?: textOf())
               }
               is ServerConnectionRequestResult.AlreadyConnected -> {
-                textOf("You're already connected to $name.")
+                "You're already connected to ".text() + name.text(Terre.color) + ".".text()
               }
               is ServerConnectionRequestResult.ConnectionInProgress -> {
-                textOf("You're already connecting to another server.")
+                "You're already connecting to another server.".text()
               }
             }
-          } else textOf("Failed to connect to $name.")
+          } else "Failed to connect to ".text() + name.text(Terre.color) + ".".text()
           send(message)
         }
     } else {
-      send(textOf("The server $name doesn't exist."))
+      send("The server ".text() + name.text(Terre.color) + " doesn't exist.".text())
     }
   }
 }

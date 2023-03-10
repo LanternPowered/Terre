@@ -120,6 +120,11 @@ internal class PlayerImpl(
     get() = clientConnection.remoteAddress
 
   /**
+   * The client unique id the server knows the player as.
+   */
+  var serverClientUniqueId = clientUniqueId
+
+  /**
    * The team this player is currently part of, or white if none.
    */
   var team = Team.White
@@ -439,10 +444,15 @@ internal class PlayerImpl(
           serverConnection = connection
           // Reset client and then accept the new connection
           resetClient()
-          connection.accept()
           connection.server.initPlayer(this)
-          Terre.logger.debug("Successfully established connection to backend server: ${server.info}")
           TerreEventBus.postAsyncWithFuture(PlayerJoinServerEvent(this@PlayerImpl, server))
+            .whenCompleteAsync({ event, _ ->
+              if (event != null) {
+                serverClientUniqueId = event.clientUniqueId
+              }
+              connection.accept()
+              Terre.logger.debug("Successfully established connection to backend server: ${server.info}")
+            }, clientConnection.eventLoop)
         }
       }, clientConnection.eventLoop)
   }

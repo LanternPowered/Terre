@@ -35,6 +35,9 @@ suspend fun UserTable.loadUserByName(db: Database, name: String): User? =
     select { UserTable.name.eq(name) }.map { it.toUser() }.firstOrNull()
   }
 
+suspend fun UserTable.requireUserByName(db: Database, name: String): User =
+  loadUserByName(db, name) ?: error("No user data for: $name")
+
 private fun parseDateTime(value: String): LocalDateTime =
   DateTimeFormatter.ISO_DATE_TIME.parse(value, LocalDateTime::from)
 

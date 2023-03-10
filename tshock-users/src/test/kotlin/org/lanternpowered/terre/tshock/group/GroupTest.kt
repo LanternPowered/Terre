@@ -9,7 +9,7 @@
  */
 package org.lanternpowered.terre.tshock.group
 
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 

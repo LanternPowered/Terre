@@ -13,6 +13,11 @@ import com.uchuhimo.konf.ConfigSpec
 
 object TShockUsersConfigSpec : ConfigSpec("tShockUsers") {
 
+  val uuidLogin by optional(
+    default = true,
+    description = "Allows players to join automatically by using their client UUID."
+  )
+
   object Database : ConfigSpec("database") {
 
     val host by optional(

@@ -38,8 +38,8 @@ import org.lanternpowered.terre.text.textOf
 import java.util.UUID
 
 /**
- * The connection handler that is used initially to establish a connection
- * between the client and the proxy server.
+ * The connection handler that is used initially to establish a connection between the client and
+ * the proxy server.
  */
 internal class ClientInitConnectionHandler(
   private val connection: Connection
