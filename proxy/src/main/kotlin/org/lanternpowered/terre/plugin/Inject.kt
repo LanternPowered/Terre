@@ -53,7 +53,6 @@ fun <T> lazyInject(type: KType): ReadOnlyProperty<Any?, T> {
  * Injects a value of type [T] within the global scope.
  */
 inline fun <reified T : Any> inject(): T {
-  @Suppress("UNCHECKED_CAST")
   return null.doInject(typeOf<T>()) as T
 }
 

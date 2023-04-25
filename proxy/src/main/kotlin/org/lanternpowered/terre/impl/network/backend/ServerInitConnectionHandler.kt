@@ -13,8 +13,8 @@ import io.netty.buffer.ByteBuf
 import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.network.Connection
 import org.lanternpowered.terre.impl.network.ConnectionHandler
-import org.lanternpowered.terre.impl.network.MultistateProtocol
 import org.lanternpowered.terre.impl.network.Packet
+import org.lanternpowered.terre.impl.network.ProtocolVersions
 import org.lanternpowered.terre.impl.network.VersionedProtocol
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.packet.ClientUniqueIdPacket
@@ -33,8 +33,7 @@ import java.util.UUID
 import java.util.concurrent.CompletableFuture
 
 /**
- * The initial connection handler that is used
- * to establish a connection to a server.
+ * The initial connection handler that is used to establish a connection to a server.
  *
  * @property connection The server connection
  * @property future The future that will be notified of the connection result
@@ -56,7 +55,7 @@ internal class ServerInitConnectionHandler(
   override fun initialize() {
     val version = versionedProtocol.version
     connection.protocol = ServerInitProtocol
-    connection.send(ConnectionRequestPacket(version))
+    connection.send(ConnectionRequestPacket(ProtocolVersions.toString(version)))
     debug { "Send server connection request to ${connection.remoteAddress} with $version" }
   }
 
@@ -136,7 +135,7 @@ internal class ServerInitConnectionHandler(
     debug { "Approve connection: $playerId" }
     val playerId = playerId ?: return
     // Connection was approved so the client version was accepted
-    connection.protocol = versionedProtocol.protocol[MultistateProtocol.State.Play]
+    connection.protocol = versionedProtocol.protocol
     future.complete(ServerInitConnectionResult.Success(playerId))
     this.playerId = null
   }

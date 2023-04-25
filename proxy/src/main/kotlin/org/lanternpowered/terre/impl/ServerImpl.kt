@@ -44,7 +44,7 @@ internal class ServerImpl(
 
   val registerLock = Any()
 
-  private val mutablePlayers = MutablePlayerCollection.concurrentOf()
+  private val mutablePlayers = MutablePlayerCollection.concurrent()
 
   private val projectileIdAllocator = ProjectileIdAllocator()
   private val portalsByProjectileId = ConcurrentHashMap<Int, PortalImpl>()

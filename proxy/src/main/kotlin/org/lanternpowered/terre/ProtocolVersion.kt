@@ -49,6 +49,11 @@ sealed interface ProtocolVersion {
       val `1․4․2․3` = Vanilla("1.4.2.3", 238)
 
       /**
+       * The 1.4.3.6 vanilla version.
+       */
+      val `1․4․3․6` = Vanilla("1.4.3.6", 248)
+
+      /**
        * The 1.4.4.1 vanilla version.
        */
       val `1․4․4․1` = Vanilla("1.4.4.1", 270)
@@ -75,15 +80,15 @@ sealed interface ProtocolVersion {
    *
    * @property version The base version, e.g. 0.11.6.2
    * @property branch The branch, if not the default
-   * @property beta The beta build number, if applicable
+   * @property purpose The purpose of the build, or null if stable
    */
   data class TModLoader(
     val version: Version,
     val branch: String? = null,
-    val beta: Int? = null
+    val purpose: String? = null,
   ) : ProtocolVersion, Comparable<TModLoader> {
 
     override fun compareTo(other: TModLoader) =
-      compareValuesBy(this, other, { it.version }, { it.branch }, { it.beta })
+      compareValuesBy(this, other, { it.version }, { it.branch }, { it.purpose })
   }
 }

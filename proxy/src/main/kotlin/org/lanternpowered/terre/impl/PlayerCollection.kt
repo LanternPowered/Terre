@@ -36,11 +36,8 @@ internal class MutablePlayerCollection private constructor(
 
   companion object {
 
-    fun concurrentOf(): MutablePlayerCollection =
+    fun concurrent(): MutablePlayerCollection =
       MutablePlayerCollection(ConcurrentHashMap())
-
-    fun of(): MutablePlayerCollection =
-      MutablePlayerCollection(HashMap())
   }
 }
 

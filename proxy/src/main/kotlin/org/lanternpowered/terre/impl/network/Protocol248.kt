@@ -92,7 +92,7 @@ import org.lanternpowered.terre.impl.network.packet.v238.ConnectionApproved238En
 import org.lanternpowered.terre.impl.network.packet.v238.PlayerSpawn238Decoder
 import org.lanternpowered.terre.impl.network.packet.v238.PlayerSpawn238Encoder
 
-internal val Protocol238 = protocol("238") {
+internal val Protocol248 = protocol("248") {
   bind(0x01, ConnectionRequestEncoder, ConnectionRequestDecoder, PacketDirection.ClientToServer)
   bind(0x02, DisconnectEncoder, DisconnectDecoder, PacketDirection.ServerToClient)
   bind(0x03, ConnectionApproved238Encoder, ConnectionApproved238Decoder, PacketDirection.ServerToClient)

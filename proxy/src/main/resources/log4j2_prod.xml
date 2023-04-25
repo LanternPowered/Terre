@@ -17,13 +17,13 @@
   </Appenders>
   <Loggers>
     <!-- Log server messages without prefix. -->
-    <Logger name="terre" level="all" additivity="false">
-      <AppenderRef ref="DefaultConsole" level="info"/>
+    <Logger name="terre" level="info" additivity="false">
+      <AppenderRef ref="DefaultConsole"/>
       <AppenderRef ref="File"/>
     </Logger>
     <!-- Log all other messages with prefix. -->
-    <Root level="all">
-      <AppenderRef ref="Console" level="info"/>
+    <Root level="info">
+      <AppenderRef ref="Console"/>
       <AppenderRef ref="File"/>
     </Root>
   </Loggers>

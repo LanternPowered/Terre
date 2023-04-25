@@ -26,8 +26,7 @@ internal object ProtocolRegistry {
   init {
     register(ProtocolVersion.Vanilla.`1․4․0․5`, Protocol230) // 230
     register(ProtocolVersion.Vanilla.`1․4․2․3`, Protocol238) // 238
-    // TODO: Are there differences between 270, 273 and 274? if so create protocol for 1.4.4.1
-    //  and/or 1.4.4.4
+    register(ProtocolVersion.Vanilla.`1․4․3․6`, Protocol248) // 248
     register(ProtocolVersion.Vanilla.`1․4․4․1`, Protocol274) // 270
     register(ProtocolVersion.Vanilla.`1․4․4․4`, Protocol274) // 273
     register(ProtocolVersion.Vanilla.`1․4․4․5`, Protocol274) // 274
@@ -38,13 +37,12 @@ internal object ProtocolRegistry {
 
   val all: Collection<VersionedProtocol> get() = byId.values
 
-  operator fun get(id: Int): MultistateProtocol? = byId[id]?.protocol
+  operator fun get(id: Int): Protocol? = byId[id]?.protocol
 
   /**
-   * Attempts to get the [protocol] instance for the
-   * provided [ProtocolVersion].
+   * Attempts to get the [protocol] instance for the provided [ProtocolVersion].
    */
-  operator fun get(version: ProtocolVersion): MultistateProtocol? {
+  operator fun get(version: ProtocolVersion): Protocol? {
     if (version is ProtocolVersion.Vanilla)
       return get(version.protocol)
 
@@ -55,7 +53,7 @@ internal object ProtocolRegistry {
   /**
    * Registers a new protocol version.
    */
-  private fun register(version: ProtocolVersion, protocol: MultistateProtocol) {
+  private fun register(version: ProtocolVersion, protocol: Protocol) {
     check(version is ProtocolVersion.Vanilla) // TODO: Modded
     check(version.protocol !in this.byId) {
       "Protocol version ${version.protocol} is already in use." }
@@ -66,7 +64,7 @@ internal object ProtocolRegistry {
   /**
    * Allows packets from one version to be translated to another one.
    */
-  private fun allowTranslation(pair: Pair<MultistateProtocol, MultistateProtocol>) {
+  private fun allowTranslation(pair: Pair<Protocol, Protocol>) {
     mutableTranslations += ProtocolTranslation(pair.first, pair.second)
   }
 }

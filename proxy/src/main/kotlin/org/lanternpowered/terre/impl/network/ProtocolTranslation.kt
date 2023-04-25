@@ -10,10 +10,9 @@
 package org.lanternpowered.terre.impl.network
 
 /**
- * Represents an allowed translation between
- * two protocol versions.
+ * Represents an allowed translation between two protocol versions.
  */
 internal class ProtocolTranslation(
-  val from: MultistateProtocol,
-  val to: MultistateProtocol
+  val from: Protocol,
+  val to: Protocol
 )

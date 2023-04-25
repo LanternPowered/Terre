@@ -26,43 +26,43 @@ class VanillaTextSerializerTest {
   }
 
   @Test fun `colored text`() {
-    val text = "Test".text().color(Colors.Red) as TextImpl
+    val text = "Test".text(Colors.Red) as TextImpl
     val expected = formattedTextOf("[c/ff0000:Test]")
     assertEquals(expected, text.toTaggedVanillaText())
   }
 
   @Test fun `multiline text - colored`() {
-    val text = "Test\nmultiline\ntext".text().color(Colors.Red) as TextImpl
+    val text = "Test\nmultiline\ntext".text(Colors.Red) as TextImpl
     val expected = formattedTextOf("[c/ff0000:Test]\n[c/ff0000:multiline]\n[c/ff0000:text]")
     assertEquals(expected, text.toTaggedVanillaText())
   }
 
   @Test fun `multiline text - different colors`() {
-    val text = ("Test\n".text().color(Colors.Red) + "multiline\ntext".text().color(Colors.Green)) as TextImpl
+    val text = ("Test\n".text().color(Colors.Red) + "multiline\ntext".text(Colors.Green)) as TextImpl
     val expected = formattedTextOf("[c/ff0000:Test]\n[c/8000:multiline]\n[c/8000:text]")
     assertEquals(expected, text.toTaggedVanillaText())
   }
 
   @Test fun `multiline text - colored empty lines`() {
-    val text = "Test\nmultiline\n\ntext".text().color(Colors.Red) as TextImpl
+    val text = "Test\nmultiline\n\ntext".text(Colors.Red) as TextImpl
     val expected = formattedTextOf("[c/ff0000:Test]\n[c/ff0000:multiline]\n\n[c/ff0000:text]")
     assertEquals(expected, text.toTaggedVanillaText())
   }
 
   @Test fun `plain colored text`() {
-    val text = "Test".text().color(Colors.Red) as TextImpl
+    val text = "Test".text(Colors.Red) as TextImpl
     val expected = formattedTextOf("Test")
     assertEquals(expected, text.toPlainVanillaText())
   }
 
   @Test fun `colored and grouped text`() {
-    val text = ("Part 1".text().color(Colors.Red) + " and Part 2".text()) as TextImpl
+    val text = ("Part 1".text(Colors.Red) + " and Part 2".text()) as TextImpl
     val expected = formattedTextOf("[c/ff0000:Part 1] and Part 2")
     assertEquals(expected, text.toTaggedVanillaText())
   }
 
   @Test fun `plain colored and grouped text`() {
-    val text = ("Part 1".text().color(Colors.Red) + " and Part 2".text()) as TextImpl
+    val text = ("Part 1".text(Colors.Red) + " and Part 2".text()) as TextImpl
     val expected = formattedTextOf("Part 1 and Part 2")
     assertEquals(expected, text.toPlainVanillaText())
   }

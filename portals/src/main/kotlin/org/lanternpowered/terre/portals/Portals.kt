@@ -133,13 +133,17 @@ object Portals {
     return false
   }
 
-  private val messagePrefix = "[Portals] ".text().color(Color(137, 0, 235))
+  private val messagePrefix = "[Portals] ".text(Color(137, 0, 235))
 
   private val portalCommandExecutor = SimpleCommandExecutor { source, _, args ->
     val player = source as? Player
       ?: return@SimpleCommandExecutor
     fun send(text: Text) {
       player.sendMessage(messagePrefix + text)
+    }
+    if (!player.hasPermission("portals.commands.portal")) {
+      send("You don't have permission to use the portal command.".text())
+      return@SimpleCommandExecutor
     }
     // TODO: Use Kommando
     if (args.isEmpty()) {
@@ -183,7 +187,7 @@ object Portals {
                   ) { it.name.text(color = Colors.Lime) }
                   send("Invalid portal type specified ".text() +
                     typeName.text(color = Colors.Red) +
-                    ", the valid types are: )".text() +
+                    ", the valid types are: ".text() +
                     validTypes)
                   return@SimpleCommandExecutor
                 }

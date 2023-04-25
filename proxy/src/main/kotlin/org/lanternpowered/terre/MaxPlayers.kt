@@ -12,7 +12,7 @@ package org.lanternpowered.terre
 /**
  * Represents the number of players that are allowed to join the proxy.
  */
-sealed class MaxPlayers {
+sealed interface MaxPlayers {
 
   /**
    * A limited number of players is allowed.
@@ -20,10 +20,10 @@ sealed class MaxPlayers {
    * This doesn't allow players to join if the backing servers have less space than the specified
    * [amount].
    */
-  data class Limited(val amount: Int) : MaxPlayers()
+  data class Limited(val amount: Int) : MaxPlayers
 
   /**
    * Players are allowed to join as long that there's space on one of the backing servers.
    */
-  object Unlimited : MaxPlayers()
+  object Unlimited : MaxPlayers
 }

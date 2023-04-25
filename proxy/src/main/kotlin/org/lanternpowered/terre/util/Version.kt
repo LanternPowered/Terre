@@ -24,7 +24,7 @@ class Version : Comparable<Version> {
    * Gets an int array with all the version values.
    */
   val values: IntArray
-    get() = this.backing.clone()
+    get() = this.backing.copyOf()
 
   /**
    * Constructs a new version from the given version string.
@@ -99,7 +99,7 @@ class Version : Comparable<Version> {
    */
   constructor(values: IntArray) {
     check(values.isNotEmpty()) { "At least one value must be present in the array." }
-    backing = values.clone()
+    backing = values.copyOf()
   }
 
   private fun getBacking() = backing

@@ -19,9 +19,9 @@ import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.event.TerreEventBus
 import org.lanternpowered.terre.impl.network.Connection
 import org.lanternpowered.terre.impl.network.ConnectionHandler
-import org.lanternpowered.terre.impl.network.MultistateProtocol
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.ProtocolRegistry
+import org.lanternpowered.terre.impl.network.ProtocolVersions
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.packet.ClientUniqueIdPacket
 import org.lanternpowered.terre.impl.network.packet.ConnectionApprovedPacket
@@ -34,6 +34,7 @@ import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
 import org.lanternpowered.terre.impl.network.packet.init.InitDisconnectClientPacket
 import org.lanternpowered.terre.impl.player.PlayerImpl
+import org.lanternpowered.terre.text.text
 import org.lanternpowered.terre.text.textOf
 import java.util.UUID
 
@@ -72,8 +73,6 @@ internal class ClientInitConnectionHandler(
   // E: ClientPostLoginEvent
 
   private lateinit var protocolVersion: ProtocolVersion
-  private lateinit var protocol: MultistateProtocol
-
   private lateinit var clientUniqueId: UUID
   private lateinit var name: String
 
@@ -103,10 +102,10 @@ internal class ClientInitConnectionHandler(
     checkState(State.Init)
     Terre.logger.debug { "P <- C [${connection.remoteAddress}] Connection request: ${packet.version}" }
     state = State.Handshake
-    val protocolVersion = packet.version
-    if (protocolVersion !is ProtocolVersion.Vanilla) {
-      // TODO: Modded support
-      connection.close(textOf("Only vanilla clients are supported."))
+    val protocolVersion = ProtocolVersions.parse(packet.version)
+    if (protocolVersion == null) {
+      val reason = "Unknown protocol version: ${packet.version}".text()
+      connection.close(reason) { InitDisconnectClientPacket(reason) }
       return true
     }
     val protocol = ProtocolRegistry[protocolVersion]
@@ -119,14 +118,18 @@ internal class ClientInitConnectionHandler(
             is ProtocolVersion.TModLoader -> "tModLoader ${it.version}"
           }
         }
-      val reason = textOf("The client isn't supported.\nExpected version of $expected, " +
-        "but the client is $protocolVersion.")
-      connection.close(reason) { InitDisconnectClientPacket(protocolVersion, reason) }
+      // TODO: Modded support
+      val reason = if (protocolVersion !is ProtocolVersion.Vanilla) {
+        textOf("Only vanilla clients are supported.")
+      } else {
+        textOf("The client isn't supported.\nExpected version of $expected, " +
+          "but the client is $protocolVersion.")
+      }
+      connection.close(reason) { InitDisconnectClientPacket(reason, protocolVersion) }
       return true
     }
-    this.protocol = protocol
     this.protocolVersion = protocolVersion
-    connection.protocol = protocol[MultistateProtocol.State.ClientInit]
+    connection.protocol = protocol
     val inboundConnection = InitialInboundConnection(connection.remoteAddress, protocolVersion)
     TerreEventBus.postAsyncWithFuture(ClientConnectEvent(inboundConnection))
       .thenAcceptAsync({ event ->
@@ -153,7 +156,7 @@ internal class ClientInitConnectionHandler(
 
   private fun continueLogin(nonePlayerId: PlayerId) {
     connection.nonePlayerId = nonePlayerId
-    player = PlayerImpl(connection, protocolVersion, protocol, name, clientUniqueId)
+    player = PlayerImpl(connection, protocolVersion, name, clientUniqueId)
     player.lastPlayerInfo = playerInfo
     if (player.checkDuplicateIdentifier())
       return

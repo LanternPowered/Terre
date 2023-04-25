@@ -20,7 +20,7 @@ internal class InventoryImpl : Inventory {
 
   var maxSize: Int = 0
 
-  fun clear() {
+  override fun clear() {
     items.clear()
   }
 

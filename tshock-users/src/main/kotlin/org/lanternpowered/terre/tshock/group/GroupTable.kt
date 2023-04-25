@@ -19,11 +19,11 @@ import org.lanternpowered.terre.util.Color
 
 object GroupTable : Table("GroupList") {
   val name = varchar("GroupName", 32)
-  val parent = varchar("Parent", 32)
-  val commands = text("Commands")
+  val parent = varchar("Parent", 32).nullable()
+  val commands = text("Commands").nullable()
   val chatColor = text("ChatColor")
-  val prefix = text("Prefix")
-  val suffix = text("Suffix")
+  val prefix = text("Prefix").nullable()
+  val suffix = text("Suffix").nullable()
   override val primaryKey = PrimaryKey(name)
 }
 
@@ -48,8 +48,9 @@ private fun ResultRow.toBasicGroup(): BasicGroup {
   val name = this[GroupTable.name]
   val permissions = hashSetOf<String>()
   val negatedPermissions = hashSetOf<String>()
-  this[GroupTable.commands]
+  (this[GroupTable.commands] ?: "")
     .splitToSequence(',')
+    .filter(String::isNotEmpty)
     .forEach { permission ->
       if (permission[0] == '!') {
         negatedPermissions += permission.substring(1)
@@ -60,9 +61,9 @@ private fun ResultRow.toBasicGroup(): BasicGroup {
   val chatColor = this[GroupTable.chatColor]
     .split(',')
     .let { Color(it[0].toInt(), it[1].toInt(), it[2].toInt()) }
-  val prefix = this[GroupTable.prefix]
-  val suffix = this[GroupTable.suffix]
-  val parent = this[GroupTable.parent]
+  val prefix = this[GroupTable.prefix] ?: ""
+  val suffix = this[GroupTable.suffix] ?: ""
+  val parent = this[GroupTable.parent] ?: ""
   return BasicGroup(name, permissions, negatedPermissions,
     chatColor, prefix, suffix, null, parent)
 }

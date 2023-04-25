@@ -12,7 +12,6 @@ package org.lanternpowered.terre.impl
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.uchuhimo.konf.Config
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.lanternpowered.terre.Console
 import org.lanternpowered.terre.MaxPlayers
@@ -32,6 +31,7 @@ import org.lanternpowered.terre.impl.event.TerreEventBus
 import org.lanternpowered.terre.impl.network.NetworkManager
 import org.lanternpowered.terre.impl.network.ProxyBroadcastTask
 import org.lanternpowered.terre.impl.plugin.PluginManagerImpl
+import org.lanternpowered.terre.impl.sql.SqlManagerImpl
 import org.lanternpowered.terre.impl.text.TextJsonDeserializer
 import org.lanternpowered.terre.impl.text.TextJsonSerializer
 import org.lanternpowered.terre.text.MessageSender
@@ -51,7 +51,7 @@ internal object ProxyImpl : Proxy {
 
   val networkManager = NetworkManager()
 
-  val mutablePlayers = MutablePlayerCollection.concurrentOf()
+  val mutablePlayers = MutablePlayerCollection.concurrent()
 
   override val players
     get() = mutablePlayers.toImmutable()
@@ -151,7 +151,7 @@ internal object ProxyImpl : Proxy {
       return
 
     // Disconnect all players and wait for them, with a timeout of 10 seconds
-    launchAsync(Dispatchers.Default) {
+    launchAsync(EventExecutor.dispatcher) {
       Terre.logger.info("Shutting down the server.")
 
       // Prevent new connections
@@ -172,6 +172,9 @@ internal object ProxyImpl : Proxy {
       timeout = tryWithTimeout(10.seconds) {
         TerreEventBus.post(ProxyShutdownEvent())
       }.isFailure || timeout
+
+      // close all connections
+      SqlManagerImpl.shutdown()
 
       val executor = EventExecutor.executor
       val executorShutdownTimeout = 10.seconds

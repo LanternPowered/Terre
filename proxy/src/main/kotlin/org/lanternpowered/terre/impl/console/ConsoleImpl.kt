@@ -63,7 +63,10 @@ internal class ConsoleImpl(
     readThread.interrupt()
 
     val terminal = TerminalConsoleAppender.getTerminal()
-    terminal?.writer()?.println()
+    if (terminal != null) {
+      terminal.writer().println()
+      terminal.close()
+    }
 
     this.readThread = null
   }

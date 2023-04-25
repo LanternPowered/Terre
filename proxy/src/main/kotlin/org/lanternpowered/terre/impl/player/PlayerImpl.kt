@@ -32,7 +32,6 @@ import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.event.TerreEventBus
 import org.lanternpowered.terre.impl.item.InventoryImpl
 import org.lanternpowered.terre.impl.network.Connection
-import org.lanternpowered.terre.impl.network.MultistateProtocol
 import org.lanternpowered.terre.impl.network.buffer.NpcType
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.client.ClientPlayConnectionHandler
@@ -70,7 +69,6 @@ import java.util.concurrent.CompletableFuture
 internal class PlayerImpl(
   val clientConnection: Connection,
   override val protocolVersion: ProtocolVersion,
-  val protocol: MultistateProtocol,
   override val name: String,
   override val clientUniqueId: UUID,
 ) : Player, MessageReceiverImpl {
@@ -203,7 +201,6 @@ internal class PlayerImpl(
    * Initializes the player and adds it to the proxy.
    */
   fun finishLogin(originalResult: PlayerLoginEvent.Result) {
-    clientConnection.protocol = protocol[MultistateProtocol.State.Play]
     if (checkDuplicateIdentifier())
       return
 

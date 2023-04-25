@@ -93,7 +93,7 @@ internal class ServerConnectionImpl(
       return future
     }
 
-    val clientProtocol = player.protocol
+    val clientProtocol = player.clientConnection.protocol
     // Check if there's a fixed version that should be used, otherwise try every possible
     // protocol version.
     val versionedProtocol = server.versionedProtocol

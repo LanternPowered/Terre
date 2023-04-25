@@ -13,7 +13,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import org.lanternpowered.terre.Console
 import org.lanternpowered.terre.Proxy
 import org.lanternpowered.terre.command.CommandManager
-import org.lanternpowered.terre.command.CommandSource
 import org.lanternpowered.terre.config.ConfigDirectory
 import org.lanternpowered.terre.config.RootConfigDirectory
 import org.lanternpowered.terre.event.EventBus
@@ -21,6 +20,7 @@ import org.lanternpowered.terre.impl.ProxyImpl
 import org.lanternpowered.terre.logger.Logger
 import org.lanternpowered.terre.plugin.PluginContainer
 import org.lanternpowered.terre.plugin.PluginManager
+import org.lanternpowered.terre.sql.SqlManager
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
@@ -39,6 +39,7 @@ internal fun Any?.inject(type: KType): Any? {
     Console::class -> Console
     CommandManager::class -> CommandManager
     CoroutineDispatcher::class -> Proxy.dispatcher
+    SqlManager::class -> SqlManager
     else -> {
       val pluginContainer = if (this != null) {
         ProxyImpl.pluginManager.getPluginContainer(this)

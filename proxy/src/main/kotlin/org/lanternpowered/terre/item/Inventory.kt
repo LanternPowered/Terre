@@ -12,6 +12,11 @@ package org.lanternpowered.terre.item
 interface Inventory : Iterable<IndexedValue<ItemStack>> {
 
   /**
+   * Clears the inventory.
+   */
+  fun clear()
+
+  /**
    * Gets the [ItemStack] at the specified [index].
    */
   operator fun get(index: Int): ItemStack

@@ -21,8 +21,8 @@ import org.lanternpowered.terre.text.Text
  * A disconnect packet sent during the init phase, when the protocol isn't resolved yet.
  */
 internal data class InitDisconnectClientPacket(
-  val version: ProtocolVersion,
-  val reason: Text
+  val reason: Text,
+  val version: ProtocolVersion? = null,
 ) : Packet
 
 internal val InitDisconnectClientEncoder =

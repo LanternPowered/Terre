@@ -10,7 +10,6 @@
 package org.lanternpowered.terre.tshock
 
 import com.github.benmanes.caffeine.cache.Caffeine
-import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
@@ -29,6 +28,7 @@ import org.lanternpowered.terre.event.server.PlayerLeaveServerEvent
 import org.lanternpowered.terre.logger.Logger
 import org.lanternpowered.terre.plugin.Plugin
 import org.lanternpowered.terre.plugin.inject
+import org.lanternpowered.terre.sql.SqlManager
 import org.lanternpowered.terre.text.text
 import org.lanternpowered.terre.tshock.group.Groups
 import org.lanternpowered.terre.tshock.user.UserTable
@@ -87,11 +87,11 @@ object TShockUsers {
     if (databaseName.isEmpty())
       databaseName = user
     if (host.isNotEmpty() && user.isNotEmpty() && password.isNotEmpty() && databaseName.isNotEmpty()) {
-      val dataSource = HikariDataSource().apply {
-        this.jdbcUrl = "jdbc:mariadb://$host:$port/$databaseName"
-        this.username = user
-        this.password = password
-      }
+      val dataSource = SqlManager.dataSource(
+        url = "mysql://$host:$port/$databaseName",
+        user = user,
+        password = password,
+      )
       database = Database.connect(dataSource)
     } else {
       logger.warn { "No database is configured, plugin will be disabled." }
