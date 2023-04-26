@@ -78,9 +78,9 @@ internal fun ByteBuf.writeVarInt(value: Int) = apply {
  * Reads a color.
  */
 internal fun ByteBuf.readColor(): Color {
-  val red = readByte()
-  val green = readByte()
-  val blue = readByte()
+  val red = readUnsignedByte().toInt()
+  val green = readUnsignedByte().toInt()
+  val blue = readUnsignedByte().toInt()
   return Color(red, green, blue)
 }
 

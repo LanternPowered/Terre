@@ -18,12 +18,6 @@ package org.lanternpowered.terre.util
 value class Color(val rgb: Int) {
 
   /**
-   * Constructs a new color from the rgb values.
-   */
-  constructor(red: Byte, green: Byte, blue: Byte) :
-    this(red.toInt(), green.toInt(), blue.toInt())
-
-  /**
    * Constructs a new color from the rgb values. Each component with range 0 - 255.
    */
   constructor(red: Int, green: Int, blue: Int) :
