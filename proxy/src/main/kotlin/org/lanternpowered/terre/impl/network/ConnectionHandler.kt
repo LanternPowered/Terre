@@ -40,6 +40,7 @@ import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
 import org.lanternpowered.terre.impl.network.packet.ProjectileUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.SpeechBubblePacket
 import org.lanternpowered.terre.impl.network.packet.StatusPacket
+import org.lanternpowered.terre.impl.network.packet.TeleportPylonPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
 import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsDonePacket
@@ -189,6 +190,10 @@ internal interface ConnectionHandler {
   }
 
   fun handle(packet: ItemUpdatePacket): Boolean {
+    return false
+  }
+
+  fun handle(packet: TeleportPylonPacket): Boolean {
     return false
   }
 

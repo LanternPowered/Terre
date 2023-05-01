@@ -97,14 +97,12 @@ internal data class PlayerDamageReason(
   }
 }
 
-private val otherValues = PlayerDamageReason.Other.values()
-
 internal fun ByteBuf.readDamageReason(): PlayerDamageReason {
   val flags = readByte().toInt()
   val playerId = if ((flags and 0x1) != 0) readPlayerId() else null
   val npcId = if ((flags and 0x2) != 0) readNpcId() else null
   val projectileId = if ((flags and 0x4) != 0) readProjectileId() else null
-  val other = if ((flags and 0x8) != 0) otherValues[readUByte().toInt()] else null
+  val other = if ((flags and 0x8) != 0) PlayerDamageReason.Other.entries[readUByte().toInt()] else null
   val projectileType = if ((flags and 0x10) != 0) readShortLE().toInt() else null
   val projectile = if (projectileId != null && projectileType != null)
     Projectile(projectileId, ProjectileType(projectileType)) else null

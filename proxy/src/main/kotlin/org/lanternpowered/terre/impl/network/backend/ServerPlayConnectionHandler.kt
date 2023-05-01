@@ -38,6 +38,7 @@ import org.lanternpowered.terre.impl.network.packet.PlayerTeamPacket
 import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
 import org.lanternpowered.terre.impl.network.packet.ProjectileUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.StatusPacket
+import org.lanternpowered.terre.impl.network.packet.TeleportPylonPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoPacket
 import org.lanternpowered.terre.impl.player.PlayerImpl
 import org.lanternpowered.terre.impl.player.ServerConnectionImpl
@@ -163,6 +164,15 @@ internal open class ServerPlayConnectionHandler(
       // normally this packet interferes with the keep alive system, so mark the next response
       // to make sure it gets forwarded
       player.forwardNextOwnerUpdate = true
+    }
+    return false // Forward
+  }
+
+  override fun handle(packet: TeleportPylonPacket): Boolean {
+    if (packet.action == TeleportPylonPacket.Action.Added) {
+      player.trackedTeleportPylons.put(packet.type, packet.position)
+    } else if (packet.action == TeleportPylonPacket.Action.Removed) {
+      player.trackedTeleportPylons.remove(packet.type)
     }
     return false // Forward
   }

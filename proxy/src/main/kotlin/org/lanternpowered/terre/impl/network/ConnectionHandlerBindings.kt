@@ -44,6 +44,7 @@ import org.lanternpowered.terre.impl.network.packet.PlayerInventorySlotPacket
 import org.lanternpowered.terre.impl.network.packet.ProjectileUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.ShimmeredItemUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.SimpleItemUpdatePacket
+import org.lanternpowered.terre.impl.network.packet.TeleportPylonPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
 import kotlin.reflect.KClass
@@ -88,6 +89,7 @@ internal object ConnectionHandlerBindings {
     bind<InstancedItemUpdatePacket>(ConnectionHandler::handle)
     bind<ShimmeredItemUpdatePacket>(ConnectionHandler::handle)
     bind<CannotBeTakenByEnemiesItemUpdatePacket>(ConnectionHandler::handle)
+    bind<TeleportPylonPacket>(ConnectionHandler::handle)
   }
 
   internal fun <P : Packet> getBinding(

@@ -17,8 +17,6 @@ import org.lanternpowered.terre.impl.network.buffer.writePlayerId
 import org.lanternpowered.terre.impl.network.buffer.writeShortVec2i
 import org.lanternpowered.terre.impl.network.packet.PlayerSpawnPacket
 
-private val contextById = PlayerSpawnPacket.Context.values()
-
 internal val PlayerSpawn238Encoder = PacketEncoder<PlayerSpawnPacket> { buf, packet ->
   buf.writePlayerId(packet.playerId)
   buf.writeShortVec2i(packet.position)
@@ -30,7 +28,7 @@ internal val PlayerSpawn238Decoder = PacketDecoder { buf ->
   val playerId = buf.readPlayerId()
   val position = buf.readShortVec2i()
   val respawnTimeRemaining = buf.readIntLE()
-  val respawnContext = contextById[buf.readUnsignedByte().toInt()]
+  val respawnContext = PlayerSpawnPacket.Context.entries[buf.readUnsignedByte().toInt()]
   PlayerSpawnPacket(playerId, position, respawnTimeRemaining, 0, 0,
     respawnContext)
 }

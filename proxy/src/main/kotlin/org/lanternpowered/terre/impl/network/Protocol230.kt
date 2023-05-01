@@ -75,16 +75,10 @@ import org.lanternpowered.terre.impl.network.packet.SimpleItemUpdateDecoder
 import org.lanternpowered.terre.impl.network.packet.SpeechBubbleEncoder
 import org.lanternpowered.terre.impl.network.packet.StatusDecoder
 import org.lanternpowered.terre.impl.network.packet.StatusEncoder
+import org.lanternpowered.terre.impl.network.packet.TeleportPylonDecoder
+import org.lanternpowered.terre.impl.network.packet.TeleportPylonEncoder
 import org.lanternpowered.terre.impl.network.packet.WorldInfoDecoder
 import org.lanternpowered.terre.impl.network.packet.WorldInfoEncoder
-import org.lanternpowered.terre.impl.network.packet.tmodloader.ModDataDecoder
-import org.lanternpowered.terre.impl.network.packet.tmodloader.ModDataEncoder
-import org.lanternpowered.terre.impl.network.packet.tmodloader.ModFileRequestDecoder
-import org.lanternpowered.terre.impl.network.packet.tmodloader.ModFileRequestEncoder
-import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsDecoder
-import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsDoneDecoder
-import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsDoneEncoder
-import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsEncoder
 import org.lanternpowered.terre.impl.network.packet.v230.TileSquare230Decoder
 import org.lanternpowered.terre.impl.network.packet.v230.TileSquare230Encoder
 import org.lanternpowered.terre.impl.network.packet.v238.ConnectionApproved238Decoder
@@ -134,4 +128,5 @@ internal val Protocol230 = protocol("230") {
   // modules
   bind(0x01FF, PlayerCommandEncoder, PlayerCommandDecoder, PacketDirection.ClientToServer)
   bind(0x01FF, PlayerChatMessageEncoder, PlayerChatMessageDecoder, PacketDirection.ServerToClient)
+  bind(0x08FF, TeleportPylonEncoder, TeleportPylonDecoder, PacketDirection.ServerToClient)
 }

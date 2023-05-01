@@ -75,6 +75,8 @@ import org.lanternpowered.terre.impl.network.packet.SimpleItemUpdateDecoder
 import org.lanternpowered.terre.impl.network.packet.SpeechBubbleEncoder
 import org.lanternpowered.terre.impl.network.packet.StatusDecoder
 import org.lanternpowered.terre.impl.network.packet.StatusEncoder
+import org.lanternpowered.terre.impl.network.packet.TeleportPylonDecoder
+import org.lanternpowered.terre.impl.network.packet.TeleportPylonEncoder
 import org.lanternpowered.terre.impl.network.packet.TileSquareDecoder
 import org.lanternpowered.terre.impl.network.packet.TileSquareEncoder
 import org.lanternpowered.terre.impl.network.packet.WorldInfoDecoder
@@ -134,6 +136,7 @@ internal val Protocol248 = protocol("248") {
   // modules
   bind(0x01FF, PlayerCommandEncoder, PlayerCommandDecoder, PacketDirection.ClientToServer)
   bind(0x01FF, PlayerChatMessageEncoder, PlayerChatMessageDecoder, PacketDirection.ServerToClient)
+  bind(0x08FF, TeleportPylonEncoder, TeleportPylonDecoder, PacketDirection.ServerToClient)
 
   // tModLoader
   bind(0xFA, ModDataEncoder, ModDataDecoder, PacketDirection.ClientToServer)

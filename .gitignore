@@ -80,4 +80,5 @@ nb-configuration.xml
 /test/run/
 !/test/run/.gitkeep
 !.gitkeep
+config.yaml
 *.launch

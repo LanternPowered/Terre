@@ -9,6 +9,7 @@
  */
 package org.lanternpowered.terre.impl.player
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.future.asCompletableFuture
@@ -46,6 +47,7 @@ import org.lanternpowered.terre.impl.network.packet.PlayerInventorySlotPacket
 import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
 import org.lanternpowered.terre.impl.network.packet.SimpleItemUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.StatusPacket
+import org.lanternpowered.terre.impl.network.packet.TeleportPylonPacket
 import org.lanternpowered.terre.impl.network.tracking.TrackedItems
 import org.lanternpowered.terre.impl.network.tracking.TrackedNpcs
 import org.lanternpowered.terre.impl.network.tracking.TrackedPlayers
@@ -54,6 +56,7 @@ import org.lanternpowered.terre.impl.text.MessageReceiverImpl
 import org.lanternpowered.terre.impl.util.channel.distinct
 import org.lanternpowered.terre.item.ItemStack
 import org.lanternpowered.terre.math.Vec2f
+import org.lanternpowered.terre.math.Vec2i
 import org.lanternpowered.terre.portal.Portal
 import org.lanternpowered.terre.portal.PortalBuilder
 import org.lanternpowered.terre.portal.PortalType
@@ -156,6 +159,11 @@ internal class PlayerImpl(
    * The projectiles this player is aware of.
    */
   val trackedProjectiles = TrackedProjectiles()
+
+  /**
+   * The teleport pylons this player is aware of.
+   */
+  val trackedTeleportPylons = Int2ObjectOpenHashMap<Vec2i>()
 
   /**
    * Whether the player was previously connected to another server.
@@ -547,5 +555,9 @@ internal class PlayerImpl(
         clientConnection.send(ProjectileDestroyPacket(projectile.id, projectile.owner))
     }
     trackedProjectiles.reset()
+    trackedTeleportPylons.forEach { (type, position) ->
+      clientConnection.send(TeleportPylonPacket(TeleportPylonPacket.Action.Removed, type, position))
+    }
+    trackedTeleportPylons.clear()
   }
 }
