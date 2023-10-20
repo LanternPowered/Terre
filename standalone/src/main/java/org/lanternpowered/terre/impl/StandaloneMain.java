@@ -10,12 +10,12 @@
 package org.lanternpowered.terre.impl;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -42,15 +42,15 @@ public final class StandaloneMain {
     if (!location.toString().endsWith(".jar"))
       throw new IllegalStateException("Not executed from a jar.");
 
-    final URI jarUri;
+    final Path jarPath;
     try {
-      jarUri = new URI("jar", location.toURI().toString(), null);
-    } catch (final URISyntaxException ex) {
+      jarPath = Paths.get(location.toURI());
+    } catch (URISyntaxException ex) {
       throw new IllegalStateException(ex);
     }
     final var env = Map.of("create", "true");
     final var urls = new ArrayList<URL>();
-    try (final var fileSystem = FileSystems.newFileSystem(jarUri, env)) {
+    try (final var fileSystem = FileSystems.newFileSystem(jarPath, env)) {
       final var libsPath = fileSystem.getPath("libs");
       final var outputLibsPath = Paths.get("libs");
       Files.createDirectories(outputLibsPath);

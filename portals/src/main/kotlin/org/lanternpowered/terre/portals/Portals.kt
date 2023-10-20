@@ -102,6 +102,9 @@ object Portals {
     }
   }
 
+  private suspend fun portalExists(name: String) =
+    mutex.withLock { portalData.containsKey(name) }
+
   /**
    * Creates a new portal with the given parameters.
    */
@@ -110,7 +113,7 @@ object Portals {
   ): PortalData {
     val data = PortalData(name, type, position, origin, destination)
     mutex.withLock {
-      check(portalData.containsKey(name)) { "The name '$name' is already used." }
+      check(!portalData.containsKey(name)) { "The name '$name' is already used." }
       portalData[name] = data
       val originServer = Proxy.servers[origin]
       if (originServer != null)
@@ -161,7 +164,7 @@ object Portals {
           val destination = if (args.size > 2) {
             args[2]
           } else {
-            send("Please specify the destination of the portal".text())
+            send("Please specify the destination of the portal.".text())
             return@SimpleCommandExecutor
           }
           var position: Vec2f = player.position
@@ -178,7 +181,7 @@ object Portals {
               "type" -> {
                 val typeName = args.getOrNull(index++)
                 if (typeName == null) {
-                  send("No portal type specified".text())
+                  send("No portal type specified.".text())
                   return@SimpleCommandExecutor
                 }
                 type = PortalTypeRegistry[typeName] ?: run {
@@ -196,7 +199,7 @@ object Portals {
                 val x = args.getOrNull(index++)
                 val y = args.getOrNull(index++)
                 if (x == null || y == null) {
-                  send("No position specified".text())
+                  send("No position specified.".text())
                   return@SimpleCommandExecutor
                 }
                 if (x.toFloatOrNull() == null || y.toFloatOrNull() == null) {
@@ -206,6 +209,10 @@ object Portals {
                 position = Vec2f(x.toFloat(), y.toFloat())
               }
             }
+          }
+          if (portalExists(name)) {
+            send("Portal name ".text() + name.text(color = Colors.Red) + " is already in use.".text())
+            return@SimpleCommandExecutor
           }
           createPortal(name, origin, destination, type, position)
         }
