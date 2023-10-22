@@ -62,7 +62,7 @@ dependencies {
   implementation(group = "org.lanternpowered", name = "lmbda", version = "3.0.0-SNAPSHOT")
 
   // ASM
-  implementation(group = "org.ow2.asm", name = "asm", version = "9.4")
+  implementation(group = "org.ow2.asm", name = "asm", version = "9.6")
 
   // Plugins
   implementation(group = "org.spongepowered", name = "plugin-spi", version = "0.3.0")

@@ -68,17 +68,27 @@ internal class PluginManagerImpl : PluginManager {
         val url = candidate.source?.toUri()?.toURL()
         if (url != null)
           pluginClassLoader.addURL(url)
-        val pluginClass = Class.forName(candidate.className, true, pluginClassLoader).kotlin
-        val instance = pluginClass.objectInstance
-        if (instance == null) {
-          Terre.logger.info("Plugin ${candidate.id} is not an object, skipping...")
-          continue
+        val pluginClass = Class.forName(candidate.className, true, pluginClassLoader);
+
+        if (!pluginClass.isKotlinClass()) {
+          Terre.logger.info("Plugin ${candidate.id} is not an object, trying to load")
+          val instance = pluginClass.getDeclaredConstructor().newInstance();
+          val pluginAnnotation = pluginClass.getAnnotation(Plugin::class.java);
+          addOrGetPluginContainer(pluginAnnotation!!, instance);
+          EventBus.register(instance)
+        } else {
+          val kPluginClass = pluginClass.kotlin;
+          addOrGetPluginContainer(kPluginClass.findAnnotation()!!, kPluginClass)
+          EventBus.register(kPluginClass)
         }
-        addOrGetPluginContainer(pluginClass.findAnnotation()!!, instance)
-        EventBus.register(instance)
       }
     } catch (e: Throwable) {
       throw RuntimeException("An error occurred while loading the plugins", e)
+    }
+  }
+  fun Class<*>.isKotlinClass(): Boolean {
+    return this.declaredAnnotations.any {
+      it.annotationClass.qualifiedName == "kotlin.Metadata"
     }
   }
 

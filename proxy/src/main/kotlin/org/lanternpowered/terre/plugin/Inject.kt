@@ -22,6 +22,7 @@ inline fun <reified T> Any.inject(): T {
   return doInject(typeOf<T>()) as T
 }
 
+
 /**
  * Gets a [ReadOnlyProperty] that lazily injects the value.
  */
