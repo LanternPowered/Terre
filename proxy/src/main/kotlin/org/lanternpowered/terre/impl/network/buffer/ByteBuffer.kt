@@ -269,36 +269,22 @@ internal fun ByteBuf.writeShortVec2i(vec2i: Vec2i) = apply {
 /**
  * Reads a position where x and y.
  */
-internal fun ByteBuf.readVec2i(): Vec2i {
-  val x = readIntLE()
-  val y = readIntLE()
-  return Vec2i(x, y)
-}
+internal fun ByteBuf.readVec2i() = Vec2i(readLongLE())
 
 /**
  * Writes a position where x and y.
  */
-internal fun ByteBuf.writeVec2i(vec2i: Vec2i) = apply {
-  writeIntLE(vec2i.x)
-  writeIntLE(vec2i.y)
-}
+internal fun ByteBuf.writeVec2i(vec2i: Vec2i) = writeLongLE(vec2i.packed)
 
 /**
  * Reads a float vector.
  */
-internal fun ByteBuf.readVec2f(): Vec2f {
-  val x = readFloatLE()
-  val y = readFloatLE()
-  return Vec2f(x, y)
-}
+internal fun ByteBuf.readVec2f() = Vec2f(readLongLE())
 
 /**
  * Writes a float vector.
  */
-internal fun ByteBuf.writeVec2f(vec2f: Vec2f) = apply {
-  writeFloatLE(vec2f.x)
-  writeFloatLE(vec2f.y)
-}
+internal fun ByteBuf.writeVec2f(vec2f: Vec2f) = writeLongLE(vec2f.packed)
 
 /**
  * Reads a [UUID].

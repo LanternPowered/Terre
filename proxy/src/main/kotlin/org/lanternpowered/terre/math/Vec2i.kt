@@ -15,25 +15,25 @@ package org.lanternpowered.terre.math
  * An integer 2d vector.
  */
 @JvmInline
-value class Vec2i private constructor(private val packed: Long) {
+value class Vec2i internal constructor(internal val packed: Long) {
 
   /**
    * Constructs a new integer 2d vector with the given x and y values.
    */
   constructor(x: Int, y: Int) :
-    this((x.toUInt().toLong() shl 32) or y.toUInt().toLong())
+    this((y.toUInt().toLong() shl 32) or x.toUInt().toLong())
 
   /**
    * The x value of the vector.
    */
   val x: Int
-    get() = (packed ushr 32).toInt()
+    get() = (packed and 0xffffffffL).toInt()
 
   /**
    * The y value of the vector.
    */
   val y: Int
-    get() = (packed and 0xffffffffL).toInt()
+    get() = (packed ushr 32).toInt()
 
   operator fun plus(that: Vec2i): Vec2i =
     Vec2i(x + that.x, y + that.y)
@@ -103,5 +103,17 @@ value class Vec2i private constructor(private val packed: Long) {
     val Up = Vec2i(0, 1)
 
     val Down = Vec2i(0, -1)
+
+    // Java specific API
+
+    @JvmStatic
+    @JvmName("x")
+    internal fun x(vec: Vec2i) = vec.x
+    @JvmStatic
+    @JvmName("y")
+    internal fun y(vec: Vec2i) = vec.y
+    @JvmStatic
+    @JvmName("of")
+    internal fun of(x: Int, y: Int) = Vec2i(x, y)
   }
 }

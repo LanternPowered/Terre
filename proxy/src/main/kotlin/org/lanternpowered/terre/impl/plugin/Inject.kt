@@ -24,14 +24,19 @@ import org.lanternpowered.terre.sql.SqlManager
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
+@Suppress("UNCHECKED_CAST")
+internal fun <T : Any> inject(instance: Any?, type: Class<T>): T =
+  instance.inject(type.kotlin, false) as T
+
+@PublishedApi
+internal fun Any?.inject(type: KType): Any? =
+  inject(type.classifier as KClass<*>, type.isMarkedNullable)
+
 /**
  * Injects objects.
  */
-@PublishedApi
-internal fun Any?.inject(type: KType): Any? {
-  val kClass = type.classifier as KClass<*>
-
-  val value: Any? = when (kClass) {
+private fun Any?.inject(kClass: KClass<*>, isNullable: Boolean): Any? {
+  val value = when (kClass) {
     RootConfigDirectory::class -> RootConfigDirectory
     EventBus::class -> EventBus
     Proxy::class -> Proxy
@@ -42,24 +47,22 @@ internal fun Any?.inject(type: KType): Any? {
     SqlManager::class -> SqlManager
     else -> {
       val pluginContainer = if (this != null) {
-        ProxyImpl.pluginManager.getPluginContainer(this)
+        ProxyImpl.pluginManager.getByInstance(this)
       } else null ?: activePlugin as? TerrePluginContainer
-      pluginContainer?.inject(type)
+      pluginContainer?.inject(kClass)
     }
   }
-
-  if (value == null && !type.isMarkedNullable)
+  if (value == null && !isNullable)
     error("Cannot retrieve ${kClass.qualifiedName} within the current context.")
-
   return value
 }
 
 /**
  * Injects plugin related objects.
  */
-private fun TerrePluginContainer.inject(type: KType): Any? {
+private fun TerrePluginContainer.inject(kClass: KClass<*>): Any? {
   @Suppress("DEPRECATION")
-  return when (type.classifier as KClass<*>) {
+  return when (kClass) {
     PluginContainer::class -> this
     Logger::class, org.apache.logging.log4j.Logger::class -> this.logger
     java.util.logging.Logger::class -> this.javaLogger

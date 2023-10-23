@@ -15,6 +15,9 @@ import kotlin.reflect.KType
 import kotlin.reflect.typeOf
 import org.lanternpowered.terre.impl.plugin.inject as doInject
 
+@JvmName("inject")
+internal fun <T : Any> inject(instance: Any?, type: Class<T>): T = doInject(instance, type)
+
 /**
  * Injects a value of type [T] for the target receiver.
  */

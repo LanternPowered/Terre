@@ -15,25 +15,25 @@ package org.lanternpowered.terre.math
  * A floating-point 2d vector.
  */
 @JvmInline
-value class Vec2f private constructor(private val packed: Long) {
+value class Vec2f internal constructor(internal val packed: Long) {
 
   /**
    * Constructs a new floating-point 2d vector with the given x and y values.
    */
   constructor(x: Float, y: Float) :
-    this((x.toRawBits().toUInt().toLong() shl 32) or y.toRawBits().toUInt().toLong())
+    this((y.toRawBits().toUInt().toLong() shl 32) or x.toRawBits().toUInt().toLong())
 
   /**
    * The x value of the vector.
    */
   val x: Float
-    get() = Float.fromBits((packed ushr 32).toInt())
+    get() = Float.fromBits((packed and 0xffffffffL).toInt())
 
   /**
    * The y value of the vector.
    */
   val y: Float
-    get() = Float.fromBits((packed and 0xffffffffL).toInt())
+    get() = Float.fromBits((packed ushr 32).toInt())
 
   operator fun plus(that: Vec2f): Vec2f =
     Vec2f(x + that.x, y + that.y)
@@ -106,5 +106,17 @@ value class Vec2f private constructor(private val packed: Long) {
     val Up = Vec2f(0f, 1f)
 
     val Down = Vec2f(0f, -1f)
+
+    // Java specific API
+
+    @JvmStatic
+    @JvmName("x")
+    internal fun x(vec: Vec2f) = vec.x
+    @JvmStatic
+    @JvmName("y")
+    internal fun y(vec: Vec2f) = vec.y
+    @JvmStatic
+    @JvmName("of")
+    internal fun of(x: Float, y: Float) = Vec2f(x, y)
   }
 }
