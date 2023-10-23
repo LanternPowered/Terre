@@ -1,7 +1,7 @@
 plugins {
   kotlin("jvm")
   kotlin("plugin.serialization")
-  id("com.google.cloud.tools.jib") version "3.1.4"
+  id("com.google.cloud.tools.jib") version "3.4.0"
 }
 
 dependencies {
@@ -11,14 +11,24 @@ dependencies {
 }
 
 jib {
+  val dockerUsername: String? by project
+  val dockerPassword: String? by project
   from {
     image = "azul/zulu-openjdk-alpine:17-jre"
+    if (!dockerUsername.isNullOrBlank() && !dockerPassword.isNullOrBlank()) {
+      platforms {
+        listOf("amd64", "arm64").forEach { arch ->
+          platform {
+            os = "linux"
+            architecture = arch
+          }
+        }
+      }
+    }
   }
   to {
     image = "cybermaxke/terre"
     tags = setOf("latest")
-    val dockerUsername: String? by project
-    val dockerPassword: String? by project
     if (!dockerUsername.isNullOrBlank() && !dockerPassword.isNullOrBlank()) {
       auth {
         username = dockerUsername
@@ -29,6 +39,6 @@ jib {
   container {
     mainClass = "org.lanternpowered.terre.impl.TerreMainKt"
     ports = listOf("7777")
-    creationTime = "USE_CURRENT_TIMESTAMP"
+    creationTime.set("USE_CURRENT_TIMESTAMP")
   }
 }

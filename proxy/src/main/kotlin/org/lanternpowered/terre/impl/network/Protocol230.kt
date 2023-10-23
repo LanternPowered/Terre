@@ -110,7 +110,7 @@ internal val Protocol230 = protocol("230") {
   bind(0x26, PasswordResponseEncoder, PasswordResponseDecoder, PacketDirection.ClientToServer)
   bind(0x27, ItemRemoveOwnerEncoder, ItemRemoveOwnerDecoder)
   bind(0x2A, PlayerManaEncoder, PlayerManaDecoder)
-  bind(0x2D, PlayerTeamEncoder, PlayerTeamDecoder, PacketDirection.ServerToClient)
+  bind(0x2D, PlayerTeamEncoder, PlayerTeamDecoder)
   bind(0x31, CompleteConnectionEncoder, CompleteConnectionDecoder, PacketDirection.ServerToClient)
   bind(0x32, PlayerBuffsEncoder, PlayerBuffsDecoder)
   bind(0x37, AddPlayerBuffEncoder, AddPlayerBuffDecoder)
