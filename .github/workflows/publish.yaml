@@ -1,0 +1,35 @@
+name: Build and publish
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Add short commit SHA
+        run: echo "GITHUB_SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+      - name: Setup JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: adopt
+          java-version: 17
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
+      - name: Build and push image
+        run: "./gradlew jib"
+        env:
+          ORG_GRADLE_PROJECT_dockerUsername: "${{ secrets.DOCKER_USERNAME }}"
+          ORG_GRADLE_PROJECT_dockerPassword: "${{ secrets.DOCKER_PASSWORD }}"
+      - name: Build and push standalone jar
+        run: "./gradlew publish"
+        env:
+          ORG_GRADLE_PROJECT_repoUsername: "${{ github.actor }}"
+          ORG_GRADLE_PROJECT_repoPassword: "${{ github.token }}"
+          ORG_GRADLE_PROJECT_repoUrl: "https://maven.pkg.github.com/${{ github.repository }}"
+          ORG_GRADLE_PROJECT_projectUrl: "https://github.com/${{ github.repository }}"
+          ORG_GRADLE_PROJECT_projectSha: "${{ env.GITHUB_SHORT_SHA }}"
