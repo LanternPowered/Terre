@@ -58,6 +58,8 @@ import org.lanternpowered.terre.impl.network.packet.PlayerInventorySlotDecoder
 import org.lanternpowered.terre.impl.network.packet.PlayerInventorySlotEncoder
 import org.lanternpowered.terre.impl.network.packet.PlayerManaDecoder
 import org.lanternpowered.terre.impl.network.packet.PlayerManaEncoder
+import org.lanternpowered.terre.impl.network.packet.PlayerPvPDecoder
+import org.lanternpowered.terre.impl.network.packet.PlayerPvPEncoder
 import org.lanternpowered.terre.impl.network.packet.PlayerTeamDecoder
 import org.lanternpowered.terre.impl.network.packet.PlayerTeamEncoder
 import org.lanternpowered.terre.impl.network.packet.PlayerTeleportThroughPortalDecoder
@@ -114,6 +116,7 @@ internal val Protocol238 = protocol("238") {
   bind(0x17, NpcUpdateEncoder, NpcUpdateDecoder, PacketDirection.ServerToClient)
   bind(0x1B, ProjectileUpdateEncoder, ProjectileUpdateDecoder)
   bind(0x1D, ProjectileDestroyEncoder, ProjectileDestroyDecoder)
+  bind(0x1E, PlayerPvPEncoder, PlayerPvPDecoder)
   bind(0x25, PasswordRequestEncoder, PasswordRequestDecoder, PacketDirection.ServerToClient)
   bind(0x26, PasswordResponseEncoder, PasswordResponseDecoder, PacketDirection.ClientToServer)
   bind(0x27, ItemRemoveOwnerEncoder, ItemRemoveOwnerDecoder)

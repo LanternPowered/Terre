@@ -48,6 +48,11 @@ internal object ProxyConfigSpec : ConfigSpec("proxy") {
     """.trimIndent()
   )
 
+  val allowMultiplePlayersPerClientUniqueId by optional(
+    default = false,
+    description = "Allows multiple players to join with the same client unique id."
+  )
+
   val servers by optional(
     default = listOf<RawServerInfo>(),
     description = """

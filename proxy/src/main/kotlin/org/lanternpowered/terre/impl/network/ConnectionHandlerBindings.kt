@@ -41,6 +41,7 @@ import org.lanternpowered.terre.impl.network.packet.StatusPacket
 import org.lanternpowered.terre.impl.network.packet.ItemUpdateOwnerPacket
 import org.lanternpowered.terre.impl.network.packet.NpcUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInventorySlotPacket
+import org.lanternpowered.terre.impl.network.packet.PlayerPvPPacket
 import org.lanternpowered.terre.impl.network.packet.ProjectileUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.ShimmeredItemUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.SimpleItemUpdatePacket
@@ -85,6 +86,7 @@ internal object ConnectionHandlerBindings {
     bind<ProjectileUpdatePacket>(ConnectionHandler::handle)
     bind<PlayerUpdatePacket>(ConnectionHandler::handle)
     bind<PlayerTeamPacket>(ConnectionHandler::handle)
+    bind<PlayerPvPPacket>(ConnectionHandler::handle)
     bind<SimpleItemUpdatePacket>(ConnectionHandler::handle)
     bind<InstancedItemUpdatePacket>(ConnectionHandler::handle)
     bind<ShimmeredItemUpdatePacket>(ConnectionHandler::handle)

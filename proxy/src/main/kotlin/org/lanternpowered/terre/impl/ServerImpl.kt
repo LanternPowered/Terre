@@ -11,11 +11,11 @@ package org.lanternpowered.terre.impl
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import org.lanternpowered.terre.Player
 import org.lanternpowered.terre.ProtocolVersion
 import org.lanternpowered.terre.Server
 import org.lanternpowered.terre.ServerInfo
-import org.lanternpowered.terre.coroutines.delay
 import org.lanternpowered.terre.dispatcher.launchAsync
 import org.lanternpowered.terre.impl.event.EventExecutor
 import org.lanternpowered.terre.impl.network.VersionedProtocol

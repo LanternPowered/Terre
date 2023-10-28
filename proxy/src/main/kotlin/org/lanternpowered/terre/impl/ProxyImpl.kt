@@ -12,11 +12,11 @@ package org.lanternpowered.terre.impl
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.uchuhimo.konf.Config
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.lanternpowered.terre.Console
 import org.lanternpowered.terre.MaxPlayers
 import org.lanternpowered.terre.Proxy
-import org.lanternpowered.terre.coroutines.delay
 import org.lanternpowered.terre.dispatcher.launchAsync
 import org.lanternpowered.terre.event.permission.InitPermissionSubjectEvent
 import org.lanternpowered.terre.event.proxy.ProxyInitializeEvent
@@ -80,6 +80,9 @@ internal object ProxyImpl : Proxy {
   override var password by config.property(ProxyConfigSpec.password)
 
   override var haProxy by config.property(ProxyConfigSpec.haProxy)
+
+  var allowMultiplePlayersPerClientUniqueId by config
+    .property(ProxyConfigSpec.allowMultiplePlayersPerClientUniqueId)
 
   override val address: InetSocketAddress by lazy {
     val ip = config[ProxyConfigSpec.host]

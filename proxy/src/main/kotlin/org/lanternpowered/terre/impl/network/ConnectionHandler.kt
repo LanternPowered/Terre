@@ -32,6 +32,7 @@ import org.lanternpowered.terre.impl.network.packet.PlayerDeathPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerHurtPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInventorySlotPacket
+import org.lanternpowered.terre.impl.network.packet.PlayerPvPPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerSpawnPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerTeamPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerTeleportThroughPortalPacket
@@ -186,6 +187,10 @@ internal interface ConnectionHandler {
   }
 
   fun handle(packet: PlayerTeamPacket): Boolean {
+    return false
+  }
+
+  fun handle(packet: PlayerPvPPacket): Boolean {
     return false
   }
 

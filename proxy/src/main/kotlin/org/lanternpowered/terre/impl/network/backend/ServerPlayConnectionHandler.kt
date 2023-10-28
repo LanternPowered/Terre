@@ -12,6 +12,7 @@ package org.lanternpowered.terre.impl.network.backend
 import io.netty.buffer.ByteBuf
 import org.lanternpowered.terre.Server
 import org.lanternpowered.terre.ServerInfo
+import org.lanternpowered.terre.Team
 import org.lanternpowered.terre.event.chat.ServerChatEvent
 import org.lanternpowered.terre.impl.ProxyImpl
 import org.lanternpowered.terre.impl.Terre
@@ -33,6 +34,7 @@ import org.lanternpowered.terre.impl.network.packet.PlayerActivePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerChatMessagePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInventorySlotPacket
+import org.lanternpowered.terre.impl.network.packet.PlayerPvPPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerSpawnPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerTeamPacket
 import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
@@ -49,7 +51,7 @@ import org.lanternpowered.terre.text.MessageSender
 import org.lanternpowered.terre.text.Text
 import java.util.UUID
 
-internal open class ServerPlayConnectionHandler(
+internal class ServerPlayConnectionHandler(
   private val serverConnection: ServerConnectionImpl,
   private val player: PlayerImpl,
 ) : ConnectionHandler {
@@ -130,7 +132,14 @@ internal open class ServerPlayConnectionHandler(
   }
 
   override fun handle(packet: PlayerTeamPacket): Boolean {
-    player.team = packet.team
+    if (packet.playerId == player.playerId)
+      player.teamValue = packet.team
+    return false // Forward
+  }
+
+  override fun handle(packet: PlayerPvPPacket): Boolean {
+    if (packet.playerId == player.playerId)
+      player.pvpEnabledValue = packet.enabled
     return false // Forward
   }
 
@@ -195,6 +204,12 @@ internal open class ServerPlayConnectionHandler(
       // in the world, only affects the first time the client connects to a server.
       clientConnection.send(packet)
     }
+    val team = player.team
+    if (team != Team.None)
+      clientConnection.send(PlayerTeamPacket(playerId, team))
+    val pvp = player.pvpEnabled
+    if (pvp)
+      clientConnection.send(PlayerPvPPacket(playerId, true))
 
     Terre.logger.debug { "P <- S(${serverConnection.server.info.name}) [${player.name}] Connection complete." }
     return true

@@ -9,31 +9,25 @@
  */
 package org.lanternpowered.terre.impl.network.packet
 
-import org.lanternpowered.terre.Team
-import org.lanternpowered.terre.TeamRegistry
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.PacketDecoder
 import org.lanternpowered.terre.impl.network.PacketEncoder
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.buffer.readPlayerId
 import org.lanternpowered.terre.impl.network.buffer.writePlayerId
-import org.lanternpowered.terre.impl.player.TeamImpl
 
-internal data class PlayerTeamPacket(
+internal data class PlayerPvPPacket(
   val playerId: PlayerId,
-  val team: Team
+  val enabled: Boolean,
 ) : Packet
 
-internal val PlayerTeamEncoder = PacketEncoder<PlayerTeamPacket> { buf, packet ->
+internal val PlayerPvPEncoder = PacketEncoder<PlayerPvPPacket> { buf, packet ->
   buf.writePlayerId(packet.playerId)
-  buf.writeByte((packet.team as TeamImpl).numericId)
+  buf.writeBoolean(packet.enabled)
 }
 
-private val teamById = TeamRegistry.all.associateBy { (it as TeamImpl).numericId }
-
-internal val PlayerTeamDecoder = PacketDecoder { buf ->
+internal val PlayerPvPDecoder = PacketDecoder { buf ->
   val playerId = buf.readPlayerId()
-  val teamId = buf.readByte().toInt()
-  val team = teamById[teamId] ?: error("Unknown team id: $teamId")
-  PlayerTeamPacket(playerId, team)
+  val enabled = buf.readBoolean()
+  PlayerPvPPacket(playerId, enabled)
 }

@@ -19,6 +19,7 @@ import org.lanternpowered.terre.Player
 import org.lanternpowered.terre.ProtocolVersion
 import org.lanternpowered.terre.Server
 import org.lanternpowered.terre.ServerConnectionRequestResult
+import org.lanternpowered.terre.Team
 import org.lanternpowered.terre.character.CharacterStorage
 import org.lanternpowered.terre.dispatcher.async
 import org.lanternpowered.terre.dispatcher.launchAsync
@@ -44,6 +45,8 @@ import org.lanternpowered.terre.impl.network.packet.PlayerChatMessagePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerCommandPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInventorySlotPacket
+import org.lanternpowered.terre.impl.network.packet.PlayerPvPPacket
+import org.lanternpowered.terre.impl.network.packet.PlayerTeamPacket
 import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
 import org.lanternpowered.terre.impl.network.packet.SimpleItemUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.StatusPacket
@@ -126,9 +129,35 @@ internal class PlayerImpl(
   var serverClientUniqueId = clientUniqueId
 
   /**
-   * The team this player is currently part of, or white if none.
+   * The underlying team value.
    */
-  var team = Team.White
+  @Volatile var teamValue: Team = Team.None
+
+  override var team: Team
+    get() = teamValue
+    set(value) {
+      teamValue = value
+      if (!handlingJoinServerEvent && (serverConnection != null || wasPreviouslyConnectedToServer)) {
+        val packet = PlayerTeamPacket(playerId!!, value)
+        clientConnection.send(packet)
+        serverConnection?.ensureConnected()?.send(packet)
+      }
+    }
+
+  @Volatile var pvpEnabledValue = false
+
+  override var pvpEnabled: Boolean
+    get() = pvpEnabledValue
+    set(value) {
+      pvpEnabledValue = value
+      if (!handlingJoinServerEvent && (serverConnection != null || wasPreviouslyConnectedToServer)) {
+        val packet = PlayerPvPPacket(playerId!!, value)
+        clientConnection.send(packet)
+        serverConnection?.ensureConnected()?.send(packet)
+      }
+    }
+
+  @Volatile private var handlingJoinServerEvent = false
 
   /**
    * The last player info and send by the client.
@@ -195,9 +224,11 @@ internal class PlayerImpl(
     ) { "Failed to queue persist for item at $index" }
   }
 
-  // Duplicate client UUIDs aren't allowed, however duplicate names are.
   fun checkDuplicateIdentifier(): Boolean {
-    if (ProxyImpl.mutablePlayers.any { it.clientUniqueId == clientUniqueId }) {
+    // Duplicate client UUIDs aren't allowed by default, however duplicate names are.
+    if (!ProxyImpl.allowMultiplePlayersPerClientUniqueId &&
+      ProxyImpl.mutablePlayers.any { it.clientUniqueId == clientUniqueId }
+    ) {
       clientConnection.close(textOf(
         "There's already a player connected with the same client unique id."))
       return true
@@ -450,8 +481,10 @@ internal class PlayerImpl(
           // Reset client and then accept the new connection
           resetClient()
           connection.server.initPlayer(this)
+          handlingJoinServerEvent = true
           TerreEventBus.postAsyncWithFuture(PlayerJoinServerEvent(this@PlayerImpl, server))
             .whenCompleteAsync({ event, _ ->
+              handlingJoinServerEvent = false
               if (event != null) {
                 serverClientUniqueId = event.clientUniqueId
               }

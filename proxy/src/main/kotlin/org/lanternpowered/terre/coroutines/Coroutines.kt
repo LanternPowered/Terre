@@ -11,13 +11,11 @@ package org.lanternpowered.terre.coroutines
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlin.time.Duration
-
 import kotlinx.coroutines.withTimeout
-import kotlinx.coroutines.delay
 import org.lanternpowered.terre.dispatcher.dispatch
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import kotlin.time.Duration
 
 suspend inline fun <T> withTimeout(
   timeMillis: Long,
@@ -28,14 +26,6 @@ suspend inline fun <T> withTimeout(
 
 suspend fun <T> withTimeout(duration: Duration, block: suspend CoroutineScope.() -> T): T {
   return withTimeout(duration.inWholeMilliseconds, block)
-}
-
-suspend inline fun delay(timeMillis: Long) {
-  delay(timeMillis)
-}
-
-suspend fun delay(duration: Duration) {
-  delay(duration.inWholeMilliseconds)
 }
 
 /**

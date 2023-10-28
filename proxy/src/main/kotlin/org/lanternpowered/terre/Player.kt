@@ -73,6 +73,16 @@ interface Player : Named, MessageReceiver, MessageSender, PortalAware, InboundCo
   val boundingBox: AABB
 
   /**
+   * The team this player is part of.
+   */
+  var team: Team
+
+  /**
+   * If PvP is enabled for this player.
+   */
+  var pvpEnabled: Boolean
+
+  /**
    * Disconnects the player with the specified reason.
    */
   suspend fun disconnect(reason: Text = DefaultDisconnectReason) =

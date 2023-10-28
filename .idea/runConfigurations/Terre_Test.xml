@@ -5,6 +5,7 @@
     <option name="MAIN_CLASS_NAME" value="org.lanternpowered.terre.impl.TerreMainKt" />
     <module name="Terre.terre-test.main" />
     <shortenClasspath name="NONE" />
+    <option name="VM_PARAMETERS" value="-XX:NativeMemoryTracking=summary" />
     <option name="WORKING_DIRECTORY" value="test/run" />
     <method v="2">
       <option name="Make" enabled="true" />

@@ -11,8 +11,12 @@ package org.lanternpowered.terre.impl.network.client
 
 import io.netty.buffer.ByteBuf
 import io.netty.util.concurrent.ScheduledFuture
+import org.lanternpowered.terre.Team
+import org.lanternpowered.terre.event.player.PlayerChangePvPEnabledEvent
+import org.lanternpowered.terre.event.player.PlayerChangeTeamEvent
 import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.command.CommandManagerImpl
+import org.lanternpowered.terre.impl.event.TerreEventBus
 import org.lanternpowered.terre.impl.network.ConnectionHandler
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
@@ -26,7 +30,9 @@ import org.lanternpowered.terre.impl.network.packet.PlayerHealthPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInventorySlotPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerManaPacket
+import org.lanternpowered.terre.impl.network.packet.PlayerPvPPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerSpawnPacket
+import org.lanternpowered.terre.impl.network.packet.PlayerTeamPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.StatusPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
@@ -130,8 +136,22 @@ internal class ClientPlayConnectionHandler(
   }
 
   override fun handle(packet: PlayerSpawnPacket): Boolean {
+    val serverConnection = player.serverConnection?.ensureConnected()
     player.serverConnection?.isWorldInitialized = true
     player.position = packet.position.toFloat()
+
+    if (packet.respawnContext == PlayerSpawnPacket.Context.SpawningIntoWorld) {
+      serverConnection?.send(packet)
+      val playerId = packet.playerId
+      val team = player.team
+      val pvp = player.pvpEnabled
+      if (team != Team.None)
+        serverConnection?.send(PlayerTeamPacket(playerId, team))
+      if (pvp)
+        serverConnection?.send(PlayerPvPPacket(playerId, true))
+      return true
+    }
+
     return false // Forward
   }
 
@@ -143,6 +163,42 @@ internal class ClientPlayConnectionHandler(
   override fun handle(packet: PlayerInventorySlotPacket): Boolean {
     player.setInventoryItem(packet.slot, packet.itemStack)
     return false // Forward
+  }
+
+  override fun handle(packet: PlayerTeamPacket): Boolean {
+    if (packet.playerId != player.playerId)
+      return false // Forward
+    val currentTeam = player.team
+    if (packet.team == currentTeam)
+      return false // Forward
+    TerreEventBus.postAsyncWithFuture(PlayerChangeTeamEvent(player, packet.team))
+      .thenAcceptAsync({ event ->
+        if (!event.cancelled) {
+          player.teamValue = packet.team
+          player.serverConnection?.ensureConnected()?.send(packet)
+        } else {
+          player.clientConnection.send(packet.copy(team = currentTeam))
+        }
+      }, player.clientConnection.eventLoop)
+    return true
+  }
+
+  override fun handle(packet: PlayerPvPPacket): Boolean {
+    if (packet.playerId != player.playerId)
+      return false // Forward
+    val currentPvPEnabled = player.pvpEnabled
+    if (packet.enabled == currentPvPEnabled)
+      return false // Forward
+    TerreEventBus.postAsyncWithFuture(PlayerChangePvPEnabledEvent(player, packet.enabled))
+      .thenAcceptAsync({ event ->
+        if (!event.cancelled) {
+          player.pvpEnabledValue = packet.enabled
+          player.serverConnection?.ensureConnected()?.send(packet)
+        } else {
+          player.clientConnection.send(packet.copy(enabled = currentPvPEnabled))
+        }
+      }, player.clientConnection.eventLoop)
+    return true
   }
 
   private fun isWorldInitPacket(packet: Packet): Boolean {

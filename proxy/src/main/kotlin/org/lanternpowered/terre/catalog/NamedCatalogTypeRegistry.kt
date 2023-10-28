@@ -32,8 +32,7 @@ fun <T : NamedCatalogType> namedCatalogTypeRegistry(
 interface NamedCatalogTypeRegistry<T : NamedCatalogType> : CatalogTypeRegistry<T> {
 
   /**
-   * Gets a catalog type of type [T] from
-   * the registry, if present.
+   * Gets a catalog type of type [T] from the registry, if present.
    */
   operator fun get(name: String): T?
 
