@@ -73,9 +73,10 @@ dependencies {
   implementation(group = "org.apache.logging.log4j", name = "log4j-jul", version = log4jVersion)
   api(group = "org.apache.logging.log4j", name = "log4j-api", version = log4jVersion)
   implementation(group = "org.apache.logging.log4j", name = "log4j-iostreams", version = log4jVersion)
-  implementation(group = "org.apache.logging.log4j", name = "log4j-slf4j-impl", version = log4jVersion)
+  implementation(group = "org.apache.logging.log4j", name = "log4j-slf4j2-impl", version = "2.21.1")
   implementation(group = "com.lmax", name = "disruptor", version = "3.4.4")
   kapt(group = "org.apache.logging.log4j", name = "log4j-core", version = log4jVersion)
+  implementation(group = "org.slf4j", name = "slf4j-api", version = "2.0.9")
 
   // Console
   implementation(group = "net.minecrell", name = "terminalconsoleappender", version = "1.3.0")
