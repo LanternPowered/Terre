@@ -24,13 +24,7 @@ dependencies {
   implementation(group = "it.unimi.dsi", name = "fastutil-core", version = "8.5.12")
 
   // Configuration
-  api(group = "com.uchuhimo", name = "konf-yaml", version = "1.1.2") {
-    exclude(group = "com.fasterxml.jackson.core", module = "jackson-annotations")
-    exclude(group = "com.fasterxml.jackson.core", module = "jackson-core")
-    exclude(group = "com.fasterxml.jackson.core", module = "jackson-databind")
-    exclude(group = "com.fasterxml.jackson.datatype", module = "jackson-datatype-jsr310")
-    exclude(group = "com.fasterxml.jackson.module", module = "jackson-module-kotlin")
-  }
+  api(group = "org.lanternpowered", name = "konf-yaml", version = "2.0.0-SNAPSHOT")
 
   // Launch Options
   implementation(group = "net.sf.jopt-simple", name = "jopt-simple", version = "5.0.4")
@@ -88,16 +82,8 @@ dependencies {
   implementation(group = "org.jline", name = "jline-terminal-jansi", version = "3.23.0")
 
   // Update transitive dependencies
-  implementation(group = "org.apache.commons", name = "commons-text", version = "1.10.0")
   implementation(group = "org.apache.commons", name = "commons-compress", version = "1.24.0")
   implementation(group = "org.bouncycastle", name = "bcprov-jdk18on", version = "1.76")
-
-  val jacksonVersion = "2.15.3"
-  implementation(group = "com.fasterxml.jackson.core", name = "jackson-annotations", version = jacksonVersion)
-  implementation(group = "com.fasterxml.jackson.core", name = "jackson-core", version = jacksonVersion)
-  implementation(group = "com.fasterxml.jackson.core", name = "jackson-databind", version = jacksonVersion)
-  implementation(group = "com.fasterxml.jackson.datatype", name = "jackson-datatype-jsr310", version = jacksonVersion)
-  implementation(group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version = jacksonVersion)
 
   // Testing
   testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = "5.9.2")
