@@ -40,7 +40,7 @@ internal data class PlayerHurtPacket(
   val critical: Boolean,
   val pvp: Boolean,
   val cooldownCounter: Int,
-  val reason: PlayerDamageReason
+  val reason: PlayerDamageReason,
 ) : Packet
 
 internal val PlayerHurtEncoder = PacketEncoder<PlayerHurtPacket> { buf, packet ->
@@ -53,6 +53,7 @@ internal val PlayerHurtEncoder = PacketEncoder<PlayerHurtPacket> { buf, packet -
     flags += 0x1
   if (packet.pvp)
     flags += 0x2
+  buf.writeByte(flags)
   buf.writeByte(packet.cooldownCounter)
 }
 

@@ -9,7 +9,7 @@ dependencies {
   api(kotlin("stdlib-jdk8"))
   api(kotlin("reflect"))
 
-  val coroutinesVersion = "1.6.4"
+  val coroutinesVersion = "1.7.1"
   api(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = coroutinesVersion)
   api(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-jdk8", version = coroutinesVersion)
   api(group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json-jvm", version = "1.5.0")
@@ -68,12 +68,12 @@ dependencies {
   implementation(group = "org.spongepowered", name = "plugin-spi", version = "0.3.0")
 
   // Logging
-  val log4jVersion = "2.21.0"
+  val log4jVersion = "2.21.1"
   implementation(group = "org.apache.logging.log4j", name = "log4j-core", version = log4jVersion)
   implementation(group = "org.apache.logging.log4j", name = "log4j-jul", version = log4jVersion)
   api(group = "org.apache.logging.log4j", name = "log4j-api", version = log4jVersion)
   implementation(group = "org.apache.logging.log4j", name = "log4j-iostreams", version = log4jVersion)
-  implementation(group = "org.apache.logging.log4j", name = "log4j-slf4j2-impl", version = "2.21.1")
+  implementation(group = "org.apache.logging.log4j", name = "log4j-slf4j2-impl", version = log4jVersion)
   implementation(group = "com.lmax", name = "disruptor", version = "3.4.4")
   kapt(group = "org.apache.logging.log4j", name = "log4j-core", version = log4jVersion)
   implementation(group = "org.slf4j", name = "slf4j-api", version = "2.0.9")
