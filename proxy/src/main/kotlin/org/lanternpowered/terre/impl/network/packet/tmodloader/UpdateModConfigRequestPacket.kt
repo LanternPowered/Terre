@@ -15,12 +15,20 @@ import org.lanternpowered.terre.impl.network.PacketEncoder
 import org.lanternpowered.terre.impl.network.buffer.readString
 import org.lanternpowered.terre.impl.network.buffer.writeString
 
-internal data class ModFileRequestPacket(val name: String) : Packet
+internal data class UpdateModConfigRequestPacket(
+  val mod: String,
+  val config: ModConfig,
+) : Packet
 
-internal val ModFileRequestEncoder = PacketEncoder<ModFileRequestPacket> { buf, packet ->
-  buf.writeString(packet.name)
+internal val UpdateModConfigRequestEncoder = PacketEncoder<UpdateModConfigRequestPacket> { buf, packet ->
+  buf.writeString(packet.mod)
+  buf.writeString(packet.config.name)
+  buf.writeString(packet.config.content)
 }
 
-internal val ModFileRequestDecoder = PacketDecoder { buf ->
-  ModFileRequestPacket(buf.readString())
+internal val UpdateModConfigRequestDecoder = PacketDecoder { buf ->
+  val mod = buf.readString()
+  val configName = buf.readString()
+  val configContent = buf.readString()
+  UpdateModConfigRequestPacket(mod, ModConfig(configName, configContent))
 }

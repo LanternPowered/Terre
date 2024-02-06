@@ -11,6 +11,7 @@ package org.lanternpowered.terre.impl.network.client
 
 import io.netty.buffer.ByteBuf
 import io.netty.util.concurrent.ScheduledFuture
+import org.lanternpowered.terre.ProtocolVersion
 import org.lanternpowered.terre.Team
 import org.lanternpowered.terre.event.player.PlayerChangePvPEnabledEvent
 import org.lanternpowered.terre.event.player.PlayerChangeTeamEvent
@@ -37,6 +38,13 @@ import org.lanternpowered.terre.impl.network.packet.PlayerTeamPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.StatusPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
+import org.lanternpowered.terre.impl.network.packet.tmodloader.ModDataPacket
+import org.lanternpowered.terre.impl.network.packet.tmodloader.ModFileRequestPacket
+import org.lanternpowered.terre.impl.network.packet.tmodloader.ModFileResponsePacket
+import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsDonePacket
+import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsPacket
+import org.lanternpowered.terre.impl.network.packet.tmodloader.UpdateModConfigRequestPacket
+import org.lanternpowered.terre.impl.network.packet.tmodloader.UpdateModConfigResponsePacket
 import org.lanternpowered.terre.impl.player.PlayerImpl
 import org.lanternpowered.terre.text.textOf
 import java.time.Duration
@@ -111,6 +119,14 @@ internal class ClientPlayConnectionHandler(
       return true
     }
     return false // Forward
+  }
+
+  override fun handle(packet: SyncModsDonePacket): Boolean {
+    val serverConnection = player.serverConnection?.ensureConnected()
+    if (serverConnection?.protocolVersion is ProtocolVersion.TModLoader) {
+      return true // Forward to server
+    }
+    return true
   }
 
   override suspend fun handle(packet: PlayerCommandPacket): Boolean {
@@ -233,7 +249,14 @@ internal class ClientPlayConnectionHandler(
       packet is PlayerInventorySlotPacket ||
       packet is WorldInfoRequestPacket ||
       packet is ClientUniqueIdPacket ||
-      (packet is ItemUpdateOwnerPacket && packet.id == ItemRemoveOwnerPacket.PingPongItemId)
+      (packet is ItemUpdateOwnerPacket && packet.id == ItemRemoveOwnerPacket.PingPongItemId) ||
+      packet is SyncModsPacket ||
+      packet is SyncModsDonePacket ||
+      packet is ModFileRequestPacket ||
+      packet is ModFileResponsePacket ||
+      packet is ModDataPacket ||
+      packet is UpdateModConfigRequestPacket ||
+      packet is UpdateModConfigResponsePacket
   }
 
   override fun handleGeneric(packet: Packet) {

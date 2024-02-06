@@ -9,6 +9,8 @@
  */
 package org.lanternpowered.terre.impl.network.packet
 
+import io.netty.buffer.ByteBuf
+import org.lanternpowered.terre.impl.network.ForwardingReferenceCounted
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.buffer.readPlayerId
@@ -21,25 +23,16 @@ import org.lanternpowered.terre.impl.network.PacketEncoder
  */
 internal data class PlayerDeathPacket(
   val playerId: PlayerId,
-  val damage: Int,
-  val hitDirection: Int,
-  val pvp: Boolean,
-  val reason: PlayerDamageReason
-) : Packet
+  val data: ByteBuf,
+) : Packet, ForwardingReferenceCounted(data)
 
 internal val PlayerDeathEncoder = PacketEncoder<PlayerDeathPacket> { buf, packet ->
   buf.writePlayerId(packet.playerId)
-  buf.writeDamageReason(packet.reason)
-  buf.writeShortLE(packet.damage)
-  buf.writeByte(packet.hitDirection)
-  buf.writeBoolean(packet.pvp)
+  buf.writeBytes(packet.data)
 }
 
 internal val PlayerDeathDecoder = PacketDecoder { buf ->
   val playerId = buf.readPlayerId()
-  val reason = buf.readDamageReason()
-  val damage = buf.readUnsignedShortLE()
-  val hitDirection = buf.readByte().toInt()
-  val pvp = buf.readBoolean()
-  PlayerDeathPacket(playerId, damage, hitDirection, pvp, reason)
+  val data = buf.readBytes(buf.readableBytes())
+  PlayerDeathPacket(playerId, data)
 }

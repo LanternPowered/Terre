@@ -53,7 +53,7 @@ internal class PluginScanner {
         continue
       }
       if (url.path.startsWith(JAVA_HOME)) {
-        Terre.logger.trace("Skipping JRE classpath entry: $url")
+        Terre.logger.trace { "Skipping JRE classpath entry: $url" }
         continue
       }
       val source: URI = try {
@@ -76,7 +76,7 @@ internal class PluginScanner {
   }
 
   private fun scanClasspathDirectory(dir: Path) {
-    Terre.logger.trace("Scanning $dir for plugins")
+    Terre.logger.trace { "Scanning $dir for plugins" }
     try {
       Files.walkFileTree(dir, setOf(FileVisitOption.FOLLOW_LINKS), Int.MAX_VALUE, classFileVisitor)
     } catch (e: IOException) {
@@ -110,10 +110,10 @@ internal class PluginScanner {
   }
 
   private fun scanJar(path: Path, classpath: Boolean) {
-    Terre.logger.trace("Scanning $path for plugins")
+    Terre.logger.trace { "Scanning $path for plugins" }
     val candidates = mutableListOf<PluginCandidate>()
 
-    // Open the zip file so we can scan it for plugins
+    // Open the zip file, so we can scan it for plugins
     try {
       JarInputStream(BufferedInputStream(Files.newInputStream(path))).use { jar ->
         while (true) {

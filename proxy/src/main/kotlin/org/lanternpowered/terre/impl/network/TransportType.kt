@@ -34,21 +34,21 @@ internal sealed class TransportType(
   val eventLoopGroupSupplier: (threads: Int, threadFactory: ThreadFactory) -> EventLoopGroup
 ) {
 
-  object Nio : TransportType(
+  data object Nio : TransportType(
     ::NioServerSocketChannel,
     ::NioSocketChannel,
     ::NioDatagramChannel,
     ::NioEventLoopGroup
   )
 
-  object KQueue : TransportType(
+  data object KQueue : TransportType(
     ::KQueueServerSocketChannel,
     ::KQueueSocketChannel,
     ::KQueueDatagramChannel,
     ::KQueueEventLoopGroup
   )
 
-  object Epoll : TransportType(
+  data object Epoll : TransportType(
     ::EpollServerSocketChannel,
     ::EpollSocketChannel,
     ::EpollDatagramChannel,

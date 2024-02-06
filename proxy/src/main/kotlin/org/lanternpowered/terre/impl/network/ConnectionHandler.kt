@@ -36,15 +36,16 @@ import org.lanternpowered.terre.impl.network.packet.PlayerInventorySlotPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerPvPPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerSpawnPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerTeamPacket
-import org.lanternpowered.terre.impl.network.packet.PlayerTeleportThroughPortalPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
 import org.lanternpowered.terre.impl.network.packet.ProjectileUpdatePacket
-import org.lanternpowered.terre.impl.network.packet.SpeechBubblePacket
 import org.lanternpowered.terre.impl.network.packet.StatusPacket
 import org.lanternpowered.terre.impl.network.packet.TeleportPylonPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
+import org.lanternpowered.terre.impl.network.packet.tmodloader.ModDataPacket
+import org.lanternpowered.terre.impl.network.packet.tmodloader.ModFileRequestPacket
+import org.lanternpowered.terre.impl.network.packet.tmodloader.ModFileResponsePacket
 import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsDonePacket
 import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsPacket
 
@@ -71,15 +72,23 @@ internal interface ConnectionHandler {
     return false
   }
 
+  fun handle(packet: ModFileRequestPacket): Boolean {
+    return false
+  }
+
+  fun handle(packet: ModFileResponsePacket): Boolean {
+    return false
+  }
+
+  fun handle(packet: ModDataPacket): Boolean {
+    return false
+  }
+
   fun handle(packet: ChatMessagePacket): Boolean {
     return false
   }
 
   fun handle(packet: ClientUniqueIdPacket): Boolean {
-    return false
-  }
-
-  fun handle(packet: CombatMessagePacket): Boolean {
     return false
   }
 
@@ -127,19 +136,11 @@ internal interface ConnectionHandler {
     return false
   }
 
-  fun handle(packet: PlayerHurtPacket): Boolean {
-    return false
-  }
-
   fun handle(packet: PlayerInfoPacket): Boolean {
     return false
   }
 
   fun handle(packet: PlayerInventorySlotPacket): Boolean {
-    return false
-  }
-
-  fun handle(packet: SpeechBubblePacket): Boolean {
     return false
   }
 
@@ -176,10 +177,6 @@ internal interface ConnectionHandler {
   }
 
   fun handle(packet: PlayerUpdatePacket): Boolean {
-    return false
-  }
-
-  fun handle(packet: PlayerTeleportThroughPortalPacket): Boolean {
     return false
   }
 

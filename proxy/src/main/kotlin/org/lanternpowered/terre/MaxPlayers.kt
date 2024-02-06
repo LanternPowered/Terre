@@ -25,5 +25,5 @@ sealed interface MaxPlayers {
   /**
    * Players are allowed to join as long that there's space on one of the backing servers.
    */
-  object Unlimited : MaxPlayers
+  data object Unlimited : MaxPlayers
 }

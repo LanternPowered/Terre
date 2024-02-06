@@ -13,6 +13,7 @@ import org.lanternpowered.terre.impl.item.ItemStackImpl
 import org.lanternpowered.terre.text.ItemText
 import org.lanternpowered.terre.text.TextLike
 import org.lanternpowered.terre.text.textOf
+import org.lanternpowered.terre.util.Bytes
 
 /**
  * Constructs a new [ItemStack].
@@ -49,6 +50,11 @@ interface ItemStack : TextLike {
    * The modifier of the item, also known as "prefix".
    */
   var modifier: ItemModifier
+
+  /**
+   * The modded data.
+   */
+  var modData: Bytes
 
   /**
    * Creates a copy of this stack.

@@ -12,13 +12,26 @@ package org.lanternpowered.terre.impl.item
 import org.lanternpowered.terre.item.ItemModifier
 import org.lanternpowered.terre.item.ItemStack
 import org.lanternpowered.terre.item.ItemType
+import org.lanternpowered.terre.util.Bytes
 import kotlin.math.max
 
 internal class ItemStackImpl(
-  override val type: ItemType,
-  override var modifier: ItemModifier,
-  quantity: Int
+  var typeId: Int,
+  var modifierId: Int,
+  quantity: Int,
+  override var modData: Bytes = Bytes.Empty,
 ) : ItemStack {
+
+  constructor(type: ItemType, modifier: ItemModifier, quantity: Int, modData: Bytes = Bytes.Empty):
+    this(type.numericId, modifier.numericId, quantity, modData)
+
+  override var type: ItemType
+    set(value) { typeId = value.numericId }
+    get() = ItemTypeImpl(typeId)
+
+  override var modifier: ItemModifier
+    set(value) { modifierId = value.numericId }
+    get() = ItemModifierImpl(modifierId)
 
   override val isEmpty get() = quantity <= 0 || type == ItemType.None
 
@@ -29,11 +42,15 @@ internal class ItemStackImpl(
     }
 
   override fun similarTo(other: ItemStack): Boolean =
-    other.type == type && other.modifier == modifier
+    other.type == type && other.modifier == modifier && modData == other.modData
 
   override fun copy(): ItemStack {
-    return ItemStackImpl(type, modifier, quantity)
+    return ItemStackImpl(type, modifier, quantity, modData)
   }
 
-  override fun toString(): String = "ItemStack(type=$type,modifier=$modifier,quantity=$quantity)"
+  override fun toString(): String = "ItemStack(" +
+    "type=ItemType(numericId=$typeId)," +
+    "modifier=ItemModifier(numericId=$modifierId)," +
+    "quantity=$quantity" +
+    ")"
 }

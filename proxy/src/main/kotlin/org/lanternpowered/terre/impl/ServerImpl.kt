@@ -91,7 +91,14 @@ internal class ServerImpl(
   /**
    * If the server is modded, like tShock.
    */
-  var modded: Boolean? = null
+  var syncRealIP: Boolean? = null
+
+  fun infoWithLastKnownVersion(): ServerInfo {
+    val lastKnownVersion = lastKnownVersion
+    return if (info.protocolVersion == null && lastKnownVersion != null) {
+      info.copy(protocolVersion = lastKnownVersion)
+    } else info
+  }
 
   override val players
     get() = mutablePlayers.toImmutable()
@@ -110,7 +117,7 @@ internal class ServerImpl(
 
     // Reset modded state, server can be swapped in the meantime
     if (mutablePlayers.isEmpty())
-      modded = null
+      syncRealIP = null
 
     // Destroy all the portals
     player as PlayerImpl

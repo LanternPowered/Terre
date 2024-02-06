@@ -9,7 +9,7 @@
  */
 package org.lanternpowered.terre.impl.player
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
+import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.future.asCompletableFuture
@@ -19,6 +19,7 @@ import org.lanternpowered.terre.Player
 import org.lanternpowered.terre.ProtocolVersion
 import org.lanternpowered.terre.Server
 import org.lanternpowered.terre.ServerConnectionRequestResult
+import org.lanternpowered.terre.ServerInfo
 import org.lanternpowered.terre.Team
 import org.lanternpowered.terre.character.CharacterStorage
 import org.lanternpowered.terre.dispatcher.async
@@ -35,6 +36,8 @@ import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.event.TerreEventBus
 import org.lanternpowered.terre.impl.item.InventoryImpl
 import org.lanternpowered.terre.impl.network.Connection
+import org.lanternpowered.terre.impl.network.buffer.ItemId
+import org.lanternpowered.terre.impl.network.buffer.NpcId
 import org.lanternpowered.terre.impl.network.buffer.NpcType
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.client.ClientPlayConnectionHandler
@@ -53,10 +56,7 @@ import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyPacket
 import org.lanternpowered.terre.impl.network.packet.SimpleItemUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.StatusPacket
 import org.lanternpowered.terre.impl.network.packet.TeleportPylonPacket
-import org.lanternpowered.terre.impl.network.tracking.TrackedItems
-import org.lanternpowered.terre.impl.network.tracking.TrackedNpcs
-import org.lanternpowered.terre.impl.network.tracking.TrackedPlayers
-import org.lanternpowered.terre.impl.network.tracking.TrackedProjectiles
+import org.lanternpowered.terre.impl.network.ProjectileDataMap
 import org.lanternpowered.terre.impl.text.MessageReceiverImpl
 import org.lanternpowered.terre.impl.util.channel.distinct
 import org.lanternpowered.terre.item.ItemStack
@@ -71,18 +71,21 @@ import org.lanternpowered.terre.text.text
 import org.lanternpowered.terre.text.textOf
 import org.lanternpowered.terre.util.AABB
 import java.net.InetSocketAddress
+import java.util.BitSet
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
 import kotlin.math.max
 
 internal class PlayerImpl(
   val clientConnection: Connection,
-  override val protocolVersion: ProtocolVersion,
   override val name: String,
   override val clientUniqueId: UUID,
 ) : Player, MessageReceiverImpl {
 
   @Volatile override var latency = 0
+
+  override val protocolVersion: ProtocolVersion
+    get() = clientConnection.protocolVersion
 
   private fun generateUniqueId(): UUID {
     val nameUniqueId = UUID.nameUUIDFromBytes(name.toByteArray())
@@ -142,7 +145,7 @@ internal class PlayerImpl(
     get() = teamValue
     set(value) {
       teamValue = value
-      if (!handlingJoinServerEvent && (serverConnection != null || wasPreviouslyConnectedToServer)) {
+      if (!handlingJoinServerEvent && (serverConnection != null || previousServer != null)) {
         val packet = PlayerTeamPacket(playerId!!, value)
         clientConnection.send(packet)
         serverConnection?.ensureConnected()?.send(packet)
@@ -155,7 +158,7 @@ internal class PlayerImpl(
     get() = pvpEnabledValue
     set(value) {
       pvpEnabledValue = value
-      if (!handlingJoinServerEvent && (serverConnection != null || wasPreviouslyConnectedToServer)) {
+      if (!handlingJoinServerEvent && (serverConnection != null || previousServer != null)) {
         val packet = PlayerPvPPacket(playerId!!, value)
         clientConnection.send(packet)
         serverConnection?.ensureConnected()?.send(packet)
@@ -177,32 +180,32 @@ internal class PlayerImpl(
   /**
    * The NPCs this player is aware of.
    */
-  val trackedNpcs = TrackedNpcs()
+  val trackedNpcs = BitSet()
 
   /**
    * The players this player is aware of.
    */
-  val trackedPlayers = TrackedPlayers()
+  val trackedPlayers = BitSet()
 
   /**
    * The items this player is aware of.
    */
-  val trackedItems = TrackedItems()
+  val trackedItems = BitSet()
 
   /**
    * The projectiles this player is aware of.
    */
-  val trackedProjectiles = TrackedProjectiles()
+  val trackedProjectiles = ProjectileDataMap()
 
   /**
    * The teleport pylons this player is aware of.
    */
-  val trackedTeleportPylons = Int2ObjectOpenHashMap<Vec2i>()
+  val trackedTeleportPylons = Int2LongOpenHashMap()
 
   /**
    * Whether the player was previously connected to another server.
    */
-  var wasPreviouslyConnectedToServer = false
+  var previousServer: ServerInfo? = null
 
   /**
    * Deferred that will be updated when the player is cleaned up.
@@ -574,28 +577,24 @@ internal class PlayerImpl(
 
   private fun resetClient() {
     health = -1
-    for (player in trackedPlayers) {
-      if (player.active)
-        clientConnection.send(PlayerActivePacket(player.id, false))
+    trackedPlayers.stream().forEach { id ->
+      clientConnection.send(PlayerActivePacket(PlayerId(id), false))
     }
-    trackedPlayers.reset()
-    for (npc in trackedNpcs) {
-      if (npc.active)
-        clientConnection.send(NpcUpdatePacket(npc.id, NpcType(0), Vec2f.Zero, 0))
+    trackedPlayers.clear()
+    trackedNpcs.stream().forEach { id ->
+      clientConnection.send(NpcUpdatePacket(NpcId(id), NpcType(0), Vec2f.Zero, 0))
     }
-    trackedNpcs.reset()
-    for (item in trackedItems) {
-      if (item.active)
-        clientConnection.send(SimpleItemUpdatePacket(item.id, Vec2f.Zero, ItemStack.Empty))
+    trackedNpcs.clear()
+    trackedItems.stream().forEach { id ->
+      clientConnection.send(SimpleItemUpdatePacket(ItemId(id), Vec2f.Zero, ItemStack.Empty))
     }
-    trackedItems.reset()
-    for (projectile in trackedProjectiles) {
-      if (projectile.active)
-        clientConnection.send(ProjectileDestroyPacket(projectile.id, projectile.owner))
+    trackedItems.clear()
+    trackedProjectiles.forEach { id, owner ->
+      clientConnection.send(ProjectileDestroyPacket(id, owner))
     }
-    trackedProjectiles.reset()
+    trackedProjectiles.clear()
     trackedTeleportPylons.forEach { (type, position) ->
-      clientConnection.send(TeleportPylonPacket(TeleportPylonPacket.Action.Removed, type, position))
+      clientConnection.send(TeleportPylonPacket(TeleportPylonPacket.Action.Removed, type, Vec2i(position)))
     }
     trackedTeleportPylons.clear()
   }

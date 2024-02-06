@@ -26,14 +26,8 @@ internal data class SyncModsPacket(
     val version: String,
     val fileHash: String,
     val fileValidModBrowserSignature: Boolean,
-    val configs: List<Config>
-  ) {
-
-    data class Config(
-      val name: String,
-      val content: String
-    )
-  }
+    val configs: List<ModConfig>
+  )
 }
 
 internal val SyncModsEncoder = PacketEncoder<SyncModsPacket> { buf, packet ->
@@ -66,11 +60,11 @@ internal val SyncModsDecoder = PacketDecoder { buf ->
     val fileHash = BaseEncoding.base16().encode(fileHashBytes)
     val fileValidModBrowserSignature = buf.readBoolean()
     val configCount = buf.readIntLE()
-    val configs = mutableListOf<SyncModsPacket.Mod.Config>()
+    val configs = mutableListOf<ModConfig>()
     repeat(configCount) {
       val configName = buf.readString()
       val content = buf.readString()
-      configs += SyncModsPacket.Mod.Config(configName, content)
+      configs += ModConfig(configName, content)
     }
     mods += SyncModsPacket.Mod(name, version, fileHash, fileValidModBrowserSignature, configs)
   }

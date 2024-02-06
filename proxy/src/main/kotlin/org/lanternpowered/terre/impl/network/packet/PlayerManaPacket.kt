@@ -19,7 +19,7 @@ import org.lanternpowered.terre.impl.network.PacketEncoder
 internal data class PlayerManaPacket(
   val playerId: PlayerId,
   val current: Int,
-  val max: Int
+  val max: Int,
 ) : Packet
 
 internal val PlayerManaDecoder = PacketDecoder { buf ->

@@ -9,7 +9,10 @@
  */
 package org.lanternpowered.terre.impl.network.backend
 
+import org.lanternpowered.terre.ProtocolVersion
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
+import org.lanternpowered.terre.impl.network.packet.tmodloader.ModDataPacket
+import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsPacket
 import org.lanternpowered.terre.text.Text
 
 /**
@@ -17,11 +20,21 @@ import org.lanternpowered.terre.text.Text
  */
 internal sealed class ServerInitConnectionResult {
 
-  data class Success(val playerId: PlayerId) : ServerInitConnectionResult()
+  data class Success(
+    val playerId: PlayerId,
+    val syncModsPacket: SyncModsPacket? = null,
+    val syncModNetIdsPacket: ModDataPacket? = null,
+  ) : ServerInitConnectionResult()
 
   data class Disconnected(val reason: Text?) : ServerInitConnectionResult()
 
   data class UnsupportedProtocol(val reason: Text?) : ServerInitConnectionResult()
 
   data class NotModded(val reason: Text?) : ServerInitConnectionResult()
+
+  data class TModLoaderVersionMismatch(
+    val version: ProtocolVersion.TModLoader
+  ) : ServerInitConnectionResult()
+
+  data class TModLoaderClientExpected(val reason: Text?) : ServerInitConnectionResult()
 }

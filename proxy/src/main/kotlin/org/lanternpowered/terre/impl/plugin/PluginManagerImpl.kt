@@ -15,6 +15,7 @@ import org.lanternpowered.terre.plugin.Plugin
 import org.lanternpowered.terre.plugin.PluginContainer
 import org.lanternpowered.terre.plugin.PluginManager
 import org.lanternpowered.terre.util.collection.toImmutableList
+import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.concurrent.ConcurrentHashMap
@@ -44,8 +45,7 @@ internal class PluginManagerImpl : PluginManager {
     if (scanClasspath) {
       Terre.logger.info("Scanning classpath for plugins...")
       val classpath = System.getProperty("java.class.path")
-      val separator = System.getProperty("path.separator")
-      val paths = classpath.split(separator)
+      val paths = classpath.split(File.pathSeparator)
         .map { entry -> Paths.get(entry) }
       pluginScanner.scanClassPath(paths.map { it.toUri().toURL() })
     }

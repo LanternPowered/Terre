@@ -10,6 +10,7 @@
 package org.lanternpowered.terre.impl.network.backend
 
 import io.netty.buffer.ByteBuf
+import org.lanternpowered.terre.ProtocolVersion
 import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.network.Connection
 import org.lanternpowered.terre.impl.network.ConnectionHandler
@@ -28,6 +29,8 @@ import org.lanternpowered.terre.impl.network.packet.RealIPPacket
 import org.lanternpowered.terre.impl.network.packet.StatusPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
+import org.lanternpowered.terre.impl.network.packet.tmodloader.ModDataPacket
+import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsPacket
 import org.lanternpowered.terre.text.LocalizedText
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
@@ -45,12 +48,13 @@ internal class ServerInitConnectionHandler(
   private val versionedProtocol: VersionedProtocol,
   private val password: String,
   private val playerInfo: PlayerInfoPacket,
-  private val modded: Boolean,
-  private val clientIP: String,
+  private val realClientIP: String?,
 ) : ConnectionHandler {
 
   private var playerId: PlayerId? = null
   private var accepted = false
+  private var syncModsPacket: SyncModsPacket? = null
+  private var syncModNetIdsPacket: ModDataPacket? = null
 
   override fun initialize() {
     val version = versionedProtocol.version
@@ -71,14 +75,30 @@ internal class ServerInitConnectionHandler(
   override fun handle(packet: DisconnectPacket): Boolean {
     val reason = packet.reason
     val result = if (accepted) {
-      if (modded && reason is LocalizedText && reason.key == "LegacyMultiplayer.2") {
+      if (realClientIP != null && reason is LocalizedText && reason.key == "LegacyMultiplayer.2") {
         // The server was not able to handle the RealIPPacket, so probably a vanilla server
         ServerInitConnectionResult.NotModded(reason)
       } else {
         ServerInitConnectionResult.Disconnected(reason)
       }
     } else {
-      ServerInitConnectionResult.UnsupportedProtocol(reason)
+      val plainReason = reason.toPlain()
+      var tModLoaderVersion: ProtocolVersion.TModLoader? = null
+      // https://github.com/tModLoader/tModLoader/blob/6bdb2e2520931ac6b03b6102eab7f6e7cce9f635/patches/tModLoader/Terraria/ModLoader/ModNet.cs#L114
+      val serverOn = plainReason.substringAfter("server is on", "")
+      if (serverOn.isNotEmpty()) {
+        val match = ProtocolVersions.tModLoaderVersionRegex.find(serverOn)
+        if (match != null) {
+          tModLoaderVersion = ProtocolVersions.parse(match.groupValues[0]) as? ProtocolVersion.TModLoader
+        }
+      }
+      if (plainReason.contains("You cannot connect to a tModLoader Server with an unmodded client")) {
+        ServerInitConnectionResult.TModLoaderClientExpected(reason)
+      } else if (tModLoaderVersion != null) {
+        ServerInitConnectionResult.TModLoaderVersionMismatch(tModLoaderVersion)
+      } else {
+        ServerInitConnectionResult.UnsupportedProtocol(reason)
+      }
     }
     future.complete(result)
     // Make sure that the connection gets closed
@@ -101,9 +121,9 @@ internal class ServerInitConnectionHandler(
     // Send an empty client unique id for tShock, so it does not send character data
     // until we are done
     connection.send(ClientUniqueIdPacket(UUID(0L, 0L)))
-    if (modded) {
+    if (realClientIP != null) {
       // Forward the original client ip address
-      connection.send(RealIPPacket(clientIP))
+      connection.send(RealIPPacket(realClientIP))
     }
     // Send player info, the server responds either with player info if ok, or disconnects
     connection.send(playerInfo.copy(playerId = playerId))
@@ -126,6 +146,19 @@ internal class ServerInitConnectionHandler(
     return true
   }
 
+  override fun handle(packet: SyncModsPacket): Boolean {
+    syncModsPacket = packet
+    return true
+  }
+
+  override fun handle(packet: ModDataPacket): Boolean {
+    if (syncModNetIdsPacket == null) {
+      packet.retain()
+      syncModNetIdsPacket = packet
+    }
+    return true
+  }
+
   override fun handle(packet: StatusPacket): Boolean {
     debug { "Status: ${packet.text}" }
     return true
@@ -136,7 +169,7 @@ internal class ServerInitConnectionHandler(
     val playerId = playerId ?: return
     // Connection was approved so the client version was accepted
     connection.protocol = versionedProtocol.protocol
-    future.complete(ServerInitConnectionResult.Success(playerId))
+    future.complete(ServerInitConnectionResult.Success(playerId, syncModsPacket, syncModNetIdsPacket))
     this.playerId = null
   }
 

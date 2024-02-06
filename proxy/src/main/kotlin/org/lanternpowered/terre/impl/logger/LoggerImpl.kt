@@ -21,13 +21,18 @@ internal class LoggerImpl(logger: Log4jLogger) :
       info(message())
   }
 
+  override fun warn(message: () -> String) {
+    if (isWarnEnabled)
+      warn(message())
+  }
+
   override fun debug(message: () -> String) {
     if (isDebugEnabled)
       debug(message())
   }
 
-  override fun warn(message: () -> String) {
-    if (isWarnEnabled)
-      warn(message())
+  override fun trace(message: () -> String) {
+    if (isTraceEnabled)
+      trace(message())
   }
 }

@@ -33,7 +33,7 @@ data class PlayerPreLoginEvent(
     /**
      * The player is allowed to proceed connecting to the proxy.
      */
-    object Allowed : Result
+    data object Allowed : Result
 
     /**
      * The proxy requests the player for a password to join the server.

@@ -20,6 +20,7 @@ import org.lanternpowered.terre.impl.text.toTaggedVanillaText
 import org.lanternpowered.terre.math.Vec2f
 import org.lanternpowered.terre.math.Vec2i
 import org.lanternpowered.terre.text.*
+import org.lanternpowered.terre.util.Bytes
 import org.lanternpowered.terre.util.Color
 import org.lanternpowered.terre.util.collection.immutableListBuilderOf
 import java.util.UUID
@@ -387,3 +388,16 @@ internal inline fun ByteBuf.readULongLE(): ULong = readLongLE().toULong()
  * Writes an unsigned long in LE format.
  */
 internal inline fun ByteBuf.writeULongLE(value: ULong): ByteBuf = writeLongLE(value.toLong())
+
+internal fun ByteBuf.writeBytes(bytes: Bytes) {
+  writeBytes(bytes.unwrap())
+}
+
+internal fun ByteBuf.readImmutableBytes(length: Int = readableBytes()): Bytes {
+  if (length == 0) {
+    return Bytes.Empty
+  }
+  val array = ByteArray(length)
+  readBytes(array)
+  return Bytes.wrap(array)
+}

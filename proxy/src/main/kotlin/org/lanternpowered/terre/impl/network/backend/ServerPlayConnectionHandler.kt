@@ -27,7 +27,6 @@ import org.lanternpowered.terre.impl.network.packet.CustomPayloadPacket
 import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
 import org.lanternpowered.terre.impl.network.packet.EssentialTilesRequestPacket
 import org.lanternpowered.terre.impl.network.packet.ItemRemoveOwnerPacket
-import org.lanternpowered.terre.impl.network.packet.ItemUpdateOwnerPacket
 import org.lanternpowered.terre.impl.network.packet.ItemUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.NpcUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerActivePacket
@@ -43,6 +42,8 @@ import org.lanternpowered.terre.impl.network.packet.ProjectileUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.StatusPacket
 import org.lanternpowered.terre.impl.network.packet.TeleportPylonPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoPacket
+import org.lanternpowered.terre.impl.network.packet.tmodloader.ModDataPacket
+import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsDonePacket
 import org.lanternpowered.terre.impl.player.PlayerImpl
 import org.lanternpowered.terre.impl.player.ServerConnectionImpl
 import org.lanternpowered.terre.impl.util.parseInetAddress
@@ -55,18 +56,19 @@ import java.util.UUID
 internal class ServerPlayConnectionHandler(
   private val serverConnection: ServerConnectionImpl,
   private val player: PlayerImpl,
+  private var syncModNetIdsPacket: ModDataPacket?,
 ) : ConnectionHandler {
 
   private val clientConnection
     get() = player.clientConnection
 
-  private val wasPreviouslyConnectedToServer = player.wasPreviouslyConnectedToServer
+  private val previousServer = player.previousServer
 
   private var sendRequestEssentialTiles = false
   private var worldUniqueId: UUID? = null
 
   override fun initialize() {
-    player.wasPreviouslyConnectedToServer = true
+    player.previousServer = serverConnection.server.infoWithLastKnownVersion()
   }
 
   override fun disconnect() {
@@ -81,12 +83,21 @@ internal class ServerPlayConnectionHandler(
   override fun exception(throwable: Throwable) {
   }
 
+  override fun handle(packet: SyncModsDonePacket): Boolean {
+    val syncModNetIdsPacket = syncModNetIdsPacket
+    if (syncModNetIdsPacket != null) {
+      clientConnection.send(syncModNetIdsPacket)
+      this.syncModNetIdsPacket = null
+    }
+    return true
+  }
+
   override fun handle(packet: WorldInfoPacket): Boolean {
     if (!sendRequestEssentialTiles) {
       sendRequestEssentialTiles = true
       // The client sends this the first time it connects to a server,
       // this time we need to fake it.
-      if (wasPreviouslyConnectedToServer)
+      if (previousServer != null)
         serverConnection.ensureConnected().send(EssentialTilesRequestPacket(Vec2i(-1, -1)))
     }
     if (worldUniqueId != packet.uniqueId) {
@@ -111,24 +122,20 @@ internal class ServerPlayConnectionHandler(
   }
 
   override fun handle(packet: PlayerActivePacket): Boolean {
-    player.trackedPlayers[packet.playerId].active = packet.active
+    player.trackedPlayers.set(packet.playerId.value, packet.active)
     return false // Forward
   }
 
   override fun handle(packet: PlayerInfoPacket): Boolean {
-    player.trackedPlayers[packet.playerId].name = packet.playerName
     return false // Forward
   }
 
   override fun handle(packet: NpcUpdatePacket): Boolean {
-    val npc = player.trackedNpcs[packet.id]
-    val npcType = packet.type
-    if (npc.type != npcType || !npc.active) {
-      npc.type = npcType
-      npc.life = 1
+    var active = true
+    if (packet.life != null) {
+      active = packet.life > 0
     }
-    if (packet.life != null)
-      npc.life = packet.life
+    player.trackedNpcs.set(packet.id.value, active)
     return false // Forward
   }
 
@@ -152,29 +159,21 @@ internal class ServerPlayConnectionHandler(
   }
 
   override fun handle(packet: ProjectileUpdatePacket): Boolean {
-    val projectile = player.trackedProjectiles[packet.id]
-    projectile.active = true
-    projectile.owner = packet.owner
+    player.trackedProjectiles.put(packet.id, packet.owner)
     return false // Forward
   }
 
   override fun handle(packet: ProjectileDestroyPacket): Boolean {
-    player.trackedProjectiles[packet.id].reset()
+    player.trackedProjectiles.remove(packet.id)
     return false // Forward
   }
 
   override fun handle(packet: ItemUpdatePacket): Boolean {
-    player.trackedItems[packet.id].itemStack = packet.itemStack
-    return false // Forward
-  }
-
-  override fun handle(packet: ItemUpdateOwnerPacket): Boolean {
-    player.trackedItems[packet.id].owner = packet.ownerId
+    player.trackedItems.set(packet.id.value, !packet.itemStack.isEmpty)
     return false // Forward
   }
 
   override fun handle(packet: ItemRemoveOwnerPacket): Boolean {
-    player.trackedItems[packet.id].owner = PlayerId.None
     // tShock sends this packet with item id 400 after server side character data is loaded
     // to know that client packets can be accepted again
     if (packet.id == ItemRemoveOwnerPacket.PingPongItemId) {
@@ -187,7 +186,7 @@ internal class ServerPlayConnectionHandler(
 
   override fun handle(packet: TeleportPylonPacket): Boolean {
     if (packet.action == TeleportPylonPacket.Action.Added) {
-      player.trackedTeleportPylons.put(packet.type, packet.position)
+      player.trackedTeleportPylons.put(packet.type, packet.position.packed)
     } else if (packet.action == TeleportPylonPacket.Action.Removed) {
       player.trackedTeleportPylons.remove(packet.type)
     }
@@ -202,7 +201,7 @@ internal class ServerPlayConnectionHandler(
   override fun handle(packet: CompleteConnectionPacket): Boolean {
     val playerId = serverConnection.playerId
 
-    if (wasPreviouslyConnectedToServer) {
+    if (previousServer != null) {
       // Sending this packet makes sure that the player spawns, even if the client was previously
       // connected to another world. This will trigger the client to find a new spawn location.
       clientConnection.send(PlayerSpawnPacket(playerId,

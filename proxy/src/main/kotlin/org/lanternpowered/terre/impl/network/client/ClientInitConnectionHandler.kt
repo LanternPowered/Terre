@@ -20,7 +20,9 @@ import org.lanternpowered.terre.impl.event.TerreEventBus
 import org.lanternpowered.terre.impl.network.Connection
 import org.lanternpowered.terre.impl.network.ConnectionHandler
 import org.lanternpowered.terre.impl.network.Packet
+import org.lanternpowered.terre.impl.network.Protocol274
 import org.lanternpowered.terre.impl.network.ProtocolRegistry
+import org.lanternpowered.terre.impl.network.ProtocolTModLoader
 import org.lanternpowered.terre.impl.network.ProtocolVersions
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.packet.ClientUniqueIdPacket
@@ -33,7 +35,10 @@ import org.lanternpowered.terre.impl.network.packet.PasswordResponsePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
 import org.lanternpowered.terre.impl.network.packet.init.InitDisconnectClientPacket
+import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsDonePacket
+import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsPacket
 import org.lanternpowered.terre.impl.player.PlayerImpl
+import org.lanternpowered.terre.text.localizedTextOf
 import org.lanternpowered.terre.text.text
 import org.lanternpowered.terre.text.textOf
 import java.util.UUID
@@ -48,6 +53,7 @@ internal class ClientInitConnectionHandler(
 
   private enum class State {
     Init,
+    SyncMods,
     Handshake,
     RequestClientInfo,
     DetectClientPlayerLimit,
@@ -59,6 +65,9 @@ internal class ClientInitConnectionHandler(
 
   // C -> S: ConnectionRequestPacket
   // E: ClientConnectEvent -> Disconnect if denied
+  // If client is TModLoader
+  //   S -> C: SyncModsPacket(allowVanillaClients = true, mods = empty)
+  //   C -> S: SyncModsDonePacket
   // S -> C: ConnectionApprovedPacket(playerId = 1)
   // C -> S: PlayerInfoPacket
   // C -> S: ClientUniqueIdPacket
@@ -72,7 +81,6 @@ internal class ClientInitConnectionHandler(
   // E: ClientLoginEvent -> Disconnect if denied
   // E: ClientPostLoginEvent
 
-  private lateinit var protocolVersion: ProtocolVersion
   private lateinit var clientUniqueId: UUID
   private lateinit var name: String
 
@@ -88,8 +96,10 @@ internal class ClientInitConnectionHandler(
       "Expected the state $expected, but the connection is currently on $state" }
   }
 
+  private fun debug(message: () -> String) = Terre.logger.debug(message)
+
   override fun initialize() {
-    Terre.logger.debug { "P <- C [${connection.remoteAddress}] Connected." }
+    debug { "P <- C [${connection.remoteAddress}] Connected." }
   }
 
   override fun disconnect() {
@@ -100,7 +110,7 @@ internal class ClientInitConnectionHandler(
 
   override fun handle(packet: ConnectionRequestPacket): Boolean {
     checkState(State.Init)
-    Terre.logger.debug { "P <- C [${connection.remoteAddress}] Connection request: ${packet.version}" }
+    debug { "P <- C [${connection.remoteAddress}] Connection request: ${packet.version}" }
     state = State.Handshake
     val protocolVersion = ProtocolVersions.parse(packet.version)
     if (protocolVersion == null) {
@@ -108,7 +118,7 @@ internal class ClientInitConnectionHandler(
       connection.close(reason) { InitDisconnectClientPacket(reason) }
       return true
     }
-    val protocol = ProtocolRegistry[protocolVersion]
+    var protocol = ProtocolRegistry[protocolVersion]
     if (protocol == null) {
       val expected = ProtocolRegistry.all.asSequence()
         .map { it.version }
@@ -118,18 +128,19 @@ internal class ClientInitConnectionHandler(
             is ProtocolVersion.TModLoader -> "tModLoader ${it.version}"
           }
         }
-      // TODO: Modded support
-      val reason = if (protocolVersion !is ProtocolVersion.Vanilla) {
-        textOf("Only vanilla clients are supported.")
-      } else {
-        textOf("The client isn't supported.\nExpected version of $expected, " +
-          "but the client is $protocolVersion.")
+      if (protocolVersion is ProtocolVersion.TModLoader) {
+        // TODO: tModLoader to vanilla version mapping
+        protocol = Protocol274
       }
-      connection.close(reason) { InitDisconnectClientPacket(reason, protocolVersion) }
-      return true
+      if (protocol == null) {
+        val reason = textOf("The client isn't supported.\n" +
+          "Expected version of $expected, but the client is $protocolVersion.")
+        connection.close(reason) { InitDisconnectClientPacket(reason, protocolVersion) }
+        return true
+      }
     }
-    this.protocolVersion = protocolVersion
     connection.protocol = protocol
+    connection.protocolVersion = protocolVersion
     val inboundConnection = InitialInboundConnection(connection.remoteAddress, protocolVersion)
     TerreEventBus.postAsyncWithFuture(ClientConnectEvent(inboundConnection))
       .thenAcceptAsync({ event ->
@@ -147,16 +158,29 @@ internal class ClientInitConnectionHandler(
 
   private fun startLogin() {
     checkState(State.Handshake)
+    if (connection.protocolVersion is ProtocolVersion.TModLoader) {
+      state = State.SyncMods
+      connection.send(SyncModsPacket(true, listOf()))
+      debug { "P -> C [${connection.remoteAddress}] Sync mods" }
+    } else {
+      approveConnection()
+    }
+  }
+
+  private fun approveConnection() {
     state = State.RequestClientInfo
     // Send the approved packet, we just do this with a fixed id for now to receive information
     // from the client. When switching to the play mode the client will receive a new one.
     connection.send(ConnectionApprovedPacket(PlayerId(1)))
-    Terre.logger.debug { "P -> C [${connection.remoteAddress}] Start login by collecting client info" }
+    debug { "P -> C [${connection.remoteAddress}] Start login by collecting client info" }
   }
 
   private fun continueLogin(nonePlayerId: PlayerId) {
+    // By now we should have received all information from the client, so we can initialize the
+    // play phase. And the client can actually start connecting to backing servers.
+
     connection.nonePlayerId = nonePlayerId
-    player = PlayerImpl(connection, protocolVersion, name, clientUniqueId)
+    player = PlayerImpl(connection, name, clientUniqueId)
     player.lastPlayerInfo = playerInfo
     if (player.checkDuplicateIdentifier())
       return
@@ -177,7 +201,7 @@ internal class ClientInitConnectionHandler(
           state = State.RequestPassword
           expectedPassword = result.password
           connection.send(PasswordRequestPacket)
-          Terre.logger.debug { "P -> C [${connection.remoteAddress},$name] Password request" }
+          debug { "P -> C [${connection.remoteAddress},$name] Password request" }
         } else {
           state = State.Done
           player.finishLogin(PlayerLoginEvent.Result.Allowed)
@@ -185,8 +209,15 @@ internal class ClientInitConnectionHandler(
       }, connection.eventLoop)
   }
 
+  override fun handle(packet: SyncModsDonePacket): Boolean {
+    debug { "P <- C [${connection.remoteAddress}] Finished syncing mods" }
+    checkState(State.SyncMods)
+    approveConnection()
+    return true
+  }
+
   override fun handle(packet: PasswordResponsePacket): Boolean {
-    Terre.logger.debug { "P <- C [${connection.remoteAddress},$name] Password response" }
+    debug { "P <- C [${connection.remoteAddress},$name] Password response" }
     checkState(State.RequestPassword)
     val result = if (packet.password != expectedPassword) {
       PlayerLoginEvent.Result.Denied(textOf("Invalid password."))
@@ -201,8 +232,14 @@ internal class ClientInitConnectionHandler(
   override fun handle(packet: PlayerInfoPacket): Boolean {
     checkState(State.RequestClientInfo)
     name = packet.playerName
-    playerInfo = packet
-    Terre.logger.debug { "P <- C [${connection.remoteAddress}] Client player name: $name" }
+    debug { "P <- C [${connection.remoteAddress}] Client player name: $name" }
+    if (name.isBlank()) {
+      connection.close(textOf("Empty name."))
+    } else if (name.length > 20) {
+      connection.close(textOf("Name is too long."))
+    } else {
+      playerInfo = packet
+    }
     return true
   }
 
@@ -214,10 +251,15 @@ internal class ClientInitConnectionHandler(
 
   override fun handle(packet: WorldInfoRequestPacket): Boolean {
     checkState(State.RequestClientInfo)
-    state = State.DetectClientPlayerLimit
-    connection.send(ItemRemoveOwnerPacket(ItemRemoveOwnerPacket.PingPongItemId))
-    Terre.logger.debug { "P <- C [${connection.remoteAddress}, $name] " +
-      "Start detecting player limit" }
+    if (connection.protocolVersion is ProtocolVersion.TModLoader) {
+      debug { "P <- C [${connection.remoteAddress}, $name] Client info sending done" }
+      val nonePlayerId = PlayerId.None
+      continueLogin(nonePlayerId)
+    } else {
+      state = State.DetectClientPlayerLimit
+      connection.send(ItemRemoveOwnerPacket(ItemRemoveOwnerPacket.PingPongItemId))
+      debug { "P <- C [${connection.remoteAddress}, $name] Start detecting player limit" }
+    }
     return true
   }
 
@@ -226,13 +268,9 @@ internal class ClientInitConnectionHandler(
       return false
     checkState(State.DetectClientPlayerLimit)
     val nonePlayerId = packet.ownerId
-    Terre.logger.debug { "P <- C [${connection.remoteAddress}, $name] " +
+    debug { "P <- C [${connection.remoteAddress}, $name] " +
       "Detected client with player limit of ${nonePlayerId.value} players" }
-    Terre.logger.debug { "P <- C [${connection.remoteAddress}, $name] " +
-      "Client info sending done" }
-
-    // By now we should have received all information from the client, so we can initialize the
-    // play phase. And the client can actually start connecting to backing servers.
+    debug { "P <- C [${connection.remoteAddress}, $name] Client info sending done" }
     continueLogin(nonePlayerId)
     return true
   }

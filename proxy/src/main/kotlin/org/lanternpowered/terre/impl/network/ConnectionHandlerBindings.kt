@@ -15,7 +15,6 @@ import org.lanternpowered.terre.impl.network.packet.AddPlayerBuffPacket
 import org.lanternpowered.terre.impl.network.packet.CannotBeTakenByEnemiesItemUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.ChatMessagePacket
 import org.lanternpowered.terre.impl.network.packet.ClientUniqueIdPacket
-import org.lanternpowered.terre.impl.network.packet.CombatMessagePacket
 import org.lanternpowered.terre.impl.network.packet.CompleteConnectionPacket
 import org.lanternpowered.terre.impl.network.packet.ConnectionApprovedPacket
 import org.lanternpowered.terre.impl.network.packet.ConnectionRequestPacket
@@ -30,13 +29,10 @@ import org.lanternpowered.terre.impl.network.packet.PlayerActivePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerChatMessagePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerCommandPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerDeathPacket
-import org.lanternpowered.terre.impl.network.packet.PlayerHurtPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerSpawnPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerTeamPacket
-import org.lanternpowered.terre.impl.network.packet.PlayerTeleportThroughPortalPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerUpdatePacket
-import org.lanternpowered.terre.impl.network.packet.SpeechBubblePacket
 import org.lanternpowered.terre.impl.network.packet.StatusPacket
 import org.lanternpowered.terre.impl.network.packet.ItemUpdateOwnerPacket
 import org.lanternpowered.terre.impl.network.packet.NpcUpdatePacket
@@ -49,6 +45,11 @@ import org.lanternpowered.terre.impl.network.packet.SimpleItemUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.TeleportPylonPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
+import org.lanternpowered.terre.impl.network.packet.tmodloader.ModDataPacket
+import org.lanternpowered.terre.impl.network.packet.tmodloader.ModFileRequestPacket
+import org.lanternpowered.terre.impl.network.packet.tmodloader.ModFileResponsePacket
+import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsDonePacket
+import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsPacket
 import kotlin.reflect.KClass
 
 internal object ConnectionHandlerBindings {
@@ -58,7 +59,6 @@ internal object ConnectionHandlerBindings {
   init {
     bind<ChatMessagePacket>(ConnectionHandler::handle)
     bind<ClientUniqueIdPacket>(ConnectionHandler::handle)
-    bind<CombatMessagePacket>(ConnectionHandler::handle)
     bind<CompleteConnectionPacket>(ConnectionHandler::handle)
     bind<ConnectionApprovedPacket>(ConnectionHandler::handle)
     bind<ConnectionRequestPacket>(ConnectionHandler::handle)
@@ -69,10 +69,8 @@ internal object ConnectionHandlerBindings {
     bind<PlayerChatMessagePacket>(ConnectionHandler::handle)
     bindSuspend<PlayerCommandPacket>(ConnectionHandler::handle)
     bind<PlayerDeathPacket>(ConnectionHandler::handle)
-    bind<PlayerHurtPacket>(ConnectionHandler::handle)
     bind<PlayerInfoPacket>(ConnectionHandler::handle)
     bind<PlayerInventorySlotPacket>(ConnectionHandler::handle)
-    bind<SpeechBubblePacket>(ConnectionHandler::handle)
     bind<StatusPacket>(ConnectionHandler::handle)
     bind<ItemUpdateOwnerPacket>(ConnectionHandler::handle)
     bind<ItemRemoveOwnerPacket>(ConnectionHandler::handle)
@@ -82,7 +80,6 @@ internal object ConnectionHandlerBindings {
     bind<AddPlayerBuffPacket>(ConnectionHandler::handle)
     bind<PlayerSpawnPacket>(ConnectionHandler::handle)
     bind<CustomPayloadPacket>(ConnectionHandler::handle)
-    bind<PlayerTeleportThroughPortalPacket>(ConnectionHandler::handle)
     bind<ProjectileDestroyPacket>(ConnectionHandler::handle)
     bind<ProjectileUpdatePacket>(ConnectionHandler::handle)
     bind<PlayerUpdatePacket>(ConnectionHandler::handle)
@@ -94,6 +91,11 @@ internal object ConnectionHandlerBindings {
     bind<ShimmeredItemUpdatePacket>(ConnectionHandler::handle)
     bind<CannotBeTakenByEnemiesItemUpdatePacket>(ConnectionHandler::handle)
     bind<TeleportPylonPacket>(ConnectionHandler::handle)
+    bind<SyncModsDonePacket>(ConnectionHandler::handle)
+    bind<SyncModsPacket>(ConnectionHandler::handle)
+    bind<ModFileRequestPacket>(ConnectionHandler::handle)
+    bind<ModFileResponsePacket>(ConnectionHandler::handle)
+    bind<ModDataPacket>(ConnectionHandler::handle)
   }
 
   internal fun <P : Packet> getBinding(

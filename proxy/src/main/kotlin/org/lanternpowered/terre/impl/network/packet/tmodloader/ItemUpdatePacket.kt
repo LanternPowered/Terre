@@ -7,7 +7,7 @@
  * This work is licensed under the terms of the MIT License (MIT). For
  * a copy, see 'LICENSE.txt' or <https://opensource.org/licenses/MIT>.
  */
-package org.lanternpowered.terre.impl.network.packet
+package org.lanternpowered.terre.impl.network.packet.tmodloader
 
 import io.netty.buffer.ByteBuf
 import org.lanternpowered.terre.impl.item.ItemStackImpl
@@ -15,63 +15,29 @@ import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.PacketDecoder
 import org.lanternpowered.terre.impl.network.PacketEncoder
 import org.lanternpowered.terre.impl.network.buffer.ItemId
+import org.lanternpowered.terre.impl.network.buffer.readImmutableBytes
 import org.lanternpowered.terre.impl.network.buffer.readItemId
 import org.lanternpowered.terre.impl.network.buffer.readUByte
+import org.lanternpowered.terre.impl.network.buffer.readVarInt
 import org.lanternpowered.terre.impl.network.buffer.readVec2f
+import org.lanternpowered.terre.impl.network.buffer.writeBytes
 import org.lanternpowered.terre.impl.network.buffer.writeItemId
+import org.lanternpowered.terre.impl.network.buffer.writeVarInt
 import org.lanternpowered.terre.impl.network.buffer.writeVec2f
+import org.lanternpowered.terre.impl.network.packet.CannotBeTakenByEnemiesItemUpdatePacket
+import org.lanternpowered.terre.impl.network.packet.InstancedItemUpdatePacket
+import org.lanternpowered.terre.impl.network.packet.ItemUpdatePacket
+import org.lanternpowered.terre.impl.network.packet.ShimmeredItemUpdatePacket
+import org.lanternpowered.terre.impl.network.packet.SimpleItemUpdatePacket
 import org.lanternpowered.terre.item.ItemStack
 import org.lanternpowered.terre.math.Vec2f
-
-internal sealed interface ItemUpdatePacket : Packet {
-  val id: ItemId
-  val position: Vec2f
-  val itemStack: ItemStack
-  val velocity: Vec2f
-  val noDelay: Boolean
-}
-
-internal data class SimpleItemUpdatePacket(
-  override val id: ItemId,
-  override val position: Vec2f,
-  override val itemStack: ItemStack,
-  override val velocity: Vec2f = Vec2f.Zero,
-  override val noDelay: Boolean = false
-) : ItemUpdatePacket
-
-internal data class InstancedItemUpdatePacket(
-  override val id: ItemId,
-  override val position: Vec2f,
-  override val itemStack: ItemStack,
-  override val velocity: Vec2f = Vec2f.Zero,
-  override val noDelay: Boolean = false,
-) : ItemUpdatePacket
-
-internal data class ShimmeredItemUpdatePacket(
-  override val id: ItemId,
-  override val position: Vec2f,
-  override val itemStack: ItemStack,
-  override val velocity: Vec2f,
-  override val noDelay: Boolean,
-  val shimmered: Boolean,
-  var shimmerTime: Float,
-) : ItemUpdatePacket
-
-internal data class CannotBeTakenByEnemiesItemUpdatePacket(
-  override val id: ItemId,
-  override val position: Vec2f,
-  override val itemStack: ItemStack,
-  override val velocity: Vec2f,
-  override val noDelay: Boolean,
-  val cannotBeTakenByEnemiesTime: Int,
-) : ItemUpdatePacket
 
 internal val ItemUpdateEncoder = PacketEncoder<ItemUpdatePacket> { buf, packet ->
   buf.writeItemId(packet.id)
   buf.writeVec2f(packet.position)
   buf.writeVec2f(packet.velocity)
-  buf.writeShortLE(packet.itemStack.quantity)
-  buf.writeByte(packet.itemStack.modifier.numericId)
+  buf.writeVarInt(packet.itemStack.quantity)
+  buf.writeVarInt(packet.itemStack.modifier.numericId)
   buf.writeBoolean(packet.noDelay)
   buf.writeShortLE(packet.itemStack.type.numericId)
   if (packet is ShimmeredItemUpdatePacket) {
@@ -81,6 +47,7 @@ internal val ItemUpdateEncoder = PacketEncoder<ItemUpdatePacket> { buf, packet -
   if (packet is CannotBeTakenByEnemiesItemUpdatePacket) {
     buf.writeByte(packet.cannotBeTakenByEnemiesTime)
   }
+  buf.writeBytes(packet.itemStack.modData)
 }
 
 internal val SimpleItemUpdateDecoder = itemUpdateDecoder {
@@ -115,10 +82,12 @@ private inline fun <P : Packet> itemUpdateDecoder(
   val id = buf.readItemId()
   val position = buf.readVec2f()
   val velocity = buf.readVec2f()
-  val quantity = buf.readShortLE().toInt()
-  val modifierId = buf.readByte().toInt()
+  val quantity = buf.readVarInt()
+  val modifierId = buf.readVarInt()
   val noDelay = buf.readBoolean()
   val typeId = buf.readUnsignedShortLE()
-  val stack = ItemStackImpl(typeId, modifierId, quantity)
-  buf.packet(id, position, stack, velocity, noDelay)
+  val modData = buf.readImmutableBytes()
+  val itemStack = ItemStackImpl(typeId, modifierId, quantity)
+  itemStack.modData = modData
+  buf.packet(id, position, itemStack, velocity, noDelay)
 }

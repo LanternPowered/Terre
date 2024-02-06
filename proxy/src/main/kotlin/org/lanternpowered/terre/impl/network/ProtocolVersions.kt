@@ -27,8 +27,8 @@ internal object ProtocolVersions {
   private const val vanillaVersionPrefix = "Terraria"
   private val vanillaVersionRegex = "$vanillaVersionPrefix([0-9]+)".toRegex()
   private const val tModLoaderPrefix = "tModLoader"
-  private val tModLoaderVersionRegex =
-    "$tModLoaderPrefix v([0-9.]*)(?: ([^\\s!]+))?(?: ([^\\s!]+))?(?:!.+)?".toRegex()
+
+  val tModLoaderVersionRegex = "tModLoader v([0-9.]*)(?: ([^\\s!]+))?(?: ([^\\s!]+))?(?:!([0-9.]*))?".toRegex()
 
   /**
    * Gets the vanilla [ProtocolVersion] for the given protocol version number.

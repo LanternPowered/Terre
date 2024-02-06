@@ -16,7 +16,6 @@ import org.lanternpowered.terre.impl.network.packet.ChatMessageDecoder
 import org.lanternpowered.terre.impl.network.packet.ChatMessageEncoder
 import org.lanternpowered.terre.impl.network.packet.ClientUniqueIdDecoder
 import org.lanternpowered.terre.impl.network.packet.ClientUniqueIdEncoder
-import org.lanternpowered.terre.impl.network.packet.CombatMessageDecoder
 import org.lanternpowered.terre.impl.network.packet.CombatMessageEncoder
 import org.lanternpowered.terre.impl.network.packet.CompleteConnectionDecoder
 import org.lanternpowered.terre.impl.network.packet.CompleteConnectionEncoder
@@ -53,8 +52,6 @@ import org.lanternpowered.terre.impl.network.packet.PlayerDeathDecoder
 import org.lanternpowered.terre.impl.network.packet.PlayerDeathEncoder
 import org.lanternpowered.terre.impl.network.packet.PlayerHealthDecoder
 import org.lanternpowered.terre.impl.network.packet.PlayerHealthEncoder
-import org.lanternpowered.terre.impl.network.packet.PlayerHurtDecoder
-import org.lanternpowered.terre.impl.network.packet.PlayerHurtEncoder
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoDecoder
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoEncoder
 import org.lanternpowered.terre.impl.network.packet.PlayerInventorySlotDecoder
@@ -67,8 +64,6 @@ import org.lanternpowered.terre.impl.network.packet.PlayerSpawnDecoder
 import org.lanternpowered.terre.impl.network.packet.PlayerSpawnEncoder
 import org.lanternpowered.terre.impl.network.packet.PlayerTeamDecoder
 import org.lanternpowered.terre.impl.network.packet.PlayerTeamEncoder
-import org.lanternpowered.terre.impl.network.packet.PlayerTeleportThroughPortalDecoder
-import org.lanternpowered.terre.impl.network.packet.PlayerTeleportThroughPortalEncoder
 import org.lanternpowered.terre.impl.network.packet.PlayerUpdateDecoder
 import org.lanternpowered.terre.impl.network.packet.PlayerUpdateEncoder
 import org.lanternpowered.terre.impl.network.packet.ProjectileDestroyDecoder
@@ -89,6 +84,20 @@ import org.lanternpowered.terre.impl.network.packet.TileSquareDecoder
 import org.lanternpowered.terre.impl.network.packet.TileSquareEncoder
 import org.lanternpowered.terre.impl.network.packet.WorldInfoDecoder
 import org.lanternpowered.terre.impl.network.packet.WorldInfoEncoder
+import org.lanternpowered.terre.impl.network.packet.tmodloader.ModDataDecoder
+import org.lanternpowered.terre.impl.network.packet.tmodloader.ModDataEncoder
+import org.lanternpowered.terre.impl.network.packet.tmodloader.ModFileRequestDecoder
+import org.lanternpowered.terre.impl.network.packet.tmodloader.ModFileRequestEncoder
+import org.lanternpowered.terre.impl.network.packet.tmodloader.ModFileResponseDecoder
+import org.lanternpowered.terre.impl.network.packet.tmodloader.ModFileResponseEncoder
+import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsDecoder
+import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsDoneDecoder
+import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsDoneEncoder
+import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsEncoder
+import org.lanternpowered.terre.impl.network.packet.tmodloader.UpdateModConfigRequestDecoder
+import org.lanternpowered.terre.impl.network.packet.tmodloader.UpdateModConfigRequestEncoder
+import org.lanternpowered.terre.impl.network.packet.tmodloader.UpdateModConfigResponseDecoder
+import org.lanternpowered.terre.impl.network.packet.tmodloader.UpdateModConfigResponseEncoder
 
 internal val Protocol274 = protocol("274") {
   bind(0x01, ConnectionRequestEncoder, ConnectionRequestDecoder, PacketDirection.ClientToServer)
@@ -123,12 +132,10 @@ internal val Protocol274 = protocol("274") {
   bind(0x43, CustomPayloadEncoder, CustomPayloadDecoder)
   bind(0x44, ClientUniqueIdEncoder, ClientUniqueIdDecoder, PacketDirection.ClientToServer)
   bind(0x5A, ItemUpdateEncoder, InstancedItemUpdateDecoder)
-  bind(0x5B, SpeechBubbleEncoder)
-  bind(0x60, PlayerTeleportThroughPortalEncoder, PlayerTeleportThroughPortalDecoder)
+  bind(0x5B, SpeechBubbleEncoder, PacketDirection.ServerToClient)
   bind(0x6B, ChatMessageEncoder, ChatMessageDecoder, PacketDirection.ServerToClient)
-  bind(0x75, PlayerHurtEncoder, PlayerHurtDecoder)
-  bind(0x76, PlayerDeathEncoder, PlayerDeathDecoder)
-  bind(0x77, CombatMessageEncoder, CombatMessageDecoder, PacketDirection.ServerToClient)
+  bind(0x76, PlayerDeathEncoder, PlayerDeathDecoder, PacketDirection.ServerToClient)
+  bind(0x77, CombatMessageEncoder, PacketDirection.ServerToClient)
   bind(0x91, ItemUpdateEncoder, ShimmeredItemUpdateDecoder)
   bind(0x94, ItemUpdateEncoder, CannotBeTakenByEnemiesItemUpdateDecoder)
 
@@ -136,4 +143,13 @@ internal val Protocol274 = protocol("274") {
   bind(0x01FF, PlayerCommandEncoder, PlayerCommandDecoder, PacketDirection.ClientToServer)
   bind(0x01FF, PlayerChatMessageEncoder, PlayerChatMessageDecoder, PacketDirection.ServerToClient)
   bind(0x08FF, TeleportPylonEncoder, TeleportPylonDecoder, PacketDirection.ServerToClient)
+
+  // tModLoader
+  bind(0xF9, UpdateModConfigRequestEncoder, UpdateModConfigRequestDecoder, PacketDirection.ClientToServer)
+  bind(0xF9, UpdateModConfigResponseEncoder, UpdateModConfigResponseDecoder, PacketDirection.ServerToClient)
+  bind(0xFA, ModDataEncoder, ModDataDecoder, PacketDirection.ClientToServer)
+  bind(0xFB, SyncModsEncoder, SyncModsDecoder, PacketDirection.ServerToClient)
+  bind(0xFB, SyncModsDoneEncoder, SyncModsDoneDecoder, PacketDirection.ClientToServer)
+  bind(0xFC, ModFileRequestEncoder, ModFileRequestDecoder, PacketDirection.ClientToServer)
+  bind(0xFC, ModFileResponseEncoder, ModFileResponseDecoder, PacketDirection.ServerToClient)
 }

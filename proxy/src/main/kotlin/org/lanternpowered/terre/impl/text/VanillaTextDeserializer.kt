@@ -9,6 +9,7 @@
  */
 package org.lanternpowered.terre.impl.text
 
+import org.lanternpowered.terre.impl.item.ItemStackImpl
 import org.lanternpowered.terre.impl.util.OptionalColor
 import org.lanternpowered.terre.text.AchievementRegistry
 import org.lanternpowered.terre.text.Text
@@ -16,10 +17,6 @@ import org.lanternpowered.terre.text.textOf
 import org.lanternpowered.terre.util.Color
 import org.lanternpowered.terre.util.collection.toImmutableList
 import org.lanternpowered.terre.impl.util.optional
-import org.lanternpowered.terre.item.ItemModifier
-import org.lanternpowered.terre.item.ItemModifierRegistry
-import org.lanternpowered.terre.item.ItemTypeRegistry
-import org.lanternpowered.terre.item.ItemStack
 import org.lanternpowered.terre.text.GlyphRegistry
 
 /**
@@ -89,13 +86,12 @@ private fun fromTaggedVanillaFormat(format: String, builder: TextBuilder) {
         }
       }
       "i" -> {
-        val internalId = value.toIntOrNull()
-        val item = if (internalId != null) ItemTypeRegistry[internalId] else null
+        val itemId = value.toIntOrNull()
         val optionList = options.split(",")
           .filter { it.isNotEmpty() }
         val quantity = optionList.firstOrNull { it[0] == 's' || it[0] == 'x' }
           ?.substring(1)?.toIntOrNull() ?: 1
-        if (item == null) {
+        if (itemId == null) {
           builder.append("[$value")
           if (quantity > 1)
             builder.append(" ($quantity)")
@@ -103,8 +99,7 @@ private fun fromTaggedVanillaFormat(format: String, builder: TextBuilder) {
         } else {
           val modifierId = optionList.firstOrNull { it[0] == 'p' }
             ?.toIntOrNull()?.coerceIn(0..10000) ?: 0
-          val modifier = ItemModifierRegistry[modifierId] ?: ItemModifier.Default
-          builder.append(ItemTextImpl(ItemStack(item, modifier, quantity)))
+          builder.append(ItemTextImpl(ItemStackImpl(itemId, modifierId, quantity)))
         }
       }
       "n" -> builder.append('<' + value

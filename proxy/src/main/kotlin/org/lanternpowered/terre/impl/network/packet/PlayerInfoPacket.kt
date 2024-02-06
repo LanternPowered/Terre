@@ -25,7 +25,7 @@ import org.lanternpowered.terre.util.toString
 internal data class PlayerInfoPacket(
   val playerId: PlayerId,
   val playerName: String,
-  val data: ByteBuf
+  val data: ByteBuf,
 ) : Packet {
 
   override fun toString() = toString {
@@ -44,6 +44,10 @@ internal val PlayerInfoDecoder = PacketDecoder { buf ->
   val index = buf.readerIndex()
   buf.skipBytes(idToNameOffset)
   val playerName = buf.readString()
+
+  // tModLoader also increases the number of hair dyes, which is encoded
+  // as a var int, for now it won't cause issues if they don't go above 127
+  // TODO: Check if we need this
 
   val size = buf.readableBytes() + idToNameOffset
   val data = Unpooled.buffer(size)

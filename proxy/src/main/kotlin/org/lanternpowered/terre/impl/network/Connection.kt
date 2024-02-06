@@ -28,6 +28,7 @@ import io.netty.util.Attribute
 import io.netty.util.AttributeKey
 import io.netty.util.ReferenceCountUtil
 import kotlinx.coroutines.asCoroutineDispatcher
+import org.lanternpowered.terre.ProtocolVersion
 import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.packet.DisconnectPacket
@@ -58,6 +59,12 @@ internal class Connection(
    * The current protocol.
    */
   lateinit var protocol: Protocol
+
+  /**
+   * The protocol version used for this connection, either client side protocol version or
+   * otherwise the server side protocol version.
+   */
+  lateinit var protocolVersion: ProtocolVersion
 
   /**
    * Sets the current [ConnectionHandler].

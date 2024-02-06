@@ -33,15 +33,13 @@ internal class ServerCollectionImpl(
     val version = serverInfo.protocolVersion
     val protocol = if (version != null) {
       val protocol = ProtocolRegistry[version]
-      checkNotNull(protocol) {
-        "The provided protocol version isn't supported: $version" }
+      checkNotNull(protocol) { "The provided protocol version isn't supported: $version" }
       VersionedProtocol(version, protocol)
     } else null
     val server = ServerImpl(serverInfo, false, protocol)
     synchronized(server.registerLock) {
       val previous = map.putIfAbsent(key, server)
-      check(previous == null) {
-        "A server already exists with the name: ${serverInfo.name}" }
+      check(previous == null) { "A server already exists with the name: ${serverInfo.name}" }
       server.init()
       if (!silently)
         EventBus.postAndForget(ServerRegisterEvent(server))

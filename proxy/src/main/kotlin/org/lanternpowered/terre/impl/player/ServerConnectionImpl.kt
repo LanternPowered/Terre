@@ -22,6 +22,7 @@ import org.lanternpowered.terre.impl.network.Connection
 import org.lanternpowered.terre.impl.network.PacketCodecContextImpl
 import org.lanternpowered.terre.impl.network.PacketDirection
 import org.lanternpowered.terre.impl.network.ProtocolRegistry
+import org.lanternpowered.terre.impl.network.ProtocolTModLoader
 import org.lanternpowered.terre.impl.network.ReadTimeout
 import org.lanternpowered.terre.impl.network.VersionedProtocol
 import org.lanternpowered.terre.impl.network.addChannelFutureListener
@@ -30,6 +31,8 @@ import org.lanternpowered.terre.impl.network.backend.ServerInitConnectionResult
 import org.lanternpowered.terre.impl.network.backend.ServerPlayConnectionHandler
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.packet.ConnectionApprovedPacket
+import org.lanternpowered.terre.impl.network.packet.tmodloader.ModDataPacket
+import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsPacket
 import org.lanternpowered.terre.impl.network.pipeline.FrameDecoder
 import org.lanternpowered.terre.impl.network.pipeline.FrameEncoder
 import org.lanternpowered.terre.impl.network.pipeline.PacketMessageDecoder
@@ -44,6 +47,8 @@ internal class ServerConnectionImpl(
 ) : ServerConnection {
 
   private var nullablePlayerId: PlayerId? = null
+  private var syncModsPacket: SyncModsPacket? = null
+  private var syncModNetIdsPacket: ModDataPacket? = null
 
   /**
    * The id that the player got assigned by the server.
@@ -60,7 +65,7 @@ internal class ServerConnectionImpl(
   var isWorldInitialized: Boolean = false
 
   init {
-    if (!player.wasPreviouslyConnectedToServer)
+    if (player.previousServer != null)
       isWorldInitialized = true
   }
 
@@ -71,10 +76,26 @@ internal class ServerConnectionImpl(
     val connection = connection ?: error("No connection to accept.")
     // Continue server connection after it has been approved
     connection.setConnectionHandler(ServerPlayConnectionHandler(
-      this@ServerConnectionImpl, player))
-    // Sending this packet triggers the client to request all the information from the
-    // server once again, this allows it to request and load a new world.
-    player.clientConnection.send(ConnectionApprovedPacket(playerId))
+      this@ServerConnectionImpl, player, syncModNetIdsPacket))
+    syncModNetIdsPacket = null
+
+    val syncModsPacket = syncModsPacket
+    val tModLoaderClient = player.protocolVersion is ProtocolVersion.TModLoader
+    val tModLoaderServer = connection.protocolVersion is ProtocolVersion.TModLoader
+    val previousTModLoaderServer = player.previousServer?.protocolVersion is ProtocolVersion.TModLoader
+    if (tModLoaderClient && !tModLoaderServer && previousTModLoaderServer) {
+      // When switching from modded to vanilla servers using a modded client, sync the mods again,
+      // then when receiving the mods synced packet back, approve the connection and continue as
+      // usual
+      player.clientConnection.send(SyncModsPacket(true, listOf()))
+    } else if (tModLoaderClient && tModLoaderServer && syncModsPacket != null) {
+      // Switching to a tModLoader server
+      player.clientConnection.send(syncModsPacket)
+    } else {
+      // Sending this packet triggers the client to request all the information from the
+      // server once again, this allows it to request and load a new world.
+      player.clientConnection.send(ConnectionApprovedPacket(playerId))
+    }
   }
 
   fun connect(): CompletableFuture<ServerConnectionRequestResult> {
@@ -100,7 +121,13 @@ internal class ServerConnectionImpl(
     val versionsToAttempt = if (versionedProtocol != null) {
       mutableListOf(versionedProtocol)
     } else {
-      ProtocolRegistry.allowedTranslations.asSequence()
+      var tModLoader = emptyList<VersionedProtocol>()
+      val lastKnownVersion = server.lastKnownVersion
+      if (player.protocolVersion is ProtocolVersion.TModLoader) {
+        val protocolVersion = if (lastKnownVersion is ProtocolVersion.TModLoader) lastKnownVersion else player.protocolVersion
+        tModLoader = listOf(VersionedProtocol(protocolVersion, ProtocolTModLoader))
+      }
+      (tModLoader + ProtocolRegistry.allowedTranslations.asSequence()
         .filter { translation -> translation.from == clientProtocol }
         .flatMap { translation ->
           ProtocolRegistry.all.asSequence().filter { it.protocol == translation.to }
@@ -108,7 +135,6 @@ internal class ServerConnectionImpl(
         .distinct()
         .let {
           // Prioritize the last known entry, for faster connections
-          val lastKnownVersion = server.lastKnownVersion
           var comparator = Comparator<VersionedProtocol> { o1, o2 ->
             val v1 = o1.version
             val v2 = o2.version
@@ -123,23 +149,22 @@ internal class ServerConnectionImpl(
             }.thenComparing(comparator)
           }
           it.sortedWith(comparator)
-        }
+        })
         .toMutableList()
     }
-
     var firstThrowable: Throwable? = null
 
-    fun tryConnect(versionedProtocol: VersionedProtocol, modded: Boolean) {
+    fun tryConnect(versionedProtocol: VersionedProtocol, syncRealIP: Boolean) {
       if (player.clientConnection.isClosed) {
         future.complete(ServerConnectionRequestResult.Disconnected(
           server, textOf("Client already disconnected.")))
         return
       }
-      connect(versionedProtocol, modded).whenComplete { result, throwable ->
+      connect(versionedProtocol, syncRealIP).whenComplete { result, throwable ->
         if (throwable == null) {
           when (result) {
             is ServerInitConnectionResult.Success -> {
-              server.modded = modded
+              server.syncRealIP = syncRealIP
               future.complete(ServerConnectionRequestResult.Success(server))
             }
             is ServerInitConnectionResult.Disconnected -> {
@@ -149,11 +174,17 @@ internal class ServerConnectionImpl(
               if (versionsToAttempt.isEmpty()) {
                 future.complete(ServerConnectionRequestResult.Disconnected(server, result.reason))
               } else {
-                tryConnect(versionsToAttempt.removeAt(0), modded)
+                tryConnect(versionsToAttempt.removeAt(0), syncRealIP)
               }
             }
             is ServerInitConnectionResult.NotModded -> {
               tryConnect(versionedProtocol, false)
+            }
+            is ServerInitConnectionResult.TModLoaderVersionMismatch -> {
+              tryConnect(VersionedProtocol(result.version, versionedProtocol.protocol), false)
+            }
+            is ServerInitConnectionResult.TModLoaderClientExpected -> {
+              future.complete(ServerConnectionRequestResult.Disconnected(server, result.reason))
             }
           }
         } else {
@@ -162,19 +193,19 @@ internal class ServerConnectionImpl(
           if (versionsToAttempt.isEmpty()) {
             future.completeExceptionally(firstThrowable)
           } else {
-            tryConnect(versionsToAttempt.removeAt(0), modded)
+            tryConnect(versionsToAttempt.removeAt(0), syncRealIP)
           }
         }
       }
     }
 
-    tryConnect(versionsToAttempt.removeAt(0), server.modded ?: true)
+    tryConnect(versionsToAttempt.removeAt(0), server.syncRealIP ?: true)
     return future
   }
 
   private fun connect(
     versionedProtocol: VersionedProtocol,
-    modded: Boolean,
+    syncRealIP: Boolean,
   ): CompletableFuture<ServerInitConnectionResult> {
     val result = CompletableFuture<ServerInitConnectionResult>()
     ProxyImpl.networkManager
@@ -186,7 +217,7 @@ internal class ServerConnectionImpl(
       .connect(server.info.address)
       .addChannelFutureListener { future ->
         if (future.isSuccess) {
-          future.channel().init(versionedProtocol, result, modded)
+          future.channel().init(versionedProtocol, result, syncRealIP)
         } else {
           result.completeExceptionally(future.cause())
         }
@@ -197,7 +228,7 @@ internal class ServerConnectionImpl(
   private fun Channel.init(
     versionedProtocol: VersionedProtocol,
     future: CompletableFuture<ServerInitConnectionResult>,
-    modded: Boolean,
+    syncRealIP: Boolean,
   ) {
     val connection = Connection(this)
     pipeline().apply {
@@ -218,13 +249,15 @@ internal class ServerConnectionImpl(
       server.lastKnownVersion = versionedProtocol.version
       this@ServerConnectionImpl.nullablePlayerId = result.playerId
       this@ServerConnectionImpl.connection = connection
+      this@ServerConnectionImpl.syncModsPacket = result.syncModsPacket
+      this@ServerConnectionImpl.syncModNetIdsPacket = result.syncModNetIdsPacket
       Terre.logger.debug { "Successfully made a new connection to ${server.info}" }
     }
-    val clientIP = player.remoteAddress.address.hostAddress
+    val realClientIP = if (syncRealIP) player.remoteAddress.address.hostAddress else null
     val playerInfo = player.lastPlayerInfo
     val password = server.info.password
     connection.setConnectionHandler(ServerInitConnectionHandler(
-      connection, future, versionedProtocol, password, playerInfo, modded, clientIP))
+      connection, future, versionedProtocol, password, playerInfo, realClientIP))
   }
 
   fun ensureConnected(): Connection {

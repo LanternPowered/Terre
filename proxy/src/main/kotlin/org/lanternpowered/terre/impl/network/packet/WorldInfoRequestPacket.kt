@@ -12,12 +12,8 @@ package org.lanternpowered.terre.impl.network.packet
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.PacketDecoder
 import org.lanternpowered.terre.impl.network.PacketEncoder
-import org.lanternpowered.terre.util.toString
 
-internal object WorldInfoRequestPacket : Packet {
-
-  override fun toString() = toString {}
-}
+internal data object WorldInfoRequestPacket : Packet
 
 internal val RequestWorldInfoDecoder = PacketDecoder { WorldInfoRequestPacket }
 

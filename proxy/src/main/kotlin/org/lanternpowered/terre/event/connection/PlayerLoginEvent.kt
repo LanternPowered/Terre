@@ -36,7 +36,7 @@ data class PlayerLoginEvent(
     /**
      * The player is allowed to proceed connecting to the proxy.
      */
-    object Allowed : Result
+    data object Allowed : Result
 
     /**
      * The player is denied to proceed connecting to the proxy. The player will be disconnected

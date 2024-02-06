@@ -18,14 +18,14 @@ import java.security.CodeSource
 
 private object Context
 
-internal fun main(args: Array<String>) {
+internal fun main() {
   System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager")
 
   // Wrap in a URL classloader if needed
   var bootstrapClassLoader = Context::class.java.classLoader
   if (bootstrapClassLoader !is URLClassLoader) {
     val source: CodeSource? = Context::class.java.protectionDomain.codeSource
-    val location = source?.location
+    val location = source?.location?.toURI()
 
     val urls = mutableListOf<URL>()
 
@@ -33,9 +33,9 @@ internal fun main(args: Array<String>) {
     val libraries = classPath.split(File.pathSeparator).toTypedArray()
     for (library in libraries) {
       try {
-        val url: URL = Paths.get(library).toUri().toURL()
-        if (!library.endsWith(".jar") || url == location)
-          urls.add(url)
+        val uri = Paths.get(library).toUri()
+        if (!library.endsWith(".jar") || uri == location)
+          urls.add(uri.toURL())
       } catch (ignored: MalformedURLException) {
         println("Invalid library found in the class path: $library")
       }

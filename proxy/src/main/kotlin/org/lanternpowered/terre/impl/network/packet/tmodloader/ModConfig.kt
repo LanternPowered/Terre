@@ -7,17 +7,9 @@
  * This work is licensed under the terms of the MIT License (MIT). For
  * a copy, see 'LICENSE.txt' or <https://opensource.org/licenses/MIT>.
  */
-package org.lanternpowered.terre.logger
+package org.lanternpowered.terre.impl.network.packet.tmodloader
 
-import org.apache.logging.log4j.Logger
-
-interface Logger : Logger {
-
-  fun info(message: () -> String)
-
-  fun warn(message: () -> String)
-
-  fun debug(message: () -> String)
-
-  fun trace(message: () -> String)
-}
+internal data class ModConfig(
+  val name: String,
+  val content: String
+)

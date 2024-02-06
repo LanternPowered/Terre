@@ -10,8 +10,7 @@
 package org.lanternpowered.terre.text
 
 /**
- * Represents the [TextSerializer] who converts between
- * plain strings and text objects.
+ * Represents the [TextSerializer] who converts between plain strings and text objects.
  */
 object PlainTextSerializer : TextSerializer {
 

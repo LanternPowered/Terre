@@ -24,8 +24,7 @@ internal class CustomPayloadPacket(
 ) : Packet, ForwardingReferenceCounted(content)
 
 internal val CustomPayloadEncoder = PacketEncoder<CustomPayloadPacket> { buf, packet ->
-  val content = packet.content
-  buf.writeBytes(content, content.readerIndex(), content.readableBytes())
+  buf.writeBytes(packet.content)
 }
 
 internal val CustomPayloadDecoder = PacketDecoder { buf ->

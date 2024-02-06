@@ -32,7 +32,7 @@ data class ClientConnectEvent(
     /**
      * The client is allowed to proceed connecting to the proxy.
      */
-    object Allowed : Result
+    data object Allowed : Result
 
     /**
      * The client is denied to proceed connecting to the proxy. The client will be disconnected
