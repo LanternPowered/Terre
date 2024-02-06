@@ -18,8 +18,9 @@ import org.lanternpowered.terre.impl.network.buffer.writeString
 import java.io.IOException
 import java.net.DatagramPacket
 import java.net.DatagramSocket
-import java.net.InetAddress
+import java.net.NetworkInterface
 import kotlin.math.min
+import kotlin.streams.asSequence
 
 /**
  * Broadcasts the server to the LAN network.
@@ -31,6 +32,7 @@ internal class ProxyBroadcastTask(private val proxy: Proxy) {
   fun init() {
     try {
       socket = DatagramSocket()
+      socket.broadcast = true
     } catch (ex: IOException) {
       Terre.logger.error("Failed to open socket, the LAN broadcast will NOT work.", ex)
       return
@@ -48,17 +50,25 @@ internal class ProxyBroadcastTask(private val proxy: Proxy) {
   }
 
   private fun broadcast() {
-    val targetPort = 8888
-    val targetAddress = InetAddress.getByName("255.255.255.255")
-
     var errorLogged = false
-
     while (!socket.isClosed) {
-      val buf = Unpooled.buffer()
-      buf.writeBroadcastData()
-      val array = buf.array()
       try {
-        socket.send(DatagramPacket(array, array.size, targetAddress, targetPort))
+        val broadcastDataList = listOf(
+          broadcastData(true),
+          broadcastData(false),
+        )
+        NetworkInterface.networkInterfaces()
+          .asSequence()
+          .filter { itf -> !itf.isLoopback && itf.isUp }
+          .flatMap { itf -> itf.interfaceAddresses.asSequence() }
+          .map { address -> address.broadcast }
+          .filterNotNull()
+          .forEach { address ->
+            for (broadcastData in broadcastDataList) {
+              val array = broadcastData.array()
+              socket.send(DatagramPacket(array, array.size, address, 8888))
+            }
+          }
         errorLogged = false
       } catch (ex: IOException) {
         if (!errorLogged) {
@@ -67,22 +77,28 @@ internal class ProxyBroadcastTask(private val proxy: Proxy) {
         }
       }
 
-      // Sleep 1 second
+      // Sleep 1 second, same as for vanilla servers
       Thread.sleep(1000L)
     }
   }
 
-  private fun ByteBuf.writeBroadcastData() {
-    writeIntLE(1010)
-    writeIntLE(proxy.address.port)
-    writeString(proxy.name)
-    writeString(proxy.address.hostString)
-    writeShortLE(8400) // World size - from a large world
-    writeBoolean(false) // Is crimson
-    writeBoolean(false) // Is expert
-    val maxPlayers = proxy.maxPlayers.let { if (it is MaxPlayers.Limited) it.amount else 255 }
-    writeByte(min(maxPlayers, 255))
-    writeByte(min(proxy.players.size, 255))
-    writeBoolean(false) // Is hard mode
+  private fun broadcastData(sendHardMode: Boolean): ByteBuf {
+    val buf = Unpooled.buffer()
+    with(buf) {
+      writeIntLE(1010)
+      writeIntLE(proxy.address.port)
+      writeString(proxy.name)
+      writeString(proxy.address.hostString)
+      writeShortLE(8400) // World size - from a large world
+      writeBoolean(false) // Is crimson
+      writeIntLE(0) // Game mode
+      val maxPlayers = proxy.maxPlayers.let { if (it is MaxPlayers.Limited) it.amount else 255 }
+      writeByte(min(maxPlayers, 255))
+      writeByte(min(proxy.players.size, 255))
+      if (sendHardMode) {
+        writeBoolean(false) // Is hard mode
+      }
+    }
+    return buf
   }
 }
