@@ -26,6 +26,7 @@ import org.lanternpowered.terre.dispatcher.launchAsync
 import org.lanternpowered.terre.event.character.InitCharacterStorageEvent
 import org.lanternpowered.terre.event.connection.PlayerLoginEvent
 import org.lanternpowered.terre.event.connection.PlayerPostLoginEvent
+import org.lanternpowered.terre.event.player.PlayerDeathEvent
 import org.lanternpowered.terre.event.server.PlayerJoinServerEvent
 import org.lanternpowered.terre.event.server.PlayerLeaveServerEvent
 import org.lanternpowered.terre.impl.ProxyImpl
@@ -43,6 +44,7 @@ import org.lanternpowered.terre.impl.network.packet.NpcUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerActivePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerChatMessagePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerCommandPacket
+import org.lanternpowered.terre.impl.network.packet.PlayerHealthPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInventorySlotPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerPvPPacket
@@ -71,6 +73,7 @@ import org.lanternpowered.terre.util.AABB
 import java.net.InetSocketAddress
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
+import kotlin.math.max
 
 internal class PlayerImpl(
   val clientConnection: Connection,
@@ -111,6 +114,8 @@ internal class PlayerImpl(
     private set
 
   var forwardNextOwnerUpdate = false
+
+  private var health = -1
 
   private var characterStoragePersistJob: Job? = null
   private var characterStoragePersistQueue: Channel<Int>? = null
@@ -202,7 +207,7 @@ internal class PlayerImpl(
   /**
    * Deferred that will be updated when the player is cleaned up.
    */
-  var cleanedUp = CompletableFuture<Unit>()
+  private var cleanedUp = CompletableFuture<Unit>()
 
   /**
    * The status text that is currently being shown, and a counter of packets
@@ -489,7 +494,7 @@ internal class PlayerImpl(
                 serverClientUniqueId = event.clientUniqueId
               }
               connection.accept()
-              Terre.logger.debug("Successfully established connection to backend server: ${server.info}")
+              Terre.logger.debug { "Successfully established connection to backend server: ${server.info}" }
             }, clientConnection.eventLoop)
         }
       }, clientConnection.eventLoop)
@@ -568,6 +573,7 @@ internal class PlayerImpl(
   }
 
   private fun resetClient() {
+    health = -1
     for (player in trackedPlayers) {
       if (player.active)
         clientConnection.send(PlayerActivePacket(player.id, false))
@@ -593,4 +599,23 @@ internal class PlayerImpl(
     }
     trackedTeleportPylons.clear()
   }
+
+  fun handleHealth(packet: PlayerHealthPacket, connection: Connection): Boolean {
+    val health = max(0, packet.current)
+    val previousHealth = this.health
+    this.health = health
+    if (previousHealth != -1 && health == 0 && previousHealth != 0) {
+      TerreEventBus.postAsyncWithFuture(PlayerDeathEvent(this))
+        .whenCompleteAsync({ _, exception ->
+          if (exception != null) {
+            Terre.logger.error("Failed to handle player death event", exception)
+          } else {
+            connection.send(packet)
+          }
+        }, connection.eventLoop)
+      return false // Do not forward
+    }
+    return true // Forward
+  }
+
 }

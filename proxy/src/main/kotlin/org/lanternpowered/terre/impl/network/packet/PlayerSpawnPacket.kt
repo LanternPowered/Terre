@@ -25,7 +25,7 @@ internal data class PlayerSpawnPacket(
   val respawnTimeRemaining: Int,
   val numberOfDeathsPvE: Int,
   val numberOfDeathsPvP: Int,
-  val respawnContext: Context
+  val context: Context
 ) : Packet {
 
   enum class Context {
@@ -41,7 +41,7 @@ internal val PlayerSpawnEncoder = PacketEncoder<PlayerSpawnPacket> { buf, packet
   buf.writeIntLE(packet.respawnTimeRemaining)
   buf.writeShortLE(packet.numberOfDeathsPvE)
   buf.writeShortLE(packet.numberOfDeathsPvP)
-  buf.writeByte(packet.respawnContext.ordinal)
+  buf.writeByte(packet.context.ordinal)
 }
 
 internal val PlayerSpawnDecoder = PacketDecoder { buf ->

@@ -140,7 +140,7 @@ internal class ClientPlayConnectionHandler(
     player.serverConnection?.isWorldInitialized = true
     player.position = packet.position.toFloat()
 
-    if (packet.respawnContext == PlayerSpawnPacket.Context.SpawningIntoWorld) {
+    if (packet.context == PlayerSpawnPacket.Context.SpawningIntoWorld) {
       serverConnection?.send(packet)
       val playerId = packet.playerId
       val team = player.team
@@ -181,6 +181,16 @@ internal class ClientPlayConnectionHandler(
         }
       }, player.clientConnection.eventLoop)
     return true
+  }
+
+  override fun handle(packet: PlayerHealthPacket): Boolean {
+    if (packet.playerId == player.playerId) {
+      val connection = player.serverConnection?.ensureConnected()
+      if (connection != null) {
+        return player.handleHealth(packet, connection)
+      }
+    }
+    return false
   }
 
   override fun handle(packet: PlayerPvPPacket): Boolean {

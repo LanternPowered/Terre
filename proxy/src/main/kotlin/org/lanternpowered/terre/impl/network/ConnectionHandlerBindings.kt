@@ -40,6 +40,7 @@ import org.lanternpowered.terre.impl.network.packet.SpeechBubblePacket
 import org.lanternpowered.terre.impl.network.packet.StatusPacket
 import org.lanternpowered.terre.impl.network.packet.ItemUpdateOwnerPacket
 import org.lanternpowered.terre.impl.network.packet.NpcUpdatePacket
+import org.lanternpowered.terre.impl.network.packet.PlayerHealthPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInventorySlotPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerPvPPacket
 import org.lanternpowered.terre.impl.network.packet.ProjectileUpdatePacket
@@ -87,6 +88,7 @@ internal object ConnectionHandlerBindings {
     bind<PlayerUpdatePacket>(ConnectionHandler::handle)
     bind<PlayerTeamPacket>(ConnectionHandler::handle)
     bind<PlayerPvPPacket>(ConnectionHandler::handle)
+    bind<PlayerHealthPacket>(ConnectionHandler::handle)
     bind<SimpleItemUpdatePacket>(ConnectionHandler::handle)
     bind<InstancedItemUpdatePacket>(ConnectionHandler::handle)
     bind<ShimmeredItemUpdatePacket>(ConnectionHandler::handle)

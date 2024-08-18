@@ -21,7 +21,7 @@ internal val PlayerSpawn238Encoder = PacketEncoder<PlayerSpawnPacket> { buf, pac
   buf.writePlayerId(packet.playerId)
   buf.writeShortVec2i(packet.position)
   buf.writeIntLE(packet.respawnTimeRemaining)
-  buf.writeByte(packet.respawnContext.ordinal)
+  buf.writeByte(packet.context.ordinal)
 }
 
 internal val PlayerSpawn238Decoder = PacketDecoder { buf ->

@@ -32,6 +32,7 @@ import org.lanternpowered.terre.impl.network.packet.ItemUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.NpcUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerActivePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerChatMessagePacket
+import org.lanternpowered.terre.impl.network.packet.PlayerHealthPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInventorySlotPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerPvPPacket
@@ -141,6 +142,13 @@ internal class ServerPlayConnectionHandler(
     if (packet.playerId == player.playerId)
       player.pvpEnabledValue = packet.enabled
     return false // Forward
+  }
+
+  override fun handle(packet: PlayerHealthPacket): Boolean {
+    if (packet.playerId == player.playerId) {
+      return player.handleHealth(packet, clientConnection)
+    }
+    return true // Forward
   }
 
   override fun handle(packet: ProjectileUpdatePacket): Boolean {

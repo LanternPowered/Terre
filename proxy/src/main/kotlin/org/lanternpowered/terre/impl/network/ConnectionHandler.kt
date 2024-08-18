@@ -29,6 +29,7 @@ import org.lanternpowered.terre.impl.network.packet.PlayerActivePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerChatMessagePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerCommandPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerDeathPacket
+import org.lanternpowered.terre.impl.network.packet.PlayerHealthPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerHurtPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInventorySlotPacket
@@ -115,6 +116,10 @@ internal interface ConnectionHandler {
   }
 
   suspend fun handle(packet: PlayerCommandPacket): Boolean {
+    return false
+  }
+
+  fun handle(packet: PlayerHealthPacket): Boolean {
     return false
   }
 

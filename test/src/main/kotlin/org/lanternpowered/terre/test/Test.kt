@@ -15,6 +15,7 @@ import org.lanternpowered.terre.event.chat.ServerChatEvent
 import org.lanternpowered.terre.event.connection.PlayerPostLoginEvent
 import org.lanternpowered.terre.event.player.PlayerChangePvPEnabledEvent
 import org.lanternpowered.terre.event.player.PlayerChangeTeamEvent
+import org.lanternpowered.terre.event.player.PlayerDeathEvent
 import org.lanternpowered.terre.event.proxy.ProxyInitializeEvent
 import org.lanternpowered.terre.event.server.PlayerJoinServerEvent
 import org.lanternpowered.terre.logger.Logger
@@ -47,6 +48,11 @@ class Test {
     val message = event.message
     if (message is LocalizedText && message.key in teamMessageCodes)
       event.cancelled = true
+  }
+
+  @Subscribe
+  fun onPlayerDeath(event: PlayerDeathEvent) {
+    logger.info { "${event.player.name} died!" }
   }
 
   /*
