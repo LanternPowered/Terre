@@ -84,20 +84,6 @@ import org.lanternpowered.terre.impl.network.packet.TileSquareDecoder
 import org.lanternpowered.terre.impl.network.packet.TileSquareEncoder
 import org.lanternpowered.terre.impl.network.packet.WorldInfoDecoder
 import org.lanternpowered.terre.impl.network.packet.WorldInfoEncoder
-import org.lanternpowered.terre.impl.network.packet.tmodloader.ModDataDecoder
-import org.lanternpowered.terre.impl.network.packet.tmodloader.ModDataEncoder
-import org.lanternpowered.terre.impl.network.packet.tmodloader.ModFileRequestDecoder
-import org.lanternpowered.terre.impl.network.packet.tmodloader.ModFileRequestEncoder
-import org.lanternpowered.terre.impl.network.packet.tmodloader.ModFileResponseDecoder
-import org.lanternpowered.terre.impl.network.packet.tmodloader.ModFileResponseEncoder
-import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsDecoder
-import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsDoneDecoder
-import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsDoneEncoder
-import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsEncoder
-import org.lanternpowered.terre.impl.network.packet.tmodloader.UpdateModConfigRequestDecoder
-import org.lanternpowered.terre.impl.network.packet.tmodloader.UpdateModConfigRequestEncoder
-import org.lanternpowered.terre.impl.network.packet.tmodloader.UpdateModConfigResponseDecoder
-import org.lanternpowered.terre.impl.network.packet.tmodloader.UpdateModConfigResponseEncoder
 
 internal val Protocol274 = protocol("274") {
   bind(0x01, ConnectionRequestEncoder, ConnectionRequestDecoder, PacketDirection.ClientToServer)
@@ -143,13 +129,4 @@ internal val Protocol274 = protocol("274") {
   bind(0x01FF, PlayerCommandEncoder, PlayerCommandDecoder, PacketDirection.ClientToServer)
   bind(0x01FF, PlayerChatMessageEncoder, PlayerChatMessageDecoder, PacketDirection.ServerToClient)
   bind(0x08FF, TeleportPylonEncoder, TeleportPylonDecoder, PacketDirection.ServerToClient)
-
-  // tModLoader
-  bind(0xF9, UpdateModConfigRequestEncoder, UpdateModConfigRequestDecoder, PacketDirection.ClientToServer)
-  bind(0xF9, UpdateModConfigResponseEncoder, UpdateModConfigResponseDecoder, PacketDirection.ServerToClient)
-  bind(0xFA, ModDataEncoder, ModDataDecoder, PacketDirection.ClientToServer)
-  bind(0xFB, SyncModsEncoder, SyncModsDecoder, PacketDirection.ServerToClient)
-  bind(0xFB, SyncModsDoneEncoder, SyncModsDoneDecoder, PacketDirection.ClientToServer)
-  bind(0xFC, ModFileRequestEncoder, ModFileRequestDecoder, PacketDirection.ClientToServer)
-  bind(0xFC, ModFileResponseEncoder, ModFileResponseDecoder, PacketDirection.ServerToClient)
 }

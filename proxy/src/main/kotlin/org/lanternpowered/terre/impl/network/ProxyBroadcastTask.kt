@@ -9,7 +9,6 @@
  */
 package org.lanternpowered.terre.impl.network
 
-import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
 import org.lanternpowered.terre.MaxPlayers
 import org.lanternpowered.terre.Proxy
@@ -82,23 +81,19 @@ internal class ProxyBroadcastTask(private val proxy: Proxy) {
     }
   }
 
-  private fun broadcastData(sendHardMode: Boolean): ByteBuf {
-    val buf = Unpooled.buffer()
-    with(buf) {
-      writeIntLE(1010)
-      writeIntLE(proxy.address.port)
-      writeString(proxy.name)
-      writeString(proxy.address.hostString)
-      writeShortLE(8400) // World size - from a large world
-      writeBoolean(false) // Is crimson
-      writeIntLE(0) // Game mode
-      val maxPlayers = proxy.maxPlayers.let { if (it is MaxPlayers.Limited) it.amount else 255 }
-      writeByte(min(maxPlayers, 255))
-      writeByte(min(proxy.players.size, 255))
-      if (sendHardMode) {
-        writeBoolean(false) // Is hard mode
-      }
+  private fun broadcastData(sendHardMode: Boolean) = Unpooled.buffer().apply {
+    writeIntLE(1010)
+    writeIntLE(proxy.address.port)
+    writeString(proxy.name)
+    writeString(proxy.address.hostString)
+    writeShortLE(8400) // World size - from a large world
+    writeBoolean(false) // Is crimson
+    writeIntLE(0) // Game mode
+    val maxPlayers = proxy.maxPlayers.let { if (it is MaxPlayers.Limited) it.amount else 255 }
+    writeByte(min(maxPlayers, 255))
+    writeByte(min(proxy.players.size, 255))
+    if (sendHardMode) {
+      writeBoolean(false) // Is hard mode
     }
-    return buf
   }
 }

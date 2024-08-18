@@ -28,6 +28,9 @@ import org.lanternpowered.terre.impl.network.buffer.writePlayerId
 import org.lanternpowered.terre.impl.network.buffer.writeVec2f
 import org.lanternpowered.terre.impl.network.PacketDecoder
 import org.lanternpowered.terre.impl.network.PacketEncoder
+import org.lanternpowered.terre.impl.network.buffer.readImmutableBytes
+import org.lanternpowered.terre.impl.network.buffer.writeBytes
+import org.lanternpowered.terre.util.Bytes
 
 internal data class NpcUpdatePacket(
   val id: NpcId,
@@ -44,13 +47,14 @@ internal data class NpcUpdatePacket(
   val playerCountForMultiplayerDifficultyOverride: Int = 1,
   val spawnedFromStatue: Boolean = false,
   val strengthMultiplier: Float = 1f,
+  val modData: Bytes = Bytes.Empty,
 ) : Packet
 
 internal data class NpcAI(
   val ai1: Float,
   val ai2: Float,
   val ai3: Float,
-  val ai4: Float
+  val ai4: Float,
 ) {
 
   companion object {
@@ -123,6 +127,7 @@ internal val NpcUpdateEncoder = PacketEncoder<NpcUpdatePacket> { buf, packet ->
   val releaseOwner = packet.releaseOwner
   if (NpcInfo.isCatchable(packet.type))
     buf.writePlayerId(if (releaseOwner == PlayerId.None) nonePlayerId else releaseOwner)
+  buf.writeBytes(packet.modData)
 }
 
 internal val NpcUpdateDecoder = PacketDecoder { buf ->
@@ -160,7 +165,8 @@ internal val NpcUpdateDecoder = PacketDecoder { buf ->
     val playerId = buf.readPlayerId()
     if (playerId == nonePlayerId) PlayerId.None else playerId
   } else PlayerId.None
+  val modData = buf.readImmutableBytes()
   NpcUpdatePacket(npcId, npcType, position, life, velocity, spriteDirection, direction, directionY,
     target, ai, releaseOwner, playerCountForMultiplayerDifficultyOverride, spawnedFromStatue,
-    strengthMultiplier)
+    strengthMultiplier, modData)
 }

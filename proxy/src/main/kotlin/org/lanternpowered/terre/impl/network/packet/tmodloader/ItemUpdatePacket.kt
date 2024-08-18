@@ -70,8 +70,7 @@ internal val ShimmeredItemUpdateDecoder = itemUpdateDecoder {
 internal val CannotBeTakenByEnemiesItemUpdateDecoder = itemUpdateDecoder {
     id, position, stack, velocity, noDelay ->
   val cannotBeTakenByEnemiesTime = readUByte().toInt()
-  CannotBeTakenByEnemiesItemUpdatePacket(id, position, stack, velocity, noDelay,
-    cannotBeTakenByEnemiesTime)
+  CannotBeTakenByEnemiesItemUpdatePacket(id, position, stack, velocity, noDelay, cannotBeTakenByEnemiesTime)
 }
 
 private inline fun <P : Packet> itemUpdateDecoder(
@@ -86,8 +85,9 @@ private inline fun <P : Packet> itemUpdateDecoder(
   val modifierId = buf.readVarInt()
   val noDelay = buf.readBoolean()
   val typeId = buf.readUnsignedShortLE()
-  val modData = buf.readImmutableBytes()
   val itemStack = ItemStackImpl(typeId, modifierId, quantity)
+  val result = buf.packet(id, position, itemStack, velocity, noDelay)
+  val modData = buf.readImmutableBytes()
   itemStack.modData = modData
-  buf.packet(id, position, itemStack, velocity, noDelay)
+  result
 }

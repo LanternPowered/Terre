@@ -61,6 +61,8 @@ internal object ProxyImpl : Proxy {
   val configDirectory = RootConfigDirectoryImpl(Paths.get("config"))
   private val config: Config = loadConfig()
 
+  private var broadcastTask: ProxyBroadcastTask? = null
+
   override var name by config.property(ProxyConfigSpec.name)
 
   override var maxPlayers: MaxPlayers
@@ -127,8 +129,8 @@ internal object ProxyImpl : Proxy {
     if (config[ProxyConfigSpec.LocalBroadcast.enabled]) {
       // Start broadcasting the server information to the LAN network, used by mobile
       // TODO: Make values configurable?
-      val broadcastTask = ProxyBroadcastTask(this)
-      broadcastTask.init()
+      broadcastTask = ProxyBroadcastTask(this)
+      broadcastTask!!.init()
     }
   }
 
@@ -160,13 +162,14 @@ internal object ProxyImpl : Proxy {
       // Prevent new connections
       networkManager.shutdown()
 
-      var timeout = false
+      broadcastTask?.stop()
+      broadcastTask = null
 
-      timeout = tryWithTimeout(10.seconds) {
+      var timeout = tryWithTimeout(10.seconds) {
         players.toImmutableList()
           .map { it.disconnectAsync(reason) }
           .forEach { it.join() }
-      }.isFailure || timeout
+      }.isFailure
 
       // Stop reading the console
       console.stop()

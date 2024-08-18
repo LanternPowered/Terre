@@ -80,6 +80,8 @@ import org.lanternpowered.terre.impl.network.packet.WorldInfoEncoder
 import org.lanternpowered.terre.impl.network.packet.tmodloader.CannotBeTakenByEnemiesItemUpdateDecoder
 import org.lanternpowered.terre.impl.network.packet.tmodloader.InstancedItemUpdateDecoder
 import org.lanternpowered.terre.impl.network.packet.tmodloader.ItemUpdateEncoder
+import org.lanternpowered.terre.impl.network.packet.tmodloader.KeepAliveDuringModReloadDecoder
+import org.lanternpowered.terre.impl.network.packet.tmodloader.KeepAliveDuringModReloadEncoder
 import org.lanternpowered.terre.impl.network.packet.tmodloader.ModDataDecoder
 import org.lanternpowered.terre.impl.network.packet.tmodloader.ModDataEncoder
 import org.lanternpowered.terre.impl.network.packet.tmodloader.ModFileRequestDecoder
@@ -137,12 +139,15 @@ internal val ProtocolTModLoader = protocol("tModLoader") {
   bind(0x43, CustomPayloadEncoder, CustomPayloadDecoder)
   bind(0x44, ClientUniqueIdEncoder, ClientUniqueIdDecoder, PacketDirection.ClientToServer)
   bind(0x5A, ItemUpdateEncoder, InstancedItemUpdateDecoder)
-  bind(0x5B, SpeechBubbleEncoder)
+  bind(0x5B, SpeechBubbleEncoder, PacketDirection.ServerToClient)
   bind(0x6B, ChatMessageEncoder, ChatMessageDecoder, PacketDirection.ServerToClient)
   bind(0x76, PlayerDeathEncoder, PlayerDeathDecoder)
   bind(0x77, CombatMessageEncoder, PacketDirection.ServerToClient)
   bind(0x91, ItemUpdateEncoder, ShimmeredItemUpdateDecoder)
   bind(0x94, ItemUpdateEncoder, CannotBeTakenByEnemiesItemUpdateDecoder)
+  // TODO: tModLoader modified the NPCStrike packet but forgot to wrap the original logic for
+  //  vanilla clients? Fix this in Terre or create an issue/fix it
+  //   https://github.com/tModLoader/tModLoader/blob/1.4.4/patches/tModLoader/Terraria/MessageBuffer.cs.patch#L327
 
   // modules
   bind(0x01FF, PlayerCommandEncoder, PlayerCommandDecoder, PacketDirection.ClientToServer)
@@ -157,4 +162,5 @@ internal val ProtocolTModLoader = protocol("tModLoader") {
   bind(0xFB, SyncModsDoneEncoder, SyncModsDoneDecoder, PacketDirection.ClientToServer)
   bind(0xFC, ModFileRequestEncoder, ModFileRequestDecoder, PacketDirection.ClientToServer)
   bind(0xFC, ModFileResponseEncoder, ModFileResponseDecoder, PacketDirection.ServerToClient)
+  bind(0xFD, KeepAliveDuringModReloadEncoder, KeepAliveDuringModReloadDecoder, PacketDirection.ClientToServer)
 }

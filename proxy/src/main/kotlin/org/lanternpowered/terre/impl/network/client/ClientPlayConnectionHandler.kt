@@ -38,6 +38,7 @@ import org.lanternpowered.terre.impl.network.packet.PlayerTeamPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.StatusPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
+import org.lanternpowered.terre.impl.network.packet.tmodloader.KeepAliveDuringModReloadPacket
 import org.lanternpowered.terre.impl.network.packet.tmodloader.ModDataPacket
 import org.lanternpowered.terre.impl.network.packet.tmodloader.ModFileRequestPacket
 import org.lanternpowered.terre.impl.network.packet.tmodloader.ModFileResponsePacket
@@ -256,7 +257,8 @@ internal class ClientPlayConnectionHandler(
       packet is ModFileResponsePacket ||
       packet is ModDataPacket ||
       packet is UpdateModConfigRequestPacket ||
-      packet is UpdateModConfigResponsePacket
+      packet is UpdateModConfigResponsePacket ||
+      packet is KeepAliveDuringModReloadPacket
   }
 
   override fun handleGeneric(packet: Packet) {

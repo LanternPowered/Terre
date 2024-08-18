@@ -59,7 +59,7 @@ class AABB(min: Vec2f, max: Vec2f) {
   }
 
   /**
-   * Gets whether the this bounding box collides with the other one.
+   * Gets whether this bounding box collides with the other one.
    */
   fun intersects(other: AABB): Boolean {
     return max.x >= other.min.x && other.max.x >= min.x &&

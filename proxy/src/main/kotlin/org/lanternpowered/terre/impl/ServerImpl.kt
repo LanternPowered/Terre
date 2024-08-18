@@ -134,7 +134,6 @@ internal class ServerImpl(
     portalCollisionJob = launchAsync(EventExecutor.dispatcher) {
       while (true) {
         val allPlayers = mutablePlayers.toList()
-        // Update all portals, so the projectiles don't expire
         for (portal in portals) {
           val players = if (portal.player != null) listOf(portal.player!!) else allPlayers
           for (player in players) {

@@ -67,8 +67,7 @@ interface Proxy : MessageReceiver {
   val address: InetSocketAddress
 
   /**
-   * Triggers the server shutdown and kicks all
-   * the players.
+   * Triggers the server shutdown and kicks all the players.
    */
   fun shutdown()
 
