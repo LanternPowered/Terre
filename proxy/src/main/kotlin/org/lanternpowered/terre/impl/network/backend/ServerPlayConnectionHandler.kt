@@ -148,7 +148,7 @@ internal class ServerPlayConnectionHandler(
     if (packet.playerId == player.playerId) {
       return player.handleHealth(packet, clientConnection)
     }
-    return true // Forward
+    return false // Forward
   }
 
   override fun handle(packet: ProjectileUpdatePacket): Boolean {
