@@ -115,7 +115,7 @@ internal class PlayerImpl(
 
   var forwardNextOwnerUpdate = false
 
-  private var health = -1
+  var health = -1
 
   private var characterStoragePersistJob: Job? = null
   private var characterStoragePersistQueue: Channel<Int>? = null

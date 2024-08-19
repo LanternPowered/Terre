@@ -14,6 +14,7 @@ import io.netty.util.concurrent.ScheduledFuture
 import org.lanternpowered.terre.Team
 import org.lanternpowered.terre.event.player.PlayerChangePvPEnabledEvent
 import org.lanternpowered.terre.event.player.PlayerChangeTeamEvent
+import org.lanternpowered.terre.event.player.PlayerRespawnEvent
 import org.lanternpowered.terre.impl.Terre
 import org.lanternpowered.terre.impl.command.CommandManagerImpl
 import org.lanternpowered.terre.impl.event.TerreEventBus
@@ -150,6 +151,18 @@ internal class ClientPlayConnectionHandler(
       if (pvp)
         serverConnection?.send(PlayerPvPPacket(playerId, true))
       return true
+    }
+
+    if (player.health == 0 && packet.context == PlayerSpawnPacket.Context.ReviveFromDeath) {
+      TerreEventBus.postAsyncWithFuture(PlayerRespawnEvent(player))
+        .whenCompleteAsync({ _, exception ->
+          if (exception != null) {
+            Terre.logger.error("Failed to handle player death event", exception)
+          } else {
+            serverConnection?.send(packet)
+          }
+        }, player.clientConnection.eventLoop)
+      return true // Do not forward
     }
 
     return false // Forward
