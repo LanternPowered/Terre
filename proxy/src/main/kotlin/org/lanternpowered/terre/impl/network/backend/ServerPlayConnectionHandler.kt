@@ -304,9 +304,11 @@ internal class ServerPlayConnectionHandler(
 
   override fun handleGeneric(packet: Packet) {
     clientConnection.send(packet)
+    Terre.logger.debug { "Received unexpected from server packet: ${packet}" }
   }
 
   override fun handleUnknown(packet: ByteBuf) {
+    Terre.logger.debug { "Received unexpected from server packet: ${packet.getUnsignedByte(0)}" }
     clientConnection.send(packet)
   }
 }

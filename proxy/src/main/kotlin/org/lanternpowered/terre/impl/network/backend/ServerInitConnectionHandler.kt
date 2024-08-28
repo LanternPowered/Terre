@@ -169,6 +169,7 @@ internal class ServerInitConnectionHandler(
     val playerId = playerId ?: return
     // Connection was approved so the client version was accepted
     connection.protocol = versionedProtocol.protocol
+    connection.protocolVersion = versionedProtocol.version
     future.complete(ServerInitConnectionResult.Success(playerId, syncModsPacket, syncModNetIdsPacket))
     this.playerId = null
   }
@@ -178,7 +179,7 @@ internal class ServerInitConnectionHandler(
   }
 
   override fun handleUnknown(packet: ByteBuf) {
-    debug { "Received unexpected packet." }
+    debug { "Received unexpected packet: ${packet.getUnsignedByte(0)}" }
   }
 
   private fun debug(message: () -> String) {

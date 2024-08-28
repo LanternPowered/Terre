@@ -23,6 +23,7 @@ import org.lanternpowered.terre.impl.network.ConnectionHandler
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.packet.ClientUniqueIdPacket
+import org.lanternpowered.terre.impl.network.packet.ConnectionApprovedPacket
 import org.lanternpowered.terre.impl.network.packet.ItemRemoveOwnerPacket
 import org.lanternpowered.terre.impl.network.packet.ItemUpdateOwnerPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerActivePacket
@@ -123,10 +124,11 @@ internal class ClientPlayConnectionHandler(
   }
 
   override fun handle(packet: SyncModsDonePacket): Boolean {
-    val serverConnection = player.serverConnection?.ensureConnected()
-    if (serverConnection?.protocolVersion is ProtocolVersion.TModLoader) {
-      return true // Forward to server
+    val serverConnection = player.serverConnection
+    if (serverConnection?.ensureConnected()?.protocolVersion is ProtocolVersion.TModLoader) {
+      return false // Forward
     }
+    player.clientConnection.send(ConnectionApprovedPacket(serverConnection!!.playerId))
     return true
   }
 

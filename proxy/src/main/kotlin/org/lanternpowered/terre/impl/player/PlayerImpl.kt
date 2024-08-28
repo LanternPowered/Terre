@@ -496,8 +496,13 @@ internal class PlayerImpl(
               if (event != null) {
                 serverClientUniqueId = event.clientUniqueId
               }
-              connection.accept()
-              Terre.logger.debug { "Successfully established connection to backend server: ${server.info}" }
+              try {
+                connection.accept()
+                Terre.logger.debug { "Successfully established connection to backend server: ${server.info}" }
+              } catch (ex: Exception) {
+                Terre.logger.error("Failed to accept connection to backend server: ${server.info}", ex)
+                clientConnection.close(textOf("Internal server error."))
+              }
             }, clientConnection.eventLoop)
         }
       }, clientConnection.eventLoop)

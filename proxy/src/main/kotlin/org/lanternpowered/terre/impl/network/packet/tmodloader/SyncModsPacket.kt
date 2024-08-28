@@ -17,7 +17,6 @@ import org.lanternpowered.terre.impl.network.PacketDecoder
 import org.lanternpowered.terre.impl.network.PacketEncoder
 
 internal data class SyncModsPacket(
-  val allowVanillaClients: Boolean,
   val mods: List<Mod>
 ) : Packet {
 
@@ -25,20 +24,17 @@ internal data class SyncModsPacket(
     val name: String,
     val version: String,
     val fileHash: String,
-    val fileValidModBrowserSignature: Boolean,
     val configs: List<ModConfig>
   )
 }
 
 internal val SyncModsEncoder = PacketEncoder<SyncModsPacket> { buf, packet ->
-  buf.writeBoolean(packet.allowVanillaClients)
   val mods = packet.mods
   buf.writeIntLE(mods.size)
   for (mod in mods) {
     buf.writeString(mod.name)
     buf.writeString(mod.version)
     buf.writeBytes(BaseEncoding.base16().decode(mod.fileHash))
-    buf.writeBoolean(mod.fileValidModBrowserSignature)
     val configs = mod.configs
     buf.writeIntLE(configs.size)
     for (config in configs) {
@@ -49,24 +45,22 @@ internal val SyncModsEncoder = PacketEncoder<SyncModsPacket> { buf, packet ->
 }
 
 internal val SyncModsDecoder = PacketDecoder { buf ->
-  val allowVanillaClients = buf.readBoolean()
   val modCount = buf.readIntLE()
-  val mods = mutableListOf<SyncModsPacket.Mod>()
+  val mods = ArrayList<SyncModsPacket.Mod>(modCount)
   repeat(modCount) {
     val name = buf.readString()
     val version = buf.readString()
     val fileHashBytes = ByteArray(20)
     buf.readBytes(fileHashBytes)
     val fileHash = BaseEncoding.base16().encode(fileHashBytes)
-    val fileValidModBrowserSignature = buf.readBoolean()
     val configCount = buf.readIntLE()
-    val configs = mutableListOf<ModConfig>()
+    val configs = ArrayList<ModConfig>(configCount)
     repeat(configCount) {
       val configName = buf.readString()
       val content = buf.readString()
       configs += ModConfig(configName, content)
     }
-    mods += SyncModsPacket.Mod(name, version, fileHash, fileValidModBrowserSignature, configs)
+    mods += SyncModsPacket.Mod(name, version, fileHash, configs)
   }
-  SyncModsPacket(allowVanillaClients, mods)
+  SyncModsPacket(mods)
 }

@@ -87,7 +87,7 @@ internal class ServerConnectionImpl(
       // When switching from modded to vanilla servers using a modded client, sync the mods again,
       // then when receiving the mods synced packet back, approve the connection and continue as
       // usual
-      player.clientConnection.send(SyncModsPacket(true, listOf()))
+      player.clientConnection.send(SyncModsPacket(listOf()))
     } else if (tModLoaderClient && tModLoaderServer && syncModsPacket != null) {
       // Switching to a tModLoader server
       player.clientConnection.send(syncModsPacket)

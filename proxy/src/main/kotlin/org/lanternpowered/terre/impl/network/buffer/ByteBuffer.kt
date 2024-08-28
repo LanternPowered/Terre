@@ -13,10 +13,12 @@ package org.lanternpowered.terre.impl.network.buffer
 
 import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.DecoderException
+import org.lanternpowered.terre.impl.item.ItemStackImpl
 import org.lanternpowered.terre.impl.text.TextImpl
 import org.lanternpowered.terre.impl.text.fromTaggedVanillaText
 import org.lanternpowered.terre.impl.text.toPlainVanillaText
 import org.lanternpowered.terre.impl.text.toTaggedVanillaText
+import org.lanternpowered.terre.item.ItemStack
 import org.lanternpowered.terre.math.Vec2f
 import org.lanternpowered.terre.math.Vec2i
 import org.lanternpowered.terre.text.*
@@ -227,6 +229,18 @@ internal inline fun ByteBuf.writeNpcId(id: NpcId): ByteBuf =
   writeShortLE(id.value)
 
 /**
+ * Reads a chest id.
+ */
+internal inline fun ByteBuf.readChestId(): ChestId =
+  ChestId(readUnsignedShortLE())
+
+/**
+ * Writes a chest id.
+ */
+internal inline fun ByteBuf.writeChestId(id: ChestId): ByteBuf =
+  writeShortLE(id.value)
+
+/**
  * Reads a projectile id.
  */
 internal inline fun ByteBuf.readProjectileId(): ProjectileId =
@@ -400,4 +414,18 @@ internal fun ByteBuf.readImmutableBytes(length: Int = readableBytes()): Bytes {
   val array = ByteArray(length)
   readBytes(array)
   return Bytes.wrap(array)
+}
+
+internal fun ByteBuf.readItemStack(): ItemStack {
+  val quantity = readUnsignedShortLE()
+  val modifierId = readUnsignedByte().toInt()
+  val typeId = readUnsignedShortLE()
+  return ItemStackImpl(typeId, modifierId, quantity)
+}
+
+internal fun ByteBuf.writeItemStack(itemStack: ItemStack) {
+  itemStack as ItemStackImpl
+  writeShortLE(itemStack.quantity)
+  writeByte(itemStack.modifierId)
+  writeShortLE(itemStack.typeId)
 }

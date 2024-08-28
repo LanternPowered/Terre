@@ -9,12 +9,13 @@
  */
 package org.lanternpowered.terre.impl.network.packet
 
-import org.lanternpowered.terre.impl.item.ItemStackImpl
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.PacketDecoder
 import org.lanternpowered.terre.impl.network.PacketEncoder
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
+import org.lanternpowered.terre.impl.network.buffer.readItemStack
 import org.lanternpowered.terre.impl.network.buffer.readPlayerId
+import org.lanternpowered.terre.impl.network.buffer.writeItemStack
 import org.lanternpowered.terre.impl.network.buffer.writePlayerId
 import org.lanternpowered.terre.item.ItemStack
 
@@ -27,18 +28,12 @@ internal data class PlayerInventorySlotPacket(
 internal val PlayerInventorySlotEncoder = PacketEncoder<PlayerInventorySlotPacket> { buf, packet ->
   buf.writePlayerId(packet.playerId)
   buf.writeShortLE(packet.slot)
-  val itemStack = packet.itemStack
-  buf.writeShortLE(itemStack.quantity)
-  buf.writeByte(itemStack.modifier.numericId)
-  buf.writeShortLE(itemStack.type.numericId)
+  buf.writeItemStack(packet.itemStack)
 }
 
 internal val PlayerInventorySlotDecoder = PacketDecoder { buf ->
   val playerId = buf.readPlayerId()
   val slot = buf.readUnsignedShortLE()
-  val quantity = buf.readUnsignedShortLE()
-  val modifierId = buf.readUnsignedByte().toInt()
-  val typeId = buf.readUnsignedShortLE()
-  val itemStack = ItemStackImpl(typeId, modifierId, quantity)
+  val itemStack = buf.readItemStack()
   PlayerInventorySlotPacket(playerId, slot, itemStack)
 }

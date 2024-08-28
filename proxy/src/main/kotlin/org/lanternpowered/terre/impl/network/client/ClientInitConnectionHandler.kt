@@ -129,8 +129,8 @@ internal class ClientInitConnectionHandler(
           }
         }
       if (protocolVersion is ProtocolVersion.TModLoader) {
-        // TODO: tModLoader to vanilla version mapping
-        protocol = Protocol274
+        // TODO: tModLoader to vanilla version mapping, specific tModLoader versions?
+        protocol = ProtocolTModLoader
       }
       if (protocol == null) {
         val reason = textOf("The client isn't supported.\n" +
@@ -160,7 +160,7 @@ internal class ClientInitConnectionHandler(
     checkState(State.Handshake)
     if (connection.protocolVersion is ProtocolVersion.TModLoader) {
       state = State.SyncMods
-      connection.send(SyncModsPacket(true, listOf()))
+      connection.send(SyncModsPacket(listOf()))
       debug { "P -> C [${connection.remoteAddress}] Sync mods" }
     } else {
       approveConnection()
@@ -277,7 +277,7 @@ internal class ClientInitConnectionHandler(
 
   override fun handleGeneric(packet: Packet) {
     // Discard everything
-    // Terre.logger.debug { "Received unexpected packet: $packet" }
+    Terre.logger.debug { "Received unexpected packet: $packet" }
   }
 
   override fun handleUnknown(packet: ByteBuf) {

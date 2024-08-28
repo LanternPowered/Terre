@@ -9,10 +9,10 @@
  */
 package org.lanternpowered.terre.impl.network.packet
 
-import org.lanternpowered.terre.math.Vec2i
 import org.lanternpowered.terre.impl.network.Packet
-import org.lanternpowered.terre.impl.network.buffer.writeVec2i
 import org.lanternpowered.terre.impl.network.PacketEncoder
+import org.lanternpowered.terre.impl.network.buffer.writeVec2i
+import org.lanternpowered.terre.math.Vec2i
 
 internal data class EssentialTilesRequestPacket(
   val position: Vec2i

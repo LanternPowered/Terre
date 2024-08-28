@@ -28,12 +28,18 @@ import org.lanternpowered.terre.impl.network.packet.CustomPayloadEncoder
 import org.lanternpowered.terre.impl.network.packet.DisconnectDecoder
 import org.lanternpowered.terre.impl.network.packet.DisconnectEncoder
 import org.lanternpowered.terre.impl.network.packet.EssentialTilesRequestEncoder
+import org.lanternpowered.terre.impl.network.packet.FoodPlatterItemDecoder
+import org.lanternpowered.terre.impl.network.packet.FoodPlatterItemEncoder
+import org.lanternpowered.terre.impl.network.packet.HatRackItemDecoder
+import org.lanternpowered.terre.impl.network.packet.HatRackItemEncoder
 import org.lanternpowered.terre.impl.network.packet.InstancedItemUpdateDecoder
 import org.lanternpowered.terre.impl.network.packet.ItemRemoveOwnerDecoder
 import org.lanternpowered.terre.impl.network.packet.ItemRemoveOwnerEncoder
 import org.lanternpowered.terre.impl.network.packet.ItemUpdateEncoder
 import org.lanternpowered.terre.impl.network.packet.ItemUpdateOwnerDecoder
 import org.lanternpowered.terre.impl.network.packet.ItemUpdateOwnerEncoder
+import org.lanternpowered.terre.impl.network.packet.NpcStrikeDecoder
+import org.lanternpowered.terre.impl.network.packet.NpcStrikeEncoder
 import org.lanternpowered.terre.impl.network.packet.NpcUpdateDecoder
 import org.lanternpowered.terre.impl.network.packet.NpcUpdateEncoder
 import org.lanternpowered.terre.impl.network.packet.PasswordRequestDecoder
@@ -82,48 +88,60 @@ import org.lanternpowered.terre.impl.network.packet.TeleportPylonDecoder
 import org.lanternpowered.terre.impl.network.packet.TeleportPylonEncoder
 import org.lanternpowered.terre.impl.network.packet.TileSquareDecoder
 import org.lanternpowered.terre.impl.network.packet.TileSquareEncoder
+import org.lanternpowered.terre.impl.network.packet.WeaponsRackItemDecoder
+import org.lanternpowered.terre.impl.network.packet.WeaponsRackItemEncoder
+import org.lanternpowered.terre.impl.network.packet.ChestItemDecoder
+import org.lanternpowered.terre.impl.network.packet.ChestItemEncoder
+import org.lanternpowered.terre.impl.network.packet.ItemFrameItemDecoder
+import org.lanternpowered.terre.impl.network.packet.ItemFrameItemEncoder
 import org.lanternpowered.terre.impl.network.packet.WorldInfoDecoder
 import org.lanternpowered.terre.impl.network.packet.WorldInfoEncoder
 
 internal val Protocol274 = protocol("274") {
-  bind(0x01, ConnectionRequestEncoder, ConnectionRequestDecoder, PacketDirection.ClientToServer)
-  bind(0x02, DisconnectEncoder, DisconnectDecoder, PacketDirection.ServerToClient)
-  bind(0x03, ConnectionApprovedEncoder, ConnectionApprovedDecoder, PacketDirection.ServerToClient)
-  bind(0x04, PlayerInfoEncoder, PlayerInfoDecoder)
-  bind(0x05, PlayerInventorySlotEncoder, PlayerInventorySlotDecoder)
-  bind(0x06, RequestWorldInfoEncoder, RequestWorldInfoDecoder, PacketDirection.ClientToServer)
-  bind(0x07, WorldInfoEncoder, WorldInfoDecoder, PacketDirection.ServerToClient)
-  bind(0x08, EssentialTilesRequestEncoder, PacketDirection.ClientToServer)
-  bind(0x09, StatusEncoder, StatusDecoder, PacketDirection.ServerToClient)
-  bind(0x0C, PlayerSpawnEncoder, PlayerSpawnDecoder)
-  bind(0x0D, PlayerUpdateEncoder, PlayerUpdateDecoder)
-  bind(0x0E, PlayerActiveEncoder, PlayerActiveDecoder, PacketDirection.ServerToClient)
-  bind(0x10, PlayerHealthEncoder, PlayerHealthDecoder)
-  bind(0x14, TileSquareEncoder, TileSquareDecoder)
-  bind(0x15, ItemUpdateEncoder, SimpleItemUpdateDecoder)
-  bind(0x16, ItemUpdateOwnerEncoder, ItemUpdateOwnerDecoder)
-  bind(0x17, NpcUpdateEncoder, NpcUpdateDecoder, PacketDirection.ServerToClient)
-  bind(0x1B, ProjectileUpdateEncoder, ProjectileUpdateDecoder)
-  bind(0x1D, ProjectileDestroyEncoder, ProjectileDestroyDecoder)
-  bind(0x1E, PlayerPvPEncoder, PlayerPvPDecoder)
-  bind(0x25, PasswordRequestEncoder, PasswordRequestDecoder, PacketDirection.ServerToClient)
-  bind(0x26, PasswordResponseEncoder, PasswordResponseDecoder, PacketDirection.ClientToServer)
-  bind(0x27, ItemRemoveOwnerEncoder, ItemRemoveOwnerDecoder)
-  bind(0x2A, PlayerManaEncoder, PlayerManaDecoder)
-  bind(0x2D, PlayerTeamEncoder, PlayerTeamDecoder)
-  bind(0x31, CompleteConnectionEncoder, CompleteConnectionDecoder, PacketDirection.ServerToClient)
-  bind(0x32, PlayerBuffsEncoder, PlayerBuffsDecoder)
-  bind(0x37, AddPlayerBuffEncoder, AddPlayerBuffDecoder)
-  bind(0x43, RealIPEncoder, PacketDirection.ClientToServer)
-  bind(0x43, CustomPayloadEncoder, CustomPayloadDecoder)
-  bind(0x44, ClientUniqueIdEncoder, ClientUniqueIdDecoder, PacketDirection.ClientToServer)
-  bind(0x5A, ItemUpdateEncoder, InstancedItemUpdateDecoder)
-  bind(0x5B, SpeechBubbleEncoder, PacketDirection.ServerToClient)
-  bind(0x6B, ChatMessageEncoder, ChatMessageDecoder, PacketDirection.ServerToClient)
-  bind(0x76, PlayerDeathEncoder, PlayerDeathDecoder, PacketDirection.ServerToClient)
-  bind(0x77, CombatMessageEncoder, PacketDirection.ServerToClient)
-  bind(0x91, ItemUpdateEncoder, ShimmeredItemUpdateDecoder)
-  bind(0x94, ItemUpdateEncoder, CannotBeTakenByEnemiesItemUpdateDecoder)
+  bind(1, ConnectionRequestEncoder, ConnectionRequestDecoder, PacketDirection.ClientToServer)
+  bind(2, DisconnectEncoder, DisconnectDecoder, PacketDirection.ServerToClient)
+  bind(3, ConnectionApprovedEncoder, ConnectionApprovedDecoder, PacketDirection.ServerToClient)
+  bind(4, PlayerInfoEncoder, PlayerInfoDecoder)
+  bind(5, PlayerInventorySlotEncoder, PlayerInventorySlotDecoder)
+  bind(6, RequestWorldInfoEncoder, RequestWorldInfoDecoder, PacketDirection.ClientToServer)
+  bind(7, WorldInfoEncoder, WorldInfoDecoder, PacketDirection.ServerToClient)
+  bind(8, EssentialTilesRequestEncoder, PacketDirection.ClientToServer)
+  bind(9, StatusEncoder, StatusDecoder, PacketDirection.ServerToClient)
+  bind(12, PlayerSpawnEncoder, PlayerSpawnDecoder)
+  bind(13, PlayerUpdateEncoder, PlayerUpdateDecoder)
+  bind(14, PlayerActiveEncoder, PlayerActiveDecoder, PacketDirection.ServerToClient)
+  bind(16, PlayerHealthEncoder, PlayerHealthDecoder)
+  bind(20, TileSquareEncoder, TileSquareDecoder)
+  bind(21, ItemUpdateEncoder, SimpleItemUpdateDecoder)
+  bind(22, ItemUpdateOwnerEncoder, ItemUpdateOwnerDecoder)
+  bind(23, NpcUpdateEncoder, NpcUpdateDecoder, PacketDirection.ServerToClient)
+  bind(27, ProjectileUpdateEncoder, ProjectileUpdateDecoder)
+  bind(28, NpcStrikeEncoder, NpcStrikeDecoder)
+  bind(29, ProjectileDestroyEncoder, ProjectileDestroyDecoder)
+  bind(30, PlayerPvPEncoder, PlayerPvPDecoder)
+  bind(32, ChestItemEncoder, ChestItemDecoder)
+  bind(37, PasswordRequestEncoder, PasswordRequestDecoder, PacketDirection.ServerToClient)
+  bind(38, PasswordResponseEncoder, PasswordResponseDecoder, PacketDirection.ClientToServer)
+  bind(39, ItemRemoveOwnerEncoder, ItemRemoveOwnerDecoder)
+  bind(42, PlayerManaEncoder, PlayerManaDecoder)
+  bind(45, PlayerTeamEncoder, PlayerTeamDecoder)
+  bind(49, CompleteConnectionEncoder, CompleteConnectionDecoder, PacketDirection.ServerToClient)
+  bind(50, PlayerBuffsEncoder, PlayerBuffsDecoder)
+  bind(55, AddPlayerBuffEncoder, AddPlayerBuffDecoder)
+  bind(67, RealIPEncoder, PacketDirection.ClientToServer)
+  bind(67, CustomPayloadEncoder, CustomPayloadDecoder)
+  bind(68, ClientUniqueIdEncoder, ClientUniqueIdDecoder, PacketDirection.ClientToServer)
+  bind(89, ItemFrameItemEncoder, ItemFrameItemDecoder)
+  bind(90, ItemUpdateEncoder, InstancedItemUpdateDecoder)
+  bind(91, SpeechBubbleEncoder, PacketDirection.ServerToClient)
+  bind(107, ChatMessageEncoder, ChatMessageDecoder, PacketDirection.ServerToClient)
+  bind(118, PlayerDeathEncoder, PlayerDeathDecoder, PacketDirection.ServerToClient)
+  bind(119, CombatMessageEncoder, PacketDirection.ServerToClient)
+  bind(123, WeaponsRackItemEncoder, WeaponsRackItemDecoder)
+  bind(124, HatRackItemEncoder, HatRackItemDecoder)
+  bind(133, FoodPlatterItemEncoder, FoodPlatterItemDecoder)
+  bind(145, ItemUpdateEncoder, ShimmeredItemUpdateDecoder)
+  bind(148, ItemUpdateEncoder, CannotBeTakenByEnemiesItemUpdateDecoder)
 
   // modules
   bind(0x01FF, PlayerCommandEncoder, PlayerCommandDecoder, PacketDirection.ClientToServer)
