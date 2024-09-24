@@ -22,6 +22,7 @@ import org.lanternpowered.terre.impl.network.buffer.readVarInt
 import org.lanternpowered.terre.impl.network.buffer.readVec2f
 import org.lanternpowered.terre.impl.network.buffer.writePlayerId
 import org.lanternpowered.terre.impl.network.buffer.writeProjectileId
+import org.lanternpowered.terre.impl.network.buffer.writeVarInt
 import org.lanternpowered.terre.impl.network.buffer.writeVec2f
 import org.lanternpowered.terre.math.Vec2f
 import org.lanternpowered.terre.util.Bytes
@@ -86,7 +87,10 @@ internal val ProjectileUpdateEncoder = PacketEncoder<ProjectileUpdatePacket> { b
     buf.writeShortLE(packet.uniqueId)
   if (packet.ai2 != 0f)
     buf.writeFloatLE(packet.ai2)
-  buf.writeBytes(modData)
+  if (modData.isNotEmpty()) {
+    buf.writeVarInt(modData.size)
+    buf.writeBytes(modData)
+  }
 }
 
 internal val ProjectileUpdateDecoder = PacketDecoder { buf ->
