@@ -54,8 +54,6 @@ import org.lanternpowered.terre.impl.network.packet.PlayerChatMessageDecoder
 import org.lanternpowered.terre.impl.network.packet.PlayerChatMessageEncoder
 import org.lanternpowered.terre.impl.network.packet.PlayerCommandDecoder
 import org.lanternpowered.terre.impl.network.packet.PlayerCommandEncoder
-import org.lanternpowered.terre.impl.network.packet.PlayerDeathDecoder
-import org.lanternpowered.terre.impl.network.packet.PlayerDeathEncoder
 import org.lanternpowered.terre.impl.network.packet.PlayerHealthDecoder
 import org.lanternpowered.terre.impl.network.packet.PlayerHealthEncoder
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoDecoder
@@ -135,7 +133,6 @@ internal val Protocol274 = protocol("274") {
   bind(90, ItemUpdateEncoder, InstancedItemUpdateDecoder)
   bind(91, SpeechBubbleEncoder, PacketDirection.ServerToClient)
   bind(107, ChatMessageEncoder, ChatMessageDecoder, PacketDirection.ServerToClient)
-  bind(118, PlayerDeathEncoder, PlayerDeathDecoder)
   bind(119, CombatMessageEncoder, PacketDirection.ServerToClient)
   bind(123, WeaponsRackItemEncoder, WeaponsRackItemDecoder)
   bind(124, HatRackItemEncoder, HatRackItemDecoder)

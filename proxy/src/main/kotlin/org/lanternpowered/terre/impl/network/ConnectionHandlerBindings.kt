@@ -28,7 +28,6 @@ import org.lanternpowered.terre.impl.network.packet.PasswordResponsePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerActivePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerChatMessagePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerCommandPacket
-import org.lanternpowered.terre.impl.network.packet.PlayerDeathPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerSpawnPacket
 import org.lanternpowered.terre.impl.network.packet.PlayerTeamPacket
@@ -68,7 +67,6 @@ internal object ConnectionHandlerBindings {
     bind<PlayerActivePacket>(ConnectionHandler::handle)
     bind<PlayerChatMessagePacket>(ConnectionHandler::handle)
     bindSuspend<PlayerCommandPacket>(ConnectionHandler::handle)
-    bind<PlayerDeathPacket>(ConnectionHandler::handle)
     bind<PlayerInfoPacket>(ConnectionHandler::handle)
     bind<PlayerInventorySlotPacket>(ConnectionHandler::handle)
     bind<StatusPacket>(ConnectionHandler::handle)
