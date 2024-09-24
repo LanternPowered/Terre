@@ -30,6 +30,7 @@ import org.lanternpowered.terre.impl.network.packet.StatusPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
 import org.lanternpowered.terre.impl.network.packet.tmodloader.ModDataPacket
+import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsDonePacket
 import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsPacket
 import org.lanternpowered.terre.text.LocalizedText
 import java.util.UUID
@@ -147,12 +148,15 @@ internal class ServerInitConnectionHandler(
   }
 
   override fun handle(packet: SyncModsPacket): Boolean {
+    debug { "Sync mods" }
     syncModsPacket = packet
+    connection.send(SyncModsDonePacket)
     return true
   }
 
   override fun handle(packet: ModDataPacket): Boolean {
     if (syncModNetIdsPacket == null) {
+      debug { "Sync mod net ids" }
       packet.retain()
       syncModNetIdsPacket = packet
     }

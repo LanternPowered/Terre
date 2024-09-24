@@ -295,31 +295,6 @@ internal class Connection(
       .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
   }
 
-  fun sendWithFuture(packets: Array<out ByteBuf>): ChannelFuture {
-    return sendWithFuture(packets as Array<out Any>)
-  }
-
-  fun sendWithFuture(packets: Array<out Packet>): ChannelFuture {
-    return sendWithFuture(packets as Array<out Any>)
-  }
-
-  private fun sendWithFuture(packets: Array<out Any>): ChannelFuture {
-    val promise = channel.newPromise()
-    if (!channel.isActive)
-      return promise
-    val eventLoop = channel.eventLoop()
-    if (eventLoop.inEventLoop()) {
-      channel.writeArrayAndFlushWithFuture(packets, promise)
-    } else {
-      // Create a copy to avoid unsafe modifications
-      val copy = packets.clone()
-      eventLoop.execute {
-        channel.writeArrayAndFlushWithFuture(copy, promise)
-      }
-    }
-    return promise
-  }
-
   fun send(packet: ByteBuf) {
     send(packet as Any)
   }
@@ -335,46 +310,32 @@ internal class Connection(
     channel.writeAndFlush(packet, channel.voidPromise())
   }
 
-  fun send(packets: Array<out ByteBuf>) {
-    send(packets as Array<out Any>)
+  @JvmName("sendBufs")
+  fun send(packets: Iterable<ByteBuf>) {
+    send(packets as Iterable<Any>)
   }
 
-  fun send(packets: Array<out Packet>) {
-    send(packets as Array<out Any>)
+  @JvmName("sendPackets")
+  fun send(packets: Iterable<Packet>) {
+    send(packets as Iterable<Any>)
   }
 
-  private fun send(packets: Array<out Any>) {
+  private fun send(packets: Iterable<Any>) {
     if (!channel.isActive)
       return
     val eventLoop = channel.eventLoop()
     if (eventLoop.inEventLoop()) {
-      channel.writeArrayAndFlush(packets)
+      channel.writeIterableAndFlush(packets)
     } else {
       // Create a copy to avoid unsafe modifications
-      val copy = packets.clone()
+      val copy = packets.toList()
       eventLoop.execute {
-        channel.writeArrayAndFlush(copy)
+        channel.writeIterableAndFlush(copy)
       }
     }
   }
 
-  private inline fun Channel.writeArrayAndFlushWithFuture(
-    packets: Array<out Any>, promise: ChannelPromise
-  ) {
-    val voidPromise = voidPromise()
-    for (i in packets.indices) {
-      val packet = packets[i]
-      ReferenceCountUtil.retain(packet)
-      if (i == packets.size - 1) {
-        writeAndFlush(packet, promise)
-          .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
-      } else {
-        write(packet, voidPromise)
-      }
-    }
-  }
-
-  private inline fun Channel.writeArrayAndFlush(packets: Array<out Any>) {
+  private inline fun Channel.writeIterableAndFlush(packets: Iterable<Any>) {
     val voidPromise = voidPromise()
     for (packet in packets) {
       ReferenceCountUtil.retain(packet)
@@ -382,6 +343,4 @@ internal class Connection(
     }
     flush()
   }
-
-  fun <T> attr(key: AttributeKey<T>): Attribute<T> = channel.attr(key)
 }

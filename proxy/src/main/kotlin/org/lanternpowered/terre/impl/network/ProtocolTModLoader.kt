@@ -33,8 +33,6 @@ import org.lanternpowered.terre.impl.network.packet.ItemRemoveOwnerDecoder
 import org.lanternpowered.terre.impl.network.packet.ItemRemoveOwnerEncoder
 import org.lanternpowered.terre.impl.network.packet.ItemUpdateOwnerDecoder
 import org.lanternpowered.terre.impl.network.packet.ItemUpdateOwnerEncoder
-import org.lanternpowered.terre.impl.network.packet.NpcUpdateDecoder
-import org.lanternpowered.terre.impl.network.packet.NpcUpdateEncoder
 import org.lanternpowered.terre.impl.network.packet.PasswordRequestDecoder
 import org.lanternpowered.terre.impl.network.packet.PasswordRequestEncoder
 import org.lanternpowered.terre.impl.network.packet.PasswordResponseDecoder
@@ -108,6 +106,8 @@ import org.lanternpowered.terre.impl.network.packet.tmodloader.ChestItemDecoder
 import org.lanternpowered.terre.impl.network.packet.tmodloader.ChestItemEncoder
 import org.lanternpowered.terre.impl.network.packet.tmodloader.ItemFrameItemDecoder
 import org.lanternpowered.terre.impl.network.packet.tmodloader.ItemFrameItemEncoder
+import org.lanternpowered.terre.impl.network.packet.tmodloader.NpcUpdateDecoder
+import org.lanternpowered.terre.impl.network.packet.tmodloader.NpcUpdateEncoder
 import org.lanternpowered.terre.impl.network.packet.tmodloader.UpdateModConfigRequestDecoder
 import org.lanternpowered.terre.impl.network.packet.tmodloader.UpdateModConfigRequestEncoder
 import org.lanternpowered.terre.impl.network.packet.tmodloader.UpdateModConfigResponseDecoder

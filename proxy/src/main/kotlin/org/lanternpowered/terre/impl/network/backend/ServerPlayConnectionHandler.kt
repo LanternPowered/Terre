@@ -42,8 +42,6 @@ import org.lanternpowered.terre.impl.network.packet.ProjectileUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.StatusPacket
 import org.lanternpowered.terre.impl.network.packet.TeleportPylonPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoPacket
-import org.lanternpowered.terre.impl.network.packet.tmodloader.ModDataPacket
-import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsDonePacket
 import org.lanternpowered.terre.impl.player.PlayerImpl
 import org.lanternpowered.terre.impl.player.ServerConnectionImpl
 import org.lanternpowered.terre.impl.util.parseInetAddress
@@ -56,7 +54,6 @@ import java.util.UUID
 internal class ServerPlayConnectionHandler(
   private val serverConnection: ServerConnectionImpl,
   private val player: PlayerImpl,
-  private var syncModNetIdsPacket: ModDataPacket?,
 ) : ConnectionHandler {
 
   private val clientConnection
@@ -69,6 +66,7 @@ internal class ServerPlayConnectionHandler(
 
   override fun initialize() {
     player.previousServer = serverConnection.server.infoWithLastKnownVersion()
+    player.previousModsPacket = serverConnection.syncModsPacket
   }
 
   override fun disconnect() {
@@ -81,15 +79,6 @@ internal class ServerPlayConnectionHandler(
   }
 
   override fun exception(throwable: Throwable) {
-  }
-
-  override fun handle(packet: SyncModsDonePacket): Boolean {
-    val syncModNetIdsPacket = syncModNetIdsPacket
-    if (syncModNetIdsPacket != null) {
-      clientConnection.send(syncModNetIdsPacket)
-      this.syncModNetIdsPacket = null
-    }
-    return true
   }
 
   override fun handle(packet: WorldInfoPacket): Boolean {
@@ -304,11 +293,11 @@ internal class ServerPlayConnectionHandler(
 
   override fun handleGeneric(packet: Packet) {
     clientConnection.send(packet)
-    Terre.logger.debug { "Received unexpected from server packet: ${packet}" }
+    // Terre.logger.debug { "Received unexpected from server packet: ${packet}" }
   }
 
   override fun handleUnknown(packet: ByteBuf) {
-    Terre.logger.debug { "Received unexpected from server packet: ${packet.getUnsignedByte(0)}" }
+    // Terre.logger.debug { "Received unexpected from server packet: ${packet.getUnsignedByte(0)}" }
     clientConnection.send(packet)
   }
 }

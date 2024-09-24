@@ -18,6 +18,7 @@ import org.lanternpowered.terre.impl.network.buffer.ProjectileId
 import org.lanternpowered.terre.impl.network.buffer.readImmutableBytes
 import org.lanternpowered.terre.impl.network.buffer.readPlayerId
 import org.lanternpowered.terre.impl.network.buffer.readProjectileId
+import org.lanternpowered.terre.impl.network.buffer.readVarInt
 import org.lanternpowered.terre.impl.network.buffer.readVec2f
 import org.lanternpowered.terre.impl.network.buffer.writePlayerId
 import org.lanternpowered.terre.impl.network.buffer.writeProjectileId
@@ -103,7 +104,7 @@ internal val ProjectileUpdateDecoder = PacketDecoder { buf ->
   val originalDamage = if ((flags and 0x40) != 0) buf.readShortLE().toInt() else 0
   val uniqueId = if ((flags and 0x80) != 0) buf.readShortLE().toInt() else -1
   val ai2 = if ((flags2 and 0x01) != 0) buf.readFloatLE() else 0f
-  val modData = buf.readImmutableBytes()
+  val modData = if ((flags2 and 0x02) != 0) buf.readImmutableBytes(buf.readVarInt()) else Bytes.Empty
   ProjectileUpdatePacket(projectileId, projectileType, position, velocity, knockback,
     damage, originalDamage, owner, ai0, ai1, ai2, uniqueId, modData)
 }

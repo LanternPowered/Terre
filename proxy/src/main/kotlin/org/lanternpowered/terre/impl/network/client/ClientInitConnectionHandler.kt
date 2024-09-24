@@ -66,7 +66,7 @@ internal class ClientInitConnectionHandler(
   // C -> S: ConnectionRequestPacket
   // E: ClientConnectEvent -> Disconnect if denied
   // If client is TModLoader
-  //   S -> C: SyncModsPacket(allowVanillaClients = true, mods = empty)
+  //   S -> C: SyncModsPacket(mods = empty)
   //   C -> S: SyncModsDonePacket
   // S -> C: ConnectionApprovedPacket(playerId = 1)
   // C -> S: PlayerInfoPacket
@@ -277,7 +277,7 @@ internal class ClientInitConnectionHandler(
 
   override fun handleGeneric(packet: Packet) {
     // Discard everything
-    Terre.logger.debug { "Received unexpected packet: $packet" }
+    // Terre.logger.debug { "Received unexpected packet: $packet" }
   }
 
   override fun handleUnknown(packet: ByteBuf) {

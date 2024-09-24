@@ -57,6 +57,7 @@ import org.lanternpowered.terre.impl.network.packet.SimpleItemUpdatePacket
 import org.lanternpowered.terre.impl.network.packet.StatusPacket
 import org.lanternpowered.terre.impl.network.packet.TeleportPylonPacket
 import org.lanternpowered.terre.impl.network.ProjectileDataMap
+import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsPacket
 import org.lanternpowered.terre.impl.text.MessageReceiverImpl
 import org.lanternpowered.terre.impl.util.channel.distinct
 import org.lanternpowered.terre.item.ItemStack
@@ -206,6 +207,7 @@ internal class PlayerImpl(
    * Whether the player was previously connected to another server.
    */
   var previousServer: ServerInfo? = null
+  var previousModsPacket: SyncModsPacket? = null
 
   /**
    * Deferred that will be updated when the player is cleaned up.

@@ -9,19 +9,11 @@
  */
 package org.lanternpowered.terre.impl.network.packet.tmodloader
 
-import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.PacketDecoder
 import org.lanternpowered.terre.impl.network.PacketEncoder
-import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.buffer.readPlayerId
 import org.lanternpowered.terre.impl.network.buffer.writePlayerId
-import org.lanternpowered.terre.item.ItemStack
-
-internal data class PlayerInventorySlotPacket(
-  val playerId: PlayerId,
-  val slot: Int,
-  val itemStack: ItemStack
-) : Packet
+import org.lanternpowered.terre.impl.network.packet.PlayerInventorySlotPacket
 
 internal val PlayerInventorySlotEncoder = PacketEncoder<PlayerInventorySlotPacket> { buf, packet ->
   buf.writePlayerId(packet.playerId)

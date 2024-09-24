@@ -135,7 +135,7 @@ internal val Protocol274 = protocol("274") {
   bind(90, ItemUpdateEncoder, InstancedItemUpdateDecoder)
   bind(91, SpeechBubbleEncoder, PacketDirection.ServerToClient)
   bind(107, ChatMessageEncoder, ChatMessageDecoder, PacketDirection.ServerToClient)
-  bind(118, PlayerDeathEncoder, PlayerDeathDecoder, PacketDirection.ServerToClient)
+  bind(118, PlayerDeathEncoder, PlayerDeathDecoder)
   bind(119, CombatMessageEncoder, PacketDirection.ServerToClient)
   bind(123, WeaponsRackItemEncoder, WeaponsRackItemDecoder)
   bind(124, HatRackItemEncoder, HatRackItemDecoder)

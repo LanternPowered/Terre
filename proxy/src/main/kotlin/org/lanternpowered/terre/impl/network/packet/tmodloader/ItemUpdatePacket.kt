@@ -47,7 +47,7 @@ internal val ItemUpdateEncoder = PacketEncoder<ItemUpdatePacket> { buf, packet -
   if (packet is CannotBeTakenByEnemiesItemUpdatePacket) {
     buf.writeByte(packet.cannotBeTakenByEnemiesTime)
   }
-  buf.writeBytes(packet.itemStack.modData)
+  buf.writeModdedItemStackData(packet.itemStack)
 }
 
 internal val SimpleItemUpdateDecoder = itemUpdateDecoder {

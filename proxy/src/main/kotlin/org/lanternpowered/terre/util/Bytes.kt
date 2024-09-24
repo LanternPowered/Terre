@@ -20,6 +20,9 @@ class Bytes private constructor(private val array: ByteArray) : Iterable<Byte> {
 
   private var hashCode = 0
 
+  val size: Int
+    get() = array.size
+
   override fun iterator() = array.iterator()
 
   override fun forEach(action: Consumer<in Byte>) {

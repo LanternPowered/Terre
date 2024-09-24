@@ -33,6 +33,7 @@ import org.lanternpowered.terre.impl.network.buffer.PlayerId
 import org.lanternpowered.terre.impl.network.packet.ConnectionApprovedPacket
 import org.lanternpowered.terre.impl.network.packet.tmodloader.ModDataPacket
 import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsPacket
+import org.lanternpowered.terre.impl.network.packet.tmodloader.UpdateModConfigResponsePacket
 import org.lanternpowered.terre.impl.network.pipeline.FrameDecoder
 import org.lanternpowered.terre.impl.network.pipeline.FrameEncoder
 import org.lanternpowered.terre.impl.network.pipeline.PacketMessageDecoder
@@ -47,8 +48,8 @@ internal class ServerConnectionImpl(
 ) : ServerConnection {
 
   private var nullablePlayerId: PlayerId? = null
-  private var syncModsPacket: SyncModsPacket? = null
-  private var syncModNetIdsPacket: ModDataPacket? = null
+  var syncModsPacket: SyncModsPacket? = null
+  var syncModNetIdsPacket: ModDataPacket? = null
 
   /**
    * The id that the player got assigned by the server.
@@ -62,10 +63,10 @@ internal class ServerConnectionImpl(
   /**
    * Whether the world is initialized.
    */
-  var isWorldInitialized: Boolean = false
+  var isWorldInitialized = false
 
   init {
-    if (player.previousServer != null)
+    if (player.previousServer == null)
       isWorldInitialized = true
   }
 
@@ -73,25 +74,65 @@ internal class ServerConnectionImpl(
    * Accepts the successful connection.
    */
   fun accept() {
+    val previousServer = player.previousServer
+    val previousModsPacket = player.previousModsPacket
+
     val connection = connection ?: error("No connection to accept.")
     // Continue server connection after it has been approved
-    connection.setConnectionHandler(ServerPlayConnectionHandler(
-      this@ServerConnectionImpl, player, syncModNetIdsPacket))
-    syncModNetIdsPacket = null
+    connection.setConnectionHandler(ServerPlayConnectionHandler(this@ServerConnectionImpl, player))
 
-    val syncModsPacket = syncModsPacket
+    var modsPacket = syncModsPacket
     val tModLoaderClient = player.protocolVersion is ProtocolVersion.TModLoader
-    val tModLoaderServer = connection.protocolVersion is ProtocolVersion.TModLoader
-    val previousTModLoaderServer = player.previousServer?.protocolVersion is ProtocolVersion.TModLoader
-    if (tModLoaderClient && !tModLoaderServer && previousTModLoaderServer) {
-      // When switching from modded to vanilla servers using a modded client, sync the mods again,
-      // then when receiving the mods synced packet back, approve the connection and continue as
-      // usual
-      player.clientConnection.send(SyncModsPacket(listOf()))
-    } else if (tModLoaderClient && tModLoaderServer && syncModsPacket != null) {
-      // Switching to a tModLoader server
-      player.clientConnection.send(syncModsPacket)
+    var syncMods = false
+    val syncConfig = ArrayList<UpdateModConfigResponsePacket.Success>()
+    if (tModLoaderClient) {
+      val tModLoaderServer = connection.protocolVersion is ProtocolVersion.TModLoader
+      val previousTModLoaderServer = previousServer?.protocolVersion is ProtocolVersion.TModLoader
+      if (previousServer == null) {
+        // Joining the proxy for the first time, we need to sync the mods
+        syncMods = true
+      } else if (!tModLoaderServer && previousTModLoaderServer) {
+        // When switching from modded to vanilla servers using a modded client, sync the mods again,
+        // then when receiving the mods synced packet back, approve the connection and continue as
+        // usual
+        syncMods = true
+      } else {
+        // Compare the mods between the current and the previous server, to check if they need to
+        // be updated
+        val previousMods = ArrayList(previousModsPacket?.mods ?: listOf())
+        val mods = ArrayList(modsPacket?.mods ?: listOf())
+        val modsIterator = mods.iterator()
+        while (modsIterator.hasNext()) {
+          val mod = modsIterator.next()
+          val previousMod = previousMods.find { previous ->
+            previous.name == mod.name &&
+              previous.version == mod.version &&
+              previous.fileHash == mod.fileHash
+          }
+          if (previousMod != null) {
+            previousMods.remove(previousMod)
+            modsIterator.remove()
+            // collect config that needs to be synced if we don't sync the mods completely
+            for (config in mod.configs) {
+              val match = previousMod.configs.any { previous ->
+                previous.name == config.name && previous.content == config.content
+              }
+              if (!match) {
+                syncConfig.add(UpdateModConfigResponsePacket.Success(mod.name, config))
+              }
+            }
+          }
+        }
+        syncMods = mods.isNotEmpty() || previousMods.isNotEmpty()
+      }
+    }
+    if (syncMods) {
+      if (modsPacket == null) {
+        modsPacket = SyncModsPacket(listOf())
+      }
+      player.clientConnection.send(modsPacket)
     } else {
+      player.clientConnection.send(syncConfig)
       // Sending this packet triggers the client to request all the information from the
       // server once again, this allows it to request and load a new world.
       player.clientConnection.send(ConnectionApprovedPacket(playerId))

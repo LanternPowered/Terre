@@ -125,10 +125,14 @@ internal class ClientPlayConnectionHandler(
 
   override fun handle(packet: SyncModsDonePacket): Boolean {
     val serverConnection = player.serverConnection
-    if (serverConnection?.ensureConnected()?.protocolVersion is ProtocolVersion.TModLoader) {
-      return false // Forward
+    if (serverConnection != null) {
+      val syncModNetIdsPacket = serverConnection.syncModNetIdsPacket
+      if (syncModNetIdsPacket != null) {
+        player.clientConnection.send(syncModNetIdsPacket)
+        serverConnection.syncModNetIdsPacket = null
+      }
+      player.clientConnection.send(ConnectionApprovedPacket(serverConnection.playerId))
     }
-    player.clientConnection.send(ConnectionApprovedPacket(serverConnection!!.playerId))
     return true
   }
 
