@@ -12,10 +12,10 @@ dependencies {
   val coroutinesVersion = "1.8.1"
   api(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = coroutinesVersion)
   api(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-jdk8", version = coroutinesVersion)
-  api(group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json-jvm", version = "1.6.3")
+  api(group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json-jvm", version = "1.7.1")
 
   // General utilities
-  api(group = "com.google.guava", name = "guava", version = "33.2.0-jre")
+  api(group = "com.google.guava", name = "guava", version = "33.2.1-jre")
 
   // Json
   implementation(group = "com.google.code.gson", name = "gson", version = "2.10.1")
@@ -30,7 +30,7 @@ dependencies {
   implementation(group = "net.sf.jopt-simple", name = "jopt-simple", version = "5.0.4")
 
   // Networking
-  implementation(group = "io.netty", name = "netty-all", version = "4.1.110.Final") {
+  implementation(group = "io.netty", name = "netty-all", version = "4.1.111.Final") {
     exclude(group = "io.netty", module = "netty-codec-http2")
     exclude(group = "io.netty", module = "netty-codec-http")
     exclude(group = "io.netty", module = "netty-codec-memcache")
@@ -50,12 +50,12 @@ dependencies {
   api(group = "com.github.ben-manes.caffeine", name = "caffeine", version = "3.1.8")
 
   // Database
-  val exposedVersion = "0.50.1"
+  val exposedVersion = "0.52.0"
   api(group = "org.jetbrains.exposed", name = "exposed-core", version = exposedVersion)
   implementation(group = "org.jetbrains.exposed", name = "exposed-jdbc", version = exposedVersion)
   implementation(group = "com.zaxxer", name = "HikariCP", version = "5.1.0")
-  implementation(group = "org.mariadb.jdbc", name = "mariadb-java-client", version = "3.3.3")
-  implementation(group = "org.xerial", name = "sqlite-jdbc", version = "3.45.3.0")
+  implementation(group = "org.mariadb.jdbc", name = "mariadb-java-client", version = "3.4.1")
+  implementation(group = "org.xerial", name = "sqlite-jdbc", version = "3.46.0.0")
   implementation(group = "org.postgresql", name = "postgresql", version = "42.7.3")
 
   // Lambda generation
@@ -87,7 +87,7 @@ dependencies {
   implementation(group = "org.bouncycastle", name = "bcprov-jdk18on", version = "1.78")
 
   // Testing
-  testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = "5.10.2")
+  testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = "5.11.1")
   testImplementation(kotlin(module = "test"))
 }
 

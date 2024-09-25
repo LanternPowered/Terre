@@ -7,7 +7,7 @@ plugins {
 dependencies {
   api(project(":terre-proxy"))
 
-  testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = "5.10.2")
+  testImplementation(group = "org.junit.jupiter", name = "junit-jupiter-engine", version = "5.11.1")
   testImplementation(kotlin(module = "test"))
 }
 
