@@ -58,8 +58,8 @@ internal class ServerInitConnectionHandler(
   private var syncModNetIdsPacket: ModDataPacket? = null
 
   override fun initialize() {
+    connection.protocol = versionedProtocol.protocol
     val version = versionedProtocol.version
-    connection.protocol = ServerInitProtocol
     connection.send(ConnectionRequestPacket(ProtocolVersions.toString(version)))
     debug { "Send server connection request to ${connection.remoteAddress} with $version" }
   }
