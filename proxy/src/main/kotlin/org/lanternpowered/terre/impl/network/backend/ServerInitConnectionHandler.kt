@@ -58,8 +58,9 @@ internal class ServerInitConnectionHandler(
   private var syncModNetIdsPacket: ModDataPacket? = null
 
   override fun initialize() {
-    connection.protocol = versionedProtocol.protocol
     val version = versionedProtocol.version
+    connection.protocol = versionedProtocol.protocol
+    connection.protocolVersion = version
     connection.send(ConnectionRequestPacket(ProtocolVersions.toString(version)))
     debug { "Send server connection request to ${connection.remoteAddress} with $version" }
   }
@@ -171,9 +172,6 @@ internal class ServerInitConnectionHandler(
   private fun approveConnection() {
     debug { "Approve connection: $playerId" }
     val playerId = playerId ?: return
-    // Connection was approved so the client version was accepted
-    connection.protocol = versionedProtocol.protocol
-    connection.protocolVersion = versionedProtocol.version
     future.complete(ServerInitConnectionResult.Success(playerId, syncModsPacket, syncModNetIdsPacket))
     this.playerId = null
   }
