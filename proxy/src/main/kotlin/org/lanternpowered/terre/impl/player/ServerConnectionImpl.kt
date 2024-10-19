@@ -125,6 +125,13 @@ internal class ServerConnectionImpl(
         }
         syncMods = mods.isNotEmpty() || previousMods.isNotEmpty()
       }
+      if (previousServer != null && syncMods) {
+        // TODO: Is currently not supported because the tModLoader screen to accept new mods
+        //  isn't showing up after you're already in the world
+        Terre.logger.error("It is currently not supported to mix mods on the backing servers.")
+        player.disconnectAndForget(textOf("Mixing mods on backing servers is currently not supported."))
+        return
+      }
     }
     if (syncMods) {
       if (modsPacket == null) {

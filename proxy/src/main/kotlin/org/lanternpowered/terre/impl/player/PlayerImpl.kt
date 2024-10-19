@@ -449,7 +449,7 @@ internal class PlayerImpl(
     }
   }
 
-  private fun disconnectAndForget(reason: Text) {
+  fun disconnectAndForget(reason: Text) {
     clientConnection.close(reason)
     serverConnection?.connection?.close()
   }

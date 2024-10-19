@@ -20,7 +20,6 @@ import org.lanternpowered.terre.impl.event.TerreEventBus
 import org.lanternpowered.terre.impl.network.Connection
 import org.lanternpowered.terre.impl.network.ConnectionHandler
 import org.lanternpowered.terre.impl.network.Packet
-import org.lanternpowered.terre.impl.network.Protocol274
 import org.lanternpowered.terre.impl.network.ProtocolRegistry
 import org.lanternpowered.terre.impl.network.ProtocolTModLoader
 import org.lanternpowered.terre.impl.network.ProtocolVersions
@@ -35,10 +34,7 @@ import org.lanternpowered.terre.impl.network.packet.PasswordResponsePacket
 import org.lanternpowered.terre.impl.network.packet.PlayerInfoPacket
 import org.lanternpowered.terre.impl.network.packet.WorldInfoRequestPacket
 import org.lanternpowered.terre.impl.network.packet.init.InitDisconnectClientPacket
-import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsDonePacket
-import org.lanternpowered.terre.impl.network.packet.tmodloader.SyncModsPacket
 import org.lanternpowered.terre.impl.player.PlayerImpl
-import org.lanternpowered.terre.text.localizedTextOf
 import org.lanternpowered.terre.text.text
 import org.lanternpowered.terre.text.textOf
 import java.util.UUID
@@ -53,7 +49,6 @@ internal class ClientInitConnectionHandler(
 
   private enum class State {
     Init,
-    SyncMods,
     Handshake,
     RequestClientInfo,
     DetectClientPlayerLimit,
@@ -150,21 +145,11 @@ internal class ClientInitConnectionHandler(
         if (result is ClientConnectEvent.Result.Denied) {
           connection.close(result.reason)
         } else {
-          startLogin()
+          checkState(State.Handshake)
+          approveConnection()
         }
       }, connection.eventLoop)
     return true
-  }
-
-  private fun startLogin() {
-    checkState(State.Handshake)
-    if (connection.protocolVersion is ProtocolVersion.TModLoader) {
-      state = State.SyncMods
-      connection.send(SyncModsPacket(listOf()))
-      debug { "P -> C [${connection.remoteAddress}] Sync mods" }
-    } else {
-      approveConnection()
-    }
   }
 
   private fun approveConnection() {
@@ -207,13 +192,6 @@ internal class ClientInitConnectionHandler(
           player.finishLogin(PlayerLoginEvent.Result.Allowed)
         }
       }, connection.eventLoop)
-  }
-
-  override fun handle(packet: SyncModsDonePacket): Boolean {
-    debug { "P <- C [${connection.remoteAddress}] Finished syncing mods" }
-    checkState(State.SyncMods)
-    approveConnection()
-    return true
   }
 
   override fun handle(packet: PasswordResponsePacket): Boolean {
