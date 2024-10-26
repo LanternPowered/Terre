@@ -89,7 +89,7 @@ internal class ServerConnectionImpl(
       mods.add(SyncModsPacket.Mod(addon.name, addon.version, addon.hash, listOf()))
       terreAddonSynced = true
     }
-    syncModsPacket = SyncModsPacket(mods.toList())
+    val syncModsPacket = SyncModsPacket(mods.toList())
     player.previousModsPacket = syncModsPacket
 
     val tModLoaderClient = player.protocolVersion is ProtocolVersion.TModLoader
@@ -143,7 +143,7 @@ internal class ServerConnectionImpl(
       }
     }
     if (syncMods) {
-      player.clientConnection.send(SyncModsPacket(mods))
+      player.clientConnection.send(syncModsPacket)
     } else {
       player.clientConnection.send(syncConfig)
       // Sending this packet triggers the client to request all the information from the
