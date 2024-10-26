@@ -76,4 +76,18 @@ internal object ProxyConfigSpec : ConfigSpec("proxy") {
       description = "If the local broadcast task is enabled."
     )
   }
+
+  object TModLoader : ConfigSpec("tModLoader") {
+
+    val allowModdedClientsOnVanillaServers by optional(
+      default = true,
+      description = "If tModLoader clients are allowed to connect to vanilla backing servers."
+    )
+
+    val syncAddonMod by optional(
+      default = true,
+      description = "If the TerreAddon mod should be automatically synced with the client without" +
+        " installing on backing servers."
+    )
+  }
 }

@@ -20,8 +20,13 @@ internal object ProtocolRegistry {
   /**
    * All the allowed protocol translations.
    */
-  val allowedTranslations: List<ProtocolTranslation>
-    get() = mutableTranslations
+  fun allowedTranslations(allowModdedClientsOnVanillaServer: Boolean): List<ProtocolTranslation> {
+    if (!allowModdedClientsOnVanillaServer) {
+      // TODO: Expand if we have more tModLoader protocol versions
+      return mutableTranslations.filter { translation -> translation.from != ProtocolTModLoader }
+    }
+    return mutableTranslations
+  }
 
   init {
     register(ProtocolVersion.Vanilla.`1․4․0․5`, Protocol230) // 230

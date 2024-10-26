@@ -82,3 +82,6 @@ nb-configuration.xml
 !.gitkeep
 config.yaml
 *.launch
+tmodloader/TerreAddon/.vs
+tmodloader/TerreAddon/obj
+tmodloader/TerreAddon/bin

@@ -10,18 +10,21 @@
 package org.lanternpowered.terre.impl.network.client
 
 import io.netty.buffer.ByteBuf
+import io.netty.buffer.Unpooled
 import io.netty.util.concurrent.ScheduledFuture
-import org.lanternpowered.terre.ProtocolVersion
 import org.lanternpowered.terre.Team
 import org.lanternpowered.terre.event.player.PlayerChangePvPEnabledEvent
 import org.lanternpowered.terre.event.player.PlayerChangeTeamEvent
 import org.lanternpowered.terre.event.player.PlayerRespawnEvent
 import org.lanternpowered.terre.impl.Terre
+import org.lanternpowered.terre.impl.addon.Mod
+import org.lanternpowered.terre.impl.addon.TerreAddon
 import org.lanternpowered.terre.impl.command.CommandManagerImpl
 import org.lanternpowered.terre.impl.event.TerreEventBus
 import org.lanternpowered.terre.impl.network.ConnectionHandler
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.PlayerId
+import org.lanternpowered.terre.impl.network.buffer.writeString
 import org.lanternpowered.terre.impl.network.packet.ClientUniqueIdPacket
 import org.lanternpowered.terre.impl.network.packet.ConnectionApprovedPacket
 import org.lanternpowered.terre.impl.network.packet.ItemRemoveOwnerPacket
@@ -51,6 +54,7 @@ import org.lanternpowered.terre.impl.player.PlayerImpl
 import org.lanternpowered.terre.text.textOf
 import java.time.Duration
 import java.util.concurrent.TimeUnit
+import kotlin.math.min
 
 internal class ClientPlayConnectionHandler(
   private val player: PlayerImpl
@@ -121,6 +125,35 @@ internal class ClientPlayConnectionHandler(
       return true
     }
     return false // Forward
+  }
+
+  override fun handle(packet: ModFileRequestPacket): Boolean {
+    val serverConnection = player.serverConnection
+    if (serverConnection != null && serverConnection.terreAddonSynced && packet.name == TerreAddon.mod.name) {
+      sendMod(TerreAddon.mod)
+      return true
+    }
+    return false // Forward
+  }
+
+  private fun sendMod(mod: Mod) {
+    // https://github.com/tModLoader/tModLoader/blob/d57cf0a6886e880bb1f6ec6c39b56ebe918d55c5/patches/tModLoader/Terraria/ModLoader/ModNet.cs#L409
+    val connection = player.clientConnection
+    val data = mod.data
+
+    var buf = Unpooled.buffer()
+    buf.writeString(mod.name)
+    buf.writeLongLE(data.size.toLong())
+    connection.send(ModFileResponsePacket(buf))
+
+    val chunkSize = 16384
+    var offset = 0
+    while (offset < data.size) {
+      val size = min(data.size - offset, chunkSize)
+      buf = Unpooled.wrappedBuffer(data, offset, size)
+      connection.send(ModFileResponsePacket(buf))
+      offset += size
+    }
   }
 
   override fun handle(packet: SyncModsDonePacket): Boolean {

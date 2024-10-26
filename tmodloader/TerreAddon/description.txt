@@ -1,0 +1,3 @@
+A mod that improves the support for server side (multi-world) proxies like Terre.
+- Make sure the mini map is handled correctly when switching servers, and not overriding the mini map of the previous world
+- Terre: https://github.com/LanternPowered/Terre

@@ -83,6 +83,12 @@ internal object ProxyImpl : Proxy {
 
   override var haProxy by config.property(ProxyConfigSpec.haProxy)
 
+  val tModLoaderSyncAddonMod by config
+    .property(ProxyConfigSpec.TModLoader.syncAddonMod)
+
+  val allowModdedClientsOnVanillaServers by config
+    .property(ProxyConfigSpec.TModLoader.allowModdedClientsOnVanillaServers)
+
   var allowMultiplePlayersPerClientUniqueId by config
     .property(ProxyConfigSpec.allowMultiplePlayersPerClientUniqueId)
 

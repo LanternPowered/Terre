@@ -112,9 +112,7 @@ import org.lanternpowered.terre.impl.network.packet.tmodloader.UpdateModConfigRe
 import org.lanternpowered.terre.impl.network.packet.tmodloader.UpdateModConfigResponseEncoder
 
 /**
- * Protocol that will be used for tModLoader when vanilla clients aren't allowed.
- *
- * ModNet.AllowVanillaClients = false
+ * Protocol that will be used for tModLoader.
  */
 internal val ProtocolTModLoader = protocol("tModLoader") {
   // https://github.com/tModLoader/tModLoader/blob/1.4.4/patches/tModLoader/Terraria/NetMessage.cs.patch

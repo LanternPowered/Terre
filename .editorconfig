@@ -15,6 +15,9 @@ ij_formatter_tags_enabled = false
 ij_smart_tabs = false
 ij_wrap_on_typing = true
 
+[*.txt]
+ij_wrap_on_typing = false
+
 [{*.kts,*.kt}]
 ij_kotlin_name_count_to_use_star_import = 100
 ij_kotlin_name_count_to_use_star_import_for_members = 100

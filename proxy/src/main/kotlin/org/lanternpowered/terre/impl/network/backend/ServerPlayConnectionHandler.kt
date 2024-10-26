@@ -66,7 +66,6 @@ internal class ServerPlayConnectionHandler(
 
   override fun initialize() {
     player.previousServer = serverConnection.server.infoWithLastKnownVersion()
-    player.previousModsPacket = serverConnection.syncModsPacket
   }
 
   override fun disconnect() {

@@ -9,7 +9,6 @@
  */
 package org.lanternpowered.terre.impl.network.packet.tmodloader
 
-import com.google.common.io.BaseEncoding
 import org.lanternpowered.terre.impl.network.Packet
 import org.lanternpowered.terre.impl.network.buffer.readString
 import org.lanternpowered.terre.impl.network.buffer.writeString
@@ -20,10 +19,10 @@ internal data class SyncModsPacket(
   val mods: List<Mod>
 ) : Packet {
 
-  data class Mod(
+  class Mod(
     val name: String,
     val version: String,
-    val fileHash: String,
+    val hash: ByteArray,
     val configs: List<ModConfig>
   )
 }
@@ -34,7 +33,7 @@ internal val SyncModsEncoder = PacketEncoder<SyncModsPacket> { buf, packet ->
   for (mod in mods) {
     buf.writeString(mod.name)
     buf.writeString(mod.version)
-    buf.writeBytes(BaseEncoding.base16().decode(mod.fileHash))
+    buf.writeBytes(mod.hash)
     val configs = mod.configs
     buf.writeIntLE(configs.size)
     for (config in configs) {
@@ -50,9 +49,8 @@ internal val SyncModsDecoder = PacketDecoder { buf ->
   repeat(modCount) {
     val name = buf.readString()
     val version = buf.readString()
-    val fileHashBytes = ByteArray(20)
-    buf.readBytes(fileHashBytes)
-    val fileHash = BaseEncoding.base16().encode(fileHashBytes)
+    val hash = ByteArray(20)
+    buf.readBytes(hash)
     val configCount = buf.readIntLE()
     val configs = ArrayList<ModConfig>(configCount)
     repeat(configCount) {
@@ -60,7 +58,7 @@ internal val SyncModsDecoder = PacketDecoder { buf ->
       val content = buf.readString()
       configs += ModConfig(configName, content)
     }
-    mods += SyncModsPacket.Mod(name, version, fileHash, configs)
+    mods += SyncModsPacket.Mod(name, version, hash, configs)
   }
   SyncModsPacket(mods)
 }

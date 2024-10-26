@@ -18,6 +18,7 @@ import org.lanternpowered.terre.ServerConnectionRequestResult
 import org.lanternpowered.terre.impl.ProxyImpl
 import org.lanternpowered.terre.impl.ServerImpl
 import org.lanternpowered.terre.impl.Terre
+import org.lanternpowered.terre.impl.addon.TerreAddon
 import org.lanternpowered.terre.impl.network.Connection
 import org.lanternpowered.terre.impl.network.PacketCodecContextImpl
 import org.lanternpowered.terre.impl.network.PacketDirection
@@ -48,8 +49,9 @@ internal class ServerConnectionImpl(
 ) : ServerConnection {
 
   private var nullablePlayerId: PlayerId? = null
-  var syncModsPacket: SyncModsPacket? = null
+  private var syncModsPacket: SyncModsPacket? = null
   var syncModNetIdsPacket: ModDataPacket? = null
+  var terreAddonSynced = false
 
   /**
    * The id that the player got assigned by the server.
@@ -81,7 +83,15 @@ internal class ServerConnectionImpl(
     // Continue server connection after it has been approved
     connection.setConnectionHandler(ServerPlayConnectionHandler(this@ServerConnectionImpl, player))
 
-    var modsPacket = syncModsPacket
+    val mods = ArrayList(syncModsPacket?.mods ?: listOf())
+    val addon = TerreAddon.mod
+    if (ProxyImpl.tModLoaderSyncAddonMod && mods.none { mod -> mod.name == addon.name }) {
+      mods.add(SyncModsPacket.Mod(addon.name, addon.version, addon.hash, listOf()))
+      terreAddonSynced = true
+    }
+    syncModsPacket = SyncModsPacket(mods.toList())
+    player.previousModsPacket = syncModsPacket
+
     val tModLoaderClient = player.protocolVersion is ProtocolVersion.TModLoader
     var syncMods = false
     val syncConfig = ArrayList<UpdateModConfigResponsePacket.Success>()
@@ -100,14 +110,13 @@ internal class ServerConnectionImpl(
         // Compare the mods between the current and the previous server, to check if they need to
         // be updated
         val previousMods = ArrayList(previousModsPacket?.mods ?: listOf())
-        val mods = ArrayList(modsPacket?.mods ?: listOf())
         val modsIterator = mods.iterator()
         while (modsIterator.hasNext()) {
           val mod = modsIterator.next()
           val previousMod = previousMods.find { previous ->
             previous.name == mod.name &&
               previous.version == mod.version &&
-              previous.fileHash == mod.fileHash
+              previous.hash.contentEquals(mod.hash)
           }
           if (previousMod != null) {
             previousMods.remove(previousMod)
@@ -134,10 +143,7 @@ internal class ServerConnectionImpl(
       }
     }
     if (syncMods) {
-      if (modsPacket == null) {
-        modsPacket = SyncModsPacket(listOf())
-      }
-      player.clientConnection.send(modsPacket)
+      player.clientConnection.send(SyncModsPacket(mods))
     } else {
       player.clientConnection.send(syncConfig)
       // Sending this packet triggers the client to request all the information from the
@@ -175,7 +181,7 @@ internal class ServerConnectionImpl(
         val protocolVersion = if (lastKnownVersion is ProtocolVersion.TModLoader) lastKnownVersion else player.protocolVersion
         tModLoader = listOf(VersionedProtocol(protocolVersion, ProtocolTModLoader))
       }
-      (tModLoader + ProtocolRegistry.allowedTranslations.asSequence()
+      (tModLoader + ProtocolRegistry.allowedTranslations(ProxyImpl.allowModdedClientsOnVanillaServers).asSequence()
         .filter { translation -> translation.from == clientProtocol }
         .flatMap { translation ->
           ProtocolRegistry.all.asSequence().filter { it.protocol == translation.to }
